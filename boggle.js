@@ -154,7 +154,33 @@ const random_board = size => ({
 })();
 
 //=================
-const container = document.getElementById("boggle");
-const blog = s =>
-  (container.appendChild(document.createElement("p")).innerHTML = s);
-blog("henry kissinger");
+
+async function force(container) {
+  const { transducers: tx, rstream: rs } = thi.ng;
+  const sim = d3.forceSimulation().stop();
+  const nodes = [...tx.map(id => ({ id }), tx.range(10))];
+
+  sim.nodes(nodes);
+  sim.force("center", d3.forceCenter());
+  sim.force("charge", d3.forceManyBody().strength(-100));
+  sim.force("x", d3.forceX());
+  sim.force("y", d3.forceY());
+
+  const elements = new Map();
+  for (const node of nodes) {
+    const ele = document.createElement("div");
+    ele.innerHTML = node.id;
+    ele.classList.add("node");
+    container.appendChild(ele);
+    elements.set(node, ele);
+  }
+
+  function next() {
+    sim.tick();
+    for (const [{ x, y }, ele] of elements.entries())
+      ele.style.transform = `translate(${x}px,${y}px)`;
+  }
+  rs.fromRAF().subscribe({ next });
+}
+
+force(document.getElementById("boggle"));
