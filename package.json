@@ -1,0 +1,40 @@
+{
+  "name": "the-better-thing",
+  "version": "0.0.0",
+  "description": "Discovering the better thing, one claim at a time.",
+  "main": "index.js",
+  "browserslist": [
+    "last 1 Firefox version"
+  ],
+  "scripts": {
+    "build": "parcel build index.html",
+    "start": "node server",
+    "dev": "parcel serve index.html --open",
+    "meld": "live-server --ignore='node_modules'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.mindgrub.net/MindgrubLabs/meld/the-better-thing"
+  },
+  "keywords": [
+    "dynamic",
+    "modeling"
+  ],
+  "author": "Gavin Cannizzaro <gcannizzaro@mindgrub.com>",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "@thi.ng/dcons": "2.0.19",
+    "@thi.ng/hdom": "7.2.8",
+    "@thi.ng/interceptors": "2.0.12",
+    "@thi.ng/rstream": "2.4.4",
+    "@thi.ng/rstream-query": "1.0.26",
+    "@thi.ng/transducers": "5.3.7",
+    "@thi.ng/transducers-hdom": "2.0.23",
+    "d3-force": "2.0.1",
+    "node-static": "0.7.11"
+  },
+  "devDependencies": {
+    "live-server": "1.2.1",
+    "parcel-bundler": "1.12.3"
+  }
+}
