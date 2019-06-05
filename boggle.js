@@ -118,18 +118,12 @@ const random_board = size => ({
   cubes: [...take(size.rows * size.cols)(repeatedly(random_face))]
 });
 
-/* do it */
-
-(async function() {
+async function do_it() {
   const words = await fetch("./words.json");
   const WORD_LIST = await words.json();
-  //return;
   const dict = make_trie();
   for (let word of WORD_LIST) dict.add(word);
-  // digraph_content();
-  //console.log(JSON.stringify(dict.data, "  "));
 
-  //const board = state.board || (state.board = random_board(BOARD_SIZE));
   const board = random_board(BOARD_SIZE);
   const uniques = new Set();
   const solutions = [];
@@ -146,30 +140,42 @@ const random_board = size => ({
       solutions.push(solution);
     }
   }
-  //console.log("/*");
-  console.log(solutions);
-  console.log(text_display(board));
-  //console.log("*/");
-  //process.stdout.(digraph_from(board, solutions));
-})();
+
+  return { board, solutions };
+}
 
 //=================
 
 async function force(container) {
+  const { board, solutions } = await do_it();
+
   const { transducers: tx, rstream: rs } = thi.ng;
   const sim = d3.forceSimulation().stop();
-  const nodes = [...tx.map(id => ({ id }), tx.range(10))];
+
+  const nodes = board.cubes.map((face, id) => ({ id, face }));
+
+  const links = [
+    ...tx.mapcat(
+      ({ id: source }) =>
+        tx.map(
+          target => ({ source, target }),
+          neighbors_of_index(board.size, source)
+        ),
+      nodes
+    )
+  ];
 
   sim.nodes(nodes);
   sim.force("center", d3.forceCenter());
   sim.force("charge", d3.forceManyBody().strength(-100));
-  sim.force("x", d3.forceX());
-  sim.force("y", d3.forceY());
+  // sim.force("x", d3.forceX());
+  // sim.force("y", d3.forceY());
+  sim.force("grid", d3.forceLink(links).strength(1));
 
   const elements = new Map();
   for (const node of nodes) {
     const ele = document.createElement("div");
-    ele.innerHTML = node.id;
+    ele.innerHTML = node.face;
     ele.classList.add("node");
     container.appendChild(ele);
     elements.set(node, ele);
