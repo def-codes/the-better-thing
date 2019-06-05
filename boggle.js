@@ -146,8 +146,9 @@ async function do_it() {
 
 //=================
 
-async function force(container) {
+async function force(container, paths_container) {
   const { board, solutions } = await do_it();
+  console.log(`solutions`, solutions);
 
   const { transducers: tx, rstream: rs } = thi.ng;
   const sim = d3.forceSimulation().stop();
@@ -173,6 +174,7 @@ async function force(container) {
   sim.force("grid", d3.forceLink(links).strength(1));
 
   const elements = new Map();
+  const paths = new Map();
   for (const node of nodes) {
     const ele = document.createElement("div");
     ele.innerHTML = node.face;
@@ -180,13 +182,30 @@ async function force(container) {
     container.appendChild(ele);
     elements.set(node, ele);
   }
+  const SVGNS = "http://www.w3.org/2000/svg";
+
+  for (const solution of solutions) {
+    const path = document.createElementNS(SVGNS, "path");
+    paths.set(solution, path);
+    paths_container.appendChild(path);
+  }
 
   function next() {
     sim.tick();
     for (const [{ x, y }, ele] of elements.entries())
       ele.style.transform = `translate(${x}px,${y}px)`;
+
+    for (const [[indices], path] of paths.entries()) {
+      const d = indices
+        .map((n, i) => `${i > 0 ? "L" : "M"} ${nodes[n].x},${nodes[n].y}`)
+        .join(" ");
+      path.setAttribute("d", d);
+    }
   }
   rs.fromRAF().subscribe({ next });
 }
 
-force(document.getElementById("boggle"));
+force(
+  document.getElementById("boggle"),
+  document.getElementById("boggle-paths")
+);

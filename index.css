@@ -7,13 +7,27 @@ body {
 	border: 1px solid red;
 	position: relative;
 }
-.forcefield > .nodes {
+.forcefield > .nodes, #boggle-paths {
 	position: absolute;
 	left: 50%;
 	top: 50%;
 	width: 100%;
 	height: 100%;
 }
+
+#boggle-paths path {
+	stroke-width: 3;
+	fill: none;
+}
+
+#boggle-paths path:nth-child(1) { stroke: red; }
+#boggle-paths path:nth-child(2) { stroke: orange; }
+#boggle-paths path:nth-child(3) { stroke: yellow; }
+#boggle-paths path:nth-child(4) { stroke: green; }
+#boggle-paths path:nth-child(5) { stroke: blue; }
+#boggle-paths path:nth-child(6) { stroke: indigo; }
+#boggle-paths path:nth-child(7) { stroke: violet; }
+
 .node {
 	position: absolute;
 	top: 0;
