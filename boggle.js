@@ -1,3 +1,5 @@
+const { transducers: tx, rstream: rs } = thi.ng;
+
 const FACES = Array.from(
   "aaaaaaaabbbccccdddddeeeeeeeeeeeeffffgggghhhhiiiiiiiijjkklllllllllmmmmmnnnnnnooooooooooppppprrrrrrrsssssssssstttttttuuuuuuuvvwwwxyyyyz"
 ).concat(["qu", "th", "in", "he"]);
@@ -54,17 +56,17 @@ const neighbors_of_index = (size, index) =>
   );
 
 /** A depth-first search for boggle paths */
-function* iterate_paths(board) {
-  const entry = i => board.cubes[i];
+function* iterate_paths(graph) {
+  const entry = i => graph.nodes[i];
   // queue initial entry for each initial position
-  const queue = board.cubes.map((_, n) => [n]);
+  const queue = graph.nodes.map((_, n) => [n]);
   while (queue.length > 0) {
     const path = queue.pop();
     const word = path.map(entry).join("");
     const prune = yield [path, word];
     if (!prune) {
       const index = path[path.length - 1];
-      for (let neighbor of neighbors_of_index(board.size, index))
+      for (const neighbor of graph.edges[index])
         if (!path.includes(neighbor)) queue.push([...path, neighbor]);
     }
   }
@@ -87,13 +89,14 @@ function* iterate_solutions(board, dict, { min_word_length, max_word_length }) {
 }
 
 /* display */
-
+/*
 function text_display(board) {
   const cubes = board.cubes.slice();
   const parts = [];
   while (cubes.length) parts.push(cubes.splice(0, board.size.cols).join(" "));
   return parts.join("\n");
 }
+*/
 
 /* board generator */
 
@@ -104,8 +107,8 @@ const repeatedly = function*(fn) {
 const take = n =>
   function*(seq) {
     for (const item of seq) {
-      yield item;
       if (!n--) break;
+      yield item;
     }
   };
 
@@ -114,8 +117,10 @@ const random_item_from = array => array[random_integer_less_than(array.length)];
 
 const random_face = () => random_item_from(FACES);
 const random_board = size => ({
-  size,
-  cubes: [...take(size.rows * size.cols)(repeatedly(random_face))]
+  nodes: [...take(size.rows * size.cols)(repeatedly(random_face))],
+  edges: [
+    ...tx.map(n => neighbors_of_index(size, n), tx.range(size.rows * size.cols))
+  ]
 });
 
 async function do_it() {
@@ -150,18 +155,14 @@ async function force(container, paths_container) {
   const { board, solutions } = await do_it();
   console.log(`solutions`, solutions);
 
-  const { transducers: tx, rstream: rs } = thi.ng;
   const sim = d3.forceSimulation().stop();
 
-  const nodes = board.cubes.map((face, id) => ({ id, face }));
+  const nodes = board.nodes.map((face, id) => ({ id, face }));
 
   const links = [
     ...tx.mapcat(
       ({ id: source }) =>
-        tx.map(
-          target => ({ source, target }),
-          neighbors_of_index(board.size, source)
-        ),
+        tx.map(target => ({ source, target }), board.edges[source]),
       nodes
     )
   ];
