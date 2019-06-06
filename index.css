@@ -22,14 +22,18 @@ body {
 	fill: none;
 	opacity: .5;
 }
+#boggle-paths path.search {
+	stroke: black;
+	stroke-dasharray: 4;
+}
 
-#boggle-paths path:nth-child(1) { stroke-width: 4; stroke: red; }
-#boggle-paths path:nth-child(2) { stroke-width: 8; stroke: orange; }
-#boggle-paths path:nth-child(3) { stroke-width: 12; stroke: yellow; }
-#boggle-paths path:nth-child(4) { stroke-width: 16; stroke: green; }
-#boggle-paths path:nth-child(5) { stroke-width: 20; stroke: blue; }
-#boggle-paths path:nth-child(6) { stroke-width: 24; stroke: indigo; }
-#boggle-paths path:nth-child(7) { stroke-width: 28; stroke: violet; }
+#boggle-paths .solution:nth-child(1) { stroke-width: 4; stroke: red; }
+#boggle-paths .solution:nth-child(2) { stroke-width: 8; stroke: orange; }
+#boggle-paths .solution:nth-child(3) { stroke-width: 12; stroke: yellow; }
+#boggle-paths .solution:nth-child(4) { stroke-width: 16; stroke: green; }
+#boggle-paths .solution:nth-child(5) { stroke-width: 20; stroke: blue; }
+#boggle-paths .solution:nth-child(6) { stroke-width: 24; stroke: indigo; }
+#boggle-paths .solution:nth-child(7) { stroke-width: 28; stroke: violet; }
 
 .node {
 	position: absolute;

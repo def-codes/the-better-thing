@@ -159,6 +159,11 @@ async function force(container, paths_container) {
 
   const nodes = board.nodes.map((face, id) => ({ id, face }));
 
+  const path_data = indices =>
+    indices
+      .map((n, i) => `${i > 0 ? "L" : "M"} ${nodes[n].x},${nodes[n].y}`)
+      .join(" ");
+
   const links = [
     ...tx.mapcat(
       ({ id: source }) =>
@@ -185,8 +190,15 @@ async function force(container, paths_container) {
   }
   const SVGNS = "http://www.w3.org/2000/svg";
 
+  let search_path = [2, 5, 6, 3, 5, 1];
+  const search_path_ele = paths_container.appendChild(
+    document.createElementNS(SVGNS, "path")
+  );
+  search_path_ele.classList.add("search");
+
   for (const solution of solutions) {
     const path = document.createElementNS(SVGNS, "path");
+    path.classList.add("solution");
     paths.set(solution, path);
     paths_container.appendChild(path);
   }
@@ -196,14 +208,16 @@ async function force(container, paths_container) {
     for (const [{ x, y }, ele] of elements.entries())
       ele.style.transform = `translate(${x}px,${y}px)`;
 
-    for (const [[indices], path] of paths.entries()) {
-      const d = indices
-        .map((n, i) => `${i > 0 ? "L" : "M"} ${nodes[n].x},${nodes[n].y}`)
-        .join(" ");
-      path.setAttribute("d", d);
-    }
+    for (const [[indices], path] of paths.entries())
+      path.setAttribute("d", path_data(indices));
+
+    search_path_ele.setAttribute("d", path_data(search_path));
   }
   rs.fromRAF().subscribe({ next });
+
+  rs.fromIterable(iterate_paths(board), 50).subscribe(
+    tx.comp(tx.pluck(0), tx.sideEffect(path => (search_path = path)))
+  );
 }
 
 force(
