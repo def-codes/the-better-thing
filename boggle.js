@@ -57,13 +57,11 @@ const neighbors_of_index = (size, index) =>
 
 /** A depth-first search for boggle paths */
 function* iterate_paths(graph) {
-  const entry = i => graph.nodes[i];
   // queue initial entry for each initial position
   const queue = graph.nodes.map((_, n) => [n]);
   while (queue.length > 0) {
     const path = queue.pop();
-    const word = path.map(entry).join("");
-    const prune = yield [path, word];
+    const prune = yield path;
     if (!prune) {
       const index = path[path.length - 1];
       for (const neighbor of graph.edges[index])
@@ -72,15 +70,17 @@ function* iterate_paths(graph) {
   }
 }
 
-function* iterate_solutions(board, dict, { min_word_length, max_word_length }) {
-  const gen = iterate_paths(board);
+function* iterate_solutions(graph, dict, { min_word_length, max_word_length }) {
+  const gen = iterate_paths(graph);
+  const lookup = i => graph.nodes[i];
   let { value, done } = gen.next();
   while (!done) {
-    const [path, word] = value;
+    const path = value;
+    const word = path.map(lookup).join("");
     const { length } = word;
     const entry = dict.get(word);
     if (between(length, min_word_length, max_word_length) && entry > 0)
-      yield value;
+      yield [path, word];
     let prune = length >= max_word_length || entry === false;
     const next = gen.next(prune);
     value = next.value;
@@ -216,7 +216,7 @@ async function force(container, paths_container) {
   rs.fromRAF().subscribe({ next });
 
   rs.fromIterable(iterate_paths(board), 50).subscribe(
-    tx.comp(tx.pluck(0), tx.sideEffect(path => (search_path = path)))
+    tx.sideEffect(path => (search_path = path))
   );
 }
 
