@@ -19,6 +19,8 @@ body {
 }
 #boggle-paths path {
 	stroke-width: 3;
+	stroke-linecap: round;
+	stroke-linejoin: round;
 	fill: none;
 	opacity: .5;
 }
@@ -27,13 +29,13 @@ body {
 	stroke-dasharray: 4;
 }
 
-#boggle-paths .solution:nth-child(1) { stroke-width: 4; stroke: red; }
-#boggle-paths .solution:nth-child(2) { stroke-width: 8; stroke: orange; }
-#boggle-paths .solution:nth-child(3) { stroke-width: 12; stroke: yellow; }
-#boggle-paths .solution:nth-child(4) { stroke-width: 16; stroke: green; }
-#boggle-paths .solution:nth-child(5) { stroke-width: 20; stroke: blue; }
-#boggle-paths .solution:nth-child(6) { stroke-width: 24; stroke: indigo; }
-#boggle-paths .solution:nth-child(7) { stroke-width: 28; stroke: violet; }
+#boggle-paths .solution:nth-of-type(1) { stroke-width: 4; stroke: red; }
+#boggle-paths .solution:nth-of-type(2) { stroke-width: 8; stroke: orange; }
+#boggle-paths .solution:nth-of-type(3) { stroke-width: 12; stroke: yellow; }
+#boggle-paths .solution:nth-of-type(4) { stroke-width: 16; stroke: green; }
+#boggle-paths .solution:nth-of-type(5) { stroke-width: 20; stroke: blue; }
+#boggle-paths .solution:nth-of-type(6) { stroke-width: 24; stroke: indigo; }
+#boggle-paths .solution:nth-of-type(7) { stroke-width: 28; stroke: violet; }
 
 .node {
 	position: absolute;

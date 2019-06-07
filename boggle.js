@@ -55,33 +55,33 @@ const neighbors_of_index = (size, index) =>
     ([row, col]) => index_of(size, row, col)
   );
 
+/* Takes a state and returns */
+function path_search_step(state) {}
+
 /** A depth-first search for boggle paths */
-function* iterate_paths(graph) {
+function* iterate_paths(graph, queue, should_stop, get_moves) {
   // queue initial entry for each initial position
-  const queue = graph.nodes.map((_, n) => [n]);
+  // const queue = graph.nodes.map((_, n) => [n]);
   while (queue.length > 0) {
     const path = queue.pop();
-    const prune = yield path;
-    if (!prune) {
-      const index = path[path.length - 1];
-      for (const neighbor of graph.edges[index])
-        if (!path.includes(neighbor)) queue.push([...path, neighbor]);
+    yield path;
+    if (!should_stop(path)) {
+      const id = path[path.length - 1];
+      for (const next of get_moves(id))
+        if (!path.includes(next)) queue.push([...path, next]);
     }
   }
 }
 
 function* iterate_solutions(graph, is_solution, should_stop) {
-  const gen = iterate_paths(graph);
-  let { value, done } = gen.next();
+  const gen = iterate_paths(
+    graph,
+    graph.nodes.map((_, n) => [n]),
+    should_stop,
+    index => graph.edges[index]
+  );
 
-  while (!done) {
-    const path = value;
-    if (is_solution(path)) yield path;
-    let prune = should_stop(path);
-    const next = gen.next(prune);
-    value = next.value;
-    done = next.done;
-  }
+  for (const path of gen) if (is_solution(path)) yield path;
 }
 
 /* display */
@@ -227,9 +227,16 @@ async function force(container, paths_container) {
   }
   rs.fromRAF().subscribe({ next });
 
-  rs.fromIterable(iterate_paths(graph), 1).subscribe(
-    tx.sideEffect(path => (search_path = path))
-  );
+  rs.fromIterable(
+    iterate_paths(
+      graph,
+      graph.nodes.map((_, n) => [n]),
+      // path => path.length > 10,
+      () => false,
+      index => graph.edges[index]
+    ),
+    1
+  ).subscribe(tx.sideEffect(path => (search_path = path)));
 }
 
 force(
