@@ -221,10 +221,8 @@ async function force(container, paths_container) {
     paths_container.appendChild(path);
   }
 
-  function next() {
-    sim.tick();
+  function update_positions() {
     for (const [{ x, y }, ele] of elements.entries()) {
-      //ele.style.transform = `translate(${x}px,${y}px)`;
       ele.style.top = `${y}px`;
       ele.style.left = `${x}px`;
     }
@@ -234,7 +232,11 @@ async function force(container, paths_container) {
 
     search_path_ele.setAttribute("d", path_data(search_path));
   }
-  rs.fromRAF().subscribe({ next });
+
+  // const tick_driver = rs.fromRAF();
+  const tick_driver = rs.fromInterval(100);
+  const ticks = tick_driver.subscribe({ next: () => sim.tick() });
+  ticks.subscribe({ next: update_positions });
 
   const queue_length_ele = document.getElementById("queue-length");
 
@@ -248,12 +250,13 @@ async function force(container, paths_container) {
       path =>
         graph.edges[path[path.length - 1]].filter(id => !path.includes(id))
     ),
-    50
+    1
   );
 
   paths_sub.transform(
     tx.sideEffect(path => {
       search_path = path;
+      update_positions();
     }),
     tx.map(() => ["b", {}, search_queue.length.toString()]),
     updateDOM({ root: "queue-length" })
