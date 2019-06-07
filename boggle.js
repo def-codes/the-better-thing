@@ -223,8 +223,11 @@ async function force(container, paths_container) {
 
   function next() {
     sim.tick();
-    for (const [{ x, y }, ele] of elements.entries())
-      ele.style.transform = `translate(${x}px,${y}px)`;
+    for (const [{ x, y }, ele] of elements.entries()) {
+      //ele.style.transform = `translate(${x}px,${y}px)`;
+      ele.style.top = `${y}px`;
+      ele.style.left = `${x}px`;
+    }
 
     for (const [[indices], path] of paths.entries())
       path.setAttribute("d", path_data(indices));

@@ -22,7 +22,7 @@ body {
 	stroke-linecap: round;
 	stroke-linejoin: round;
 	fill: none;
-	opacity: .5;
+	opacity: .3;
 }
 #boggle-paths path.search {
 	stroke: black;
@@ -39,6 +39,9 @@ body {
 
 .node {
 	position: absolute;
-	top: 0;
-	left: 0;
+	/* Using top and left for positioning.  Performance appears to be about as
+   good. */
+	/* top: 0; */
+	/* left: 0; */
+	transform: translate(-50%, -50%);
 }
