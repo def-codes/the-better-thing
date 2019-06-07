@@ -1,10 +1,12 @@
-const { transducers: tx, rstream: rs } = thi.ng;
+const { transducers: tx, rstream: rs, hdom } = thi.ng;
+const { updateDOM } = thi.ng.transducersHdom;
+console.log(`thi.ng`, thi.ng);
 
 const FACES = Array.from(
   "aaaaaaaabbbccccdddddeeeeeeeeeeeeffffgggghhhhiiiiiiiijjkklllllllllmmmmmnnnnnnooooooooooppppprrrrrrrsssssssssstttttttuuuuuuuvvwwwxyyyyz"
 ).concat(["qu", "th", "in", "he"]);
 
-const BOARD_SIZE = { rows: 10, cols: 7 };
+const BOARD_SIZE = { rows: 10, cols: 10 };
 const MIN_WORD_LENGTH = 8;
 const MAX_WORD_LENGTH = 100;
 
@@ -55,16 +57,14 @@ const neighbors_of_index = (size, index) =>
     ([row, col]) => index_of(size, row, col)
   );
 
-/* Takes a state and returns */
 function path_search_step(state) {}
 
-/** A depth-first search for boggle paths */
 function* iterate_paths(graph, queue, should_stop, get_moves) {
   while (queue.length > 0) {
     const path = queue.pop();
     yield path;
     if (!should_stop(path))
-      for (const next of get_moves(path)) queue.push([...path, next]);
+      queue.push(...tx.map(next => [...path, next], get_moves(path)));
   }
 }
 
@@ -181,10 +181,21 @@ async function force(container, paths_container) {
 
   sim.nodes(nodes);
   sim.force("center", d3.forceCenter());
-  sim.force("charge", d3.forceManyBody().strength(-100));
+  sim.force(
+    "charge",
+    d3.forceManyBody().strength(-100)
+    //.distanceMax(250)
+    //.theta(0.98)
+  );
   // sim.force("x", d3.forceX());
   // sim.force("y", d3.forceY());
-  sim.force("grid", d3.forceLink(links).strength(1));
+  sim.force(
+    "grid",
+    d3
+      .forceLink(links)
+      .strength(1)
+      .iterations(2)
+  );
 
   const elements = new Map();
   const paths = new Map();
@@ -197,7 +208,7 @@ async function force(container, paths_container) {
   }
   const SVGNS = "http://www.w3.org/2000/svg";
 
-  let search_path = [2, 5, 6, 3, 5, 1];
+  let search_path = [];
   const search_path_ele = paths_container.appendChild(
     document.createElementNS(SVGNS, "path")
   );
@@ -222,17 +233,28 @@ async function force(container, paths_container) {
   }
   rs.fromRAF().subscribe({ next });
 
-  rs.fromIterable(
+  const queue_length_ele = document.getElementById("queue-length");
+
+  const search_queue = graph.nodes.map((_, n) => [n]);
+  const paths_sub = rs.fromIterable(
     iterate_paths(
       graph,
-      graph.nodes.map((_, n) => [n]),
+      search_queue,
       path => path.length > 20,
       // () => false,
       path =>
         graph.edges[path[path.length - 1]].filter(id => !path.includes(id))
     ),
-    1
-  ).subscribe(tx.sideEffect(path => (search_path = path)));
+    50
+  );
+
+  paths_sub.transform(
+    tx.sideEffect(path => {
+      search_path = path;
+    }),
+    tx.map(() => ["b", {}, search_queue.length.toString()]),
+    updateDOM({ root: "queue-length" })
+  );
 }
 
 force(
