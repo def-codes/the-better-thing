@@ -19,7 +19,7 @@ function make_trie() {
     data: trie, // for debug
     add(word) {
       let target = trie;
-      for (let letter of word) {
+      for (const letter of word) {
         if (!(letter in target)) target[letter] = { count: 0 };
         target = target[letter];
       }
@@ -27,7 +27,7 @@ function make_trie() {
     },
     get(word) {
       let target = trie;
-      for (let letter of word)
+      for (const letter of word)
         if (letter in target) target = target[letter];
         else return false;
       return target.count;
@@ -70,18 +70,14 @@ function* iterate_paths(graph) {
   }
 }
 
-function* iterate_solutions(graph, dict, { min_word_length, max_word_length }) {
+function* iterate_solutions(graph, is_solution, should_stop) {
   const gen = iterate_paths(graph);
-  const lookup = i => graph.nodes[i];
   let { value, done } = gen.next();
+
   while (!done) {
     const path = value;
-    const word = path.map(lookup).join("");
-    const { length } = word;
-    const entry = dict.get(word);
-    if (between(length, min_word_length, max_word_length) && entry > 0)
-      yield [path, word];
-    let prune = length >= max_word_length || entry === false;
+    if (is_solution(path)) yield path;
+    let prune = should_stop(path);
     const next = gen.next(prune);
     value = next.value;
     done = next.done;
@@ -129,35 +125,51 @@ async function do_it() {
   const dict = make_trie();
   for (let word of WORD_LIST) dict.add(word);
 
-  const board = random_board(BOARD_SIZE);
+  const graph = random_board(BOARD_SIZE);
   const uniques = new Set();
   const solutions = [];
-  const all_solutions = Array.from(
-    iterate_solutions(board, dict, {
-      min_word_length: MIN_WORD_LENGTH,
-      max_word_length: MAX_WORD_LENGTH
-    })
-  );
-  for (let solution of all_solutions) {
-    const [path, word] = solution;
+
+  const and = (a, b) => !!(a && b);
+  const or = (a, b) => !!(a || b);
+  const and_all = (...args) => args.reduce(and);
+
+  const lookup = i => graph.nodes[i];
+  const make_word = path => path.map(lookup).join("");
+  const is_word = path => dict.get(make_word(path)) > 0;
+  // But this is *path* length, not *word* length
+  const not_too_long = path => path.length <= MAX_WORD_LENGTH;
+  const not_too_short = path => path.length >= MIN_WORD_LENGTH;
+  const solution_clauses = [is_word, not_too_long, not_too_short];
+  const is_solution = path => and_all(...solution_clauses.map(fn => fn(path)));
+  // const is_solution = path => clauses.every(fn => fn(path));
+
+  const is_not_prefix = path => dict.get(make_word(path)) === false;
+  const is_max_length = path => path.length >= MAX_WORD_LENGTH;
+  // Doesn't short circuit... computes both always
+  const should_stop = path => or(is_max_length(path), is_not_prefix(path));
+
+  const all_solutions = [...iterate_solutions(graph, is_solution, should_stop)];
+
+  for (let path of all_solutions) {
+    const word = make_word(path);
     if (!uniques.has(word)) {
       uniques.add(word);
-      solutions.push(solution);
+      solutions.push([path, word]);
     }
   }
 
-  return { board, solutions };
+  return { graph, solutions };
 }
 
 //=================
 
 async function force(container, paths_container) {
-  const { board, solutions } = await do_it();
+  const { graph, solutions } = await do_it();
   console.log(`solutions`, solutions);
 
   const sim = d3.forceSimulation().stop();
 
-  const nodes = board.nodes.map((face, id) => ({ id, face }));
+  const nodes = graph.nodes.map((face, id) => ({ id, face }));
 
   const path_data = indices =>
     indices
@@ -167,7 +179,7 @@ async function force(container, paths_container) {
   const links = [
     ...tx.mapcat(
       ({ id: source }) =>
-        tx.map(target => ({ source, target }), board.edges[source]),
+        tx.map(target => ({ source, target }), graph.edges[source]),
       nodes
     )
   ];
@@ -215,7 +227,7 @@ async function force(container, paths_container) {
   }
   rs.fromRAF().subscribe({ next });
 
-  rs.fromIterable(iterate_paths(board), 50).subscribe(
+  rs.fromIterable(iterate_paths(graph), 1).subscribe(
     tx.sideEffect(path => (search_path = path))
   );
 }
