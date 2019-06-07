@@ -60,16 +60,11 @@ function path_search_step(state) {}
 
 /** A depth-first search for boggle paths */
 function* iterate_paths(graph, queue, should_stop, get_moves) {
-  // queue initial entry for each initial position
-  // const queue = graph.nodes.map((_, n) => [n]);
   while (queue.length > 0) {
     const path = queue.pop();
     yield path;
-    if (!should_stop(path)) {
-      const id = path[path.length - 1];
-      for (const next of get_moves(id))
-        if (!path.includes(next)) queue.push([...path, next]);
-    }
+    if (!should_stop(path))
+      for (const next of get_moves(path)) queue.push([...path, next]);
   }
 }
 
@@ -78,7 +73,7 @@ function* iterate_solutions(graph, is_solution, should_stop) {
     graph,
     graph.nodes.map((_, n) => [n]),
     should_stop,
-    index => graph.edges[index]
+    path => graph.edges[path[path.length - 1]].filter(id => !path.includes(id))
   );
 
   for (const path of gen) if (is_solution(path)) yield path;
@@ -231,9 +226,10 @@ async function force(container, paths_container) {
     iterate_paths(
       graph,
       graph.nodes.map((_, n) => [n]),
-      // path => path.length > 10,
-      () => false,
-      index => graph.edges[index]
+      path => path.length > 20,
+      // () => false,
+      path =>
+        graph.edges[path[path.length - 1]].filter(id => !path.includes(id))
     ),
     1
   ).subscribe(tx.sideEffect(path => (search_path = path)));
