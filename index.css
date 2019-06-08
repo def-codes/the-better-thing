@@ -9,7 +9,7 @@ body {
 	display: flex;
 	box-sizing: border-box;
 }
-.spaces > .space {
+.spaces > .space-box {
 	position: relative;
 	flex: auto;
 	border: 1px solid green;
@@ -17,7 +17,7 @@ body {
 }
 
 /** Coordinated HTML and SVG layers. */
-.space > .html, svg {
+.space > .html, .space > svg {
 	position: absolute;
 	left: 50%;
 	top: 50%;
@@ -25,7 +25,7 @@ body {
 	height: 100%;
 	user-select: none;
 }
-.space svg {
+.space > svg {
 	overflow: visible;
 	pointer-events: none;
 }

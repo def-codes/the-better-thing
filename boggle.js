@@ -177,10 +177,14 @@ const dom_svg_space = id => [
   ["svg", { preserveAspectRatio: "none" }]
 ];
 
-function force(root, id, graph, solutions) {
+function force(root0, id, graph, solutions) {
   const sim = d3.forceSimulation().stop();
+  const root = root0.appendChild(document.createElement("div"));
+  root.classList.add("space-box");
 
-  const nodes = graph.nodes.map((face, id) => ({ id, face }));
+  const nodes = Array.isArray(graph.nodes)
+    ? graph.nodes.map((face, id) => ({ id, face }))
+    : Object.entries(graph.nodes).map(([id, face]) => ({ id, face }));
 
   hdom.renderOnce(dom_svg_space(id), { root });
   const container = root.querySelector(".space");
@@ -196,7 +200,7 @@ function force(root, id, graph, solutions) {
   const links = [
     ...tx.mapcat(
       ({ id: source }) =>
-        tx.map(target => ({ source, target }), graph.edges[source]),
+        tx.map(target => ({ source, target }), graph.edges[source] || []),
       nodes
     )
   ];
@@ -215,6 +219,7 @@ function force(root, id, graph, solutions) {
     "grid",
     d3
       .forceLink(links)
+      .id(_ => _.id)
       .strength(1)
       // .distance(5)
       .iterations(2)
@@ -272,7 +277,7 @@ function force(root, id, graph, solutions) {
 
   const queue_length_ele = document.getElementById("queue-length");
 
-  const search_queue = graph.nodes.map((_, n) => [n]);
+  const search_queue = Object.keys(graph.nodes).map(v => [v]);
   const paths_sub = rs.fromIterable(
     iterate_paths(
       graph,
@@ -336,66 +341,17 @@ function force(root, id, graph, solutions) {
   );
 }
 
-const display_trie = (container, paths_container, trie) => {
-  // a lot of the same as above
-  console.log(`container, paths_container`, container, paths_container);
-
-  const foo = [...trie.scan("exemplified")];
-  console.log(`foo`, foo);
-
-  const graph = {
-    nodes: [],
-    edges: {}
-  };
-
-  const nodes = graph.nodes.map((face, id) => ({ id, face }));
-
-  const links = [
-    ...tx.mapcat(
-      ({ id: source }) =>
-        tx.map(target => ({ source, target }), graph.edges[source]),
-      nodes
-    )
-  ];
-
-  const res = hdom.renderOnce(
-    () => [
-      "div.nodes",
-      tx.map(node => ["div.node", { "data-node": node.id }, node.face], nodes)
-    ],
-    { root: container }
-  );
-
-  const elements = new Map(
-    Array.from(nodes, node => [
-      node,
-      container.querySelector(`[data-node="${node.id}"]`)
-    ])
-  );
-
-  function update_positions() {
-    for (const [{ x, y }, ele] of elements.entries()) {
-      ele.style.top = `${y}px`;
-      ele.style.left = `${x}px`;
-    }
-
-    for (const [[indices], path] of paths.entries())
-      path.setAttribute("d", path_data(indices));
-  }
-
-  const tick_driver = rs.fromRAF();
-  //const tick_driver = rs.fromInterval(100);
-  const ticks = tick_driver.subscribe({ next: () => sim.tick() });
-  ticks.subscribe({ next: update_positions });
-  // ticks.subscribe(rs.trace("tick"));
-};
-
 (async function() {
   const { trie, graph, solutions } = await do_it();
   console.log(`solutions`, solutions);
+
   const spaces = document.getElementById("spaces");
 
-  // display_trie(spaces, "trie", trie);
-  // force(spaces, "trie", graph, solutions);
+  const graph2 = {
+    nodes: { a: "Alice", b: "Bob", c: "Carol", d: "Dave" },
+    edges: { a: ["b", "c"], b: "d" }
+  };
+
   force(spaces, "boggle", graph, solutions);
+  force(spaces, "trie", graph2, []);
 })();
