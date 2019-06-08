@@ -1,13 +1,23 @@
 body {
 	font-family: sans-serif;
 }
-.forcefield {
+
+.spaces {
 	width: 100%;
 	min-height: 50vh;
 	border: 1px solid red;
-	position: relative;
+	display: flex;
+	box-sizing: border-box;
 }
-.forcefield > .nodes, .edges {
+.spaces > .space {
+	position: relative;
+	flex: auto;
+	border: 1px solid green;
+	box-sizing: border-box;
+}
+
+/** Coordinated HTML and SVG layers. */
+.space > .html, svg {
 	position: absolute;
 	left: 50%;
 	top: 50%;
@@ -15,10 +25,11 @@ body {
 	height: 100%;
 	user-select: none;
 }
-.edges {
+.space svg {
 	overflow: visible;
 	pointer-events: none;
 }
+
 .edges path {
 	stroke-width: 3;
 	stroke-linecap: round;

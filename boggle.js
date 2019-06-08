@@ -14,6 +14,7 @@ function* combinations(as, bs) {
   for (let a of as) for (let b of bs) yield [a, b];
 }
 
+// this is basically a state machine where each node is a state.
 function make_trie() {
   const trie = {};
 
@@ -33,6 +34,14 @@ function make_trie() {
         if (letter in target) target = target[letter];
         else return false;
       return target.count;
+    },
+    scan: function*(sequence) {
+      let target = trie;
+      for (const token of sequence) {
+        if (target && token in target) target = target[token];
+        else target = undefined;
+        yield [token, target];
+      }
     }
   };
 }
@@ -160,6 +169,13 @@ async function do_it() {
 
 const SVGNS = "http://www.w3.org/2000/svg";
 
+const dom_svg_space = () => [
+  "div.space",
+  ["div.html"],
+  // is preserveAspectRatio needed?
+  ["svg", { preserveAspectRatio: "none" }]
+];
+
 function force(container, paths_container, graph, solutions) {
   const sim = d3.forceSimulation().stop();
 
@@ -199,7 +215,7 @@ function force(container, paths_container, graph, solutions) {
 
   const res = hdom.renderOnce(
     () => [
-      "div.nodes",
+      "div.html",
       tx.map(node => ["div.node", { "data-node": node.id }, node.face], nodes)
     ],
     { root: container }
@@ -211,17 +227,18 @@ function force(container, paths_container, graph, solutions) {
       container.querySelector(`[data-node="${node.id}"]`)
     ])
   );
-  console.log(`re`, res);
 
   const paths = new Map();
 
   let search_path = [];
+  // const hic2 = ["path.search", {}];
   const search_path_ele = paths_container.appendChild(
     document.createElementNS(SVGNS, "path")
   );
   search_path_ele.classList.add("search");
 
   for (const solution of solutions) {
+    // const hic = ["path.solution", { d: "" }];
     const path = document.createElementNS(SVGNS, "path");
     path.classList.add("solution");
     paths.set(solution, path);
@@ -312,18 +329,68 @@ function force(container, paths_container, graph, solutions) {
   );
 }
 
-const display_trie = (container, paths_container) => {
+const display_trie = (container, paths_container, trie) => {
   // a lot of the same as above
   console.log(`container, paths_container`, container, paths_container);
+
+  const foo = [...trie.scan("exemplified")];
+  console.log(`foo`, foo);
+
+  const graph = {
+    nodes: [],
+    edges: {}
+  };
+
+  const nodes = graph.nodes.map((face, id) => ({ id, face }));
+
+  const links = [
+    ...tx.mapcat(
+      ({ id: source }) =>
+        tx.map(target => ({ source, target }), graph.edges[source]),
+      nodes
+    )
+  ];
+
+  const res = hdom.renderOnce(
+    () => [
+      "div.nodes",
+      tx.map(node => ["div.node", { "data-node": node.id }, node.face], nodes)
+    ],
+    { root: container }
+  );
+
+  const elements = new Map(
+    Array.from(nodes, node => [
+      node,
+      container.querySelector(`[data-node="${node.id}"]`)
+    ])
+  );
+
+  function update_positions() {
+    for (const [{ x, y }, ele] of elements.entries()) {
+      ele.style.top = `${y}px`;
+      ele.style.left = `${x}px`;
+    }
+
+    for (const [[indices], path] of paths.entries())
+      path.setAttribute("d", path_data(indices));
+  }
+
+  const tick_driver = rs.fromRAF();
+  //const tick_driver = rs.fromInterval(100);
+  const ticks = tick_driver.subscribe({ next: () => sim.tick() });
+  ticks.subscribe({ next: update_positions });
+  // ticks.subscribe(rs.trace("tick"));
 };
 
 (async function() {
-  const { graph, solutions } = await do_it();
+  const { trie, graph, solutions } = await do_it();
   console.log(`solutions`, solutions);
 
   display_trie(
     document.getElementById("trie-nodes"),
-    document.getElementById("trie-edges")
+    document.getElementById("trie-edges"),
+    trie
   );
 
   force(
