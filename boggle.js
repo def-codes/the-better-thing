@@ -183,7 +183,7 @@ async function force(container, paths_container) {
   sim.force("center", d3.forceCenter());
   sim.force(
     "charge",
-    d3.forceManyBody().strength(-100)
+    d3.forceManyBody().strength(node => (node.dragging ? -500 : -100))
     //.distanceMax(250)
     //.theta(0.98)
   );
@@ -194,6 +194,7 @@ async function force(container, paths_container) {
     d3
       .forceLink(links)
       .strength(1)
+      // .distance(5)
       .iterations(2)
   );
 
@@ -203,6 +204,7 @@ async function force(container, paths_container) {
     const ele = document.createElement("div");
     ele.innerHTML = node.face;
     ele.classList.add("node");
+    ele.setAttribute("data-node", node.id);
     container.appendChild(ele);
     elements.set(node, ele);
   }
@@ -233,10 +235,11 @@ async function force(container, paths_container) {
     search_path_ele.setAttribute("d", path_data(search_path));
   }
 
-  // const tick_driver = rs.fromRAF();
-  const tick_driver = rs.fromInterval(100);
+  const tick_driver = rs.fromRAF();
+  //const tick_driver = rs.fromInterval(100);
   const ticks = tick_driver.subscribe({ next: () => sim.tick() });
   ticks.subscribe({ next: update_positions });
+  // ticks.subscribe(rs.trace("tick"));
 
   const queue_length_ele = document.getElementById("queue-length");
 
@@ -245,12 +248,53 @@ async function force(container, paths_container) {
     iterate_paths(
       graph,
       search_queue,
-      path => path.length > 20,
+      path => path.length > 3,
       // () => false,
       path =>
         graph.edges[path[path.length - 1]].filter(id => !path.includes(id))
     ),
     1
+  );
+
+  let dragging = null;
+  rs.fromEvent(container, "mousedown").transform(
+    tx.sideEffect(event => {
+      event.preventDefault();
+      dragging = null;
+      const { target } = event;
+      const id = target.getAttribute("data-node");
+      if (!id) return;
+      const node = nodes[id];
+      if (!node) return;
+      node.dragging = true;
+      dragging = {
+        node,
+        box: event.currentTarget.getBoundingClientRect()
+      };
+    })
+  );
+  rs.fromEvent(container, "mousemove").transform(
+    tx.sideEffect(event => {
+      event.preventDefault();
+      if (!dragging) return;
+      dragging.node.x = event.x - dragging.box.x;
+      dragging.node.y = event.y - dragging.box.y;
+      sim.restart();
+      tick_driver.next();
+    })
+  );
+  rs.fromEvent(container, "mouseup").transform(
+    tx.sideEffect(event => {
+      if (dragging) delete dragging.node.dragging;
+      dragging = null;
+      event.preventDefault();
+    })
+  );
+  rs.fromEvent(container, "mouseleave").transform(
+    tx.sideEffect(event => {
+      if (dragging) delete dragging.node.dragging;
+      dragging = null;
+    })
   );
 
   paths_sub.transform(
