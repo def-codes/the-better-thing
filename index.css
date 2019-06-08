@@ -30,25 +30,25 @@ body {
 	pointer-events: none;
 }
 
-.edges path {
+.graph-path:nth-of-type(1) { stroke-width: 4; stroke: red; }
+.graph-path:nth-of-type(2) { stroke-width: 8; stroke: orange; }
+.graph-path:nth-of-type(3) { stroke-width: 12; stroke: yellow; }
+.graph-path:nth-of-type(4) { stroke-width: 16; stroke: green; }
+.graph-path:nth-of-type(5) { stroke-width: 20; stroke: blue; }
+.graph-path:nth-of-type(6) { stroke-width: 24; stroke: indigo; }
+.graph-path:nth-of-type(7) { stroke-width: 28; stroke: violet; }
+
+.graph-path {
 	stroke-width: 3;
 	stroke-linecap: round;
 	stroke-linejoin: round;
 	fill: none;
 	opacity: .3;
 }
-#boggle path.search {
+.graph-path.search {
 	stroke: black;
 	stroke-dasharray: 4;
 }
-
-#boggle .solution:nth-of-type(1) { stroke-width: 4; stroke: red; }
-#boggle .solution:nth-of-type(2) { stroke-width: 8; stroke: orange; }
-#boggle .solution:nth-of-type(3) { stroke-width: 12; stroke: yellow; }
-#boggle .solution:nth-of-type(4) { stroke-width: 16; stroke: green; }
-#boggle .solution:nth-of-type(5) { stroke-width: 20; stroke: blue; }
-#boggle .solution:nth-of-type(6) { stroke-width: 24; stroke: indigo; }
-#boggle .solution:nth-of-type(7) { stroke-width: 28; stroke: violet; }
 
 .node {
 	position: absolute;
@@ -59,11 +59,15 @@ body {
 	cursor: pointer;
 	user-select: none;
 }
+
 .node:hover {
 	background: rgba(255, 255, 0, .5);
 }
 
-line.edge {
+.graph-edge {
 	stroke-width: 3;
-	stroke: rgba(0, 0, 0, .1);
+	stroke: rgba(0, 0, 0, .25);
+}
+#boggle .graph-edge {
+	stroke: rgba(0, 0, 0, .025);
 }

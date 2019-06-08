@@ -177,7 +177,7 @@ const dom_svg_space = id => [
   ["svg", { preserveAspectRatio: "none" }]
 ];
 
-function force(root0, id, graph, solutions) {
+function force(root0, id, graph, paths) {
   const sim = d3.forceSimulation().stop();
   const root = root0.appendChild(document.createElement("div"));
   root.classList.add("space-box");
@@ -186,15 +186,24 @@ function force(root0, id, graph, solutions) {
     ? graph.nodes.map((face, id) => ({ id, face }))
     : Object.entries(graph.nodes).map(([id, face]) => ({ id, face }));
 
+  // This seems exceedingly hacky... it's only used for looking up from node id
+  // to simulation node when constructing path data.  The more involved case is
+  // for nodes expressed as dictionaries rather than arrays.
+  const ns = Array.isArray(graph.nodes)
+    ? nodes
+    : tx.transduce(
+        tx.mapIndexed((index, node) => [node.id, node]),
+        tx.assocObj(),
+        nodes
+      );
+
   hdom.renderOnce(dom_svg_space(id), { root });
   const container = root.querySelector(".space");
   const svg_container = root.querySelector("svg");
-  // how to customize this?
-  svg_container.classList.add("edges");
 
-  const path_data = indices =>
-    indices
-      .map((n, i) => `${i > 0 ? "L" : "M"} ${nodes[n].x},${nodes[n].y}`)
+  const path_data = ids =>
+    ids
+      .map((id, i) => `${i > 0 ? "L" : "M"} ${ns[id].x},${ns[id].y}`)
       .join(" ");
 
   const links = [
@@ -240,33 +249,31 @@ function force(root0, id, graph, solutions) {
     ])
   );
 
-  const paths = new Map();
-
   let search_path = [];
   // const hic2 = ["path.search", {}];
   const search_path_ele = svg_container.appendChild(
     document.createElementNS(SVGNS, "path")
   );
-  search_path_ele.classList.add("search");
+  search_path_ele.classList.add("search", "graph-path");
 
-  for (const solution of solutions) {
+  const path_eles = new Map();
+  for (const path of paths) {
     // const hic = ["path.solution", { d: "" }];
-    const path = document.createElementNS(SVGNS, "path");
-    path.classList.add("solution");
-    paths.set(solution, path);
-    svg_container.appendChild(path);
+    const path_ele = document.createElementNS(SVGNS, "path");
+    path_ele.classList.add("graph-path");
+    path_eles.set(path, path_ele);
+    svg_container.appendChild(path_ele);
   }
 
   const link_eles = new Map();
   for (const link of links) {
     const line = document.createElementNS(SVGNS, "line");
-    line.classList.add("edge");
+    line.classList.add("graph-edge");
     link_eles.set(link, line);
     svg_container.appendChild(line);
   }
-  console.log(`link_eles`, link_eles);
 
-  function update_positions() {
+  function update_positions(n) {
     for (const [{ source, target }, line] of link_eles.entries()) {
       line.setAttribute("x1", source.x);
       line.setAttribute("y1", source.y);
@@ -279,17 +286,18 @@ function force(root0, id, graph, solutions) {
       ele.style.left = `${x}px`;
     }
 
-    for (const [[indices], path] of paths.entries())
-      path.setAttribute("d", path_data(indices));
+    for (const [ids, path] of path_eles.entries())
+      path.setAttribute("d", path_data(ids));
 
     search_path_ele.setAttribute("d", path_data(search_path));
   }
 
-  const tick_driver = rs.fromRAF();
-  //const tick_driver = rs.fromInterval(100);
-  const ticks = tick_driver.subscribe({ next: () => sim.tick() });
+  // const tick_driver = rs.fromRAF();
+  const tick_driver = rs.fromInterval(100);
+  const ticks = rs.subscription();
+  ticks.transform(tx.sideEffect(() => sim.tick()));
+  tick_driver.subscribe(ticks);
   ticks.subscribe({ next: update_positions });
-  // ticks.subscribe(rs.trace("tick"));
 
   const queue_length_ele = document.getElementById("queue-length");
 
@@ -365,9 +373,18 @@ function force(root0, id, graph, solutions) {
 
   const graph2 = {
     nodes: { a: "Alice", b: "Bob", c: "Carol", d: "Dave" },
-    edges: { a: ["b", "c"], b: "d" }
+    edges: { a: ["b", "c"], b: ["d"] }
   };
+  const graph2_paths = [["a", "d"], ["b", "c", "d"]];
 
-  force(spaces, "boggle", graph, solutions);
-  force(spaces, "trie", graph2, []);
+  const graph3 = {
+    nodes: ["Alice", "Bob", "Carol", "Dave"],
+    edges: { Alice: ["b", "c"], Bob: ["d"] }
+  };
+  const graph3_paths = [[0, 1], [1, 2, 3]];
+
+  const solution_paths = solutions.map(_ => _[0]);
+  force(spaces, "boggle", graph, solution_paths);
+  force(spaces, "graph2", graph2, graph2_paths);
+  force(spaces, "graph3", graph3, graph3_paths);
 })();
