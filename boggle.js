@@ -188,9 +188,9 @@ function force(root0, id, graph, solutions) {
 
   hdom.renderOnce(dom_svg_space(id), { root });
   const container = root.querySelector(".space");
-  const paths_container = root.querySelector("svg");
+  const svg_container = root.querySelector("svg");
   // how to customize this?
-  paths_container.classList.add("edges");
+  svg_container.classList.add("edges");
 
   const path_data = indices =>
     indices
@@ -244,7 +244,7 @@ function force(root0, id, graph, solutions) {
 
   let search_path = [];
   // const hic2 = ["path.search", {}];
-  const search_path_ele = paths_container.appendChild(
+  const search_path_ele = svg_container.appendChild(
     document.createElementNS(SVGNS, "path")
   );
   search_path_ele.classList.add("search");
@@ -254,10 +254,26 @@ function force(root0, id, graph, solutions) {
     const path = document.createElementNS(SVGNS, "path");
     path.classList.add("solution");
     paths.set(solution, path);
-    paths_container.appendChild(path);
+    svg_container.appendChild(path);
   }
 
+  const link_eles = new Map();
+  for (const link of links) {
+    const line = document.createElementNS(SVGNS, "line");
+    line.classList.add("edge");
+    link_eles.set(link, line);
+    svg_container.appendChild(line);
+  }
+  console.log(`link_eles`, link_eles);
+
   function update_positions() {
+    for (const [{ source, target }, line] of link_eles.entries()) {
+      line.setAttribute("x1", source.x);
+      line.setAttribute("y1", source.y);
+      line.setAttribute("x2", target.x);
+      line.setAttribute("y2", target.y);
+    }
+
     for (const [{ x, y }, ele] of elements.entries()) {
       ele.style.top = `${y}px`;
       ele.style.left = `${x}px`;
