@@ -7,7 +7,7 @@ body {
 	border: 1px solid red;
 	position: relative;
 }
-.forcefield > .nodes, #boggle-paths {
+.forcefield > .nodes, .edges {
 	position: absolute;
 	left: 50%;
 	top: 50%;
@@ -15,11 +15,11 @@ body {
 	height: 100%;
 	user-select: none;
 }
-#boggle-paths {
+.edges {
 	overflow: visible;
 	pointer-events: none;
 }
-#boggle-paths path {
+.edges path {
 	stroke-width: 3;
 	stroke-linecap: round;
 	stroke-linejoin: round;

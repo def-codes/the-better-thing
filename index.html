@@ -13,9 +13,14 @@
       <section>
         <h2>boggle</h2>
         <p>Queue length: <span id="queue-length"></span></p>
-        <section class="forcefield">
-          <div class="nodes" id="boggle"></div>
-          <svg id="boggle-paths" preserveAspectRatio="none"></svg>
+        <section class="forcefields">
+        <section class="graph forcefield" id="boggle">
+          <svg class="edges" id="boggle-paths" preserveAspectRatio="none"></svg>
+        </section>
+        <section class="graph forcefield">
+          <div class="nodes" id="trie-nodes"></div>
+          <svg class="edges" id="trie-edges" preserveAspectRatio="none"></svg>
+        </section>
         </section>
       </section>
       <section>

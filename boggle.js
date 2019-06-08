@@ -117,8 +117,8 @@ const random_board = size => ({
 async function do_it() {
   const words = await fetch("./words.json");
   const WORD_LIST = await words.json();
-  const dict = make_trie();
-  for (let word of WORD_LIST) dict.add(word);
+  const trie = make_trie();
+  for (let word of WORD_LIST) trie.add(word);
 
   const graph = random_board(BOARD_SIZE);
   const uniques = new Set();
@@ -130,7 +130,7 @@ async function do_it() {
 
   const lookup = i => graph.nodes[i];
   const make_word = path => path.map(lookup).join("");
-  const is_word = path => dict.get(make_word(path)) > 0;
+  const is_word = path => trie.get(make_word(path)) > 0;
   // But this is *path* length, not *word* length
   const not_too_long = path => path.length <= MAX_WORD_LENGTH;
   const not_too_short = path => path.length >= MIN_WORD_LENGTH;
@@ -138,7 +138,7 @@ async function do_it() {
   const is_solution = path => and_all(...solution_clauses.map(fn => fn(path)));
   // const is_solution = path => clauses.every(fn => fn(path));
 
-  const is_not_prefix = path => dict.get(make_word(path)) === false;
+  const is_not_prefix = path => trie.get(make_word(path)) === false;
   const is_max_length = path => path.length >= MAX_WORD_LENGTH;
   // Doesn't short circuit... computes both always
   const should_stop = path => or(is_max_length(path), is_not_prefix(path));
@@ -153,15 +153,14 @@ async function do_it() {
     }
   }
 
-  return { graph, solutions };
+  return { trie, graph, solutions };
 }
 
 //=================
 
-async function force(container, paths_container) {
-  const { graph, solutions } = await do_it();
-  console.log(`solutions`, solutions);
+const SVGNS = "http://www.w3.org/2000/svg";
 
+function force(container, paths_container, graph, solutions) {
   const sim = d3.forceSimulation().stop();
 
   const nodes = graph.nodes.map((face, id) => ({ id, face }));
@@ -198,17 +197,23 @@ async function force(container, paths_container) {
       .iterations(2)
   );
 
-  const elements = new Map();
+  const res = hdom.renderOnce(
+    () => [
+      "div.nodes",
+      tx.map(node => ["div.node", { "data-node": node.id }, node.face], nodes)
+    ],
+    { root: container }
+  );
+
+  const elements = new Map(
+    Array.from(nodes, node => [
+      node,
+      container.querySelector(`[data-node="${node.id}"]`)
+    ])
+  );
+  console.log(`re`, res);
+
   const paths = new Map();
-  for (const node of nodes) {
-    const ele = document.createElement("div");
-    ele.innerHTML = node.face;
-    ele.classList.add("node");
-    ele.setAttribute("data-node", node.id);
-    container.appendChild(ele);
-    elements.set(node, ele);
-  }
-  const SVGNS = "http://www.w3.org/2000/svg";
 
   let search_path = [];
   const search_path_ele = paths_container.appendChild(
@@ -307,7 +312,24 @@ async function force(container, paths_container) {
   );
 }
 
-force(
-  document.getElementById("boggle"),
-  document.getElementById("boggle-paths")
-);
+const display_trie = (container, paths_container) => {
+  // a lot of the same as above
+  console.log(`container, paths_container`, container, paths_container);
+};
+
+(async function() {
+  const { graph, solutions } = await do_it();
+  console.log(`solutions`, solutions);
+
+  display_trie(
+    document.getElementById("trie-nodes"),
+    document.getElementById("trie-edges")
+  );
+
+  force(
+    document.getElementById("boggle"),
+    document.getElementById("boggle-paths"),
+    graph,
+    solutions
+  );
+})();
