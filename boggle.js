@@ -169,17 +169,24 @@ async function do_it() {
 
 const SVGNS = "http://www.w3.org/2000/svg";
 
-const dom_svg_space = () => [
+const dom_svg_space = id => [
   "div.space",
+  { id },
   ["div.html"],
   // is preserveAspectRatio needed?
   ["svg", { preserveAspectRatio: "none" }]
 ];
 
-function force(container, paths_container, graph, solutions) {
+function force(root, id, graph, solutions) {
   const sim = d3.forceSimulation().stop();
 
   const nodes = graph.nodes.map((face, id) => ({ id, face }));
+
+  hdom.renderOnce(dom_svg_space(id), { root });
+  const container = root.querySelector(".space");
+  const paths_container = root.querySelector("svg");
+  // how to customize this?
+  paths_container.classList.add("edges");
 
   const path_data = indices =>
     indices
@@ -386,17 +393,9 @@ const display_trie = (container, paths_container, trie) => {
 (async function() {
   const { trie, graph, solutions } = await do_it();
   console.log(`solutions`, solutions);
+  const spaces = document.getElementById("spaces");
 
-  display_trie(
-    document.getElementById("trie-nodes"),
-    document.getElementById("trie-edges"),
-    trie
-  );
-
-  force(
-    document.getElementById("boggle"),
-    document.getElementById("boggle-paths"),
-    graph,
-    solutions
-  );
+  // display_trie(spaces, "trie", trie);
+  // force(spaces, "trie", graph, solutions);
+  force(spaces, "boggle", graph, solutions);
 })();
