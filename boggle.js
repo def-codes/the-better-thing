@@ -269,6 +269,8 @@ function force(model_id, container, svg_container, node_view, store, paths) {
     store.triples
   );
 
+  const nodes_style = container.appendChild(document.createElement("style"));
+
   const properties_style = container.appendChild(
     document.createElement("style")
   );
@@ -311,13 +313,6 @@ function force(model_id, container, svg_container, node_view, store, paths) {
       )
     ],
     { root: container }
-  );
-
-  const elements = new Map(
-    Array.from(nodes, node => [
-      node,
-      container.querySelector(`[data-node="${node.id}"]`)
-    ])
   );
 
   const links = tx.transduce(
@@ -395,16 +390,21 @@ function force(model_id, container, svg_container, node_view, store, paths) {
       )
     ].join("\n");
 
+    nodes_style.innerHTML = [
+      ...tx.map(
+        node =>
+          `#${model_id} [data-node="${node.id}"] {top:${node.y}px;left:${
+            node.x
+          }px}`,
+        nodes
+      )
+    ].join("\n");
+
     for (const [{ source, target }, line] of link_eles.entries()) {
       line.setAttribute("x1", source.x);
       line.setAttribute("y1", source.y);
       line.setAttribute("x2", target.x);
       line.setAttribute("y2", target.y);
-    }
-
-    for (const [{ x, y }, ele] of elements.entries()) {
-      ele.style.top = `${y}px`;
-      ele.style.left = `${x}px`;
     }
 
     for (const [ids, path] of path_eles.entries())
