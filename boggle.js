@@ -2,6 +2,9 @@ const { transducers: tx, rstream: rs, hdom } = thi.ng;
 const { updateDOM } = thi.ng.transducersHdom;
 console.log(`thi.ng`, thi.ng);
 
+// const array_as_object = a => tx.reduce(tx.assocObj(), Object.entries(a));
+// const ensure_object = x => (Array.isArray(x) ? array_as_object(x) : x);
+
 const FACES = Array.from(
   "aaaaaaaabbbccccdddddeeeeeeeeeeeeffffgggghhhhiiiiiiiijjkklllllllllmmmmmnnnnnnooooooooooppppprrrrrrrsssssssssstttttttuuuuuuuvvwwwxyyyyz"
 ).concat(["qu", "th", "in", "he"]);
@@ -80,7 +83,8 @@ function* iterate_paths(graph, queue, should_stop, get_moves) {
 function* iterate_solutions(graph, is_solution, should_stop) {
   const gen = iterate_paths(
     graph,
-    graph.nodes.map((_, n) => [n]),
+    Object.keys(graph.nodes).map(n => [n]),
+    // graph.nodes.map((_, n) => [n]),
     should_stop,
     path => graph.edges[path[path.length - 1]].filter(id => !path.includes(id))
   );
@@ -100,27 +104,21 @@ function text_display(board) {
 
 /* board generator */
 
-const repeatedly = function*(fn) {
-  while (true) yield fn();
-};
-
-const take = n =>
-  function*(seq) {
-    for (const item of seq) {
-      if (!n--) break;
-      yield item;
-    }
-  };
-
 const random_integer_less_than = n => Math.floor(Math.random() * n);
 const random_item_from = array => array[random_integer_less_than(array.length)];
 
 const random_face = () => random_item_from(FACES);
 const random_board = size => ({
-  nodes: [...take(size.rows * size.cols)(repeatedly(random_face))],
-  edges: [
-    ...tx.map(n => neighbors_of_index(size, n), tx.range(size.rows * size.cols))
-  ]
+  nodes: tx.transduce(
+    tx.mapIndexed((idx, val) => [idx, val]),
+    tx.assocObj(),
+    tx.repeatedly(random_face, size.rows * size.cols)
+  ),
+  edges: tx.transduce(
+    tx.map(n => [n, neighbors_of_index(size, n)]),
+    tx.assocObj(),
+    tx.range(size.rows * size.cols)
+  )
 });
 
 async function do_it() {
@@ -177,17 +175,14 @@ const dom_svg_space = id => [
   ["svg", { preserveAspectRatio: "none" }]
 ];
 
-const array_as_object = a => tx.reduce(tx.assocObj(), Object.entries(a));
-const ensure_object = x => (Array.isArray(x) ? array_as_object(x) : x);
-
 function force(root0, id, graph, paths) {
   const sim = d3.forceSimulation().stop();
 
   const root = root0.appendChild(document.createElement("div"));
   root.classList.add("space-box");
 
-  const node_dict = ensure_object(graph.nodes);
-  const edge_dict = ensure_object(graph.edges);
+  const node_dict = graph.nodes;
+  const edge_dict = graph.edges;
 
   const nodes = Object.entries(node_dict).map(([id, value]) => ({ id, value }));
 
