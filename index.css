@@ -89,6 +89,9 @@ body {
 .trie-node[data-is-match="yes"] {
 	background-color: rgba(255, 255, 0, 0.5);
 }
+.trie-node[data-is-match="no"] {
+	background-color: rgba(255, 0, 0, 0.5);
+}
 .trie-node[data-is-terminal="yes"] {
 	background-color: rgba(0, 255, 0, 0.5);
 }
