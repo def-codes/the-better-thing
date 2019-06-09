@@ -223,6 +223,8 @@ function force(container, svg_container, node_view, store, paths) {
   const sim = d3.forceSimulation().stop();
 
   // Convert the resources to objects
+  // this seems overkill
+  // only use for it would be to access properties in force accessor functions
   const node_dict = tx.transduce(
     tx.map(([id, props]) => [
       id,
@@ -259,13 +261,28 @@ function force(container, svg_container, node_view, store, paths) {
     document.createElement("style")
   );
 
+  // USE HDOM ALREADY
+
+  /*
+  hdom.renderOnce(
+    () => [
+      "div",
+      tx.map(
+        node => ["div.node", { "data-node": node.id }, [node_view, node.value]],
+        nodes
+      )
+    ],
+    { root: container }
+  );
+*/
+
   for (const [subject, property, object] of properties_to_show) {
     const labeled_edge = document.createElement("div");
     labeled_edge.classList.add("property");
-    labeled_edge.setAttribute("data-property-subject", subject);
+    labeled_edge.setAttribute("data-subject", subject);
     labeled_edge.setAttribute("data-property", property);
-    labeled_edge.setAttribute("data-property-object", object);
-    labeled_edge.innerHTML = property;
+    labeled_edge.setAttribute("data-object", object);
+    labeled_edge.innerText = property;
     container.appendChild(labeled_edge);
   }
 
@@ -372,12 +389,19 @@ function force(container, svg_container, node_view, store, paths) {
           tx.filter(_ => _.source && _.target),
           tx.map(({ triple, source, target }) => {
             const [s, p, o] = triple;
-            const selector = `[data-property-subject="${s}"][data-property-object=${o}]`;
-            const top = source.y;
-            const left = source.x;
+            const selector = `[data-subject="${s}"][data-object="${o}"]`;
+            const top = Math.floor(source.y);
+            const left = Math.floor(source.x);
             const width =
-              hypotenuse(target.x - source.x, target.y - source.y) || 1;
-            const angle = angle_between(source.x, source.y, target.x, target.y);
+              Math.floor(
+                hypotenuse(target.x - source.x, target.y - source.y)
+              ) || 1;
+            const angle = angle_between(
+              source.x,
+              source.y,
+              target.x,
+              target.y
+            ).toFixed(2);
 
             const properties = `top: ${top}px; left: ${left}px; width: ${width}px; transform: rotate(${angle}rad) translateY(-50%);`;
             return `${selector} {${properties}}`;
@@ -386,7 +410,8 @@ function force(container, svg_container, node_view, store, paths) {
         tx.push(),
         properties_to_show
       )
-    ].join("\n");
+    ].join("\n\n");
+
     for (const [{ source, target }, line] of link_eles.entries()) {
       line.setAttribute("x1", source.x);
       line.setAttribute("y1", source.y);

@@ -94,6 +94,10 @@ body {
 #boggle .graph-edge {
 	stroke: rgba(0, 0, 0, .025);
 }
+/* There are way too many, and they're not readable. */
+#boggle .property {
+	display: none;
+}
 
 .trie-node {
 	background: #EEE;
