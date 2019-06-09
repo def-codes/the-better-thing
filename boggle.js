@@ -139,7 +139,7 @@ const angle_of = (x, y) =>
 
 const angle_between = (x1, y1, x2, y2) => angle_of(x2 - x1, y2 - y1);
 
-const hypotenuse = (a, b) => Math.pow(Math.pow(a, 2) + Math.pow(a, 2), 0.5);
+const hypotenuse = (a, b) => Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
 
 function solve(trie, graph) {
   const uniques = new Set();
@@ -219,7 +219,7 @@ function path_search_stuff(graph, svg_container, path_data) {
   );
 }
 
-function force(container, svg_container, node_view, store, paths) {
+function force(model_id, container, svg_container, node_view, store, paths) {
   const sim = d3.forceSimulation().stop();
 
   // Convert the resources to objects
@@ -303,7 +303,11 @@ function force(container, svg_container, node_view, store, paths) {
     () => [
       "div",
       tx.map(
-        node => ["div.node", { "data-node": node.id }, [node_view, node.value]],
+        node => [
+          "div.node",
+          { "data-node": node.id },
+          ["div.node-content", {}, [node_view, node.value]]
+        ],
         nodes
       )
     ],
@@ -379,28 +383,21 @@ function force(container, svg_container, node_view, store, paths) {
           tx.filter(_ => _.source && _.target),
           tx.map(({ triple, source, target }) => {
             const [s, p, o] = triple;
-            const selector = `[data-subject="${s}"][data-object="${o}"]`;
-            const top = Math.floor(source.y);
-            const left = Math.floor(source.x);
-            const width =
-              Math.floor(
-                hypotenuse(target.x - source.x, target.y - source.y)
-              ) || 1;
-            const angle = angle_between(
-              source.x,
-              source.y,
-              target.x,
-              target.y
-            ).toFixed(2);
+            const selector = `#${model_id} [data-subject="${s}"][data-object="${o}"]`;
+            const { x: x1, y: y1 } = source;
+            const { x: x2, y: y2 } = target;
+            const top = Math.round(y1);
+            const left = Math.round(x1);
+            const width = Math.floor(hypotenuse(x2 - x1, y2 - y1)) || 1;
+            const angle = angle_between(x1, y1, x2, y2).toFixed(2);
 
-            const properties = `width: ${width}px; transform: translate(${left}px, ${top}px) rotate(${angle}rad) translateY(-50%);`;
-            return `${selector} {${properties}}`;
+            return `${selector}{width:${width}px;transform:translate(${left}px,${top}px) translateY(-50%) rotate(${angle}rad);}`;
           })
         ),
         tx.push(),
         properties_to_show
       )
-    ].join("\n\n");
+    ].join("\n");
 
     for (const [{ source, target }, line] of link_eles.entries()) {
       line.setAttribute("x1", source.x);
@@ -703,6 +700,7 @@ const get_trie = (function() {
     // const resources = await example.get_resources();
     const store = await example.get_store();
     force(
+      example.name,
       container,
       svg_container,
       store.node_view || node_view,

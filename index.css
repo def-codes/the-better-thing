@@ -30,10 +30,15 @@ body {
 	position: absolute;
 	top: 0;
 	left: 0;
-	background: rgba(170, 204, 238, .5);
+	font-size: 66%;
+	box-sizing: border-box;
+	/* background: rgba(170, 204, 238, .5); */
+	background-color: rgba(255, 128, 128, .5);
 	border-radius: 0 50% 50% 0;
 	transform-origin: center left;
+	/* border: 1px solid black; */
 	text-align: center;
+	margin: 0;
 }
 
 /* Examples */
@@ -74,7 +79,22 @@ body {
 }
 
 .node {
+	box-sizing: border-box;
 	position: absolute;
+	/* border: 1px solid red; */
+}
+/* DEBUG
+.node::before {
+	position: absolute;
+	content: '';
+	width: 0.5em;
+	height: 0.5em;
+	border-radius: 50%;
+	background: rgba(255, 0, 0, .5);
+	transform: translate(-50%, -50%);
+}
+*/
+.node-content {
 	padding: 0.75em;
 	text-align: center;
 	transform: translate(-50%, -50%);
