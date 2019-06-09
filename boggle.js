@@ -15,7 +15,7 @@ const FACES = Array.from(
 ).concat(["qu", "th", "in", "he"]);
 
 const BOARD_SIZE = { rows: 10, cols: 10 };
-const MIN_WORD_LENGTH = 8;
+const MIN_WORD_LENGTH = 4;
 const MAX_WORD_LENGTH = 100;
 
 function* combinations(as, bs) {
@@ -490,8 +490,11 @@ function force(container, svg_container, node_view, graph, paths) {
         ["span.count", t ? t.count : ""]
       ],
       graph: union_graphs(
-        sequence_as_graph(trie.scan("hello")),
-        sequence_as_graph(trie.scan("world"))
+        sequence_as_graph(trie.scan("qpoinspr")),
+        union_graphs(
+          sequence_as_graph(trie.scan("hello")),
+          sequence_as_graph(trie.scan("world"))
+        )
       ),
       paths: []
     },
