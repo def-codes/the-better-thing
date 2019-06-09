@@ -434,6 +434,47 @@ function force(container, svg_container, node_view, graph, paths) {
       paths: []
     },
     {
+      name: "trie-prefix-2",
+      label: "trie level two",
+      comment: `show the first two levels of a trie`,
+      node_view,
+      graph: {
+        nodes: {
+          root: "root",
+          ...tx.transduce(
+            tx.map(k => [k, k]),
+            tx.assocObj(),
+            Object.keys(trie.data).filter(k => k.length === 1)
+          ),
+          ...tx.transduce(
+            tx.map(k => [k, k]),
+            tx.assocObj(),
+            tx.mapcat(
+              k =>
+                Object.keys(trie.data[k])
+                  .filter(k => k.length === 1)
+                  .map(k2 => k + k2),
+              Object.keys(trie.data).filter(k => k.length === 1)
+            )
+          )
+        },
+        edges: {
+          root: Object.keys(trie.data),
+          ...tx.transduce(
+            tx.map(k => [
+              k,
+              Object.keys(trie.data[k])
+                .filter(k => k.length === 1)
+                .map(k2 => k + k2)
+            ]),
+            tx.assocObj(),
+            Object.keys(trie.data).filter(k => k.length === 1)
+          )
+        }
+      },
+      paths: []
+    },
+    {
       name: "graph2",
       label: "testing another graph",
       comment: `an example graph`,
