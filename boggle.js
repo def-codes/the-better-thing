@@ -124,13 +124,7 @@ const random_board = size => ({
   )
 });
 
-async function do_it() {
-  const words = await fetch("./words.json");
-  const WORD_LIST = await words.json();
-  const trie = make_trie();
-  for (let word of WORD_LIST) trie.add(word);
-
-  const graph = random_board(BOARD_SIZE);
+function solve(trie, graph) {
   const uniques = new Set();
   const solutions = [];
 
@@ -163,18 +157,55 @@ async function do_it() {
     }
   }
 
-  return { trie, graph, solutions };
+  return solutions;
 }
 
 //=================
 
 const SVGNS = "http://www.w3.org/2000/svg";
 
+function path_search_stuff(graph, svg_container, path_data) {
+  let search_path = [];
+
+  function update_positions(n) {
+    search_path_ele.setAttribute("d", path_data(search_path));
+  }
+
+  // const hic2 = ["path.search", {}];
+  const search_path_ele = svg_container.appendChild(
+    document.createElementNS(SVGNS, "path")
+  );
+  search_path_ele.classList.add("search", "graph-path");
+
+  const queue_length_ele = document.getElementById("queue-length");
+
+  const search_queue = Object.keys(graph.nodes).map(v => [v]);
+  const paths_sub = rs.fromIterable(
+    iterate_paths(
+      graph,
+      search_queue,
+      path => path.length > 3,
+      // () => false,
+      path =>
+        graph.edges[path[path.length - 1]].filter(id => !path.includes(id))
+    ),
+    1
+  );
+
+  paths_sub.transform(
+    tx.sideEffect(path => {
+      search_path = path;
+      update_positions();
+    }),
+    tx.map(() => ["b", {}, search_queue.length.toString()]),
+    updateDOM({ root: "queue-length" })
+  );
+}
+
 function force(container, svg_container, node_view, graph, paths) {
   const sim = d3.forceSimulation().stop();
 
   const node_dict = graph.nodes;
-  const edge_dict = graph.edges;
 
   const nodes = Object.entries(node_dict).map(([id, value]) => ({ id, value }));
 
@@ -197,7 +228,7 @@ function force(container, svg_container, node_view, graph, paths) {
           // I'd rather not use by_id here, but I started getting a "missing: 1"
           // apparently having to do with a mix of string and number indices
           to => ({ source: by_id[id], target: by_id[to] }),
-          edge_dict[id] || []
+          graph.edges[id] || []
         ),
       nodes
     )
@@ -281,8 +312,6 @@ function force(container, svg_container, node_view, graph, paths) {
 
     for (const [ids, path] of path_eles.entries())
       path.setAttribute("d", path_data(ids));
-
-    search_path_ele.setAttribute("d", path_data(search_path));
   }
 
   // const tick_driver = rs.fromRAF();
@@ -292,247 +321,288 @@ function force(container, svg_container, node_view, graph, paths) {
   tick_driver.subscribe(ticks);
   ticks.subscribe({ next: update_positions });
 
-  const queue_length_ele = document.getElementById("queue-length");
-
-  const search_queue = Object.keys(graph.nodes).map(v => [v]);
-  const paths_sub = rs.fromIterable(
-    iterate_paths(
-      graph,
-      search_queue,
-      path => path.length > 3,
-      // () => false,
-      path => edge_dict[path[path.length - 1]].filter(id => !path.includes(id))
-    ),
-    1
-  );
-
-  paths_sub.transform(
-    tx.sideEffect(path => {
-      search_path = path;
-      update_positions();
-    }),
-    tx.map(() => ["b", {}, search_queue.length.toString()]),
-    updateDOM({ root: "queue-length" })
-  );
+  // TRANSITIONAL
+  path_search_stuff(graph, svg_container, path_data);
 }
 
-(async function() {
-  const { trie, graph, solutions } = await do_it();
-  console.log(`solutions`, solutions);
-
-  const solution_paths = solutions.map(_ => _[0]);
-
-  const union_graphs = (a, b) => ({
-    nodes: { ...a.nodes, ...b.nodes },
-    // assumes the graphs have distinct key spaces
-    edges: { ...a.edges, ...b.edges }
-  });
-
-  const sequence_as_graph_cycle = seq => {
-    const nodes = [...seq];
-    const ids = nodes.map(nextID);
-    return {
-      nodes: tx.transduce(
-        tx.mapIndexed((index, node) => [ids[index], node]),
-        tx.assocObj(),
-        nodes
-      ),
-      edges: tx.transduce(
-        tx.map(n => [ids[n], [ids[n < nodes.length - 1 ? n + 1 : 0]]]),
-        tx.assocObj(),
-        tx.range(nodes.length)
-      )
-    };
+const sequence_as_graph_cycle = seq => {
+  const nodes = [...seq];
+  const ids = nodes.map(nextID);
+  return {
+    nodes: tx.transduce(
+      tx.mapIndexed((index, node) => [ids[index], node]),
+      tx.assocObj(),
+      nodes
+    ),
+    edges: tx.transduce(
+      tx.map(n => [ids[n], [ids[n < nodes.length - 1 ? n + 1 : 0]]]),
+      tx.assocObj(),
+      tx.range(nodes.length)
+    )
   };
+};
 
-  const sequence_as_graph = seq => {
-    const nodes = [...seq];
-    const ids = nodes.map(nextID);
-    return {
-      nodes: tx.transduce(
-        tx.mapIndexed((index, node) => [ids[index], node]),
-        tx.assocObj(),
-        nodes
-      ),
-      edges: tx.transduce(
-        tx.map(n => [ids[n], [ids[n + 1]]]),
-        tx.assocObj(),
-        tx.range(nodes.length - 1)
-      )
-    };
+const sequence_as_graph = seq => {
+  const nodes = [...seq];
+  const ids = nodes.map(nextID);
+  return {
+    nodes: tx.transduce(
+      tx.mapIndexed((index, node) => [ids[index], node]),
+      tx.assocObj(),
+      nodes
+    ),
+    edges: tx.transduce(
+      tx.map(n => [ids[n], [ids[n + 1]]]),
+      tx.assocObj(),
+      tx.range(nodes.length - 1)
+    )
   };
+};
 
-  const names = ["Alice", "Bob", "Carol", "Dave", "Elon", "Fran"];
-  const node_view = (_, x) => x;
+const union_graphs = (a, b) => ({
+  nodes: { ...a.nodes, ...b.nodes },
+  // assumes the graphs have distinct key spaces
+  edges: { ...a.edges, ...b.edges }
+});
 
-  const examples = [
-    {
-      name: "boggle",
-      label: "boggle with solutions",
-      comment: `the full boggle example, with path search`,
-      node_view,
-      graph,
-      paths: solution_paths
-    },
-    {
-      name: "trie-view-level-1",
-      label: "trie level one",
-      comment: `show the first node of a trie`,
-      node_view,
-      graph: {
-        nodes: {
-          root: "root",
-          ...tx.transduce(
-            tx.map(k => [k, k]),
-            tx.assocObj(),
-            Object.keys(trie.data)
-          )
+const node_view = (_, x) => x;
+
+const examples = [
+  {
+    name: "boggle",
+    label: "boggle with solutions",
+    comment: `the full boggle example, with path search`,
+    async get_resources() {
+      const boggle_graph = random_board(BOARD_SIZE);
+      const trie = await get_trie();
+      const solutions = await solve(trie, boggle_graph);
+      console.log(`solutions`, solutions);
+
+      const solution_paths = solutions.map(_ => _[0]);
+
+      return {
+        node_view,
+        graph: boggle_graph,
+        paths: solution_paths
+      };
+    }
+  },
+  {
+    name: "trie-view-level-1",
+    label: "trie level one",
+    comment: `show the first node of a trie`,
+    async get_resources() {
+      const trie = await get_trie();
+      return {
+        node_view,
+        graph: {
+          nodes: {
+            root: "root",
+            ...tx.transduce(
+              tx.map(k => [k, k]),
+              tx.assocObj(),
+              Object.keys(trie.data)
+            )
+          },
+          edges: { root: Object.keys(trie.data) }
         },
-        edges: { root: Object.keys(trie.data) }
-      },
-      paths: []
-    },
-    {
-      name: "trie-view-level-2",
-      label: "trie level two",
-      comment: `show the first two levels of a trie`,
-      node_view,
-      graph: {
-        nodes: {
-          root: "root",
-          ...tx.transduce(
-            tx.map(k => [k, k]),
-            tx.assocObj(),
-            Object.keys(trie.data).filter(k => k.length === 1)
-          ),
-          ...tx.transduce(
-            tx.map(k => [k, k]),
-            tx.assocObj(),
-            tx.mapcat(
-              k =>
+        paths: []
+      };
+    }
+  },
+  {
+    name: "trie-view-level-2",
+    label: "trie level two",
+    comment: `show the first two levels of a trie`,
+    async get_resources() {
+      const trie = await get_trie();
+      return {
+        node_view,
+        graph: {
+          nodes: {
+            root: "root",
+            ...tx.transduce(
+              tx.map(k => [k, k]),
+              tx.assocObj(),
+              Object.keys(trie.data).filter(k => k.length === 1)
+            ),
+            ...tx.transduce(
+              tx.map(k => [k, k]),
+              tx.assocObj(),
+              tx.mapcat(
+                k =>
+                  Object.keys(trie.data[k])
+                    .filter(k => k.length === 1)
+                    .map(k2 => k + k2),
+                Object.keys(trie.data).filter(k => k.length === 1)
+              )
+            )
+          },
+          edges: {
+            root: Object.keys(trie.data),
+            ...tx.transduce(
+              tx.map(k => [
+                k,
                 Object.keys(trie.data[k])
                   .filter(k => k.length === 1)
-                  .map(k2 => k + k2),
+                  .map(k2 => k + k2)
+              ]),
+              tx.assocObj(),
               Object.keys(trie.data).filter(k => k.length === 1)
             )
-          )
+          }
         },
-        edges: {
-          root: Object.keys(trie.data),
-          ...tx.transduce(
-            tx.map(k => [
-              k,
-              Object.keys(trie.data[k])
-                .filter(k => k.length === 1)
-                .map(k2 => k + k2)
-            ]),
-            tx.assocObj(),
-            Object.keys(trie.data).filter(k => k.length === 1)
-          )
-        }
-      },
-      paths: []
-    },
-    {
-      name: "trie-prefix-1",
-      label: "trie match 1",
-      comment: `matching a term against trie`,
-      node_view: (_, [token, t]) => [
-        "span.trie-node",
-        {
-          "data-count": t ? t.count : 0,
-          "data-is-match": t ? "yes" : "no",
-          "data-is-terminal": t && t.count > 0 ? "yes" : "no"
-        },
-        ["span.token", token],
-        " ",
-        ["span.count", t ? t.count : ""]
-      ],
-      graph: union_graphs(
-        sequence_as_graph(trie.scan("qpoinspr")),
-        union_graphs(
-          sequence_as_graph(trie.scan("hello")),
-          sequence_as_graph(trie.scan("world"))
-        )
-      ),
-      paths: []
-    },
-    {
-      name: "graph2",
-      label: "testing another graph",
-      comment: `an example graph`,
-      node_view,
-      graph: {
-        nodes: { a: "Alice", b: "Bob", c: "Carol", d: "Dave" },
-        edges: { a: ["b", "c"], b: ["d"] }
-      },
-      paths: [["a", "d"], ["b", "c", "d"]]
-    },
-    {
-      name: "graph3",
-      label: "sequence as graph",
-      comment: `turn a sequence into a graph`,
-      node_view,
-      graph: sequence_as_graph(names),
-      paths: []
-    },
-    {
-      name: "graph4",
-      label: "sequence as graph cycle",
-      comment: `turn a sequence into a loop in a graph`,
-      node_view: (_, x) => `#${x}`,
-      graph: sequence_as_graph_cycle(tx.range(10)),
-      paths: []
-    },
-    {
-      name: "graph5",
-      label: "two separate structures on a graph",
-      comment: `union of two independent generated sequences`,
-      node_view,
-      graph: union_graphs(
-        // aka graph4
-        sequence_as_graph_cycle(tx.range(10)),
-        sequence_as_graph(tx.range(20, 25))
-      ),
-      paths: []
+        paths: []
+      };
     }
-  ];
+  },
+  {
+    name: "trie-prefix-1",
+    label: "trie match 1",
+    comment: `matching a term against trie`,
+    async get_resources() {
+      const trie = await get_trie();
+      return {
+        node_view: (_, [token, t]) => [
+          "span.trie-node",
+          {
+            "data-count": t ? t.count : 0,
+            "data-is-match": t ? "yes" : "no",
+            "data-is-terminal": t && t.count > 0 ? "yes" : "no"
+          },
+          ["span.token", token],
+          " ",
+          ["span.count", t ? t.count : ""]
+        ],
+        graph: union_graphs(
+          sequence_as_graph(trie.scan("qpoinspr")),
+          union_graphs(
+            sequence_as_graph(trie.scan("hello")),
+            sequence_as_graph(trie.scan("world"))
+          )
+        ),
+        paths: []
+      };
+    }
+  },
+  {
+    name: "graph2",
+    label: "testing another graph",
+    comment: `an example graph`,
+    get_resources() {
+      return {
+        node_view,
+        graph: {
+          nodes: { a: "Alice", b: "Bob", c: "Carol", d: "Dave" },
+          edges: { a: ["b", "c"], b: ["d"] }
+        },
+        paths: [["a", "d"], ["b", "c", "d"]]
+      };
+    }
+  },
+  {
+    name: "graph3",
+    label: "sequence as graph",
+    comment: `turn a sequence into a graph`,
+    get_resources() {
+      return {
+        node_view,
+        graph: sequence_as_graph("Alice Bob Carol Dave Elon Fran".split(" ")),
+        paths: []
+      };
+    }
+  },
+  {
+    name: "graph4",
+    label: "sequence as graph cycle",
+    comment: `turn a sequence into a loop in a graph`,
+    get_resources() {
+      return {
+        node_view: (_, x) => `#${x}`,
+        graph: sequence_as_graph_cycle(tx.range(10)),
+        paths: []
+      };
+    }
+  },
+  {
+    name: "graph5",
+    label: "two separate structures on a graph",
+    comment: `union of two independent generated sequences`,
+    get_resources() {
+      return {
+        node_view,
+        graph: union_graphs(
+          sequence_as_graph_cycle(tx.range(10)),
+          sequence_as_graph(tx.range(20, 25))
+        ),
+        paths: []
+      };
+    }
+  }
+];
 
-  const dom_svg_space = (_, { id }) => [
-    "div.space",
-    { id },
-    ["div.html"],
-    // is preserveAspectRatio needed?
-    //
-    // you can use "everything" to apply transforms that wouldn't work (the same
-    // way) on svg element itself.  But see .css file.
-    ["svg", { preserveAspectRatio: "none" }, ["g.everything"]]
-  ];
+const dom_svg_space = (_, { id }) => [
+  "div.space",
+  { id },
+  ["div.html"],
+  // is preserveAspectRatio needed?
+  //
+  // you can use "everything" to apply transforms that wouldn't work (the same
+  // way) on svg element itself.  But see .css file.
+  ["svg", { preserveAspectRatio: "none" }, ["g.everything"]]
+];
 
-  const render_example = example => [
-    "div.example",
-    { id: example.name },
-    [
-      "div.panes",
-      ["div.description", ["h3", example.label], ["p", example.comment]],
-      ["figure.representation", {}, [dom_svg_space, { id: example.name }]]
-    ]
-  ];
-  const examples_root = document.getElementById("examples");
+const render_example = example => [
+  "article.example",
+  { id: example.name },
+  [
+    "div.panes",
+    ["div.description", ["h3", example.label], ["p", example.comment]],
+    ["figure.representation", {}, [dom_svg_space, { id: example.name }]]
+  ]
+];
+
+// is the div needed when you return an iterator?
+const render_examples = examples => [
+  "div",
+  {},
+  tx.map(render_example, examples)
+];
+
+const get_word_list = async () => {
+  const raw = await fetch("./words.json");
+  return raw.json();
+};
+
+// memoized async
+const get_trie = (function() {
+  let trie;
+  return async () => {
+    if (!trie) {
+      trie = make_trie();
+      const word_list = await get_word_list();
+      for (let word of word_list) trie.add(word);
+    }
+    return trie;
+  };
+})();
+
+(async function() {
+  hdom.renderOnce(render_examples(examples), { root: "examples" });
+
   for (const example of examples) {
-    const root = examples_root.appendChild(document.createElement("article"));
-    hdom.renderOnce(render_example(example), { root });
+    const root = document.getElementById(example.name);
     const space = root.querySelector(".space");
-
-    const container = root.querySelector(".html");
+    const container = space.querySelector(".html");
     const svg_container = space.querySelector(".everything");
 
+    const resources = await example.get_resources();
     force(
       container,
       svg_container,
-      example.node_view,
-      example.graph,
-      example.paths
+      resources.node_view,
+      resources.graph,
+      resources.paths
     );
   }
 })();
