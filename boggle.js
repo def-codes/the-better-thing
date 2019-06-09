@@ -357,22 +357,16 @@ function force(container, svg_container, node_view, store, paths) {
   // path_search_stuff(graph, svg_container, path_data);
 }
 
-const sequence_as_graph_cycle = seq => {
+function* sequence_as_triples_cycle(seq) {
   const nodes = [...seq];
   const ids = nodes.map(nextID);
-  return {
-    nodes: tx.transduce(
-      tx.mapIndexed((index, node) => [ids[index], node]),
-      tx.assocObj(),
-      nodes
-    ),
-    edges: tx.transduce(
-      tx.map(n => [ids[n], [ids[n < nodes.length - 1 ? n + 1 : 0]]]),
-      tx.assocObj(),
-      tx.range(nodes.length)
-    )
-  };
-};
+
+  yield* tx.mapIndexed((index, node) => [ids[index], "value", node], nodes);
+  yield* tx.map(
+    n => [ids[n], "linksTo", ids[ids[n < nodes.length - 1 ? n + 1 : 0]]],
+    tx.range(nodes.length - 1)
+  );
+}
 
 function* sequence_as_triples(seq) {
   const nodes = [...seq];
@@ -383,23 +377,6 @@ function* sequence_as_triples(seq) {
     tx.range(nodes.length - 1)
   );
 }
-
-const sequence_as_graph = seq => {
-  const nodes = [...seq];
-  const ids = nodes.map(nextID);
-  return {
-    nodes: tx.transduce(
-      tx.mapIndexed((index, node) => [ids[index], node]),
-      tx.assocObj(),
-      nodes
-    ),
-    edges: tx.transduce(
-      tx.map(n => [ids[n], [ids[n + 1]]]),
-      tx.assocObj(),
-      tx.range(nodes.length - 1)
-    )
-  };
-};
 
 const union_graphs = (a, b) => ({
   nodes: { ...a.nodes, ...b.nodes },
@@ -444,6 +421,7 @@ const all_examples = [
     name: "trie-view-level-1",
     label: "trie level one",
     comment: `show the first node of a trie`,
+    // DISABLED: not going to convert this to triples as such, too messy
     async get_resources() {
       const trie = await get_trie();
       return {
@@ -467,6 +445,7 @@ const all_examples = [
     name: "trie-view-level-2",
     label: "trie level two",
     comment: `show the first two levels of a trie`,
+    // DISABLED: not going to convert this to triples as such, too messy
     async get_resources() {
       const trie = await get_trie();
       return {
@@ -558,39 +537,33 @@ const all_examples = [
     name: "graph3",
     label: "sequence as graph",
     comment: `turn a sequence into a graph`,
-    get_resources() {
-      return {
-        node_view,
-        graph: sequence_as_graph("Alice Bob Carol Dave Elon Fran".split(" ")),
-        paths: []
-      };
+    get_store() {
+      const { store } = make_store();
+      store.into(
+        sequence_as_triples("Alice Bob Carol Dave Elon Fran".split(" "))
+      );
+      return { store };
     }
   },
   {
     name: "graph4",
     label: "sequence as graph cycle",
     comment: `turn a sequence into a loop in a graph`,
-    get_resources() {
-      return {
-        node_view: (_, x) => `#${x}`,
-        graph: sequence_as_graph_cycle(tx.range(10)),
-        paths: []
-      };
+    get_store() {
+      const { store } = make_store();
+      store.into(sequence_as_triples_cycle(tx.range(10)));
+      return { store };
     }
   },
   {
     name: "graph5",
     label: "two separate structures on a graph",
     comment: `union of two independent generated sequences`,
-    get_resources() {
-      return {
-        node_view,
-        graph: union_graphs(
-          sequence_as_graph_cycle(tx.range(10)),
-          sequence_as_graph(tx.range(20, 25))
-        ),
-        paths: []
-      };
+    get_store() {
+      const { store } = make_store();
+      store.into(sequence_as_triples_cycle(tx.range(10)));
+      store.into(sequence_as_triples(tx.range(20, 25)));
+      return { store };
     }
   }
 ];
