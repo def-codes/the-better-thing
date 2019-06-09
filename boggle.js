@@ -480,7 +480,11 @@ function force(container, svg_container, node_view, graph, paths) {
       comment: `matching a term against trie`,
       node_view: (_, [token, t]) => [
         "span.trie-node",
-        { "data-count": t ? t.count : 0, "data-is-match": t ? "yes" : "no" },
+        {
+          "data-count": t ? t.count : 0,
+          "data-is-match": t ? "yes" : "no",
+          "data-is-terminal": t && t.count > 0 ? "yes" : "no"
+        },
         ["span.token", token],
         " ",
         ["span.count", t ? t.count : ""]

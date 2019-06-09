@@ -87,12 +87,14 @@ body {
 	font-family: monospace;
 }
 .trie-node[data-is-match="yes"] {
-	background-color: yellow;
+	background-color: rgba(255, 255, 0, 0.5);
+}
+.trie-node[data-is-terminal="yes"] {
+	background-color: rgba(0, 255, 0, 0.5);
 }
 .trie-node .token {
 	
 }
 .trie-node .count {
-	font-family: monospace
 }
 
