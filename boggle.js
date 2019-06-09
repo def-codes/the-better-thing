@@ -7,6 +7,11 @@ const nextID = (function() {
   return () => id++;
 })();
 
+const make_store = () => {
+  const store = new thi.ng.rstreamQuery.TripleStore();
+  return { store };
+};
+
 // const array_as_object = a => tx.reduce(tx.assocObj(), Object.entries(a));
 // const ensure_object = x => (Array.isArray(x) ? array_as_object(x) : x);
 
@@ -202,10 +207,33 @@ function path_search_stuff(graph, svg_container, path_data) {
   );
 }
 
-function force(container, svg_container, node_view, graph, paths) {
+function force(container, svg_container, node_view, store, paths) {
   const sim = d3.forceSimulation().stop();
 
-  const node_dict = graph.nodes;
+  // Convert the resources to objects
+  const node_dict = tx.transduce(
+    tx.map(([id, props]) => [
+      id,
+      tx.transduce(
+        tx.map(idx => store.triples[idx]),
+        tx.groupByObj({
+          key: ([, p]) => p,
+          // This is a wonky reducer... the value is an array if there's more
+          // than one, and not otherwise.  How else do we know whether to expect
+          // multiple values?  Also, if you're going to do this, it should be a
+          // Set, not an array.
+          group: tx.reducer(
+            () => undefined,
+            (acc, [, , o]) => (acc === undefined ? o : [...acc, o])
+          )
+        }),
+        props
+      )
+    ]),
+    tx.assocObj(),
+    store.indexS
+  );
+  console.log(`node_dict`, node_dict);
 
   const nodes = Object.entries(node_dict).map(([id, value]) => ({ id, value }));
 
@@ -221,19 +249,6 @@ function force(container, svg_container, node_view, graph, paths) {
       .map((id, i) => `${i > 0 ? "L" : "M"} ${by_id[id].x},${by_id[id].y}`)
       .join(" ");
 
-  const links = [
-    ...tx.mapcat(
-      ({ id }) =>
-        tx.map(
-          // I'd rather not use by_id here, but I started getting a "missing: 1"
-          // apparently having to do with a mix of string and number indices
-          to => ({ source: by_id[id], target: by_id[to] }),
-          graph.edges[id] || []
-        ),
-      nodes
-    )
-  ];
-
   sim.nodes(nodes);
   sim.force("center", d3.forceCenter());
   sim.force(
@@ -244,14 +259,6 @@ function force(container, svg_container, node_view, graph, paths) {
   );
   // sim.force("x", d3.forceX());
   // sim.force("y", d3.forceY());
-  sim.force(
-    "grid",
-    d3
-      .forceLink(links)
-      .id(_ => _.id)
-      .strength(0.5)
-      .iterations(2)
-  );
 
   hdom.renderOnce(
     () => [
@@ -269,6 +276,30 @@ function force(container, svg_container, node_view, graph, paths) {
       node,
       container.querySelector(`[data-node="${node.id}"]`)
     ])
+  );
+  const links = [];
+
+  /*
+  const links = [
+    ...tx.mapcat(
+      ({ id }) =>
+        tx.map(
+          // I'd rather not use by_id here, but I started getting a "missing: 1"
+          // apparently having to do with a mix of string and number indices
+          to => ({ source: by_id[id], target: by_id[to] }),
+          graph.edges[id] || []
+        ),
+      nodes
+    )
+  ];
+*/
+  sim.force(
+    "grid",
+    d3
+      .forceLink(links)
+      .id(_ => _.id)
+      .strength(0.5)
+      .iterations(2)
   );
 
   let search_path = [];
@@ -322,7 +353,7 @@ function force(container, svg_container, node_view, graph, paths) {
   ticks.subscribe({ next: update_positions });
 
   // TRANSITIONAL
-  path_search_stuff(graph, svg_container, path_data);
+  // path_search_stuff(graph, svg_container, path_data);
 }
 
 const sequence_as_graph_cycle = seq => {
@@ -365,9 +396,9 @@ const union_graphs = (a, b) => ({
   edges: { ...a.edges, ...b.edges }
 });
 
-const node_view = (_, x) => x;
+const node_view = (_, x) => x.value;
 
-const examples = [
+const all_examples = [
   {
     name: "boggle",
     label: "boggle with solutions",
@@ -489,15 +520,20 @@ const examples = [
     name: "graph2",
     label: "testing another graph",
     comment: `an example graph`,
-    get_resources() {
-      return {
-        node_view,
-        graph: {
-          nodes: { a: "Alice", b: "Bob", c: "Carol", d: "Dave" },
-          edges: { a: ["b", "c"], b: ["d"] }
-        },
-        paths: [["a", "d"], ["b", "c", "d"]]
-      };
+    get_store() {
+      const { store } = make_store();
+      store.into([
+        ["a", "value", "Alice"],
+        ["b", "value", "Bob"],
+        ["c", "value", "Carol"],
+        ["d", "value", "Dave"],
+        ["a", "connectsTo", "b"],
+        ["a", "connectsTo", "c"],
+        ["b", "connectsTo", "d"]
+      ]);
+      // disabled for now
+      // paths: [["a", "d"], ["b", "c", "d"]]
+      return store;
     }
   },
   {
@@ -588,6 +624,7 @@ const get_trie = (function() {
 })();
 
 (async function() {
+  const examples = all_examples.filter(_ => _.get_store);
   hdom.renderOnce(render_examples(examples), { root: "examples" });
 
   for (const example of examples) {
@@ -596,13 +633,8 @@ const get_trie = (function() {
     const container = space.querySelector(".html");
     const svg_container = space.querySelector(".everything");
 
-    const resources = await example.get_resources();
-    force(
-      container,
-      svg_container,
-      resources.node_view,
-      resources.graph,
-      resources.paths
-    );
+    // const resources = await example.get_resources();
+    const store = await example.get_store();
+    force(container, svg_container, node_view, store, []);
   }
 })();
