@@ -462,6 +462,10 @@ const all_examples = [
     name: "boggle",
     label: "boggle with solutions",
     comment: `the full boggle example, with path search`,
+    userland_code: `// board = boggle_grid(10, 10)
+// set of search?
+// etc
+`,
     async get_store() {
       const boggle_graph = random_board(BOARD_SIZE);
       const trie = await get_trie();
@@ -567,6 +571,12 @@ const all_examples = [
     name: "trie-prefix-1",
     label: "trie match 1",
     comment: `matching a term against trie`,
+    userland_code: `// trie = willshake_words
+// trie match "qpoinspr"
+// trie match "hello"
+// trie match "world"
+// trie node looks like render_trie_node
+`,
     async get_store() {
       const trie = await get_trie();
       const node_view = render_trie_node;
@@ -582,6 +592,15 @@ const all_examples = [
     name: "graph2",
     label: "testing another graph",
     comment: `an example graph`,
+    userland_code: `
+a . value . Alice
+b . value . Bob
+c . value . Carol
+d . value . Dave
+a . linksTo . b
+a . linksTo . c
+b . linksTo . d
+`,
     get_store() {
       const { store } = make_store();
       store.into([
@@ -602,6 +621,9 @@ const all_examples = [
     name: "graph3",
     label: "sequence as graph",
     comment: `turn a sequence into a graph`,
+    userland_code: `// names = list(Alice, Bob, Carol, Dave, Elon, Fran)
+// that's it.  view as sequence
+`,
     get_store() {
       const { store } = make_store();
       store.into(
@@ -614,6 +636,9 @@ const all_examples = [
     name: "graph4",
     label: "sequence as graph cycle",
     comment: `turn a sequence into a loop in a graph`,
+    userland_code: `a = range(10)
+b = cycle(a)
+`,
     get_store() {
       const { store } = make_store();
       store.into(sequence_as_triples_cycle(tx.range(10)));
@@ -624,6 +649,9 @@ const all_examples = [
     name: "graph5",
     label: "two separate structures on a graph",
     comment: `union of two independent generated sequences`,
+    userland_code: `a = cycle(range(10))
+b = range(20, 25)
+`,
     get_store() {
       const { store } = make_store();
       store.into(sequence_as_triples_cycle(tx.range(10)));
@@ -651,11 +679,14 @@ const render_example = example => [
     "div.panes",
     [
       "div.description",
-      ["h3", example.label],
-      ["a", { href: `#${example.name}` }, example.name],
-      ["p", example.comment]
+      [
+        "header",
+        ["h3", example.label],
+        ["a", { href: `#${example.name}` }, example.name],
+        ["p", example.comment]
+      ],
+      ["div.model-control", ["textarea.userland-code", example.userland_code]]
     ],
-
     ["figure.representation", {}, [dom_svg_space, { id: example.name }]]
   ]
 ];
