@@ -429,7 +429,7 @@ function* sequence_as_triples_cycle(seq) {
   yield* tx.mapIndexed((index, node) => [ids[index], "value", node], nodes);
   yield* tx.map(
     n => [ids[n], "linksTo", ids[n < nodes.length - 1 ? n + 1 : 0]],
-    tx.range(nodes.length - 1)
+    tx.range(nodes.length)
   );
 }
 
@@ -443,11 +443,17 @@ function* sequence_as_triples(seq) {
   );
 }
 
-const union_graphs = (a, b) => ({
-  nodes: { ...a.nodes, ...b.nodes },
-  // assumes the graphs have distinct key spaces
-  edges: { ...a.edges, ...b.edges }
-});
+const render_trie_node = (_, { value: [token, t] }) => [
+  "span.trie-node",
+  {
+    "data-count": t ? t.count : 0,
+    "data-is-match": t ? "yes" : "no",
+    "data-is-terminal": t && t.count > 0 ? "yes" : "no"
+  },
+  ["span.token", token],
+  " ",
+  ["span.count", t ? t.count : ""]
+];
 
 const node_view = (_, x) => x.value;
 
@@ -563,17 +569,7 @@ const all_examples = [
     comment: `matching a term against trie`,
     async get_store() {
       const trie = await get_trie();
-      const node_view = (_, { value: [token, t] }) => [
-        "span.trie-node",
-        {
-          "data-count": t ? t.count : 0,
-          "data-is-match": t ? "yes" : "no",
-          "data-is-terminal": t && t.count > 0 ? "yes" : "no"
-        },
-        ["span.token", token],
-        " ",
-        ["span.count", t ? t.count : ""]
-      ];
+      const node_view = render_trie_node;
       const { store } = make_store();
       store.into(sequence_as_triples(trie.scan("qpoinspr")));
       store.into(sequence_as_triples(trie.scan("hello")));
