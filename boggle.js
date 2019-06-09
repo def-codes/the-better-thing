@@ -209,7 +209,7 @@ function force(container, svg_container, node_view, graph, paths) {
   sim.force("center", d3.forceCenter());
   sim.force(
     "charge",
-    d3.forceManyBody().strength(node => (node.dragging ? -500 : -100))
+    d3.forceManyBody().strength(node => (node.dragging ? -500 : -200))
     //.distanceMax(250)
     //.theta(0.98)
   );
@@ -220,8 +220,7 @@ function force(container, svg_container, node_view, graph, paths) {
     d3
       .forceLink(links)
       .id(_ => _.id)
-      .strength(1)
-      // .distance(5)
+      .strength(0.5)
       .iterations(2)
   );
 
@@ -462,7 +461,10 @@ function force(container, svg_container, node_view, graph, paths) {
     { id },
     ["div.html"],
     // is preserveAspectRatio needed?
-    ["svg", { preserveAspectRatio: "none" }]
+    //
+    // you can use "everything" to apply transforms that wouldn't work (the same
+    // way) on svg element itself.  But see .css file.
+    ["svg", { preserveAspectRatio: "none" }, ["g.everything"]]
   ];
 
   const render_example = example => [
@@ -479,7 +481,7 @@ function force(container, svg_container, node_view, graph, paths) {
     const space = root.querySelector(".space");
 
     const container = root.querySelector(".space");
-    const svg_container = space.querySelector("svg");
+    const svg_container = space.querySelector(".everything");
 
     force(
       container,

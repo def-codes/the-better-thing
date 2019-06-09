@@ -1,4 +1,5 @@
 body {
+	font-size: 32pt;
 	font-family: sans-serif;
 }
 
@@ -15,6 +16,13 @@ body {
 	overflow: visible;
 	pointer-events: none;
 }
+/* This is probably a bad idea as it will throw off mouse coordinates */
+/* .space > .html, .space .everything { */
+/* 	transform: scale(1.5); */
+/* } */
+/* .space > .html { */
+/* 	transform-origin: top left; */
+/* } */
 
 /* Examples */
 .example .space {
@@ -25,13 +33,13 @@ body {
 	box-sizing: border-box;
 }
 
-.graph-path:nth-of-type(1) { stroke-width: 4; stroke: red; }
-.graph-path:nth-of-type(2) { stroke-width: 8; stroke: orange; }
-.graph-path:nth-of-type(3) { stroke-width: 12; stroke: yellow; }
-.graph-path:nth-of-type(4) { stroke-width: 16; stroke: green; }
-.graph-path:nth-of-type(5) { stroke-width: 20; stroke: blue; }
-.graph-path:nth-of-type(6) { stroke-width: 24; stroke: indigo; }
-.graph-path:nth-of-type(7) { stroke-width: 28; stroke: violet; }
+.graph-path:nth-of-type(1) { stroke-width: 0.4em; stroke: red; }
+.graph-path:nth-of-type(2) { stroke-width: 0.6em; stroke: orange; }
+.graph-path:nth-of-type(3) { stroke-width: 0.8em; stroke: yellow; }
+.graph-path:nth-of-type(4) { stroke-width: 1.0rem; stroke: green; }
+.graph-path:nth-of-type(5) { stroke-width: 1.2em; stroke: blue; }
+.graph-path:nth-of-type(6) { stroke-width: 1.4em; stroke: indigo; }
+.graph-path:nth-of-type(7) { stroke-width: 1.6em; stroke: violet; }
 
 .graph-path {
 	stroke-width: 3;
@@ -41,8 +49,8 @@ body {
 	opacity: .3;
 }
 .graph-path.search {
-	stroke: black;
-	stroke-dasharray: 4;
+	stroke: red;
+	stroke-dasharray: 0.3;
 }
 
 .node {
