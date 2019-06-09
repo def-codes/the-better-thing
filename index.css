@@ -25,6 +25,17 @@ body {
 /* 	transform-origin: top left; */
 /* } */
 
+/* Triple store graphs */
+.property {
+	position: absolute;
+	top: 0;
+	left: 0;
+	background: rgba(170, 204, 238, .5);
+	border-radius: 0 50% 50% 0;
+	transform-origin: center left;
+	text-align: center;
+}
+
 /* Examples */
 .example .space {
 	position: relative;

@@ -130,6 +130,17 @@ const random_board = size => ({
   )
 });
 
+// css accepts radians, so, why?
+// const DEGREES_PER_RADIANS = 180 / Math.PI;
+//const to_degrees = radians => radians * DEGREES_PER_RADIANS;
+
+const angle_of = (x, y) =>
+  x === 0 ? (y < 0 ? 0 : Math.PI) : Math.atan(y / x) + (x < 0 ? Math.PI : 0);
+
+const angle_between = (x1, y1, x2, y2) => angle_of(x2 - x1, y2 - y1);
+
+const hypotenuse = (a, b) => Math.pow(Math.pow(a, 2) + Math.pow(a, 2), 0.5);
+
 function solve(trie, graph) {
   const uniques = new Set();
   const solutions = [];
@@ -238,6 +249,26 @@ function force(container, svg_container, node_view, store, paths) {
 
   const nodes = Object.entries(node_dict).map(([id, value]) => ({ id, value }));
 
+  const properties_to_show = tx.transduce(
+    tx.comp(tx.filter(([, p]) => p !== "value")),
+    tx.push(),
+    store.triples
+  );
+
+  const properties_style = container.appendChild(
+    document.createElement("style")
+  );
+
+  for (const [subject, property, object] of properties_to_show) {
+    const labeled_edge = document.createElement("div");
+    labeled_edge.classList.add("property");
+    labeled_edge.setAttribute("data-property-subject", subject);
+    labeled_edge.setAttribute("data-property", property);
+    labeled_edge.setAttribute("data-property-object", object);
+    labeled_edge.innerHTML = property;
+    container.appendChild(labeled_edge);
+  }
+
   // I don't like this....
   const by_id = tx.transduce(
     tx.map(node => [node.id, node]),
@@ -330,6 +361,32 @@ function force(container, svg_container, node_view, store, paths) {
   }
 
   function update_positions(n) {
+    properties_style.innerHTML = [
+      ...tx.transduce(
+        tx.comp(
+          tx.map(triple => ({
+            triple,
+            source: by_id[triple[0]],
+            target: by_id[triple[2]]
+          })),
+          tx.filter(_ => _.source && _.target),
+          tx.map(({ triple, source, target }) => {
+            const [s, p, o] = triple;
+            const selector = `[data-property-subject="${s}"][data-property-object=${o}]`;
+            const top = source.y;
+            const left = source.x;
+            const width =
+              hypotenuse(target.x - source.x, target.y - source.y) || 1;
+            const angle = angle_between(source.x, source.y, target.x, target.y);
+
+            const properties = `top: ${top}px; left: ${left}px; width: ${width}px; transform: rotate(${angle}rad) translateY(-50%);`;
+            return `${selector} {${properties}}`;
+          })
+        ),
+        tx.push(),
+        properties_to_show
+      )
+    ].join("\n");
     for (const [{ source, target }, line] of link_eles.entries()) {
       line.setAttribute("x1", source.x);
       line.setAttribute("y1", source.y);
@@ -363,7 +420,7 @@ function* sequence_as_triples_cycle(seq) {
 
   yield* tx.mapIndexed((index, node) => [ids[index], "value", node], nodes);
   yield* tx.map(
-    n => [ids[n], "linksTo", ids[ids[n < nodes.length - 1 ? n + 1 : 0]]],
+    n => [ids[n], "linksTo", ids[n < nodes.length - 1 ? n + 1 : 0]],
     tx.range(nodes.length - 1)
   );
 }
@@ -397,7 +454,11 @@ const all_examples = [
       const solutions = await solve(trie, boggle_graph);
       console.log(`solutions`, solutions);
 
-      const ids = Object.keys(boggle_graph.nodes).map(mint_blank);
+      const ids = tx.transduce(
+        tx.map(key => [key, mint_blank()]),
+        tx.assocObj(),
+        Object.keys(boggle_graph.nodes)
+      );
 
       const solution_paths = solutions.map(_ => _[0]);
       const { store } = make_store();
