@@ -379,17 +379,33 @@ function force(root0, id, graph, paths) {
 
   const solution_paths = solutions.map(_ => _[0]);
 
+  const sequence_as_graph_cycle = seq => {
+    const nodes = [...seq];
+    return {
+      nodes,
+      edges: tx.transduce(
+        tx.map(n => [n, [n < nodes.length - 1 ? n + 1 : 0]]),
+        tx.assocObj(),
+        tx.range(nodes.length)
+      )
+    };
+  };
+
   const sequence_as_graph = seq => {
     const nodes = [...seq];
     return {
       nodes,
-      edges: [...tx.map(n => [n, n + 1], tx.range(nodes.length - 1))]
+      edges: tx.transduce(
+        tx.map(n => [n, [n + 1]]),
+        tx.assocObj(),
+        tx.range(nodes.length - 1)
+      )
     };
   };
 
   const names = ["Alice", "Bob", "Carol", "Dave", "Elon", "Fran"];
   const graph3 = sequence_as_graph(names);
-  const graph4 = sequence_as_graph(tx.range(10));
+  const graph4 = sequence_as_graph_cycle(tx.range(10));
 
   force(spaces, "boggle", graph, solution_paths);
   force(spaces, "graph2", graph2, graph2_paths);
