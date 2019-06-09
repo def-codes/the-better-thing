@@ -470,9 +470,11 @@ function force(container, svg_container, node_view, graph, paths) {
   const render_example = example => [
     "div.example",
     { id: example.name },
-    ["h3", example.label],
-    ["p", example.comment],
-    ["figure", {}, [dom_svg_space, { id: example.name }]]
+    [
+      "div.panes",
+      ["div.description", ["h3", example.label], ["p", example.comment]],
+      ["figure.representation", {}, [dom_svg_space, { id: example.name }]]
+    ]
   ];
   const examples_root = document.getElementById("examples");
   for (const example of examples) {

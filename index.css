@@ -32,6 +32,13 @@ body {
 	border: 1px solid red;
 	box-sizing: border-box;
 }
+.example .panes {
+	display: flex;
+}
+.example .panes > .description,
+.example .panes > .representation {
+	flex: 50%;
+}
 
 .graph-path:nth-of-type(1) { stroke-width: 0.4em; stroke: red; }
 .graph-path:nth-of-type(2) { stroke-width: 0.6em; stroke: orange; }
