@@ -2,6 +2,11 @@ const { transducers: tx, rstream: rs, hdom } = thi.ng;
 const { updateDOM } = thi.ng.transducersHdom;
 console.log(`thi.ng`, thi.ng);
 
+const nextID = (function() {
+  let id = 0;
+  return () => id++;
+})();
+
 // const array_as_object = a => tx.reduce(tx.assocObj(), Object.entries(a));
 // const ensure_object = x => (Array.isArray(x) ? array_as_object(x) : x);
 
@@ -379,12 +384,23 @@ function force(root0, id, graph, paths) {
 
   const solution_paths = solutions.map(_ => _[0]);
 
+  const union_graphs = (a, b) => ({
+    nodes: { ...a.nodes, ...b.nodes },
+    // assumes the graphs have distinct key spaces
+    edges: { ...a.edges, ...b.edges }
+  });
+
   const sequence_as_graph_cycle = seq => {
     const nodes = [...seq];
+    const ids = nodes.map(nextID);
     return {
-      nodes,
+      nodes: tx.transduce(
+        tx.mapIndexed((index, node) => [ids[index], node]),
+        tx.assocObj(),
+        nodes
+      ),
       edges: tx.transduce(
-        tx.map(n => [n, [n < nodes.length - 1 ? n + 1 : 0]]),
+        tx.map(n => [ids[n], [ids[n < nodes.length - 1 ? n + 1 : 0]]]),
         tx.assocObj(),
         tx.range(nodes.length)
       )
@@ -393,10 +409,15 @@ function force(root0, id, graph, paths) {
 
   const sequence_as_graph = seq => {
     const nodes = [...seq];
+    const ids = nodes.map(nextID);
     return {
-      nodes,
+      nodes: tx.transduce(
+        tx.mapIndexed((index, node) => [ids[index], node]),
+        tx.assocObj(),
+        nodes
+      ),
       edges: tx.transduce(
-        tx.map(n => [n, [n + 1]]),
+        tx.map(n => [ids[n], [ids[n + 1]]]),
         tx.assocObj(),
         tx.range(nodes.length - 1)
       )
@@ -406,9 +427,12 @@ function force(root0, id, graph, paths) {
   const names = ["Alice", "Bob", "Carol", "Dave", "Elon", "Fran"];
   const graph3 = sequence_as_graph(names);
   const graph4 = sequence_as_graph_cycle(tx.range(10));
+  const graph5 = sequence_as_graph(tx.range(20, 25));
+  const graph6 = union_graphs(graph4, graph5);
 
   force(spaces, "boggle", graph, solution_paths);
   force(spaces, "graph2", graph2, graph2_paths);
   force(spaces, "graph3", graph3, []);
   force(spaces, "numbers", graph4, []);
+  force(spaces, "numbers", graph6, []);
 })();
