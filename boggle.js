@@ -180,7 +180,7 @@ const dom_svg_space = id => [
   ["svg", { preserveAspectRatio: "none" }]
 ];
 
-function force(root0, id, graph, paths) {
+function force(root0, id, node_view, graph, paths) {
   const sim = d3.forceSimulation().stop();
 
   const root = root0.appendChild(document.createElement("div"));
@@ -243,7 +243,10 @@ function force(root0, id, graph, paths) {
   const res = hdom.renderOnce(
     () => [
       "div.html",
-      tx.map(node => ["div.node", { "data-node": node.id }, node.value], nodes)
+      tx.map(
+        node => ["div.node", { "data-node": node.id }, [node_view, node.value]],
+        nodes
+      )
     ],
     { root: container }
   );
@@ -429,10 +432,10 @@ function force(root0, id, graph, paths) {
   const graph4 = sequence_as_graph_cycle(tx.range(10));
   const graph5 = sequence_as_graph(tx.range(20, 25));
   const graph6 = union_graphs(graph4, graph5);
-
-  force(spaces, "boggle", graph, solution_paths);
-  force(spaces, "graph2", graph2, graph2_paths);
-  force(spaces, "graph3", graph3, []);
-  force(spaces, "numbers", graph4, []);
-  force(spaces, "numbers", graph6, []);
+  const node_view = (_, x) => x;
+  force(spaces, "boggle", node_view, graph, solution_paths);
+  force(spaces, "graph2", node_view, graph2, graph2_paths);
+  force(spaces, "graph3", node_view, graph3, []);
+  force(spaces, "numbers", (_, x) => `#${x}`, graph4, []);
+  force(spaces, "numbers", node_view, graph6, []);
 })();
