@@ -1,6 +1,7 @@
 body {
 	font-size: 32pt;
 	font-family: sans-serif;
+  overflow-x: hidden;
 }
 
 /** Coordinated HTML and SVG layers. */
