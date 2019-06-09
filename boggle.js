@@ -478,7 +478,13 @@ function force(container, svg_container, node_view, graph, paths) {
       name: "trie-prefix-1",
       label: "trie match 1",
       comment: `matching a term against trie`,
-      node_view: (_, [token, t]) => `${token} ${t ? t.count : ""}`,
+      node_view: (_, [token, t]) => [
+        "span.trie-node",
+        { "data-count": t ? t.count : 0, "data-is-match": t ? "yes" : "no" },
+        ["span.token", token],
+        " ",
+        ["span.count", t ? t.count : ""]
+      ],
       graph: union_graphs(
         sequence_as_graph(trie.scan("hello")),
         sequence_as_graph(trie.scan("world"))

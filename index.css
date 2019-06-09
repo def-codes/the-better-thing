@@ -81,3 +81,18 @@ body {
 #boggle .graph-edge {
 	stroke: rgba(0, 0, 0, .025);
 }
+
+.trie-node {
+	background: #EEE;
+	font-family: monospace;
+}
+.trie-node[data-is-match="yes"] {
+	background-color: yellow;
+}
+.trie-node .token {
+	
+}
+.trie-node .count {
+	font-family: monospace
+}
+
