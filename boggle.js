@@ -6,6 +6,7 @@ const nextID = (function() {
   let id = 0;
   return () => id++;
 })();
+const mint_blank = () => `_:b${nextID()}`;
 
 const make_store = () => {
   const store = new thi.ng.rstreamQuery.TripleStore();
@@ -373,6 +374,16 @@ const sequence_as_graph_cycle = seq => {
   };
 };
 
+function* sequence_as_triples(seq) {
+  const nodes = [...seq];
+  const ids = nodes.map(mint_blank);
+  yield* tx.mapIndexed((index, node) => [ids[index], "value", node], nodes);
+  yield* tx.map(
+    n => [ids[n], "linksTo", ids[n + 1]],
+    tx.range(nodes.length - 1)
+  );
+}
+
 const sequence_as_graph = seq => {
   const nodes = [...seq];
   const ids = nodes.map(nextID);
@@ -409,7 +420,6 @@ const all_examples = [
       const solutions = await solve(trie, boggle_graph);
       console.log(`solutions`, solutions);
 
-      const mint_blank = () => `_:b${nextID()}`;
       const ids = Object.keys(boggle_graph.nodes).map(mint_blank);
 
       const solution_paths = solutions.map(_ => _[0]);
@@ -427,7 +437,7 @@ const all_examples = [
           Object.entries(boggle_graph.edges)
         )
       );
-      return store;
+      return { store };
     }
   },
   {
@@ -503,29 +513,25 @@ const all_examples = [
     name: "trie-prefix-1",
     label: "trie match 1",
     comment: `matching a term against trie`,
-    async get_resources() {
+    async get_store() {
       const trie = await get_trie();
-      return {
-        node_view: (_, [token, t]) => [
-          "span.trie-node",
-          {
-            "data-count": t ? t.count : 0,
-            "data-is-match": t ? "yes" : "no",
-            "data-is-terminal": t && t.count > 0 ? "yes" : "no"
-          },
-          ["span.token", token],
-          " ",
-          ["span.count", t ? t.count : ""]
-        ],
-        graph: union_graphs(
-          sequence_as_graph(trie.scan("qpoinspr")),
-          union_graphs(
-            sequence_as_graph(trie.scan("hello")),
-            sequence_as_graph(trie.scan("world"))
-          )
-        ),
-        paths: []
-      };
+      const node_view = (_, { value: [token, t] }) => [
+        "span.trie-node",
+        {
+          "data-count": t ? t.count : 0,
+          "data-is-match": t ? "yes" : "no",
+          "data-is-terminal": t && t.count > 0 ? "yes" : "no"
+        },
+        ["span.token", token],
+        " ",
+        ["span.count", t ? t.count : ""]
+      ];
+      const { store } = make_store();
+      store.into(sequence_as_triples(trie.scan("qpoinspr")));
+      store.into(sequence_as_triples(trie.scan("hello")));
+      store.into(sequence_as_triples(trie.scan("world")));
+
+      return { store, node_view };
     }
   },
   {
@@ -545,7 +551,7 @@ const all_examples = [
       ]);
       // disabled for now
       // paths: [["a", "d"], ["b", "c", "d"]]
-      return store;
+      return { store };
     }
   },
   {
@@ -647,6 +653,12 @@ const get_trie = (function() {
 
     // const resources = await example.get_resources();
     const store = await example.get_store();
-    force(container, svg_container, node_view, store, []);
+    force(
+      container,
+      svg_container,
+      store.node_view || node_view,
+      store.store,
+      []
+    );
   }
 })();
