@@ -177,25 +177,26 @@ const dom_svg_space = id => [
   ["svg", { preserveAspectRatio: "none" }]
 ];
 
+const array_as_object = a => tx.reduce(tx.assocObj(), Object.entries(a));
+const ensure_object = x => (Array.isArray(x) ? array_as_object(x) : x);
+
 function force(root0, id, graph, paths) {
   const sim = d3.forceSimulation().stop();
+
   const root = root0.appendChild(document.createElement("div"));
   root.classList.add("space-box");
 
-  const nodes = Array.isArray(graph.nodes)
-    ? graph.nodes.map((face, id) => ({ id, face }))
-    : Object.entries(graph.nodes).map(([id, face]) => ({ id, face }));
+  const node_dict = ensure_object(graph.nodes);
+  const edge_dict = ensure_object(graph.edges);
 
-  // This seems exceedingly hacky... it's only used for looking up from node id
-  // to simulation node when constructing path data.  The more involved case is
-  // for nodes expressed as dictionaries rather than arrays.
-  const ns = Array.isArray(graph.nodes)
-    ? nodes
-    : tx.transduce(
-        tx.mapIndexed((index, node) => [node.id, node]),
-        tx.assocObj(),
-        nodes
-      );
+  const nodes = Object.entries(node_dict).map(([id, value]) => ({ id, value }));
+
+  // I don't like this....
+  const by_id = tx.transduce(
+    tx.map(node => [node.id, node]),
+    tx.assocObj(),
+    nodes
+  );
 
   hdom.renderOnce(dom_svg_space(id), { root });
   const container = root.querySelector(".space");
@@ -203,13 +204,18 @@ function force(root0, id, graph, paths) {
 
   const path_data = ids =>
     ids
-      .map((id, i) => `${i > 0 ? "L" : "M"} ${ns[id].x},${ns[id].y}`)
+      .map((id, i) => `${i > 0 ? "L" : "M"} ${by_id[id].x},${by_id[id].y}`)
       .join(" ");
 
   const links = [
     ...tx.mapcat(
-      ({ id: source }) =>
-        tx.map(target => ({ source, target }), graph.edges[source] || []),
+      ({ id }) =>
+        tx.map(
+          // I'd rather not use by_id here, but I started getting a "missing: 1"
+          // apparently having to do with a mix of string and number indices
+          to => ({ source: by_id[id], target: by_id[to] }),
+          edge_dict[id] || []
+        ),
       nodes
     )
   ];
@@ -237,7 +243,7 @@ function force(root0, id, graph, paths) {
   const res = hdom.renderOnce(
     () => [
       "div.html",
-      tx.map(node => ["div.node", { "data-node": node.id }, node.face], nodes)
+      tx.map(node => ["div.node", { "data-node": node.id }, node.value], nodes)
     ],
     { root: container }
   );
@@ -308,8 +314,7 @@ function force(root0, id, graph, paths) {
       search_queue,
       path => path.length > 3,
       // () => false,
-      path =>
-        graph.edges[path[path.length - 1]].filter(id => !path.includes(id))
+      path => edge_dict[path[path.length - 1]].filter(id => !path.includes(id))
     ),
     1
   );
