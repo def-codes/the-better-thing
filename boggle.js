@@ -653,7 +653,13 @@ const render_example = example => [
   { id: example.name },
   [
     "div.panes",
-    ["div.description", ["h3", example.label], ["p", example.comment]],
+    [
+      "div.description",
+      ["h3", example.label],
+      ["a", { href: `#${example.name}` }, example.name],
+      ["p", example.comment]
+    ],
+
     ["figure.representation", {}, [dom_svg_space, { id: example.name }]]
   ]
 ];
