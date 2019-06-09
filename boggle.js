@@ -172,19 +172,8 @@ async function do_it() {
 
 const SVGNS = "http://www.w3.org/2000/svg";
 
-const dom_svg_space = id => [
-  "div.space",
-  { id },
-  ["div.html"],
-  // is preserveAspectRatio needed?
-  ["svg", { preserveAspectRatio: "none" }]
-];
-
-function force(root0, id, node_view, graph, paths) {
+function force(container, svg_container, node_view, graph, paths) {
   const sim = d3.forceSimulation().stop();
-
-  const root = root0.appendChild(document.createElement("div"));
-  root.classList.add("space-box");
 
   const node_dict = graph.nodes;
   const edge_dict = graph.edges;
@@ -197,10 +186,6 @@ function force(root0, id, node_view, graph, paths) {
     tx.assocObj(),
     nodes
   );
-
-  hdom.renderOnce(dom_svg_space(id), { root });
-  const container = root.querySelector(".space");
-  const svg_container = root.querySelector("svg");
 
   const path_data = ids =>
     ids
@@ -377,14 +362,6 @@ function force(root0, id, node_view, graph, paths) {
   const { trie, graph, solutions } = await do_it();
   console.log(`solutions`, solutions);
 
-  const spaces = document.getElementById("spaces");
-
-  const graph2 = {
-    nodes: { a: "Alice", b: "Bob", c: "Carol", d: "Dave" },
-    edges: { a: ["b", "c"], b: ["d"] }
-  };
-  const graph2_paths = [["a", "d"], ["b", "c", "d"]];
-
   const solution_paths = solutions.map(_ => _[0]);
 
   const union_graphs = (a, b) => ({
@@ -428,14 +405,88 @@ function force(root0, id, node_view, graph, paths) {
   };
 
   const names = ["Alice", "Bob", "Carol", "Dave", "Elon", "Fran"];
-  const graph3 = sequence_as_graph(names);
-  const graph4 = sequence_as_graph_cycle(tx.range(10));
-  const graph5 = sequence_as_graph(tx.range(20, 25));
-  const graph6 = union_graphs(graph4, graph5);
   const node_view = (_, x) => x;
-  force(spaces, "boggle", node_view, graph, solution_paths);
-  force(spaces, "graph2", node_view, graph2, graph2_paths);
-  force(spaces, "graph3", node_view, graph3, []);
-  force(spaces, "numbers", (_, x) => `#${x}`, graph4, []);
-  force(spaces, "numbers", node_view, graph6, []);
+
+  const examples = [
+    {
+      name: "boggle",
+      label: "boggle with solutions",
+      comment: `the full boggle example, with path search`,
+      node_view,
+      graph,
+      paths: solution_paths
+    },
+    {
+      name: "graph2",
+      label: "testing another graph",
+      comment: `an example graph`,
+      node_view,
+      graph: {
+        nodes: { a: "Alice", b: "Bob", c: "Carol", d: "Dave" },
+        edges: { a: ["b", "c"], b: ["d"] }
+      },
+      paths: [["a", "d"], ["b", "c", "d"]]
+    },
+    {
+      name: "graph3",
+      label: "sequence as graph",
+      comment: `turn a sequence into a graph`,
+      node_view,
+      graph: sequence_as_graph(names),
+      paths: []
+    },
+    {
+      name: "graph4",
+      label: "sequence as graph cycle",
+      comment: `turn a sequence into a loop in a graph`,
+      node_view: (_, x) => `#${x}`,
+      graph: sequence_as_graph_cycle(tx.range(10)),
+      paths: []
+    },
+    {
+      name: "graph5",
+      label: "two separate structures on a graph",
+      comment: `union of two independent generated sequences`,
+      node_view,
+      graph: union_graphs(
+        // aka graph4
+        sequence_as_graph_cycle(tx.range(10)),
+        sequence_as_graph(tx.range(20, 25))
+      ),
+      paths: []
+    }
+  ];
+
+  const dom_svg_space = (_, { id }) => [
+    "div.space",
+    { id },
+    ["div.html"],
+    // is preserveAspectRatio needed?
+    ["svg", { preserveAspectRatio: "none" }]
+  ];
+
+  const render_example = example => [
+    "div.example",
+    { id: example.name },
+    ["h3", example.label],
+    ["p", example.comment],
+    ["figure", {}, [dom_svg_space, { id: example.name }]]
+  ];
+  const examples_root = document.getElementById("examples");
+  for (const example of examples) {
+    const root = examples_root.appendChild(document.createElement("article"));
+    hdom.renderOnce(render_example(example), { root });
+    const space = root.querySelector(".space");
+
+    const container = root.querySelector(".space");
+    const svg_container = space.querySelector("svg");
+
+    force(
+      container,
+      svg_container,
+      example.node_view,
+      example.graph,
+      example.paths
+    );
+  }
 })();
