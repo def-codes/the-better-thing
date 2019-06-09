@@ -261,30 +261,20 @@ function force(container, svg_container, node_view, store, paths) {
     document.createElement("style")
   );
 
-  // USE HDOM ALREADY
-
-  /*
   hdom.renderOnce(
     () => [
       "div",
       tx.map(
-        node => ["div.node", { "data-node": node.id }, [node_view, node.value]],
-        nodes
+        ([s, p, o]) => [
+          "div.property",
+          { "data-subject": s, "data-property": p, "data-object": o },
+          p
+        ],
+        properties_to_show
       )
     ],
     { root: container }
   );
-*/
-
-  for (const [subject, property, object] of properties_to_show) {
-    const labeled_edge = document.createElement("div");
-    labeled_edge.classList.add("property");
-    labeled_edge.setAttribute("data-subject", subject);
-    labeled_edge.setAttribute("data-property", property);
-    labeled_edge.setAttribute("data-object", object);
-    labeled_edge.innerText = property;
-    container.appendChild(labeled_edge);
-  }
 
   // I don't like this....
   const by_id = tx.transduce(
@@ -403,7 +393,7 @@ function force(container, svg_container, node_view, store, paths) {
               target.y
             ).toFixed(2);
 
-            const properties = `top: ${top}px; left: ${left}px; width: ${width}px; transform: rotate(${angle}rad) translateY(-50%);`;
+            const properties = `width: ${width}px; transform: translate(${left}px, ${top}px) rotate(${angle}rad) translateY(-50%);`;
             return `${selector} {${properties}}`;
           })
         ),
