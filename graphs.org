@@ -24,3 +24,18 @@ Okay.  We will have runtime data structures that are described by but not
 represented as triples.
 
 But do /visual representations of graphs/ need corresponding RDF structures?
+
+
+* trie selection
+
+How do we describe a trie selection?
+
+Intuitively, it seems this is a job for a kind of FSM matcher, e.g. =happy= or
+=^un.*= or =.*able$= or =^[dr]eclaim=.
+
+Trie selection is a special case of tree selection.  With a trie, we assume
+we're interested in a prefix, i.e. a continuous (stepwise) path from the root.
+
+A trie is not necessarily a /word/ prefix tree.  All the same would apply, except
+that we wouldn't have a regex-like syntax for other value types.
+

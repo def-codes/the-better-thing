@@ -416,7 +416,7 @@ function force(container, svg_container, node_view, graph, paths) {
       paths: solution_paths
     },
     {
-      name: "trie-prefix",
+      name: "trie-view-level-1",
       label: "trie level one",
       comment: `show the first node of a trie`,
       node_view,
@@ -434,7 +434,7 @@ function force(container, svg_container, node_view, graph, paths) {
       paths: []
     },
     {
-      name: "trie-prefix-2",
+      name: "trie-view-level-2",
       label: "trie level two",
       comment: `show the first two levels of a trie`,
       node_view,
@@ -472,6 +472,17 @@ function force(container, svg_container, node_view, graph, paths) {
           )
         }
       },
+      paths: []
+    },
+    {
+      name: "trie-prefix-1",
+      label: "trie match 1",
+      comment: `matching a term against trie`,
+      node_view: (_, [token, t]) => `${token} ${t ? t.count : ""}`,
+      graph: union_graphs(
+        sequence_as_graph(trie.scan("hello")),
+        sequence_as_graph(trie.scan("world"))
+      ),
       paths: []
     },
     {
