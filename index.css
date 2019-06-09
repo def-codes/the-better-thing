@@ -37,8 +37,9 @@ body {
 	border-radius: 0 50% 50% 0;
 	transform-origin: center left;
 	/* border: 1px solid black; */
+	color: rgba(0, 0, 0, .5);
 	text-align: center;
-	margin: 0;
+	overflow: hidden;
 }
 
 /* Examples */

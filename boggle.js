@@ -319,28 +319,25 @@ function force(model_id, container, svg_container, node_view, store, paths) {
       container.querySelector(`[data-node="${node.id}"]`)
     ])
   );
-  const links = [];
 
-  /*
-  const links = [
-    ...tx.mapcat(
-      ({ id }) =>
-        tx.map(
-          // I'd rather not use by_id here, but I started getting a "missing: 1"
-          // apparently having to do with a mix of string and number indices
-          to => ({ source: by_id[id], target: by_id[to] }),
-          graph.edges[id] || []
-        ),
-      nodes
-    )
-  ];
-*/
+  const links = tx.transduce(
+    tx.comp(
+      tx.filter(([, p]) => p === "linksTo"),
+      tx.map(([s, , o]) => ({
+        source: by_id[s],
+        target: by_id[o]
+      })),
+      tx.filter(_ => _.source && _.target)
+    ),
+    tx.push(),
+    store.triples
+  );
   sim.force(
     "grid",
     d3
       .forceLink(links)
       .id(_ => _.id)
-      .strength(0.5)
+      .strength(0.2)
       .iterations(2)
   );
 
