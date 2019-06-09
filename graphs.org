@@ -1,0 +1,26 @@
+#+TITLE:brainstorming userland graph description
+
+If we assume a knowledge base that uses a triple store, wouldn't we get graphs
+"for free"?
+
+The alternative is that we have non-KB information, which we have to assume
+after all, unless we want to express *everything* in RDF.  I already know that
+that's not a good idea.  The trie, for example, will have 20K nodes, and there
+will be no value in putting each of them into the knowledge base.
+
+But userland descriptions /will/ be based on RDF expressions.  
+
+We also need to be able to talk about
+- specific nodes in a given graph (where each might have a different kind of
+  node key)
+- edges between nodes (2-tuples of id's)
+  - ordered or not depending on whether it's a directed edge
+- paths through the graph (n-tuples of id's)
+
+In general, we need to be able to /talk about/ a vast array of data structures
+using RDF, without actually /representing/ those data structures through triples.
+
+Okay.  We will have runtime data structures that are described by but not
+represented as triples.
+
+But do /visual representations of graphs/ need corresponding RDF structures?
