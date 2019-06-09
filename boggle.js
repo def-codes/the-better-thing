@@ -15,7 +15,7 @@ const FACES = Array.from(
 ).concat(["qu", "th", "in", "he"]);
 
 const BOARD_SIZE = { rows: 10, cols: 10 };
-const MIN_WORD_LENGTH = 4;
+const MIN_WORD_LENGTH = 7;
 const MAX_WORD_LENGTH = 100;
 
 function* combinations(as, bs) {
@@ -73,8 +73,6 @@ const neighbors_of_index = (size, index) =>
   neighbors_of(size, row_of(size, index), col_of(size, index)).map(
     ([row, col]) => index_of(size, row, col)
   );
-
-function path_search_step(state) {}
 
 function* iterate_paths(graph, queue, should_stop, get_moves) {
   while (queue.length > 0) {
@@ -243,11 +241,13 @@ function force(container, svg_container, node_view, graph, paths) {
   );
 
   let search_path = [];
-  // const hic2 = ["path.search", {}];
-  const search_path_ele = svg_container.appendChild(
-    document.createElementNS(SVGNS, "path")
-  );
-  search_path_ele.classList.add("search", "graph-path");
+  hdom.renderOnce(["path.search.graph-path"], { root: svg_container });
+  // // const hic2 = ["path.search", {}];
+  // const search_path_ele = svg_container.appendChild(
+  //   document.createElementNS(SVGNS, "path")
+  // );
+  // search_path_ele.classList.add("search", "graph-path");
+  const search_path_ele = svg_container.querySelector(".search-path");
 
   const path_eles = new Map();
   for (const path of paths) {
@@ -304,47 +304,6 @@ function force(container, svg_container, node_view, graph, paths) {
       path => edge_dict[path[path.length - 1]].filter(id => !path.includes(id))
     ),
     1
-  );
-
-  let dragging = null;
-  rs.fromEvent(container, "mousedown").transform(
-    tx.sideEffect(event => {
-      event.preventDefault();
-      dragging = null;
-      const { target } = event;
-      const id = target.getAttribute("data-node");
-      if (!id) return;
-      const node = nodes[id];
-      if (!node) return;
-      node.dragging = true;
-      dragging = {
-        node,
-        box: event.currentTarget.getBoundingClientRect()
-      };
-    })
-  );
-  rs.fromEvent(container, "mousemove").transform(
-    tx.sideEffect(event => {
-      event.preventDefault();
-      if (!dragging) return;
-      dragging.node.x = event.x - dragging.box.x;
-      dragging.node.y = event.y - dragging.box.y;
-      sim.restart();
-      tick_driver.next();
-    })
-  );
-  rs.fromEvent(container, "mouseup").transform(
-    tx.sideEffect(event => {
-      if (dragging) delete dragging.node.dragging;
-      dragging = null;
-      event.preventDefault();
-    })
-  );
-  rs.fromEvent(container, "mouseleave").transform(
-    tx.sideEffect(event => {
-      if (dragging) delete dragging.node.dragging;
-      dragging = null;
-    })
   );
 
   paths_sub.transform(
