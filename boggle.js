@@ -403,19 +403,31 @@ const all_examples = [
     name: "boggle",
     label: "boggle with solutions",
     comment: `the full boggle example, with path search`,
-    async get_resources() {
+    async get_store() {
       const boggle_graph = random_board(BOARD_SIZE);
       const trie = await get_trie();
       const solutions = await solve(trie, boggle_graph);
       console.log(`solutions`, solutions);
 
-      const solution_paths = solutions.map(_ => _[0]);
+      const mint_blank = () => `_:b${nextID()}`;
+      const ids = Object.keys(boggle_graph.nodes).map(mint_blank);
 
-      return {
-        node_view,
-        graph: boggle_graph,
-        paths: solution_paths
-      };
+      const solution_paths = solutions.map(_ => _[0]);
+      const { store } = make_store();
+      store.into(
+        tx.map(
+          ([s, o]) => [ids[s], "value", o],
+          Object.entries(boggle_graph.nodes)
+        )
+      );
+
+      store.into(
+        tx.mapcat(
+          ([s, targets]) => tx.map(o => [ids[s], "linksTo", ids[o]], targets),
+          Object.entries(boggle_graph.edges)
+        )
+      );
+      return store;
     }
   },
   {
@@ -527,9 +539,9 @@ const all_examples = [
         ["b", "value", "Bob"],
         ["c", "value", "Carol"],
         ["d", "value", "Dave"],
-        ["a", "connectsTo", "b"],
-        ["a", "connectsTo", "c"],
-        ["b", "connectsTo", "d"]
+        ["a", "linksTo", "b"],
+        ["a", "linksTo", "c"],
+        ["b", "linksTo", "d"]
       ]);
       // disabled for now
       // paths: [["a", "d"], ["b", "c", "d"]]
