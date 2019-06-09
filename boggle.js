@@ -224,9 +224,9 @@ function force(container, svg_container, node_view, graph, paths) {
       .iterations(2)
   );
 
-  const res = hdom.renderOnce(
+  hdom.renderOnce(
     () => [
-      "div.html",
+      "div",
       tx.map(
         node => ["div.node", { "data-node": node.id }, [node_view, node.value]],
         nodes
@@ -416,6 +416,24 @@ function force(container, svg_container, node_view, graph, paths) {
       paths: solution_paths
     },
     {
+      name: "trie-prefix",
+      label: "trie level one",
+      comment: `show the first node of a trie`,
+      node_view,
+      graph: {
+        nodes: {
+          root: "root",
+          ...tx.transduce(
+            tx.map(k => [k, k]),
+            tx.assocObj(),
+            Object.keys(trie.data)
+          )
+        },
+        edges: { root: Object.keys(trie.data) }
+      },
+      paths: []
+    },
+    {
       name: "graph2",
       label: "testing another graph",
       comment: `an example graph`,
@@ -482,7 +500,7 @@ function force(container, svg_container, node_view, graph, paths) {
     hdom.renderOnce(render_example(example), { root });
     const space = root.querySelector(".space");
 
-    const container = root.querySelector(".space");
+    const container = root.querySelector(".html");
     const svg_container = space.querySelector(".everything");
 
     force(
