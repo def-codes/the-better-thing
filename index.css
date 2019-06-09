@@ -33,7 +33,7 @@ body {
 	font-size: 66%;
 	box-sizing: border-box;
 	/* background: rgba(170, 204, 238, .5); */
-	background-color: rgba(255, 128, 128, .5);
+	background-color: rgba(255, 128, 128, .2);
 	border-radius: 0 50% 50% 0;
 	transform-origin: center left;
 	/* border: 1px solid black; */
@@ -103,7 +103,7 @@ body {
 	user-select: none;
 }
 
-.node:hover {
+.node-content:hover {
 	background: rgba(255, 255, 0, .5);
 }
 

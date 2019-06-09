@@ -219,6 +219,18 @@ function path_search_stuff(graph, svg_container, path_data) {
   );
 }
 
+const render_properties = (_, properties) => [
+  "div",
+  tx.map(
+    ([s, p, o]) => [
+      "div.property",
+      { "data-subject": s, "data-property": p, "data-object": o },
+      p
+    ],
+    properties
+  )
+];
+
 function force(model_id, container, svg_container, node_view, store, paths) {
   const sim = d3.forceSimulation().stop();
 
@@ -261,20 +273,7 @@ function force(model_id, container, svg_container, node_view, store, paths) {
     document.createElement("style")
   );
 
-  hdom.renderOnce(
-    () => [
-      "div",
-      tx.map(
-        ([s, p, o]) => [
-          "div.property",
-          { "data-subject": s, "data-property": p, "data-object": o },
-          p
-        ],
-        properties_to_show
-      )
-    ],
-    { root: container }
-  );
+  hdom.renderOnce([render_properties, properties_to_show], { root: container });
 
   // I don't like this....
   const by_id = tx.transduce(
