@@ -98,13 +98,8 @@ ${code}
 function get_store_from(userland_code) {
   const world = make_world();
   read_userland_code(userland_code, world);
-  console.log(`world.stores.triples`, world.store.triples);
-
   return { store: world.store };
 }
-
-// const array_as_object = a => tx.reduce(tx.assocObj(), Object.entries(a));
-// const ensure_object = x => (Array.isArray(x) ? array_as_object(x) : x);
 
 const FACES = Array.from(
   "aaaaaaaabbbccccdddddeeeeeeeeeeeeffffgggghhhhiiiiiiiijjkklllllllllmmmmmnnnnnnooooooooooppppprrrrrrrsssssssssstttttttuuuuuuuvvwwwxyyyyz"
@@ -118,7 +113,6 @@ function* combinations(as, bs) {
   for (let a of as) for (let b of bs) yield [a, b];
 }
 
-// this is basically a state machine where each node is a state.
 function make_trie() {
   const trie = {};
 
@@ -183,7 +177,6 @@ function* iterate_solutions(graph, is_solution, should_stop) {
   const gen = iterate_paths(
     graph,
     Object.keys(graph.nodes).map(n => [n]),
-    // graph.nodes.map((_, n) => [n]),
     should_stop,
     path => graph.edges[path[path.length - 1]].filter(id => !path.includes(id))
   );
@@ -210,15 +203,10 @@ const random_board = size => ({
   )
 });
 
-// css accepts radians, so, why?
-// const DEGREES_PER_RADIANS = 180 / Math.PI;
-//const to_degrees = radians => radians * DEGREES_PER_RADIANS;
-
 const angle_of = (x, y) =>
   x === 0 ? (y < 0 ? 0 : Math.PI) : Math.atan(y / x) + (x < 0 ? Math.PI : 0);
 
 const angle_between = (x1, y1, x2, y2) => angle_of(x2 - x1, y2 - y1);
-
 const hypotenuse = (a, b) => Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
 
 function solve(trie, graph) {
@@ -299,18 +287,6 @@ function path_search_stuff(graph, svg_container, path_data) {
   );
 }
 
-const render_nodes = (_, { nodes, node_view }) => [
-  "div",
-  tx.map(
-    node => [
-      "div.node",
-      { "data-node": node.id },
-      ["div.node-content", {}, [node_view, node.value]]
-    ],
-    nodes
-  )
-];
-
 const render_properties = (_, properties) => [
   "div",
   tx.map(
@@ -360,11 +336,13 @@ const resources_in = store =>
       )
     );
 
-// given a store and a list of resources, create a subscription for each
-// resource to render it (with all of its known properties available?)  if it's
-// a node from object position only, then it won't actually have any properties
+// given a store and a list of resources, render those resources and their
+// properties.
 function space(store, resources) {
-  const all_props = tx.reduce(
+  const literal_props = tx.transduce(
+    // Limit to literal (value) props, as nodes and links are displayed
+    // independently.  Allows links to be on separate layer.
+    tx.filter(([, , o]) => o.termType === "Literal"),
     tx.groupByMap({ key: ([s]) => s }),
     store.triples
   );
@@ -380,14 +358,12 @@ function space(store, resources) {
           "div.node-content",
           {},
           tx.iterator(
-            tx.comp(
-              tx.map(([, p, o]) => [
-                "div",
-                { "data-property": p.value },
-                o.value
-              ])
-            ),
-            all_props.get(resource)
+            tx.map(([, p, o]) => [
+              "div",
+              { "data-property": p.value },
+              o.value
+            ]),
+            literal_props.get(resource)
           )
         ]
       ],
@@ -449,8 +425,6 @@ function force(
   );
   // sim.force("x", d3.forceX());
   // sim.force("y", d3.forceY());
-
-  //hdom.renderOnce([render_nodes, { nodes, node_view }], { root: container });
 
   const links_prop = rdf.namedNode("linksTo");
   const links = tx.transduce(
