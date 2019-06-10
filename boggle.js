@@ -1,7 +1,12 @@
 const { transducers: tx, rstream: rs, hdom } = thi.ng;
 const { updateDOM } = thi.ng.transducersHdom;
 
+const is_node = term =>
+  term.termType === "NamedNode" || term.termType === "BlankNode";
+
 const mint_blank = () => rdf.blankNode();
+
+const node_or_blank = x => (is_node(x) ? x : mint_blank());
 
 // We're not actually changing to RDF triples as such...
 // just using RDF terms with rstream-query-style tuples
@@ -50,6 +55,17 @@ const make_world = () => {
           .filter(is_triple)
           .map(as_triple)
           .map(([s, p, o]) => trip(s, p, rdf.namedNode(o)))
+      ),
+
+    list: (...things) =>
+      store.into(
+        sequence_as_triples(
+          things.map(thing => {
+            if (!Array.isArray(thing.context)) throw "list: Not a proxy";
+            if (thing.context.length !== 1) throw "list: term is not unary";
+            return rdf.namedNode(thing.context[0].key);
+          })
+        )
       ),
 
     // For querying the state of the knowledge base.
@@ -307,9 +323,6 @@ const render_properties = (_, properties) => [
   )
 ];
 
-const is_node = term =>
-  term.termType === "NamedNode" || term.termType === "BlankNode";
-
 // select the resources that are going to be visible
 // render a container for them, courtesy of host
 // support notion that there can be "hasX" rules
@@ -542,7 +555,7 @@ function force(
 
 function* sequence_as_triples_cycle(seq) {
   const nodes = [...seq];
-  const ids = nodes.map(mint_blank);
+  const ids = nodes.map(node_or_blank);
 
   yield* tx.mapIndexed((index, node) => trip(ids[index], "value", node), nodes);
   yield* tx.map(
@@ -553,7 +566,7 @@ function* sequence_as_triples_cycle(seq) {
 
 function* sequence_as_triples(seq) {
   const nodes = [...seq];
-  const ids = nodes.map(mint_blank);
+  const ids = nodes.map(node_or_blank);
   yield* tx.mapIndexed((index, node) => trip(ids[index], "value", node), nodes);
   yield* tx.map(
     n => trip(ids[n], "linksTo", ids[n + 1]),
@@ -748,16 +761,7 @@ b . linksTo . d
     name: "graph3",
     label: "sequence as graph",
     comment: `turn a sequence into a graph`,
-    userland_code: `// names = list(Alice, Bob, Carol, Dave, Elon, Fran)
-// that's it.  view as sequence
-`,
-    get_store() {
-      const { store } = make_store();
-      store.into(
-        sequence_as_triples("Alice Bob Carol Dave Elon Fran".split(" "))
-      );
-      return { store };
-    }
+    userland_code: `list(Alice, Bob, Carol, Dave, Elon, Fran)`
   },
   {
     name: "graph4",
