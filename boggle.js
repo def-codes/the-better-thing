@@ -597,7 +597,6 @@ claim(Bob.likes.Alice)
       const boggle_graph = random_board(BOARD_SIZE);
       const trie = await get_trie();
       const solutions = await solve(trie, boggle_graph);
-      console.log(`solutions`, solutions);
 
       const ids = tx.transduce(
         tx.map(key => [key, mint_blank()]),
@@ -843,59 +842,83 @@ const get_trie = (function() {
   };
 })();
 
-const empty = ele => {
-  while (ele.firstChild) ele.removeChild(ele.firstChild);
-};
+function make_model_dataflow(model_spec) {
+  const { name } = model_spec;
+  const root = document.getElementById(model_spec.name);
+  const container = root.querySelector(".space .html");
+  const svg_container = root.querySelector(".space .everything");
+  const code_box = root.querySelector("textarea");
+
+  const model_resources = rs.metaStream(
+    ({ store }) => resources_in(store),
+    `${name}/store`
+  );
+
+  const model_store = rs.subscription();
+  model_store.subscribe(model_resources);
+
+  const model_code = rs.subscription();
+
+  model_code.subscribe({
+    next(code) {
+      const store = get_store_from(code);
+      if (store) model_store.next(store);
+    }
+  });
+
+  const model_both = rs.sync({
+    src: { store: model_store, resources: model_resources },
+    id: `${name}-store-and-resources`
+  });
+
+  const ele = container.appendChild(document.createElement("div"));
+
+  model_both.subscribe(
+    tx.comp(
+      tx.map(({ store: { store }, resources }) => [
+        render_resource_nodes,
+        { store, resources }
+      ]),
+      updateDOM({ root: ele })
+    )
+  );
+  model_both.subscribe({
+    next({ store, resources }) {
+      force(
+        name,
+        resources,
+        container.appendChild(document.createElement("div")),
+        svg_container,
+        store.node_view || node_view,
+        store.store,
+        []
+      );
+    }
+  });
+
+  rs.fromEvent(code_box, "input").transform(
+    tx.map(event => event.target.value),
+    tx.sideEffect(code => {
+      model_code.next(code);
+    })
+  );
+
+  if (model_spec.userland_code && !model_spec.get_store) {
+    model_code.next(model_spec.userland_code);
+    return;
+  }
+
+  (async function do_it(code) {
+    const store = await model_spec.get_store();
+    if (!store) return;
+    model_store.next(store);
+  })();
+}
 
 (async function() {
   const examples = all_examples.filter(_ => _.get_store || _.userland_code);
 
   hdom.renderOnce(render_examples(examples), { root: "examples" });
 
-  for (const example of examples) {
-    const root = document.getElementById(example.name);
-    const container = root.querySelector(".space .html");
-    const svg_container = root.querySelector(".space .everything");
-    const code_box = root.querySelector("textarea");
-
-    function code_changed(event) {
-      const code = event.target.value;
-      empty(container);
-      empty(svg_container);
-      hdom.renderOnce(render_example(example), { root: container });
-      do_it(code);
-    }
-    code_box.addEventListener("input", code_changed);
-
-    async function do_it(code) {
-      const store = example.get_store
-        ? await example.get_store()
-        : get_store_from(code || example.userland_code);
-      console.log(`store`, store);
-      if (!store) return;
-
-      resources_in(store.store).subscribe({
-        next(resources) {
-          console.log(`resources`, resources);
-
-          hdom.renderOnce(
-            [render_resource_nodes, { store: store.store, resources }],
-            { root: container.appendChild(document.createElement("div")) }
-          );
-
-          force(
-            example.name,
-            resources,
-            container.appendChild(document.createElement("div")),
-            svg_container,
-            store.node_view || node_view,
-            store.store,
-            []
-          );
-        }
-      });
-    }
-
-    do_it();
-  }
+  for (const example of examples) make_model_dataflow(example);
 })();
