@@ -2,11 +2,15 @@ const { transducers: tx, rstream: rs, hdom } = thi.ng;
 const { updateDOM } = thi.ng.transducersHdom;
 console.log(`thi.ng`, thi.ng);
 
-const nextID = (function() {
-  let id = 0;
-  return () => id++;
-})();
-const mint_blank = () => `_:b${nextID()}`;
+const mint_blank = () => rdf.blankNode();
+
+// We're not actually changing to RDF triples as such...
+// just using RDF terms with rstream-query-style tuples
+const trip = (s, p, o) => [
+  typeof s === "string" ? rdf.namedNode(s) : s,
+  typeof p === "string" ? rdf.namedNode(p) : p,
+  !o || !o.termType ? rdf.literal(o) : o
+];
 
 const make_store = () => {
   const store = new thi.ng.rstreamQuery.TripleStore();
@@ -100,16 +104,6 @@ function* iterate_solutions(graph, is_solution, should_stop) {
 
   for (const path of gen) if (is_solution(path)) yield path;
 }
-
-/* display */
-/*
-function text_display(board) {
-  const cubes = board.cubes.slice();
-  const parts = [];
-  while (cubes.length) parts.push(cubes.splice(0, board.size.cols).join(" "));
-  return parts.join("\n");
-}
-*/
 
 /* board generator */
 
@@ -224,47 +218,35 @@ const render_properties = (_, properties) => [
   tx.map(
     ([s, p, o]) => [
       "div.property",
-      { "data-subject": s, "data-property": p, "data-object": o },
+      {
+        "data-subject": s.value,
+        "data-property": p.value,
+        "data-object": o.value
+      },
       p
     ],
     properties
   )
 ];
 
+const value_prop = rdf.namedNode("value");
 function force(model_id, container, svg_container, node_view, store, paths) {
   const sim = d3.forceSimulation().stop();
+  console.log(`model_id, store.triples`, model_id, store.triples);
 
-  // Convert the resources to objects
-  // this seems overkill
-  // only use for it would be to access properties in force accessor functions
   const node_dict = tx.transduce(
-    tx.map(([id, props]) => [
-      id,
-      tx.transduce(
-        tx.map(idx => store.triples[idx]),
-        tx.groupByObj({
-          key: ([, p]) => p,
-          // This is a wonky reducer... the value is an array if there's more
-          // than one, and not otherwise.  How else do we know whether to expect
-          // multiple values?  Also, if you're going to do this, it should be a
-          // Set, not an array.
-          group: tx.reducer(
-            () => undefined,
-            (acc, [, , o]) => (acc === undefined ? o : [...acc, o])
-          )
-        }),
-        props
-      )
-    ]),
+    tx.comp(
+      tx.filter(([, p]) => p === value_prop),
+      tx.map(([s, , o]) => [s.value, { value: o.value }])
+    ),
     tx.assocObj(),
-    store.indexS
+    store.triples
   );
-  console.log(`node_dict`, node_dict);
 
   const nodes = Object.entries(node_dict).map(([id, value]) => ({ id, value }));
 
   const properties_to_show = tx.transduce(
-    tx.comp(tx.filter(([, p]) => p !== "value")),
+    tx.comp(tx.filter(([, p]) => p !== value_prop)),
     tx.push(),
     store.triples
   );
@@ -315,18 +297,20 @@ function force(model_id, container, svg_container, node_view, store, paths) {
     { root: container }
   );
 
+  const links_prop = rdf.namedNode("linksTo");
   const links = tx.transduce(
     tx.comp(
-      tx.filter(([, p]) => p === "linksTo"),
+      tx.filter(([, p]) => p === links_prop),
       tx.map(([s, , o]) => ({
-        source: by_id[s],
-        target: by_id[o]
+        source: by_id[s.value],
+        target: by_id[o.value]
       })),
       tx.filter(_ => _.source && _.target)
     ),
     tx.push(),
     store.triples
   );
+
   sim.force(
     "grid",
     d3
@@ -368,13 +352,15 @@ function force(model_id, container, svg_container, node_view, store, paths) {
         tx.comp(
           tx.map(triple => ({
             triple,
-            source: by_id[triple[0]],
-            target: by_id[triple[2]]
+            source: by_id[triple[0].value],
+            target: by_id[triple[2].value]
           })),
           tx.filter(_ => _.source && _.target),
           tx.map(({ triple, source, target }) => {
             const [s, p, o] = triple;
-            const selector = `#${model_id} [data-subject="${s}"][data-object="${o}"]`;
+            const selector = `#${model_id} [data-subject="${
+              s.value
+            }"][data-object="${o.value}"]`;
             const { x: x1, y: y1 } = source;
             const { x: x2, y: y2 } = target;
             const top = Math.round(y1);
@@ -424,11 +410,11 @@ function force(model_id, container, svg_container, node_view, store, paths) {
 
 function* sequence_as_triples_cycle(seq) {
   const nodes = [...seq];
-  const ids = nodes.map(nextID);
+  const ids = nodes.map(mint_blank);
 
-  yield* tx.mapIndexed((index, node) => [ids[index], "value", node], nodes);
+  yield* tx.mapIndexed((index, node) => trip(ids[index], "value", node), nodes);
   yield* tx.map(
-    n => [ids[n], "linksTo", ids[n < nodes.length - 1 ? n + 1 : 0]],
+    n => trip(ids[n], "linksTo", ids[n < nodes.length - 1 ? n + 1 : 0]),
     tx.range(nodes.length)
   );
 }
@@ -436,9 +422,9 @@ function* sequence_as_triples_cycle(seq) {
 function* sequence_as_triples(seq) {
   const nodes = [...seq];
   const ids = nodes.map(mint_blank);
-  yield* tx.mapIndexed((index, node) => [ids[index], "value", node], nodes);
+  yield* tx.mapIndexed((index, node) => trip(ids[index], "value", node), nodes);
   yield* tx.map(
-    n => [ids[n], "linksTo", ids[n + 1]],
+    n => trip(ids[n], "linksTo", ids[n + 1]),
     tx.range(nodes.length - 1)
   );
 }
@@ -482,14 +468,15 @@ const all_examples = [
       const { store } = make_store();
       store.into(
         tx.map(
-          ([s, o]) => [ids[s], "value", o],
+          ([s, o]) => trip(ids[s], "value", o),
           Object.entries(boggle_graph.nodes)
         )
       );
 
       store.into(
         tx.mapcat(
-          ([s, targets]) => tx.map(o => [ids[s], "linksTo", ids[o]], targets),
+          ([s, targets]) =>
+            tx.map(o => trip(ids[s], "linksTo", ids[o]), targets),
           Object.entries(boggle_graph.edges)
         )
       );
@@ -604,13 +591,13 @@ b . linksTo . d
     get_store() {
       const { store } = make_store();
       store.into([
-        ["a", "value", "Alice"],
-        ["b", "value", "Bob"],
-        ["c", "value", "Carol"],
-        ["d", "value", "Dave"],
-        ["a", "linksTo", "b"],
-        ["a", "linksTo", "c"],
-        ["b", "linksTo", "d"]
+        trip("a", "value", "Alice"),
+        trip("b", "value", "Bob"),
+        trip("c", "value", "Carol"),
+        trip("d", "value", "Dave"),
+        trip("a", "linksTo", "b"),
+        trip("a", "linksTo", "c"),
+        trip("b", "linksTo", "d")
       ]);
       // disabled for now
       // paths: [["a", "d"], ["b", "c", "d"]]
