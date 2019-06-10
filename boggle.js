@@ -1,6 +1,5 @@
 const { transducers: tx, rstream: rs, hdom } = thi.ng;
 const { updateDOM } = thi.ng.transducersHdom;
-console.log(`thi.ng`, thi.ng);
 
 const mint_blank = () => rdf.blankNode();
 
@@ -337,8 +336,8 @@ const resources_in = store =>
     );
 
 // given a store and a list of resources, render those resources and their
-// properties.
-function space(store, resources) {
+// (non-node) properties.
+const render_resource_nodes = (_, { store, resources }) => {
   const literal_props = tx.transduce(
     // Limit to literal (value) props, as nodes and links are displayed
     // independently.  Allows links to be on separate layer.
@@ -357,20 +356,18 @@ function space(store, resources) {
         [
           "div.node-content",
           {},
-          tx.iterator(
-            tx.map(([, p, o]) => [
-              "div",
-              { "data-property": p.value },
-              o.value
-            ]),
-            literal_props.get(resource)
-          )
+          !literal_props.has(resource)
+            ? resource.value
+            : tx.map(
+                ([, p, o]) => ["div", { "data-property": p.value }, o.value],
+                literal_props.get(resource)
+              )
         ]
       ],
       resources
     )
   ];
-}
+};
 
 const value_prop = rdf.namedNode("value");
 
@@ -492,12 +489,13 @@ function force(
             }"][data-object="${o.value}"]`;
             const { x: x1, y: y1 } = source;
             const { x: x2, y: y2 } = target;
-            const top = Math.round(y1);
-            const left = Math.round(x1);
-            const width = Math.floor(hypotenuse(x2 - x1, y2 - y1)) || 1;
+            const top = y1.toFixed(2);
+            const left = x1.toFixed(2);
+            const width = (hypotenuse(x2 - x1, y2 - y1) || 1).toFixed(2);
             const angle = angle_between(x1, y1, x2, y2).toFixed(2);
-
-            return `${selector}{width:${width}px;transform:translate(${left}px,${top}px) translateY(-50%) rotate(${angle}rad);}`;
+            // The second translate is useful if you have a property in each
+            // direction between two nodes.  More than that would be hard.
+            return `${selector}{width:${width}px;transform: translate(${left}px,${top}px) rotate(${angle}rad) translateY(-50%);}`;
           })
         ),
         tx.push(),
@@ -579,6 +577,7 @@ const all_examples = [
     comment: `testing expression reader`,
     userland_code: `
 claim(Alice.loves.Bob)
+claim(Bob.likes.Alice)
 `
   },
   {
@@ -847,9 +846,8 @@ const get_trie = (function() {
 
   for (const example of examples) {
     const root = document.getElementById(example.name);
-    const space_box = root.querySelector(".space");
-    const container = space_box.querySelector(".html");
-    const svg_container = space_box.querySelector(".everything");
+    const container = root.querySelector(".space .html");
+    const svg_container = root.querySelector(".space .everything");
 
     const store = example.get_store
       ? await example.get_store()
@@ -857,19 +855,15 @@ const get_trie = (function() {
 
     resources_in(store.store).subscribe({
       next(resources) {
-        console.log(`resources`, resources);
-
-        const hic = space(store.store, resources);
-        console.log(`hic`, hic);
-
-        hdom.renderOnce(hic, {
-          root: container.appendChild(document.createElement("div"))
-        });
+        hdom.renderOnce(
+          [render_resource_nodes, { store: store.store, resources }],
+          { root: container.appendChild(document.createElement("div")) }
+        );
 
         force(
           example.name,
           resources,
-          container,
+          container.appendChild(document.createElement("div")),
           svg_container,
           store.node_view || node_view,
           store.store,

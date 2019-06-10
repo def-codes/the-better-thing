@@ -99,7 +99,8 @@ const dataFactory = {
 
 /////////// toString extensions
 namedNode.prototype.toString = function() {
-  return `<${this.value}>`;
+  // Was using the Turtle formatting,
+  return this.value; // `<${this.value}>`;
 };
 blankNode.prototype.toString = function() {
   return `_:${this.value}`;
