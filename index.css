@@ -45,6 +45,9 @@ body {
 	text-align: center;
 	overflow: hidden;
 }
+.node [data-property="linksTo"] {
+	display: none;
+}
 
 /* Examples */
 .example .space {

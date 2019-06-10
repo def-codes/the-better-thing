@@ -327,22 +327,90 @@ const render_properties = (_, properties) => [
   )
 ];
 
-const is_node = ([, , o]) =>
-  o.termType === "NamedNode" || o.termType === "BlankNode";
+const is_node = term =>
+  term.termType === "NamedNode" || term.termType === "BlankNode";
 
-const value_prop = rdf.namedNode("value");
-function force(model_id, container, svg_container, node_view, store, paths) {
-  const sim = d3.forceSimulation().stop();
+// select the resources that are going to be visible
+// render a container for them, courtesy of host
+// support notion that there can be "hasX" rules
+// *adding* content into that node, in no particular order
+// those are hdom functions which get access to
+// what? the triple(s) that matched a rule.  Not the entire object
+// do the same for properties.  so yeah this has nothing to do with the force model.
 
-  const node_dict = tx.transduce(
-    tx.comp(
-      tx.filter(([, p]) => p === value_prop),
-      tx.map(([s, , o]) => [s.value, { value: o.value }])
-    ),
-    tx.assocObj(),
+// given a store, create a subscription that yields all of the resources it
+// talks about, i.e. every named or blank node in a subject or object position.
+const resources_in = store =>
+  store
+    .addQueryFromSpec({
+      q: [{ where: [["?subject", "?predicate", "?object"]] }]
+    })
+    .transform(
+      tx.map(triples =>
+        tx.transduce(
+          tx.comp(
+            tx.multiplex(tx.pluck("subject"), tx.pluck("object")),
+            tx.cat(),
+            tx.filter(is_node),
+            tx.keep()
+          ),
+          tx.conj(),
+          triples
+        )
+      )
+    );
+
+// given a store and a list of resources, create a subscription for each
+// resource to render it (with all of its known properties available?)  if it's
+// a node from object position only, then it won't actually have any properties
+function space(store, resources) {
+  const all_props = tx.reduce(
+    tx.groupByMap({ key: ([s]) => s }),
     store.triples
   );
-  const nodes = Object.entries(node_dict).map(([id, value]) => ({ id, value }));
+
+  return [
+    "div",
+    {},
+    tx.map(
+      resource => [
+        "div.node",
+        { "data-node": resource.value },
+        [
+          "div.node-content",
+          {},
+          tx.iterator(
+            tx.comp(
+              tx.map(([, p, o]) => [
+                "div",
+                { "data-property": p.value },
+                o.value
+              ])
+            ),
+            all_props.get(resource)
+          )
+        ]
+      ],
+      resources
+    )
+  ];
+}
+
+const value_prop = rdf.namedNode("value");
+
+// this should just produce a subscription
+function force(
+  space_id,
+  resources,
+  container,
+  svg_container,
+  node_view,
+  store,
+  paths
+) {
+  const sim = d3.forceSimulation().stop();
+
+  const nodes = Array.from(resources, resource => ({ id: resource.value }));
 
   const properties_to_show = tx.transduce(
     tx.comp(tx.filter(([, p]) => p !== value_prop)),
@@ -356,6 +424,7 @@ function force(model_id, container, svg_container, node_view, store, paths) {
     document.createElement("style")
   );
 
+  // These are now done when rendering node...
   hdom.renderOnce([render_properties, properties_to_show], { root: container });
 
   // I don't like this....
@@ -381,7 +450,7 @@ function force(model_id, container, svg_container, node_view, store, paths) {
   // sim.force("x", d3.forceX());
   // sim.force("y", d3.forceY());
 
-  hdom.renderOnce([render_nodes, { nodes, node_view }], { root: container });
+  //hdom.renderOnce([render_nodes, { nodes, node_view }], { root: container });
 
   const links_prop = rdf.namedNode("linksTo");
   const links = tx.transduce(
@@ -444,7 +513,7 @@ function force(model_id, container, svg_container, node_view, store, paths) {
           tx.filter(_ => _.source && _.target),
           tx.map(({ triple, source, target }) => {
             const [s, p, o] = triple;
-            const selector = `#${model_id} [data-subject="${
+            const selector = `#${space_id} [data-subject="${
               s.value
             }"][data-object="${o.value}"]`;
             const { x: x1, y: y1 } = source;
@@ -465,7 +534,7 @@ function force(model_id, container, svg_container, node_view, store, paths) {
     nodes_style.innerHTML = [
       ...tx.map(
         node =>
-          `#${model_id} [data-node="${node.id}"] {top:${node.y}px;left:${
+          `#${space_id} [data-node="${node.id}"] {top:${node.y}px;left:${
             node.x
           }px}`,
         nodes
@@ -804,20 +873,35 @@ const get_trie = (function() {
 
   for (const example of examples) {
     const root = document.getElementById(example.name);
-    const space = root.querySelector(".space");
-    const container = space.querySelector(".html");
-    const svg_container = space.querySelector(".everything");
+    const space_box = root.querySelector(".space");
+    const container = space_box.querySelector(".html");
+    const svg_container = space_box.querySelector(".everything");
 
     const store = example.get_store
       ? await example.get_store()
       : get_store_from(example.userland_code);
-    force(
-      example.name,
-      container,
-      svg_container,
-      store.node_view || node_view,
-      store.store,
-      []
-    );
+
+    resources_in(store.store).subscribe({
+      next(resources) {
+        console.log(`resources`, resources);
+
+        const hic = space(store.store, resources);
+        console.log(`hic`, hic);
+
+        hdom.renderOnce(hic, {
+          root: container.appendChild(document.createElement("div"))
+        });
+
+        force(
+          example.name,
+          resources,
+          container,
+          svg_container,
+          store.node_view || node_view,
+          store.store,
+          []
+        );
+      }
+    });
   }
 })();
