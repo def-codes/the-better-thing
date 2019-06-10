@@ -17,6 +17,92 @@ const make_store = () => {
   return { store };
 };
 
+const make_world = () => {
+  const store = new thi.ng.rstreamQuery.TripleStore();
+
+  const is_triple = _ =>
+    _ && _.context.length === 3 && _.context.every(_ => _.key);
+
+  // Adaptor for proxy expressions
+  const as_triple = _ => _.context.map(_ => _.key.replace(/^\$/, "?"));
+
+  const query = (...clauses) => read =>
+    store
+      .addQueryFromSpec({ q: [{ where: clauses.map(as_triple) }] })
+      .subscribe(tx.comp(tx.flatten(), tx.map(read)));
+
+  const system = {
+    make_it_a_rule_that: ({ when, then }) =>
+      query(...when)(match =>
+        then.forEach(clause =>
+          store.add(
+            as_triple(clause).map(
+              // Map variables in the consequent clause to the matched values.
+              term => (term[0] === "?" ? match[term.slice(1)] : term)
+            )
+          )
+        )
+      ),
+
+    // Helper to add triple-like expressions to the store.
+    claim: (...things) =>
+      store.into(
+        things
+          .filter(is_triple)
+          .map(as_triple)
+          .map(([s, p, o]) => trip(s, p, rdf.namedNode(o)))
+      ),
+
+    // For querying the state of the knowledge base.
+    is_it_a_fact_that: _ => store.has(as_triple(_)),
+    say: console.log,
+    store,
+    query
+  };
+
+  // Short-circuits for all crazy proxies.
+  const ALWAYS = {
+    [Symbol.unscopables]: undefined, // checked when using `with` block
+    [Symbol.iterator]: undefined,
+    [Symbol.toPrimitive]: undefined,
+    inspect: undefined // for node only
+  };
+
+  const make_proxy = (context = []) => {
+    const target = () => {};
+    const local = {
+      context,
+      toJSON: () => JSON.stringify(context),
+      toString: () => context.toString()
+    };
+    const scopes = [ALWAYS, local, system, globalThis];
+    return new Proxy(target, {
+      has: (target, key) => true,
+      get: (_target, key, _receiver) => {
+        for (const scope of scopes) if (key in scope) return scope[key];
+        return make_proxy([...context, { key }]);
+      }
+    });
+  };
+  return make_proxy();
+};
+
+const read_userland_code = (code, world) =>
+  new Function(
+    "world",
+    `with (world) { 
+${code}
+  }`
+  )(world);
+
+function get_store_from(userland_code) {
+  const world = make_world();
+  read_userland_code(userland_code, world);
+  console.log(`world.stores.triples`, world.store.triples);
+
+  return { store: world.store };
+}
+
 // const array_as_object = a => tx.reduce(tx.assocObj(), Object.entries(a));
 // const ensure_object = x => (Array.isArray(x) ? array_as_object(x) : x);
 
@@ -213,6 +299,18 @@ function path_search_stuff(graph, svg_container, path_data) {
   );
 }
 
+const render_nodes = (_, { nodes, node_view }) => [
+  "div",
+  tx.map(
+    node => [
+      "div.node",
+      { "data-node": node.id },
+      ["div.node-content", {}, [node_view, node.value]]
+    ],
+    nodes
+  )
+];
+
 const render_properties = (_, properties) => [
   "div",
   tx.map(
@@ -229,10 +327,12 @@ const render_properties = (_, properties) => [
   )
 ];
 
+const is_node = ([, , o]) =>
+  o.termType === "NamedNode" || o.termType === "BlankNode";
+
 const value_prop = rdf.namedNode("value");
 function force(model_id, container, svg_container, node_view, store, paths) {
   const sim = d3.forceSimulation().stop();
-  console.log(`model_id, store.triples`, model_id, store.triples);
 
   const node_dict = tx.transduce(
     tx.comp(
@@ -242,7 +342,6 @@ function force(model_id, container, svg_container, node_view, store, paths) {
     tx.assocObj(),
     store.triples
   );
-
   const nodes = Object.entries(node_dict).map(([id, value]) => ({ id, value }));
 
   const properties_to_show = tx.transduce(
@@ -282,20 +381,7 @@ function force(model_id, container, svg_container, node_view, store, paths) {
   // sim.force("x", d3.forceX());
   // sim.force("y", d3.forceY());
 
-  hdom.renderOnce(
-    () => [
-      "div",
-      tx.map(
-        node => [
-          "div.node",
-          { "data-node": node.id },
-          ["div.node-content", {}, [node_view, node.value]]
-        ],
-        nodes
-      )
-    ],
-    { root: container }
-  );
+  hdom.renderOnce([render_nodes, { nodes, node_view }], { root: container });
 
   const links_prop = rdf.namedNode("linksTo");
   const links = tx.transduce(
@@ -444,6 +530,14 @@ const render_trie_node = (_, { value: [token, t] }) => [
 const node_view = (_, x) => x.value;
 
 const all_examples = [
+  {
+    name: "code-in-world",
+    label: "simple claims",
+    comment: `testing expression reader`,
+    userland_code: `
+claim(Alice.loves.Bob)
+`
+  },
   {
     name: "boggle",
     label: "boggle with solutions",
@@ -704,7 +798,8 @@ const get_trie = (function() {
 })();
 
 (async function() {
-  const examples = all_examples.filter(_ => _.get_store);
+  const examples = all_examples.filter(_ => _.get_store || _.userland_code);
+
   hdom.renderOnce(render_examples(examples), { root: "examples" });
 
   for (const example of examples) {
@@ -713,8 +808,9 @@ const get_trie = (function() {
     const container = space.querySelector(".html");
     const svg_container = space.querySelector(".everything");
 
-    // const resources = await example.get_resources();
-    const store = await example.get_store();
+    const store = example.get_store
+      ? await example.get_store()
+      : get_store_from(example.userland_code);
     force(
       example.name,
       container,
