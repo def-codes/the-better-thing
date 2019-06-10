@@ -68,6 +68,8 @@ const make_world = () => {
         )
       ),
 
+    range: (...args) => store.into(sequence_as_triples(tx.range(...args))),
+
     // For querying the state of the knowledge base.
     is_it_a_fact_that: _ => store.has(as_triple(_)),
     say: console.log,
@@ -762,6 +764,12 @@ b . linksTo . d
     label: "sequence as graph",
     comment: `turn a sequence into a graph`,
     userland_code: `list(Alice, Bob, Carol, Dave, Elon, Fran)`
+  },
+  {
+    name: "range-1",
+    label: "integer range",
+    comment: `a range from zero up to the number`,
+    userland_code: `range(10)`
   },
   {
     name: "graph4",
