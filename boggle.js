@@ -96,7 +96,12 @@ ${code}
 
 function get_store_from(userland_code) {
   const world = make_world();
-  read_userland_code(userland_code, world);
+  try {
+    read_userland_code(userland_code, world);
+  } catch (error) {
+    console.error("reading userland code", error);
+    throw error;
+  }
   return { store: world.store };
 }
 
@@ -848,27 +853,26 @@ const empty = ele => {
   hdom.renderOnce(render_examples(examples), { root: "examples" });
 
   for (const example of examples) {
-    // const root = document.getElementById(example.name);
-    // const container = root.querySelector(".space .html");
-    // const svg_container = root.querySelector(".space .everything");
-    // const code_box = root.querySelector("textarea");
     const root = document.getElementById(example.name);
     const container = root.querySelector(".space .html");
     const svg_container = root.querySelector(".space .everything");
     const code_box = root.querySelector("textarea");
 
     function code_changed(event) {
+      const code = event.target.value;
       empty(container);
       empty(svg_container);
       hdom.renderOnce(render_example(example), { root: container });
-      do_it(event.target.value);
+      do_it(code);
     }
+    code_box.addEventListener("input", code_changed);
 
     async function do_it(code) {
       const store = example.get_store
         ? await example.get_store()
         : get_store_from(code || example.userland_code);
       console.log(`store`, store);
+      if (!store) return;
 
       resources_in(store.store).subscribe({
         next(resources) {
