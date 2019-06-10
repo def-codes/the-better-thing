@@ -814,7 +814,6 @@ const render_example = example => [
   ]
 ];
 
-// is the div needed when you return an iterator?
 const render_examples = examples => [
   "div",
   {},
@@ -839,37 +838,60 @@ const get_trie = (function() {
   };
 })();
 
+const empty = ele => {
+  while (ele.firstChild) ele.removeChild(ele.firstChild);
+};
+
 (async function() {
   const examples = all_examples.filter(_ => _.get_store || _.userland_code);
 
   hdom.renderOnce(render_examples(examples), { root: "examples" });
 
   for (const example of examples) {
+    // const root = document.getElementById(example.name);
+    // const container = root.querySelector(".space .html");
+    // const svg_container = root.querySelector(".space .everything");
+    // const code_box = root.querySelector("textarea");
     const root = document.getElementById(example.name);
     const container = root.querySelector(".space .html");
     const svg_container = root.querySelector(".space .everything");
+    const code_box = root.querySelector("textarea");
 
-    const store = example.get_store
-      ? await example.get_store()
-      : get_store_from(example.userland_code);
+    function code_changed(event) {
+      empty(container);
+      empty(svg_container);
+      hdom.renderOnce(render_example(example), { root: container });
+      do_it(event.target.value);
+    }
 
-    resources_in(store.store).subscribe({
-      next(resources) {
-        hdom.renderOnce(
-          [render_resource_nodes, { store: store.store, resources }],
-          { root: container.appendChild(document.createElement("div")) }
-        );
+    async function do_it(code) {
+      const store = example.get_store
+        ? await example.get_store()
+        : get_store_from(code || example.userland_code);
+      console.log(`store`, store);
 
-        force(
-          example.name,
-          resources,
-          container.appendChild(document.createElement("div")),
-          svg_container,
-          store.node_view || node_view,
-          store.store,
-          []
-        );
-      }
-    });
+      resources_in(store.store).subscribe({
+        next(resources) {
+          console.log(`resources`, resources);
+
+          hdom.renderOnce(
+            [render_resource_nodes, { store: store.store, resources }],
+            { root: container.appendChild(document.createElement("div")) }
+          );
+
+          force(
+            example.name,
+            resources,
+            container.appendChild(document.createElement("div")),
+            svg_container,
+            store.node_view || node_view,
+            store.store,
+            []
+          );
+        }
+      });
+    }
+
+    do_it();
   }
 })();
