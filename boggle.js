@@ -798,41 +798,62 @@ function make_model_dataflow(model_spec) {
       path.setAttribute("d", path_data(ids));
 */
   }
+  console.log(`line 801`);
 
   const model_properties = model_store.transform(
     tx.map(({ store }) => [
       ...tx.filter(([, p]) => p !== value_prop, store.triples)
     ])
   );
+  console.log(`line 807`);
 
   model_properties.transform(
     tx.map(properties_to_show => [render_properties, properties_to_show]),
     updateDOM({ root: properties_container })
   );
+  console.log(`line 813`);
 
   const model_forcefield_nodes = model_resources.transform(
     tx.map(resources => [...tx.map(({ value }) => ({ id: value }), resources)]),
     tx.sideEffect(sim.nodes)
   );
+  model_forcefield_nodes.subscribe(rs.trace("ART BLAKEY"));
 
-  const links_prop = rdf.namedNode("linksTo");
-
-  const model_links = model_store.transform(
-    tx.map(({ store }) =>
-      tx.transduce(
-        tx.comp(
-          tx.filter(([, p]) => p === links_prop),
-          tx.map(([s, , o]) => ({ source: s.value, target: o.value })),
-          tx.filter(_ => _.source && _.target)
-        ),
-        tx.push(),
-        store.triples
-      )
+  // I still don't like this....
+  const forcefield_nodes_by_id = model_forcefield_nodes.transform(
+    tx.map(nodes =>
+      tx.transduce(tx.map(node => [node.id, node]), tx.assocObj(), nodes)
     )
   );
+  forcefield_nodes_by_id.subscribe(rs.trace("YOUTOO"));
+  const links_prop = rdf.namedNode("linksTo");
 
-  model_links.transform(
-    tx.sideEffect(links =>
+  // Still not working.  this shouldn't need `by_id` because d3 can (and was
+  // previously) looking up just by node id (e.g. s.value). but it stopped.
+
+  const model_links = rs
+    .sync({ src: { by_id: forcefield_nodes_by_id, store: model_store } })
+    .transform(
+      tx.map(({ store, by_id }) =>
+        tx.transduce(
+          tx.comp(
+            tx.filter(([, p]) => p === links_prop),
+            tx.map(([s, , o]) => ({
+              source: by_id[s],
+              target: by_id[o]
+            })),
+            tx.filter(_ => _.source && _.target)
+          ),
+          tx.push(),
+          store.triples
+        )
+      )
+    );
+
+  model_links.subscribe({
+    next(links) {
+      console.log(`links`, links);
+
       sim.force(
         "grid",
         d3
@@ -840,9 +861,9 @@ function make_model_dataflow(model_spec) {
           .id(_ => _.id)
           .strength(0.2)
           .iterations(2)
-      )
-    )
-  );
+      );
+    }
+  });
 
   const model_link_eles = model_links.transform(
     tx.map(links => {
@@ -857,13 +878,6 @@ function make_model_dataflow(model_spec) {
     })
   );
 
-  // I still don't like this....
-  const forcefield_nodes_by_id = model_forcefield_nodes.transform(
-    tx.map(nodes =>
-      tx.transduce(tx.map(node => [node.id, node]), tx.assocObj(), nodes)
-    )
-  );
-
   // const tick_driver = rs.fromRAF();
   const tick_driver = rs.fromInterval(100);
   const ticks = rs.subscription();
@@ -874,7 +888,7 @@ function make_model_dataflow(model_spec) {
   model_forcefield_nodes.subscribe(rs.trace("womp"));
 
   rs.sync({ src: { ticks, link_eles: model_link_eles } }).subscribe({
-    next: ({ link_eles }) => {
+    next({ link_eles }) {
       for (const [{ source, target }, line] of link_eles.entries()) {
         line.setAttribute("x1", source.x || 0);
         line.setAttribute("y1", source.y || 0);

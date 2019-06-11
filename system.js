@@ -21,7 +21,6 @@ const rstream_variables = term =>
 const apply_system = store => {
   const registry = new Map();
 
-  // Monotonic: one-time only setter
   const system = {
     find: subject => registry.get(subject),
     register(subject, thunk) {
@@ -43,6 +42,9 @@ const apply_system = store => {
     console.log(`done with rules for driver`);
   }
   console.log(`done with drivers`);
+
+  // TRANSITIONAL: I don't really want resources exposed as such
+  return { find: system.find };
 };
 
 var meld = { apply_system, register_driver };

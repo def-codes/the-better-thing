@@ -135,3 +135,7 @@ clarity of viewing (assuming that the contents of multiple planes are less
 related than that of content within a plane).
 
 The main remaining question is an implementation detail.
+
+Also remember that a forcefield /just drives computation/.  It has nothing to do
+with actual rendering in many cases.  This is less the case for SVG, where you
+can't accomplish as much with pure CSS (at least for paths).
