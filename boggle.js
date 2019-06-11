@@ -415,11 +415,6 @@ const property_placement_css = ({ triple, source, target, space_id }) => {
   return `${selector}{width:${width}px;transform: translate(${left}px,${top}px) rotate(${angle}rad) translateY(-50%);}`;
 };
 
-// if forcefield has force...
-// if x is a forceX and it has property Y with value Z
-// that maps to a runtime object
-// now we have bnodes, so we don't have to worry about making up names!
-
 // center.isa.forceCenter;
 // charge.isa.forceManyBody;
 // charge.hasStrength(-200);
@@ -644,6 +639,12 @@ const all_examples = [
     userland_code: `
 claim(Alice.loves.Bob)
 claim(Bob.likes.Alice)
+claim(
+foo.isa.Forcefield,
+bar.isa.forceX,
+bar.x.abc,
+foo.hasForce.bar
+)
 `
   },
   {
@@ -938,6 +939,8 @@ function make_model_dataflow(model_spec) {
   model_code.subscribe({
     next(code) {
       const store = get_store_from(code);
+      if (!meld) throw `no meld!!`;
+      meld.apply_system(store.store);
       if (store) model_store.next(store);
     }
   });
@@ -998,7 +1001,9 @@ function make_model_dataflow(model_spec) {
 }
 
 (async function() {
-  const examples = all_examples.filter(_ => _.get_store || _.userland_code);
+  const examples = [
+    all_examples.filter(_ => _.get_store || _.userland_code)[0]
+  ];
 
   hdom.renderOnce(render_examples(examples), { root: "examples" });
 
