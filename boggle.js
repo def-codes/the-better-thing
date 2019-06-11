@@ -370,7 +370,7 @@ const render_resource_nodes = (_, { store, resources }) => {
     tx.map(
       resource => [
         "div.node",
-        { "data-node": resource.value },
+        { "data-thing": resource.value },
         [
           "div.node-content",
           {},
@@ -389,10 +389,22 @@ const render_resource_nodes = (_, { store, resources }) => {
 
 const value_prop = rdf.namedNode("value");
 
+const thing_position_css = space_id => ({ id, x, y }) =>
+  `#${space_id} [data-thing="${id}"]{top:${y}px;left:${x}px}`;
+
+const things_position_css = (space_id, things) =>
+  [...tx.map(thing_position_css(space_id), things)].join("\n");
+
+function position_things(style_ele, space_id, things) {
+  style_ele.innerHTML = things_position_css(space_id, things);
+}
+
 // this should just produce a subscription
 function force(
   space_id,
   resources,
+  nodes_style,
+  properties_style,
   container,
   svg_container,
   node_view,
@@ -401,19 +413,11 @@ function force(
 ) {
   const sim = d3.forceSimulation().stop();
 
-  const nodes = Array.from(resources, resource => ({ id: resource.value }));
+  const nodes = [...tx.map(({ value }) => ({ id: value }), resources)];
 
-  const properties_to_show = tx.transduce(
-    tx.comp(tx.filter(([, p]) => p !== value_prop)),
-    tx.push(),
-    store.triples
-  );
-
-  const nodes_style = container.appendChild(document.createElement("style"));
-
-  const properties_style = container.appendChild(
-    document.createElement("style")
-  );
+  const properties_to_show = [
+    ...tx.filter(([, p]) => p !== value_prop, store.triples)
+  ];
 
   // These are now done when rendering node...
   hdom.renderOnce([render_properties, properties_to_show], { root: container });
@@ -464,6 +468,7 @@ function force(
       .iterations(2)
   );
 
+  /*
   let search_path = [];
   hdom.renderOnce(["path.search.graph-path"], { root: svg_container });
   // // const hic2 = ["path.search", {}];
@@ -481,6 +486,7 @@ function force(
     path_eles.set(path, path_ele);
     svg_container.appendChild(path_ele);
   }
+  */
 
   const link_eles = new Map();
   for (const link of links) {
@@ -490,7 +496,9 @@ function force(
     svg_container.appendChild(line);
   }
 
-  function update_positions(n) {
+  function update_positions() {
+    position_things(nodes_style, space_id, nodes);
+
     properties_style.innerHTML = [
       ...tx.transduce(
         tx.comp(
@@ -521,25 +529,16 @@ function force(
       )
     ].join("\n");
 
-    nodes_style.innerHTML = [
-      ...tx.map(
-        node =>
-          `#${space_id} [data-node="${node.id}"] {top:${node.y}px;left:${
-            node.x
-          }px}`,
-        nodes
-      )
-    ].join("\n");
-
     for (const [{ source, target }, line] of link_eles.entries()) {
       line.setAttribute("x1", source.x);
       line.setAttribute("y1", source.y);
       line.setAttribute("x2", target.x);
       line.setAttribute("y2", target.y);
     }
-
+    /*
     for (const [ids, path] of path_eles.entries())
       path.setAttribute("d", path_data(ids));
+*/
   }
 
   // const tick_driver = rs.fromRAF();
@@ -873,8 +872,8 @@ const get_trie = (function() {
 function make_model_dataflow(model_spec) {
   const { name } = model_spec;
   const root = document.getElementById(model_spec.name);
-  const container = root.querySelector(".space .html");
-  const svg_container = root.querySelector(".space .everything");
+  const html = root.querySelector(".space .html");
+  const svg = root.querySelector(".space .everything");
   const code_box = root.querySelector("textarea");
 
   const model_resources = rs.metaStream(
@@ -899,7 +898,10 @@ function make_model_dataflow(model_spec) {
     id: `${name}-store-and-resources`
   });
 
-  const ele = container.appendChild(document.createElement("div"));
+  const nodes_style = root.appendChild(document.createElement("style"));
+  const properties_style = root.appendChild(document.createElement("style"));
+  const things_container = html.appendChild(document.createElement("div"));
+  const properties_container = html.appendChild(document.createElement("div"));
 
   model_both.subscribe(
     tx.comp(
@@ -907,7 +909,7 @@ function make_model_dataflow(model_spec) {
         render_resource_nodes,
         { store, resources }
       ]),
-      updateDOM({ root: ele })
+      updateDOM({ root: things_container })
     )
   );
   model_both.subscribe({
@@ -915,8 +917,11 @@ function make_model_dataflow(model_spec) {
       force(
         name,
         resources,
-        container.appendChild(document.createElement("div")),
-        svg_container,
+        nodes_style,
+        properties_style,
+        // container.appendChild(document.createElement("div")),
+        properties_container,
+        svg,
         store.node_view || node_view,
         store.store,
         []
