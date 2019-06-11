@@ -16,10 +16,7 @@ const trip = (s, p, o) => [
   !o || !o.termType ? rdf.literal(o) : o
 ];
 
-const make_store = () => {
-  const store = new thi.ng.rstreamQuery.TripleStore();
-  return { store };
-};
+const make_store = () => new thi.ng.rstreamQuery.TripleStore();
 
 const make_world = () => {
   const store = new thi.ng.rstreamQuery.TripleStore();
@@ -118,7 +115,7 @@ function get_store_from(userland_code) {
     console.error("reading userland code", error);
     throw error;
   }
-  return { store: world.store };
+  return world.store;
 }
 
 const FACES = Array.from(
@@ -479,7 +476,7 @@ foo.hasForce.bar
       );
 
       const solution_paths = solutions.map(_ => _[0]);
-      const { store } = make_store();
+      const store = make_store();
       store.into(
         tx.map(
           ([s, o]) => trip(ids[s], "value", o),
@@ -494,7 +491,7 @@ foo.hasForce.bar
           Object.entries(boggle_graph.edges)
         )
       );
-      return { store };
+      return store;
     }
   },
   {
@@ -580,13 +577,14 @@ foo.hasForce.bar
 `,
     async get_store() {
       const trie = await get_trie();
+      // TODO: need another way to say this
       const node_view = render_trie_node;
-      const { store } = make_store();
+      const store = make_store();
       store.into(sequence_as_triples(trie.scan("qpoinspr")));
       store.into(sequence_as_triples(trie.scan("hello")));
       store.into(sequence_as_triples(trie.scan("world")));
 
-      return { store, node_view };
+      return store;
     }
   },
   {
@@ -603,7 +601,7 @@ a . linksTo . c
 b . linksTo . d
 `,
     get_store() {
-      const { store } = make_store();
+      const store = make_store();
       store.into([
         trip("a", "value", "Alice"),
         trip("b", "value", "Bob"),
@@ -615,7 +613,7 @@ b . linksTo . d
       ]);
       // disabled for now
       // paths: [["a", "d"], ["b", "c", "d"]]
-      return { store };
+      return store;
     }
   },
   {
@@ -656,9 +654,9 @@ claim(Alice.knows.Bob)
 b = cycle(a)
 `,
     get_store() {
-      const { store } = make_store();
+      const store = make_store();
       store.into(sequence_as_triples_cycle(tx.range(10)));
-      return { store };
+      return store;
     }
   },
   {
@@ -669,10 +667,10 @@ b = cycle(a)
 b = range(20, 25)
 `,
     get_store() {
-      const { store } = make_store();
+      const store = make_store();
       store.into(sequence_as_triples_cycle(tx.range(10)));
       store.into(sequence_as_triples(tx.range(20, 25)));
-      return { store };
+      return store;
     }
   }
 ];
@@ -739,7 +737,7 @@ function make_model_dataflow(model_spec) {
   const code_box = root.querySelector("textarea");
 
   const model_resources = rs.metaStream(
-    ({ store }) => resources_in(store),
+    store => resources_in(store),
     `${name}/store`
   );
   const model_simulation = rs.subscription();
@@ -752,12 +750,19 @@ function make_model_dataflow(model_spec) {
     next(code) {
       // yes, we're rebuilding the world every time
       const store = get_store_from(code);
-      if (!meld) throw `no meld!!`;
-      const system = meld.apply_system(store.store);
+
+      if (!meld) {
+        console.warn("no meld!");
+        return;
+      }
+      if (typeof meld.apply_system !== "function") {
+        console.warn("expected meld.apply_system to be a function!");
+        return;
+      }
+      const system = meld.apply_system(store);
       const sim =
         system.find(rdf.namedNode("foo")) || d3.forceSimulation().stop();
       model_simulation.next(sim);
-      console.log(`foo`, sim);
       sim.force("center", d3.forceCenter());
       sim.force(
         "charge",
@@ -785,7 +790,7 @@ function make_model_dataflow(model_spec) {
   const properties_container = html.appendChild(document.createElement("div"));
 
   model_both.transform(
-    tx.map(({ store: { store }, resources }) => [
+    tx.map(({ store, resources }) => [
       render_resource_nodes,
       { store, resources }
     ]),
@@ -800,20 +805,15 @@ function make_model_dataflow(model_spec) {
       path.setAttribute("d", path_data(ids));
 */
   }
-  console.log(`line 801`);
 
   const model_properties = model_store.transform(
-    tx.map(({ store }) => [
-      ...tx.filter(([, p]) => p !== value_prop, store.triples)
-    ])
+    tx.map(store => [...tx.filter(([, p]) => p !== value_prop, store.triples)])
   );
-  console.log(`line 807`);
 
   model_properties.transform(
     tx.map(properties_to_show => [render_properties, properties_to_show]),
     updateDOM({ root: properties_container })
   );
-  console.log(`line 813`);
 
   const model_forcefield_nodes = rs
     .sync({ src: { resources: model_resources, sim: model_simulation } })
@@ -850,15 +850,13 @@ function make_model_dataflow(model_spec) {
             tx.filter(_ => _.source && _.target)
           ),
           tx.push(),
-          store.store.triples
+          store.triples
         )
       )
     );
 
   rs.sync({ src: { links: model_links, sim: model_simulation } }).subscribe({
     next({ links, sim }) {
-      console.log(`links`, links);
-
       sim.force(
         "grid",
         d3
@@ -891,9 +889,6 @@ function make_model_dataflow(model_spec) {
   rs.sync({ src: { ticks, sim: model_simulation } }).transform(
     tx.sideEffect(({ sim }) => sim.tick())
   );
-
-  model_link_eles.subscribe(rs.trace("sdpjf"));
-  model_forcefield_nodes.subscribe(rs.trace("womp"));
 
   rs.sync({ src: { ticks, link_eles: model_link_eles } }).subscribe({
     next({ link_eles }) {
@@ -980,7 +975,7 @@ function make_model_dataflow(model_spec) {
 
 (async function() {
   const examples = [
-    ...all_examples.filter(_ => _.get_store || _.userland_code)
+    all_examples.filter(_ => _.get_store || _.userland_code)[0]
   ];
 
   hdom.renderOnce(render_examples(examples), { root: "examples" });
