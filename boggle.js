@@ -399,6 +399,52 @@ function position_things(style_ele, space_id, things) {
   style_ele.innerHTML = things_position_css(space_id, things);
 }
 
+const property_placement_css = ({ triple, source, target, space_id }) => {
+  const [s, p, o] = triple;
+  const selector = `#${space_id} [data-subject="${s.value}"][data-object="${
+    o.value
+  }"]`;
+  const { x: x1, y: y1 } = source;
+  const { x: x2, y: y2 } = target;
+  const top = y1.toFixed(2);
+  const left = x1.toFixed(2);
+  const width = (hypotenuse(x2 - x1, y2 - y1) || 1).toFixed(2);
+  const angle = angle_between(x1, y1, x2, y2).toFixed(2);
+  // The second translate is useful if you have a property in each
+  // direction between two nodes.  More than that would be hard.
+  return `${selector}{width:${width}px;transform: translate(${left}px,${top}px) rotate(${angle}rad) translateY(-50%);}`;
+};
+
+// if forcefield has force...
+// if x is a forceX and it has property Y with value Z
+// that maps to a runtime object
+// now we have bnodes, so we don't have to worry about making up names!
+
+// center.isa.forceCenter;
+// charge.isa.forceManyBody;
+// charge.hasStrength(-200);
+
+function do_forces(sim, links) {
+  sim.force("center", d3.forceCenter());
+  sim.force(
+    "charge",
+    d3.forceManyBody().strength(-200)
+    //.distanceMax(250)
+    //.theta(0.98)
+  );
+  // sim.force("x", d3.forceX());
+  // sim.force("y", d3.forceY());
+
+  sim.force(
+    "grid",
+    d3
+      .forceLink(links)
+      .id(_ => _.id)
+      .strength(0.2)
+      .iterations(2)
+  );
+}
+
 // this should just produce a subscription
 function force(
   space_id,
@@ -435,6 +481,21 @@ function force(
       .join(" ");
 
   sim.nodes(nodes);
+
+  const links_prop = rdf.namedNode("linksTo");
+  const links = tx.transduce(
+    tx.comp(
+      tx.filter(([, p]) => p === links_prop),
+      tx.map(([s, , o]) => ({ source: s.value, target: o.value })),
+      tx.filter(_ => _.source && _.target)
+    ),
+    tx.push(),
+    store.triples
+  );
+
+  do_forces(sim, links);
+
+  /*
   sim.force("center", d3.forceCenter());
   sim.force(
     "charge",
@@ -467,6 +528,7 @@ function force(
       .strength(0.2)
       .iterations(2)
   );
+  */
 
   /*
   let search_path = [];
@@ -503,26 +565,13 @@ function force(
       ...tx.transduce(
         tx.comp(
           tx.map(triple => ({
+            space_id,
             triple,
             source: by_id[triple[0].value],
             target: by_id[triple[2].value]
           })),
           tx.filter(_ => _.source && _.target),
-          tx.map(({ triple, source, target }) => {
-            const [s, p, o] = triple;
-            const selector = `#${space_id} [data-subject="${
-              s.value
-            }"][data-object="${o.value}"]`;
-            const { x: x1, y: y1 } = source;
-            const { x: x2, y: y2 } = target;
-            const top = y1.toFixed(2);
-            const left = x1.toFixed(2);
-            const width = (hypotenuse(x2 - x1, y2 - y1) || 1).toFixed(2);
-            const angle = angle_between(x1, y1, x2, y2).toFixed(2);
-            // The second translate is useful if you have a property in each
-            // direction between two nodes.  More than that would be hard.
-            return `${selector}{width:${width}px;transform: translate(${left}px,${top}px) rotate(${angle}rad) translateY(-50%);}`;
-          })
+          tx.map(property_placement_css)
         ),
         tx.push(),
         properties_to_show
