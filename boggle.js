@@ -738,24 +738,11 @@ function make_model_dataflow(model_spec) {
   const svg = root.querySelector(".space .everything");
   const code_box = root.querySelector("textarea");
 
-  const sim = d3.forceSimulation().stop();
-  sim.force("center", d3.forceCenter());
-  sim.force(
-    "charge",
-    d3
-      .forceManyBody()
-      .strength(-200)
-      .distanceMax(250)
-      .theta(0.98)
-  );
-  // sim.force("x", d3.forceX());
-  // sim.force("y", d3.forceY());
-
   const model_resources = rs.metaStream(
     ({ store }) => resources_in(store),
     `${name}/store`
   );
-
+  const model_simulation = rs.subscription();
   const model_store = rs.subscription();
   model_store.subscribe(model_resources);
 
@@ -767,7 +754,22 @@ function make_model_dataflow(model_spec) {
       const store = get_store_from(code);
       if (!meld) throw `no meld!!`;
       const system = meld.apply_system(store.store);
-      //system.find()
+      const sim =
+        system.find(rdf.namedNode("foo")) || d3.forceSimulation().stop();
+      model_simulation.next(sim);
+      console.log(`foo`, sim);
+      sim.force("center", d3.forceCenter());
+      sim.force(
+        "charge",
+        d3
+          .forceManyBody()
+          .strength(-200)
+          .distanceMax(250)
+          .theta(0.98)
+      );
+      // sim.force("x", d3.forceX());
+      // sim.force("y", d3.forceY());
+
       if (store) model_store.next(store);
     }
   });
@@ -813,10 +815,16 @@ function make_model_dataflow(model_spec) {
   );
   console.log(`line 813`);
 
-  const model_forcefield_nodes = model_resources.transform(
-    tx.map(resources => [...tx.map(({ value }) => ({ id: value }), resources)]),
-    tx.sideEffect(sim.nodes)
-  );
+  const model_forcefield_nodes = rs
+    .sync({ src: { resources: model_resources, sim: model_simulation } })
+    .transform(
+      tx.map(({ resources, sim }) => ({
+        sim,
+        nodes: [...tx.map(({ value }) => ({ id: value }), resources)]
+      })),
+      tx.sideEffect(({ sim, nodes }) => sim.nodes(nodes)),
+      tx.pluck("nodes")
+    );
 
   // I still don't like this....
   const forcefield_nodes_by_id = model_forcefield_nodes.transform(
@@ -847,8 +855,8 @@ function make_model_dataflow(model_spec) {
       )
     );
 
-  model_links.subscribe({
-    next(links) {
+  rs.sync({ src: { links: model_links, sim: model_simulation } }).subscribe({
+    next({ links, sim }) {
       console.log(`links`, links);
 
       sim.force(
@@ -878,8 +886,11 @@ function make_model_dataflow(model_spec) {
   // const tick_driver = rs.fromRAF();
   const tick_driver = rs.fromInterval(100);
   const ticks = rs.subscription();
-  ticks.transform(tx.sideEffect(sim.tick));
   tick_driver.subscribe(ticks);
+
+  rs.sync({ src: { ticks, sim: model_simulation } }).transform(
+    tx.sideEffect(({ sim }) => sim.tick())
+  );
 
   model_link_eles.subscribe(rs.trace("sdpjf"));
   model_forcefield_nodes.subscribe(rs.trace("womp"));
@@ -969,7 +980,7 @@ function make_model_dataflow(model_spec) {
 
 (async function() {
   const examples = [
-    all_examples.filter(_ => _.get_store || _.userland_code)[1]
+    ...all_examples.filter(_ => _.get_store || _.userland_code)
   ];
 
   hdom.renderOnce(render_examples(examples), { root: "examples" });
