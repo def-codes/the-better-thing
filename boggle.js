@@ -39,7 +39,7 @@ const make_world = () => {
       .subscribe(tx.comp(tx.flatten(), tx.map(read)));
 
   const system = {
-    make_it_a_rule_that: ({ when, then }) =>
+    rule: ({ when, then }) =>
       query(...when)(match =>
         then.forEach(clause =>
           store.add(
@@ -767,13 +767,12 @@ b . linksTo . d
     name: "symmetrical-1",
     label: "symmetrical property",
     comment: `a symmetrical property always applies in both directions`,
-    userland_code: `
-claim(Alice.knows.Bob)
-claim(knows.isa.SymmetricalProperty)
-make_it_a_rule_that({
+    userland_code: `claim(knows.isa.SymmetricalProperty)
+rule({
   when: [$p.isa.SymmetricalProperty, $x.$p.$y],
   then: [$y.$p.$x]
-});
+})
+claim(Alice.knows.Bob)
 `
   },
   {
