@@ -39,3 +39,99 @@ we're interested in a prefix, i.e. a continuous (stepwise) path from the root.
 A trie is not necessarily a /word/ prefix tree.  All the same would apply, except
 that we wouldn't have a regex-like syntax for other value types.
 
+* space, layers, planes, forcefields, and bodies
+
+We should be able to be explicit about layers.
+
+But we shouldn't *have* to be explicit about layers.
+
+A body can only be in one layer.  That's an absolute invariant.
+
+In a model that doesn't talk about layers, things are still visible by default.
+
+Many layers can live in the same forcefield.
+
+We might say that the forcefield applies to a space, even though you could have
+more than one space.  A space is still going to be a container, i.e. there
+doesn't have to be just one top-level one.
+
+It's intuitive to say that a forcefield applies to a space, as opposed to a
+layer.  And layers can be in exactly one space.
+
+Layers originating from the same plane can be displaced, in which case their
+coordinate systems may not line up.
+
+It seems to me that layers and planes are orthogonal.  A layer can be /depicting/
+a projection of one portion of a space while itself residing in another.  The
+coordinate system is really the thing.  We're not going to attempt to coordinate
+across multiple coordinate systems.  So we can think of layers as belonging to
+exactly one coordinate system that is itself not really "located" anywhere.  The
+layers may move around in "real" space for our viewing convenience, but the
+situation of objects within them is independent of that movement.  The important
+thing about layers is that multiple layers belonging to the same group should
+tend to return back together.
+
+So what are these "groups of layers" called?  Let's call them planes.
+
+A plane is really more of an abstraction.  It doesn't represent a cross-section
+of the ambient space, as noted above, since this would be meaningless as long as
+we're not coordinating multiple coordinate systems within that space.  So a
+plane is really just a force, if you will, that wants to keep certain layers
+together.
+
+Note that a forcefield could actually be used to help accomplish this.  It's
+good whenever you want to define relationships that tend towards an equilibrium.
+A forcefield could be used along a single dimension to drive the z-offset of
+layers, e.g. for the purpose of revealing them temporarily.
+
+So a forcefield can be used to drive different properties, even though the
+built-ins will use it in a familiar way.
+
+How do things get associated with different layers?  It seems it would be easier
+to talk about them in bulk, i.e. things with this property, or this class of
+things, or whatever, goes in this layer.  But --- if that means /container/, not
+just z-transform, then movements between layers would be abrupt.  That will have
+to do for now.
+
+Still, if something can only belong to one layer, then we need a way to resolve
+conflicts between multiple statements about what layer something is on.  Again,
+I'm content to take the simplest possible approach.
+
+I will talk briefly about spaces.  For right now, I am only interested in one
+space at a time.
+
+Reconsidering some of the above notes, I would say that there remains only one
+space for a given model, by which I mean "real" space, or as close as we can get
+to that in a web environment.  Therefore all coordination is done through
+planes.  /And/ therefore, a 2d force simulation (such as we have) necessarily
+applies to a 2d (or less) target.  Any simulation used to play with layer
+z-transforms requires a separate forcefield instance.
+
+Again, how do things get associated with layers?  It's more intuitive to think
+of things simply as being in "different" layers than one another, than to think
+of specific e.g. identified layers.
+
+Also note that even if you want to move things between layers (i.e. reclassify
+what goes in what layer), you can just as well do that when the layers have
+snapped back together, i.e. make the change when they are flat and let them
+"bounce back" in the new configuration.
+
+It's possible to have more than one plane (coordinate system) and have them
+overlap in the same way that coordinated layers do.  But these would be
+uncoordinated layers, and any resemblance between their arrangements is strictly
+coincidental.  In any case, such planes can be running independent forcefields.
+
+So how do bodies end up in a forcefield?  By being in a plane.  Bodies might not
+move as easily between one plane and another (as they do between layers in the
+same plane).
+
+Either way, we don't need to associate them explicitly.
+
+So we're thinking of a plane as essentially a 2.5d space, and "space" is
+basically the ether in which those things are situated.  Planes are coordinated
+(they are used for relative positioning and their layers want to stay together);
+space is uncoordinated and mainly concentrates on keeping things /apart/ for
+clarity of viewing (assuming that the contents of multiple planes are less
+related than that of content within a plane).
+
+The main remaining question is an implementation detail.
