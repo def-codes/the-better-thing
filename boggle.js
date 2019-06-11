@@ -834,20 +834,22 @@ function make_model_dataflow(model_spec) {
   const model_links = rs
     .sync({ src: { by_id: forcefield_nodes_by_id, store: model_store } })
     .transform(
+      tx.trace("inputs to links"),
       tx.map(({ store, by_id }) =>
         tx.transduce(
           tx.comp(
             tx.filter(([, p]) => p === links_prop),
             tx.map(([s, , o]) => ({
-              source: by_id[s],
-              target: by_id[o]
+              source: by_id[s.value],
+              target: by_id[o.value]
             })),
             tx.filter(_ => _.source && _.target)
           ),
           tx.push(),
-          store.triples
+          store.store.triples
         )
-      )
+      ),
+      tx.trace("l&g the links")
     );
 
   model_links.subscribe({
