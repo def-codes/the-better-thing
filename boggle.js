@@ -323,14 +323,6 @@ const render_properties = (_, properties) => [
   )
 ];
 
-// select the resources that are going to be visible
-// render a container for them, courtesy of host
-// support notion that there can be "hasX" rules
-// *adding* content into that node, in no particular order
-// those are hdom functions which get access to
-// what? the triple(s) that matched a rule.  Not the entire object
-// do the same for properties.  so yeah this has nothing to do with the force model.
-
 // given a store, create a subscription that yields all of the resources it
 // talks about, i.e. every named or blank node in a subject or object position.
 const resources_in = store =>
@@ -410,191 +402,11 @@ const property_placement_css = ({ triple, source, target, space_id }) => {
   const left = x1.toFixed(2);
   const width = (hypotenuse(x2 - x1, y2 - y1) || 1).toFixed(2);
   const angle = angle_between(x1, y1, x2, y2).toFixed(2);
+
   // The second translate is useful if you have a property in each
   // direction between two nodes.  More than that would be hard.
   return `${selector}{width:${width}px;transform: translate(${left}px,${top}px) rotate(${angle}rad) translateY(-50%);}`;
 };
-
-// center.isa.forceCenter;
-// charge.isa.forceManyBody;
-// charge.hasStrength(-200);
-
-function do_forces(sim, links) {
-  sim.force("center", d3.forceCenter());
-  sim.force(
-    "charge",
-    d3.forceManyBody().strength(-200)
-    //.distanceMax(250)
-    //.theta(0.98)
-  );
-  // sim.force("x", d3.forceX());
-  // sim.force("y", d3.forceY());
-
-  sim.force(
-    "grid",
-    d3
-      .forceLink(links)
-      .id(_ => _.id)
-      .strength(0.2)
-      .iterations(2)
-  );
-}
-
-// this should just produce a subscription
-function force(
-  space_id,
-  resources,
-  nodes_style,
-  properties_style,
-  container,
-  svg_container,
-  node_view,
-  store,
-  paths
-) {
-  const sim = d3.forceSimulation().stop();
-
-  const nodes = [...tx.map(({ value }) => ({ id: value }), resources)];
-
-  const properties_to_show = [
-    ...tx.filter(([, p]) => p !== value_prop, store.triples)
-  ];
-
-  // These are now done when rendering node...
-  hdom.renderOnce([render_properties, properties_to_show], { root: container });
-
-  // I don't like this....
-  const by_id = tx.transduce(
-    tx.map(node => [node.id, node]),
-    tx.assocObj(),
-    nodes
-  );
-
-  const path_data = ids =>
-    ids
-      .map((id, i) => `${i > 0 ? "L" : "M"} ${by_id[id].x},${by_id[id].y}`)
-      .join(" ");
-
-  sim.nodes(nodes);
-
-  const links_prop = rdf.namedNode("linksTo");
-  const links = tx.transduce(
-    tx.comp(
-      tx.filter(([, p]) => p === links_prop),
-      tx.map(([s, , o]) => ({ source: s.value, target: o.value })),
-      tx.filter(_ => _.source && _.target)
-    ),
-    tx.push(),
-    store.triples
-  );
-
-  do_forces(sim, links);
-
-  /*
-  sim.force("center", d3.forceCenter());
-  sim.force(
-    "charge",
-    d3.forceManyBody().strength(node => (node.dragging ? -500 : -200))
-    //.distanceMax(250)
-    //.theta(0.98)
-  );
-  // sim.force("x", d3.forceX());
-  // sim.force("y", d3.forceY());
-
-  const links_prop = rdf.namedNode("linksTo");
-  const links = tx.transduce(
-    tx.comp(
-      tx.filter(([, p]) => p === links_prop),
-      tx.map(([s, , o]) => ({
-        source: by_id[s.value],
-        target: by_id[o.value]
-      })),
-      tx.filter(_ => _.source && _.target)
-    ),
-    tx.push(),
-    store.triples
-  );
-
-  sim.force(
-    "grid",
-    d3
-      .forceLink(links)
-      .id(_ => _.id)
-      .strength(0.2)
-      .iterations(2)
-  );
-  */
-
-  /*
-  let search_path = [];
-  hdom.renderOnce(["path.search.graph-path"], { root: svg_container });
-  // // const hic2 = ["path.search", {}];
-  // const search_path_ele = svg_container.appendChild(
-  //   document.createElementNS(SVGNS, "path")
-  // );
-  // search_path_ele.classList.add("search", "graph-path");
-  const search_path_ele = svg_container.querySelector(".search-path");
-
-  const path_eles = new Map();
-  for (const path of paths) {
-    // const hic = ["path.solution", { d: "" }];
-    const path_ele = document.createElementNS(SVGNS, "path");
-    path_ele.classList.add("graph-path");
-    path_eles.set(path, path_ele);
-    svg_container.appendChild(path_ele);
-  }
-  */
-
-  const link_eles = new Map();
-  for (const link of links) {
-    const line = document.createElementNS(SVGNS, "line");
-    line.classList.add("graph-edge");
-    link_eles.set(link, line);
-    svg_container.appendChild(line);
-  }
-
-  function update_positions() {
-    position_things(nodes_style, space_id, nodes);
-
-    properties_style.innerHTML = [
-      ...tx.transduce(
-        tx.comp(
-          tx.map(triple => ({
-            space_id,
-            triple,
-            source: by_id[triple[0].value],
-            target: by_id[triple[2].value]
-          })),
-          tx.filter(_ => _.source && _.target),
-          tx.map(property_placement_css)
-        ),
-        tx.push(),
-        properties_to_show
-      )
-    ].join("\n");
-
-    for (const [{ source, target }, line] of link_eles.entries()) {
-      line.setAttribute("x1", source.x);
-      line.setAttribute("y1", source.y);
-      line.setAttribute("x2", target.x);
-      line.setAttribute("y2", target.y);
-    }
-    /*
-    for (const [ids, path] of path_eles.entries())
-      path.setAttribute("d", path_data(ids));
-*/
-  }
-
-  // const tick_driver = rs.fromRAF();
-  const tick_driver = rs.fromInterval(100);
-  const ticks = rs.subscription();
-  ticks.transform(tx.sideEffect(() => sim.tick()));
-  tick_driver.subscribe(ticks);
-  ticks.subscribe({ next: update_positions });
-
-  // TRANSITIONAL
-  // path_search_stuff(graph, svg_container, path_data);
-}
 
 function* sequence_as_triples_cycle(seq) {
   const nodes = [...seq];
@@ -641,8 +453,8 @@ claim(Alice.loves.Bob)
 claim(Bob.likes.Alice)
 claim(
 foo.isa.Forcefield,
-bar.isa.forceX,
-bar.x.abc,
+bar.isa.forceManyBody,
+//bar.x.abc,
 foo.hasForce.bar
 )
 `
@@ -926,6 +738,19 @@ function make_model_dataflow(model_spec) {
   const svg = root.querySelector(".space .everything");
   const code_box = root.querySelector("textarea");
 
+  const sim = d3.forceSimulation().stop();
+  sim.force("center", d3.forceCenter());
+  sim.force(
+    "charge",
+    d3
+      .forceManyBody()
+      .strength(-200)
+      .distanceMax(250)
+      .theta(0.98)
+  );
+  // sim.force("x", d3.forceX());
+  // sim.force("y", d3.forceY());
+
   const model_resources = rs.metaStream(
     ({ store }) => resources_in(store),
     `${name}/store`
@@ -938,9 +763,11 @@ function make_model_dataflow(model_spec) {
 
   model_code.subscribe({
     next(code) {
+      // yes, we're rebuilding the world every time
       const store = get_store_from(code);
       if (!meld) throw `no meld!!`;
-      meld.apply_system(store.store);
+      const system = meld.apply_system(store.store);
+      //system.find()
       if (store) model_store.next(store);
     }
   });
@@ -955,31 +782,160 @@ function make_model_dataflow(model_spec) {
   const things_container = html.appendChild(document.createElement("div"));
   const properties_container = html.appendChild(document.createElement("div"));
 
-  model_both.subscribe(
-    tx.comp(
-      tx.map(({ store: { store }, resources }) => [
-        render_resource_nodes,
-        { store, resources }
-      ]),
-      updateDOM({ root: things_container })
+  model_both.transform(
+    tx.map(({ store: { store }, resources }) => [
+      render_resource_nodes,
+      { store, resources }
+    ]),
+    updateDOM({ root: things_container })
+  );
+
+  function update_positions(nodes) {
+    position_things(nodes_style, name, nodes);
+
+    /*
+    for (const [ids, path] of path_eles.entries())
+      path.setAttribute("d", path_data(ids));
+*/
+  }
+
+  const model_properties = model_store.transform(
+    tx.map(({ store }) => [
+      ...tx.filter(([, p]) => p !== value_prop, store.triples)
+    ])
+  );
+
+  model_properties.transform(
+    tx.map(properties_to_show => [render_properties, properties_to_show]),
+    updateDOM({ root: properties_container })
+  );
+
+  const model_forcefield_nodes = model_resources.transform(
+    tx.map(resources => [...tx.map(({ value }) => ({ id: value }), resources)]),
+    tx.sideEffect(sim.nodes)
+  );
+
+  const links_prop = rdf.namedNode("linksTo");
+
+  const model_links = model_store.transform(
+    tx.map(({ store }) =>
+      tx.transduce(
+        tx.comp(
+          tx.filter(([, p]) => p === links_prop),
+          tx.map(([s, , o]) => ({ source: s.value, target: o.value })),
+          tx.filter(_ => _.source && _.target)
+        ),
+        tx.push(),
+        store.triples
+      )
     )
   );
-  model_both.subscribe({
-    next({ store, resources }) {
-      force(
-        name,
-        resources,
-        nodes_style,
-        properties_style,
-        // container.appendChild(document.createElement("div")),
-        properties_container,
-        svg,
-        store.node_view || node_view,
-        store.store,
-        []
-      );
+
+  model_links.transform(
+    tx.sideEffect(links =>
+      sim.force(
+        "grid",
+        d3
+          .forceLink(links)
+          .id(_ => _.id)
+          .strength(0.2)
+          .iterations(2)
+      )
+    )
+  );
+
+  const model_link_eles = model_links.transform(
+    tx.map(links => {
+      const link_eles = new Map();
+      for (const link of links) {
+        const line = document.createElementNS(SVGNS, "line");
+        line.classList.add("graph-edge");
+        link_eles.set(link, line);
+        svg.appendChild(line);
+      }
+      return link_eles;
+    })
+  );
+
+  // I still don't like this....
+  const forcefield_nodes_by_id = model_forcefield_nodes.transform(
+    tx.map(nodes =>
+      tx.transduce(tx.map(node => [node.id, node]), tx.assocObj(), nodes)
+    )
+  );
+
+  // const tick_driver = rs.fromRAF();
+  const tick_driver = rs.fromInterval(100);
+  const ticks = rs.subscription();
+  ticks.transform(tx.sideEffect(sim.tick));
+  tick_driver.subscribe(ticks);
+
+  model_link_eles.subscribe(rs.trace("sdpjf"));
+  model_forcefield_nodes.subscribe(rs.trace("womp"));
+
+  rs.sync({ src: { ticks, link_eles: model_link_eles } }).subscribe({
+    next: ({ link_eles }) => {
+      for (const [{ source, target }, line] of link_eles.entries()) {
+        line.setAttribute("x1", source.x || 0);
+        line.setAttribute("y1", source.y || 0);
+        line.setAttribute("x2", target.x || 0);
+        line.setAttribute("y2", target.y || 0);
+      }
     }
   });
+
+  rs.sync({
+    src: {
+      ticks,
+      by_id: forcefield_nodes_by_id,
+      properties_to_show: model_properties
+    }
+  }).transform(
+    tx.map(({ by_id, properties_to_show }) =>
+      [
+        ...tx.transduce(
+          tx.comp(
+            tx.map(triple => ({
+              space_id: name,
+              triple,
+              source: by_id[triple[0].value],
+              target: by_id[triple[2].value]
+            })),
+            tx.filter(_ => _.source && _.target),
+            tx.map(property_placement_css)
+          ),
+          tx.push(),
+          properties_to_show
+        )
+      ].join("\n")
+    ),
+    tx.sideEffect(css => (properties_style.innerHTML = css))
+  );
+
+  rs.sync({ src: { ticks, nodes: model_forcefield_nodes } }).subscribe({
+    next: ({ nodes }) => update_positions(nodes)
+  });
+  /*
+  let search_path = [];
+  hdom.renderOnce(["path.search.graph-path"], { root: svg_container });
+  // // const hic2 = ["path.search", {}];
+  // const search_path_ele = svg_container.appendChild(
+  //   document.createElementNS(SVGNS, "path")
+  // );
+  // search_path_ele.classList.add("search", "graph-path");
+  const search_path_ele = svg_container.querySelector(".search-path");
+
+  const path_eles = new Map();
+  for (const path of paths) {
+    // const hic = ["path.solution", { d: "" }];
+    const path_ele = document.createElementNS(SVGNS, "path");
+    path_ele.classList.add("graph-path");
+    path_eles.set(path, path_ele);
+    svg_container.appendChild(path_ele);
+  }
+  */
+  // TRANSITIONAL
+  // path_search_stuff(graph, svg_container, path_data);
 
   rs.fromEvent(code_box, "input").transform(
     tx.map(event => event.target.value),
@@ -1002,7 +958,7 @@ function make_model_dataflow(model_spec) {
 
 (async function() {
   const examples = [
-    all_examples.filter(_ => _.get_store || _.userland_code)[0]
+    all_examples.filter(_ => _.get_store || _.userland_code)[1]
   ];
 
   hdom.renderOnce(render_examples(examples), { root: "examples" });
