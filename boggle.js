@@ -28,7 +28,10 @@ const make_world = () => {
     _ && _.context.length === 3 && _.context.every(_ => _.key);
 
   // Adaptor for proxy expressions
-  const as_triple = _ => _.context.map(_ => _.key.replace(/^\$/, "?"));
+  const as_term = step =>
+    step.key[0] === "$" ? `?${step.key.slice(1)}` : rdf.namedNode(step.key);
+
+  const as_triple = _ => _.context.map(as_term);
 
   const query = (...clauses) => read =>
     store
@@ -42,20 +45,15 @@ const make_world = () => {
           store.add(
             as_triple(clause).map(
               // Map variables in the consequent clause to the matched values.
-              term => (term[0] === "?" ? match[term.slice(1)] : term)
+              term =>
+                rdf.namedNode(term[0] === "?" ? match[term.slice(1)] : term)
             )
           )
         )
       ),
 
     // Helper to add triple-like expressions to the store.
-    claim: (...things) =>
-      store.into(
-        things
-          .filter(is_triple)
-          .map(as_triple)
-          .map(([s, p, o]) => trip(s, p, rdf.namedNode(o)))
-      ),
+    claim: (...things) => store.into(things.filter(is_triple).map(as_triple)),
 
     list: (...things) =>
       store.into(
@@ -766,9 +764,28 @@ b . linksTo . d
     userland_code: `list(Alice, Bob, Carol, Dave, Elon, Fran)`
   },
   {
+    name: "symmetrical-1",
+    label: "symmetrical property",
+    comment: `a symmetrical property always applies in both directions`,
+    userland_code: `
+claim(Alice.knows.Bob)
+claim(knows.isa.SymmetricalProperty)
+make_it_a_rule_that({
+  when: [$p.isa.SymmetricalProperty, $x.$p.$y],
+  then: [$y.$p.$x]
+});
+`
+  },
+  {
     name: "range-1",
     label: "integer range",
     comment: `a range from zero up to the number`,
+    userland_code: `range(10)`
+  },
+  {
+    name: "cycle-1",
+    label: "list cycle",
+    comment: `make a list of the items with a linked head and tail`,
     userland_code: `range(10)`
   },
   {
