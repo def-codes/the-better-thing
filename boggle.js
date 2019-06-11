@@ -817,7 +817,6 @@ function make_model_dataflow(model_spec) {
     tx.map(resources => [...tx.map(({ value }) => ({ id: value }), resources)]),
     tx.sideEffect(sim.nodes)
   );
-  model_forcefield_nodes.subscribe(rs.trace("ART BLAKEY"));
 
   // I still don't like this....
   const forcefield_nodes_by_id = model_forcefield_nodes.transform(
@@ -825,31 +824,27 @@ function make_model_dataflow(model_spec) {
       tx.transduce(tx.map(node => [node.id, node]), tx.assocObj(), nodes)
     )
   );
-  forcefield_nodes_by_id.subscribe(rs.trace("YOUTOO"));
   const links_prop = rdf.namedNode("linksTo");
 
-  // Still not working.  this shouldn't need `by_id` because d3 can (and was
-  // previously) looking up just by node id (e.g. s.value). but it stopped.
-
+  // Fishy.  by_id is not actually used, but source/target lookup doesn't work
+  // unless you await it.
   const model_links = rs
     .sync({ src: { by_id: forcefield_nodes_by_id, store: model_store } })
     .transform(
-      tx.trace("inputs to links"),
-      tx.map(({ store, by_id }) =>
+      tx.map(({ store }) =>
         tx.transduce(
           tx.comp(
             tx.filter(([, p]) => p === links_prop),
             tx.map(([s, , o]) => ({
-              source: by_id[s.value],
-              target: by_id[o.value]
+              source: s.value,
+              target: o.value
             })),
             tx.filter(_ => _.source && _.target)
           ),
           tx.push(),
           store.store.triples
         )
-      ),
-      tx.trace("l&g the links")
+      )
     );
 
   model_links.subscribe({
