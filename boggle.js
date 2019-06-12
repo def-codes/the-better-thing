@@ -113,7 +113,7 @@ function get_store_from(userland_code) {
     read_userland_code(userland_code, world);
   } catch (error) {
     console.error("reading userland code", error);
-    throw error;
+    return undefined;
   }
   return world.store;
 }
@@ -450,7 +450,7 @@ claim(Alice.loves.Bob)
 claim(Bob.likes.Alice)
 claim(
 foo.isa.Forcefield,
-bar.isa.forceManyBody,
+//bar.isa.forceManyBody,
 //bar.x.abc,
 foo.hasForce.bar
 )
@@ -750,6 +750,8 @@ function make_model_dataflow(model_spec) {
     next(code) {
       // yes, we're rebuilding the world every time
       const store = get_store_from(code);
+      // skip if there was a problem reading
+      if (!store) return;
 
       if (!meld) {
         console.warn("no meld!");
@@ -955,6 +957,7 @@ function make_model_dataflow(model_spec) {
   // path_search_stuff(graph, svg_container, path_data);
 
   rs.fromEvent(code_box, "input").transform(
+    tx.throttleTime(1000),
     tx.map(event => event.target.value),
     tx.sideEffect(code => {
       model_code.next(code);
