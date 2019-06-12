@@ -403,7 +403,7 @@ const render_properties = (_, properties) => [
   "div",
   tx.map(
     ([s, p, o]) => [
-      "div.property",
+      "div.Property",
       {
         "data-subject": s.value,
         "data-property": p.value,
@@ -909,8 +909,8 @@ function create_forcefield_dataflow({
       tx.pluck("nodes")
     );
 
-  const tick_driver = rs.fromRAF();
-  //const tick_driver = rs.fromInterval(100);
+  // const tick_driver = rs.fromRAF();
+  const tick_driver = rs.fromInterval(100);
   const ticks = rs.subscription();
   tick_driver.subscribe(ticks);
 
@@ -1089,11 +1089,9 @@ function make_model_dataflow(model_spec) {
   const html = root.querySelector(".space .html");
 
   const space_resources = model_store.transform(
-    tx.trace("store"),
     tx.map(store =>
       traverse(store, rdf.namedNode("Alice"), rdf.namedNode("knows"))
-    ),
-    tx.trace("resources")
+    )
   );
 
   const space_properties = rs
