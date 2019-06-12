@@ -18,6 +18,8 @@ const trip = (s, p, o) => [
 
 const make_store = () => new thi.ng.rstreamQuery.TripleStore();
 
+// ================================= crazy proxies
+
 const make_crazy_proxy = system => {
   // Short-circuits for all crazy proxies.
   const ALWAYS = {
@@ -37,6 +39,7 @@ const make_crazy_proxy = system => {
     const scopes = [ALWAYS, local, system, globalThis];
     return new Proxy(target, {
       has: (target, key) => true,
+      apply: (target, thisArg, args) => make_proxy([...context, { args }]),
       get: (_target, key, _receiver) => {
         for (const scope of scopes) if (key in scope) return scope[key];
         return make_proxy([...context, { key }]);
@@ -47,18 +50,56 @@ const make_crazy_proxy = system => {
   return make_proxy();
 };
 
+// ========================= Pattern matcher
+
+const deep_proxy = target =>
+  new Proxy(target, {
+    get(target, key) {
+      // could trap Symbol.iterator here for finer array handling
+      if (typeof key === "symbol" || key in target) {
+        const value = target[key];
+        return value !== null && typeof value === "object"
+          ? deep_proxy(value)
+          : value;
+      }
+      throw Error("No such key");
+    }
+  });
+
+const match = (patterns, input) => {
+  const proxy = deep_proxy(input);
+  for (const pattern of patterns)
+    try {
+      if (pattern(proxy)) return pattern(input);
+    } catch (e) {}
+};
+
+// ================================= world
+
 const make_world = () => {
   const store = new thi.ng.rstreamQuery.TripleStore();
 
   const is_triple = _ =>
     _ && _.context.length === 3 && _.context.every(_ => _.key);
 
-  // Adaptor for proxy expressions
+  // default context.  treat expressions kind of like turtle
+  // we can't tell whether brackets or dot was used for get
+  // so we treat all keys as tokens (terms)
+  // Actually would need to recur here (as_turtle) on s & p, etc
+  const TURTLE_PATTERNS = [
+    ([{ key: s }, { key: p }, { key: o }]) => trip(s, p, o),
+    // prettier-ignore
+    ([{ key: s }, { key: p }, { args: [o]}]) => trip(s, p, rdf.literal(o))
+  ];
+
+  const as_turtle = expression =>
+    expression && match(TURTLE_PATTERNS, expression.context);
+
+  // TODO: these older adapters are retained only for rules
+  // should be able to use `as_turtle` now, right?
   const as_term = step =>
     step.key[0] === "$" ? `?${step.key.slice(1)}` : rdf.namedNode(step.key);
-
   const as_triple = _ => _.context.map(as_term);
-
   const query = (...clauses) => read =>
     store
       .addQueryFromSpec({ q: [{ where: clauses.map(as_triple) }] })
@@ -79,7 +120,7 @@ const make_world = () => {
       ),
 
     // Helper to add triple-like expressions to the store.
-    claim: (...things) => store.into(things.filter(is_triple).map(as_triple)),
+    claim: (...things) => store.into(tx.keep(things.map(as_turtle))),
 
     list: (...things) =>
       store.into(
@@ -453,6 +494,7 @@ const all_examples = [
     userland_code: `
 claim(Alice.loves.Bob)
 claim(Bob.likes.Alice)
+claim(foo.x(5))
 claim(
 foo.isa.Forcefield,
 //bar.isa.forceManyBody,
