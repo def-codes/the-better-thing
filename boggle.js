@@ -1101,7 +1101,7 @@ function make_model_dataflow(model_spec) {
     .transform(
       tx.map(({ store, resources }) => [
         ...tx.filter(
-          ([s, , o]) => is_node(o) && resources.has(s),
+          ([s, , o]) => is_node(o) && resources.has(o) && resources.has(s),
           store.triples
         )
       ])
