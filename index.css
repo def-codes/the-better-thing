@@ -179,6 +179,10 @@ textarea.userland-code {
 		inset 0 0 2em rgba(64, 64, 64, 0.5),
 		inset 0 0 4em rgba(64, 64, 64, 0.5);
 }
-.Person  {
+.Person .resource-content {
   background: green;
+}
+
+.Selected .resource-content {
+  background: rgba(64, 64, 196, .5);
 }

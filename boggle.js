@@ -154,17 +154,15 @@ const make_world = () => {
           conclusion.context
         ) || {};
 
-      if (o && p) store.into(tx.map(s => [as_named(s), p, o], subjects));
+      if (o && p)
+        store.into(tx.map(s => [is_node(s) ? s : as_named(s), p, o], subjects));
     },
 
     subgraph(start_expr, follow_expr) {
       const start = as_named(start_expr);
       const follow = as_named(follow_expr);
 
-      if (start && follow) {
-        const items = traverse(store, start, follow);
-        console.log(`items`, items);
-      }
+      if (start && follow) return traverse(store, start, follow);
     },
 
     mesh(rows, cols, prop) {
@@ -613,7 +611,7 @@ Jake . knows .  Miriam,
 Miriam . knows .  Alice,
 Miriam . knows .  Bob
 )
-subgraph(Alice, knows)
+forall(subgraph(Alice, knows), isa.Selected)
 claim(
 foo.isa.forceLink,
 foo.id(_ => _.id),
@@ -1179,9 +1177,9 @@ function make_model_dataflow(model_spec) {
 }
 
 (async function() {
-  const examples = [
-    all_examples.filter(_ => _.get_store || _.userland_code)[0]
-  ];
+  const examples = all_examples
+    .filter(_ => _.get_store || _.userland_code)
+    .filter(_ => _.name === "subgraph");
 
   hdom.renderOnce(render_examples(examples), { root: "examples" });
 
