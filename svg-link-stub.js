@@ -86,3 +86,44 @@
   */
   // TRANSITIONAL
   // path_search_stuff(graph, svg_container, path_data);
+
+
+const SVGNS = "http://www.w3.org/2000/svg";
+
+function path_search_stuff(graph, svg_container, path_data) {
+  let search_path = [];
+
+  function update_positions(n) {
+    search_path_ele.setAttribute("d", path_data(search_path));
+  }
+
+  // const hic2 = ["path.search", {}];
+  const search_path_ele = svg_container.appendChild(
+    document.createElementNS(SVGNS, "path")
+  );
+  search_path_ele.classList.add("search", "graph-path");
+
+  const queue_length_ele = document.getElementById("queue-length");
+
+  const search_queue = Object.keys(graph.nodes).map(v => [v]);
+  const paths_sub = rs.fromIterable(
+    iterate_paths(
+      graph,
+      search_queue,
+      path => path.length > 3,
+      // () => false,
+      path =>
+        graph.edges[path[path.length - 1]].filter(id => !path.includes(id))
+    ),
+    1
+  );
+
+  paths_sub.transform(
+    tx.sideEffect(path => {
+      search_path = path;
+      update_positions();
+    }),
+    tx.map(() => ["b", {}, search_queue.length.toString()]),
+    updateDOM({ root: "queue-length" })
+  );
+}

@@ -393,46 +393,6 @@ function solve(trie, graph) {
 
 //=================
 
-const SVGNS = "http://www.w3.org/2000/svg";
-
-function path_search_stuff(graph, svg_container, path_data) {
-  let search_path = [];
-
-  function update_positions(n) {
-    search_path_ele.setAttribute("d", path_data(search_path));
-  }
-
-  // const hic2 = ["path.search", {}];
-  const search_path_ele = svg_container.appendChild(
-    document.createElementNS(SVGNS, "path")
-  );
-  search_path_ele.classList.add("search", "graph-path");
-
-  const queue_length_ele = document.getElementById("queue-length");
-
-  const search_queue = Object.keys(graph.nodes).map(v => [v]);
-  const paths_sub = rs.fromIterable(
-    iterate_paths(
-      graph,
-      search_queue,
-      path => path.length > 3,
-      // () => false,
-      path =>
-        graph.edges[path[path.length - 1]].filter(id => !path.includes(id))
-    ),
-    1
-  );
-
-  paths_sub.transform(
-    tx.sideEffect(path => {
-      search_path = path;
-      update_positions();
-    }),
-    tx.map(() => ["b", {}, search_queue.length.toString()]),
-    updateDOM({ root: "queue-length" })
-  );
-}
-
 const render_properties = (_, properties) => [
   "div",
   tx.map(
@@ -463,6 +423,7 @@ const resources_in = store =>
             tx.multiplex(tx.pluck("subject"), tx.pluck("object")),
             tx.cat(),
             tx.filter(is_node),
+            // This can't be doing anything after the above filter
             tx.keep()
           ),
           tx.conj(),
@@ -946,16 +907,35 @@ function make_model_dataflow(model_spec) {
   const svg = root.querySelector(".space .everything");
   const code_box = root.querySelector("textarea");
 
+  // ============================== STORE/RESOURCES
+
+  // a set of the resources in the store, (in subject or object position)
   const model_resources = rs.metaStream(
     store => resources_in(store),
     `${name}/store`
   );
-  const model_simulation = rs.subscription();
+
+  // the triple store for this model,  re-created whenever the code changes
   const model_store = rs.subscription();
+
+  // the resources are listening to the store
   model_store.subscribe(model_resources);
 
+  // ================================== USERLAND CODE
+
+  // The userland code
   const model_code = rs.subscription();
 
+  // update USERLAND CODE when the user edits in the textbox
+  rs.fromEvent(code_box, "input").transform(
+    tx.throttleTime(1000),
+    tx.map(event => event.target.value),
+    tx.sideEffect(code => {
+      model_code.next(code);
+    })
+  );
+
+  // update the STORE by interpreting the USERLAND CODE
   model_code.subscribe({
     next(code) {
       // yes, we're rebuilding the world every time
@@ -972,19 +952,24 @@ function make_model_dataflow(model_spec) {
         return;
       }
       const system = meld.apply_system(store);
+
+      // FORCEFIELD stuff...
+      // ALSO, hardcoded
       const sim =
         system.find(rdf.namedNode("space")) || d3.forceSimulation().stop();
       model_simulation.next(sim);
+      ////////////////////////////////////
 
       if (store) model_store.next(store);
     }
   });
 
-  const nodes_style = root.appendChild(document.createElement("style"));
-  const properties_style = root.appendChild(document.createElement("style"));
-  const things_container = html.appendChild(document.createElement("div"));
-  const properties_container = html.appendChild(document.createElement("div"));
+  // ==================== SPACE/PLANE stuff
 
+  // LAYER for representation of a set of resources
+  const resources_container = html.appendChild(document.createElement("div"));
+
+  // maintain representations of a set of resources in a given LAYER
   rs.sync({
     src: { store: model_store, resources: model_resources },
     id: `${name}-store-and-resources`
@@ -993,22 +978,40 @@ function make_model_dataflow(model_spec) {
       render_resource_nodes,
       { store, resources }
     ]),
-    updateDOM({ root: things_container })
+    updateDOM({ root: resources_container })
   );
 
+  // LAYER for representation of a set of properties obtaining between resources
+  const properties_container = html.appendChild(document.createElement("div"));
+
+  // passive positioning of resource representations in a SPACE/LAYER
+  const nodes_style = root.appendChild(document.createElement("style"));
   function update_positions(nodes) {
     position_things(nodes_style, name, nodes);
   }
 
-  const model_properties = model_store.transform(
-    tx.map(store => [...tx.filter(([, p]) => p !== value_prop, store.triples)])
-  );
+  // passive placement of property representations in a SPACE/LAYER
+  // depends on positions of resource representations
+  const properties_style = root.appendChild(document.createElement("style"));
 
+  // maintain representations of the properties between a set of resources in a given LAYER
   model_properties.transform(
     tx.map(properties_to_show => [render_properties, properties_to_show]),
     updateDOM({ root: properties_container })
   );
 
+  // ========== FORCEFIELD/SIMULATION stuff
+
+  // simulation driving a/the FORCEFIELD
+  const model_simulation = rs.subscription();
+
+  // select all properties (triples) from the model that point to resources
+  const model_properties = model_store.transform(
+    tx.map(store => [...tx.filter(([, , o]) => is_node(o), store.triples)])
+  );
+
+  // set the (d3) nodes ARRAY for a/the FORCEFIELD from the identified resources
+  // AND broadcast it
   const model_forcefield_nodes = rs
     .sync({ src: { resources: model_resources, sim: model_simulation } })
     .transform(
@@ -1020,23 +1023,29 @@ function make_model_dataflow(model_spec) {
       tx.pluck("nodes")
     );
 
-  // I still don't like this....
-  const forcefield_nodes_by_id = model_forcefield_nodes.transform(
-    tx.map(nodes =>
-      tx.transduce(tx.map(node => [node.id, node]), tx.assocObj(), nodes)
-    )
-  );
-  const links_prop = rdf.namedNode("linksTo");
-
   // const tick_driver = rs.fromRAF();
   const tick_driver = rs.fromInterval(100);
   const ticks = rs.subscription();
   tick_driver.subscribe(ticks);
 
+  // advance FORCEFIELD simulation PROCESS
   rs.sync({ src: { ticks, sim: model_simulation } }).transform(
     tx.sideEffect(({ sim }) => sim.tick())
   );
 
+  // update FORCEFIELD node positions on every tick
+  rs.sync({ src: { ticks, nodes: model_forcefield_nodes } }).subscribe({
+    next: ({ nodes }) => update_positions(nodes)
+  });
+
+  // index SIMULATION nodes by resource identifier, for property positioning
+  const forcefield_nodes_by_id = model_forcefield_nodes.transform(
+    tx.map(nodes =>
+      tx.transduce(tx.map(node => [node.id, node]), tx.assocObj(), nodes)
+    )
+  );
+
+  // passively place property representations from a FORCEFIELD/SIMULATION
   rs.sync({
     src: {
       ticks,
@@ -1046,7 +1055,7 @@ function make_model_dataflow(model_spec) {
   }).transform(
     tx.map(({ by_id, properties_to_show }) =>
       [
-        ...tx.transduce(
+        ...tx.iterator(
           tx.comp(
             tx.map(triple => ({
               space_id: name,
@@ -1057,24 +1066,11 @@ function make_model_dataflow(model_spec) {
             tx.filter(_ => _.source && _.target),
             tx.map(property_placement_css)
           ),
-          tx.push(),
           properties_to_show
         )
       ].join("\n")
     ),
     tx.sideEffect(css => (properties_style.innerHTML = css))
-  );
-
-  rs.sync({ src: { ticks, nodes: model_forcefield_nodes } }).subscribe({
-    next: ({ nodes }) => update_positions(nodes)
-  });
-
-  rs.fromEvent(code_box, "input").transform(
-    tx.throttleTime(1000),
-    tx.map(event => event.target.value),
-    tx.sideEffect(code => {
-      model_code.next(code);
-    })
   );
 
   if (model_spec.userland_code && !model_spec.get_store) {
