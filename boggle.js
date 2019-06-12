@@ -95,6 +95,11 @@ const all_values_for = (store, subject, property) =>
     sync_query(store, [[subject, property, rdf.variable("object")]]) || []
   );
 
+const all_properties_for = (store, subject) =>
+  sync_query(store, [
+    [subject, rdf.variable("property"), rdf.variable("object")]
+  ]) || [];
+
 // iterate all resources reachable by `follow` property from `start`
 function traverse(store, start, follow) {
   const queue = [start];
@@ -102,8 +107,12 @@ function traverse(store, start, follow) {
   while (queue.length > 0) {
     const subject = queue.pop();
     out.add(subject);
-    for (const object of all_values_for(store, subject, follow))
-      if (is_node(object) && !out.has(object)) queue.push(object);
+    if (follow) {
+      for (const object of all_values_for(store, subject, follow))
+        if (is_node(object) && !out.has(object)) queue.push(object);
+    } else
+      for (const { object } of all_properties_for(store, subject))
+        if (is_node(object) && !out.has(object)) queue.push(object);
   }
   return out;
 }
@@ -162,7 +171,7 @@ const make_world = () => {
       const start = as_named(start_expr);
       const follow = as_named(follow_expr);
 
-      if (start && follow) return traverse(store, start, follow);
+      if (start) return traverse(store, start, follow);
     },
 
     mesh(rows, cols, prop) {
@@ -195,8 +204,7 @@ const make_world = () => {
           store.add(
             as_triple(clause).map(
               // Map variables in the consequent clause to the matched values.
-              term =>
-                rdf.namedNode(term[0] === "?" ? match[term.slice(1)] : term)
+              term => (term[0] === "?" ? match[term.slice(1)] : term)
             )
           )
         )
@@ -763,7 +771,7 @@ ${SPACE_COMMON}
 `
   },
   {
-    name: "symmetrical-1",
+    name: "symmetrical",
     label: "symmetrical property",
     comment: `a symmetrical property always applies in both directions`,
     userland_code: `claim(knows.isa.SymmetricalProperty)
@@ -1100,7 +1108,7 @@ function make_model_dataflow(model_spec) {
       tx.map(({ store, resources }) => [
         ...tx.filter(
           ([s, , o]) => is_node(o) && resources.has(o) && resources.has(s),
-          store.triples
+          console.log("tripes", store.triples) || store.triples
         )
       ])
     );
@@ -1121,7 +1129,7 @@ function make_model_dataflow(model_spec) {
 (async function() {
   const examples = all_examples
     .filter(_ => _.userland_code)
-    .filter(_ => _.name === "subgraph");
+    .filter(_ => _.name === "symmetrical");
 
   hdom.renderOnce(render_examples(examples), { root: "examples" });
 
