@@ -879,13 +879,10 @@ function make_model_dataflow(model_spec) {
   const svg = root.querySelector(".space .everything");
   const code_box = root.querySelector("textarea");
 
-  // ============================== STORE/RESOURCES
+  // ============================== STORE & SYSTEM/RUNTIME
 
-  // a set of the resources in the store, (in subject or object position)
-  const model_resources = rs.metaStream(
-    store => resources_in(store),
-    `${name}/store`
-  );
+  // The runtime system backing the model's live resources/processes
+  const model_system = rs.subscription();
 
   // the triple store for this model,  re-created whenever the code changes
   const model_store = rs.subscription().transform(
@@ -898,15 +895,18 @@ function make_model_dataflow(model_spec) {
         console.warn("expected meld.apply_system to be a function!");
         return;
       }
-      const system = meld.apply_system(store);
 
-      // FORCEFIELD stuff...
-      // ALSO, hardcoded
-      const sim =
-        system.find(rdf.namedNode("space")) || d3.forceSimulation().stop();
-      model_simulation.next(sim);
-      ////////////////////////////////////
+      // I'm very dubious about this...
+      model_system.next(meld.apply_system(store));
     })
+  );
+
+  // ================================  RESOURCES & PROPERTIES
+
+  // a set of the resources in the store, (in subject or object position)
+  const model_resources = rs.metaStream(
+    store => resources_in(store),
+    `${name}/store`
   );
 
   // the resources are listening to the store
@@ -979,8 +979,13 @@ function make_model_dataflow(model_spec) {
 
   // ========== FORCEFIELD/SIMULATION stuff
 
+  //register_force_simulation();
+
   // simulation driving a/the FORCEFIELD
-  const model_simulation = rs.subscription();
+  const model_simulation = model_system.transform(
+    tx.map(system => system.find(rdf.namedNode("space"))),
+    tx.keep()
+  );
 
   // set the (d3) nodes ARRAY for a/the FORCEFIELD from the identified resources
   // AND broadcast it
