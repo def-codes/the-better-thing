@@ -52,14 +52,14 @@ const make_crazy_proxy = system => {
 
 // ========================= Pattern matcher
 
-const deep_proxy = target =>
+const pattern_proxy = target =>
   new Proxy(target, {
     get(target, key) {
       // could trap Symbol.iterator here for finer array handling
       if (typeof key === "symbol" || key in target) {
         const value = target[key];
         return value !== null && typeof value === "object"
-          ? deep_proxy(value)
+          ? pattern_proxy(value)
           : value;
       }
       throw Error("No such key");
@@ -67,7 +67,7 @@ const deep_proxy = target =>
   });
 
 const match = (patterns, input) => {
-  const proxy = deep_proxy(input);
+  const proxy = pattern_proxy(input);
   for (const pattern of patterns)
     try {
       if (pattern(proxy)) return pattern(input);
@@ -79,17 +79,16 @@ const match = (patterns, input) => {
 const make_world = () => {
   const store = new thi.ng.rstreamQuery.TripleStore();
 
-  const is_triple = _ =>
-    _ && _.context.length === 3 && _.context.every(_ => _.key);
+  const { namedNode: n, literal: l } = rdf;
 
   // default context.  treat expressions kind of like turtle
   // we can't tell whether brackets or dot was used for get
   // so we treat all keys as tokens (terms)
   // Actually would need to recur here (as_turtle) on s & p, etc
   const TURTLE_PATTERNS = [
-    ([{ key: s }, { key: p }, { key: o }]) => trip(s, p, o),
+    ([{ key: s }, { key: p }, { key: o }]) => [n(s), n(p), n(o)],
     // prettier-ignore
-    ([{ key: s }, { key: p }, { args: [o]}]) => trip(s, p, rdf.literal(o))
+    ([{ key: s }, { key: p }, { args: [o]}]) => [n(s), n(p), l(o)]
   ];
 
   const as_turtle = expression =>
@@ -491,15 +490,17 @@ const all_examples = [
     name: "code-in-world",
     label: "simple claims",
     comment: `testing expression reader`,
-    userland_code: `
-claim(Alice.loves.Bob)
-claim(Bob.likes.Alice)
-claim(foo.x(5))
-claim(
-foo.isa.Forcefield,
-//bar.isa.forceManyBody,
-//bar.x.abc,
-foo.hasForce.bar
+    userland_code: `claim(
+Alice.loves.Bob,
+Bob.likes.Alice,
+space.isa.Forcefield,
+space.hasForce.center,
+space.hasForce.charge,
+center.isa.forceCenter,
+charge.isa.forceManyBody,
+charge.strength(-200),
+charge.distanceMax(250),
+charge.theta(0.98)
 )
 `
   },
@@ -810,19 +811,8 @@ function make_model_dataflow(model_spec) {
       }
       const system = meld.apply_system(store);
       const sim =
-        system.find(rdf.namedNode("foo")) || d3.forceSimulation().stop();
+        system.find(rdf.namedNode("space")) || d3.forceSimulation().stop();
       model_simulation.next(sim);
-      sim.force("center", d3.forceCenter());
-      sim.force(
-        "charge",
-        d3
-          .forceManyBody()
-          .strength(-200)
-          .distanceMax(250)
-          .theta(0.98)
-      );
-      // sim.force("x", d3.forceX());
-      // sim.force("y", d3.forceY());
 
       if (store) model_store.next(store);
     }
