@@ -18,6 +18,35 @@ const trip = (s, p, o) => [
 
 const make_store = () => new thi.ng.rstreamQuery.TripleStore();
 
+const make_crazy_proxy = system => {
+  // Short-circuits for all crazy proxies.
+  const ALWAYS = {
+    [Symbol.unscopables]: undefined, // checked when using `with` block
+    [Symbol.iterator]: undefined,
+    [Symbol.toPrimitive]: undefined,
+    inspect: undefined // for node only
+  };
+
+  const make_proxy = (context = []) => {
+    const target = () => {};
+    const local = {
+      context,
+      toJSON: () => JSON.stringify(context),
+      toString: () => context.toString()
+    };
+    const scopes = [ALWAYS, local, system, globalThis];
+    return new Proxy(target, {
+      has: (target, key) => true,
+      get: (_target, key, _receiver) => {
+        for (const scope of scopes) if (key in scope) return scope[key];
+        return make_proxy([...context, { key }]);
+      }
+    });
+  };
+
+  return make_proxy();
+};
+
 const make_world = () => {
   const store = new thi.ng.rstreamQuery.TripleStore();
 
@@ -72,31 +101,7 @@ const make_world = () => {
     query
   };
 
-  // Short-circuits for all crazy proxies.
-  const ALWAYS = {
-    [Symbol.unscopables]: undefined, // checked when using `with` block
-    [Symbol.iterator]: undefined,
-    [Symbol.toPrimitive]: undefined,
-    inspect: undefined // for node only
-  };
-
-  const make_proxy = (context = []) => {
-    const target = () => {};
-    const local = {
-      context,
-      toJSON: () => JSON.stringify(context),
-      toString: () => context.toString()
-    };
-    const scopes = [ALWAYS, local, system, globalThis];
-    return new Proxy(target, {
-      has: (target, key) => true,
-      get: (_target, key, _receiver) => {
-        for (const scope of scopes) if (key in scope) return scope[key];
-        return make_proxy([...context, { key }]);
-      }
-    });
-  };
-  return make_proxy();
+  return make_crazy_proxy(system);
 };
 
 const read_userland_code = (code, world) =>
