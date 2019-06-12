@@ -79,7 +79,7 @@ const FORCEFIELD_DRIVER = {
             source: s.value,
             target: o.value
           }));
-          // HACK: nodes may not be set yet.  still breaks if thing changes
+          // HACK: nodes may not be set yet.
           setTimeout(() => force_instance.links(links), 17);
         }
       }

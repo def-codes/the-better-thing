@@ -615,7 +615,8 @@ ${SPACE_COMMON}
     userland_code: `// board = boggle_grid(10, 10)
 // set of search?
 // etc
-`,
+`
+    /*
     async get_store() {
       const boggle_graph = random_board(BOARD_SIZE);
       const trie = await get_trie();
@@ -645,6 +646,7 @@ ${SPACE_COMMON}
       );
       return store;
     }
+*/
   },
   {
     name: "trie-view-level-1",
@@ -722,51 +724,28 @@ ${SPACE_COMMON}
     label: "trie match 1",
     comment: `matching a term against trie`,
     userland_code: `// trie = willshake_words
-// trie match "qpoinspr"
-// trie match "hello"
-// trie match "world"
+// trie match/scan "qpoinspr"
+// trie match/scan "hello"
+// trie match/scan "world"
 // trie node looks like render_trie_node
-`,
-    async get_store() {
-      const trie = await get_trie();
-      // TODO: need another way to say this
-      const node_view = render_trie_node;
-      const store = make_store();
-      store.into(sequence_as_triples(trie.scan("qpoinspr")));
-      store.into(sequence_as_triples(trie.scan("hello")));
-      store.into(sequence_as_triples(trie.scan("world")));
-
-      return store;
-    }
+`
   },
   {
     name: "graph2",
     label: "testing another graph",
     comment: `an example graph`,
     userland_code: `
-a . value . Alice
-b . value . Bob
-c . value . Carol
-d . value . Dave
-a . linksTo . b
-a . linksTo . c
-b . linksTo . d
-`,
-    get_store() {
-      const store = make_store();
-      store.into([
-        trip("a", "value", "Alice"),
-        trip("b", "value", "Bob"),
-        trip("c", "value", "Carol"),
-        trip("d", "value", "Dave"),
-        trip("a", "linksTo", "b"),
-        trip("a", "linksTo", "c"),
-        trip("b", "linksTo", "d")
-      ]);
-      // disabled for now
-      // paths: [["a", "d"], ["b", "c", "d"]]
-      return store;
-    }
+claim(
+a . value . Alice,
+b . value . Bob,
+c . value . Carol,
+d . value . Dave,
+a . linksTo . b,
+a . linksTo . c,
+b . linksTo . d,
+${SPACE_COMMON}
+)
+`
   },
   {
     name: "graph3",
@@ -823,26 +802,15 @@ ${SPACE_COMMON}
     comment: `turn a sequence into a loop in a graph`,
     userland_code: `a = range(10)
 b = cycle(a)
-`,
-    get_store() {
-      const store = make_store();
-      store.into(sequence_as_triples_cycle(tx.range(10)));
-      return store;
-    }
+`
   },
   {
     name: "graph5",
     label: "two separate structures on a graph",
     comment: `union of two independent generated sequences`,
-    userland_code: `a = cycle(range(10))
-b = range(20, 25)
-`,
-    get_store() {
-      const store = make_store();
-      store.into(sequence_as_triples_cycle(tx.range(10)));
-      store.into(sequence_as_triples(tx.range(20, 25)));
-      return store;
-    }
+    userland_code: `cycle(range(10))
+range(20, 25)
+`
   }
 ];
 
@@ -1073,22 +1041,13 @@ function make_model_dataflow(model_spec) {
     tx.sideEffect(css => (properties_style.innerHTML = css))
   );
 
-  if (model_spec.userland_code && !model_spec.get_store) {
-    model_code.next(model_spec.userland_code);
-    return;
-  }
-
-  (async function do_it(code) {
-    const store = await model_spec.get_store();
-    if (!store) return;
-    model_store.next(store);
-  })();
+  if (model_spec.userland_code) model_code.next(model_spec.userland_code);
 }
 
 (async function() {
   const examples = all_examples
-    .filter(_ => _.get_store || _.userland_code)
-    .filter(_ => _.name === "subgraph");
+    .filter(_ => _.userland_code)
+    .filter(_ => _.name === "graph2");
 
   hdom.renderOnce(render_examples(examples), { root: "examples" });
 
