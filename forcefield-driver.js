@@ -74,12 +74,14 @@ const FORCEFIELD_DRIVER = {
         const force_instance = system.find(force);
 
         const results = system.query_all(q(`?s ${property.value} ?o`));
-        const links = Array.from(results, ({ s, o }) => ({
-          source: s.value,
-          target: o.value
-        }));
-        // HACK: nodes may not be set yet.  still breaks if thing changes
-        setTimeout(() => force_instance.links(links), 17);
+        if (results) {
+          const links = Array.from(results, ({ s, o }) => ({
+            source: s.value,
+            target: o.value
+          }));
+          // HACK: nodes may not be set yet.  still breaks if thing changes
+          setTimeout(() => force_instance.links(links), 17);
+        }
       }
     },
 
