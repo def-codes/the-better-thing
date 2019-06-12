@@ -90,7 +90,7 @@ const all_outbound = (store, subject, property) =>
   // !!!GLOBAL!!! !!!DEFINED IN SYSTEM!
   tx.pluck(
     "object",
-    sync_query(store, [[subject, property, rdf.variable("object")]])
+    sync_query(store, [[subject, property, rdf.variable("object")]]) || []
   );
 
 // iterate all resources reachable by `follow` property from `start`
@@ -100,7 +100,10 @@ function traverse(store, start, follow) {
   while (queue.length > 0) {
     const subject = queue.pop();
     out.add(subject);
-    for (const object of all_outbound(store, subject, follow))
+    const objects = all_outbound(store, subject, follow);
+    console.log(`objects`, objects);
+
+    for (const object of objects)
       if (is_node(object) && !out.has(object)) queue.push(object);
   }
   return out;
@@ -145,6 +148,16 @@ const make_world = () => {
   //
   // do an exhaustive traversal from the starting point(s)
   const system = {
+    forall(subjects, conclusion) {
+      const { o, p } =
+        match(
+          [([{ key: p }, { key: o }]) => ({ p: n(p), o: n(o) })],
+          conclusion.context
+        ) || {};
+
+      if (o && p) store.into(tx.map(s => [as_named(s), p, o], subjects));
+    },
+
     subgraph(start_expr, follow_expr) {
       const start = as_named(start_expr);
       const follow = as_named(follow_expr);
@@ -564,6 +577,21 @@ const render_trie_node = (_, { value: [token, t] }) => [
 const node_view = (_, x) => x.value;
 
 const all_examples = [
+  {
+    name: "forall",
+    label: "forall macro",
+    comment: `assert properties about subjects`,
+    userland_code: `forall([Alice, Bob], isa.Person)
+claim(
+foo.isa.forceLink,
+foo.id(_ => _.id),
+foo.connects.linksTo,
+space.hasForce.foo,
+${SPACE_COMMON}
+)
+`
+  },
+
   {
     name: "subgraph",
     label: "subgraph selection",
