@@ -1,6 +1,16 @@
 const { transducers: tx, rstream: rs, hdom } = thi.ng;
 const { updateDOM } = thi.ng.transducersHdom;
 
+const SPACE_COMMON = `space.isa.Forcefield,
+space.hasForce.center,
+space.hasForce.charge,
+center.isa.forceCenter,
+charge.isa.forceManyBody,
+charge.strength(-200),
+charge.distanceMax(250),
+charge.theta(0.98),
+`;
+
 const is_node = term =>
   term.termType === "NamedNode" || term.termType === "BlankNode";
 
@@ -493,14 +503,7 @@ const all_examples = [
     userland_code: `claim(
 Alice.loves.Bob,
 Bob.likes.Alice,
-space.isa.Forcefield,
-space.hasForce.center,
-space.hasForce.charge,
-center.isa.forceCenter,
-charge.isa.forceManyBody,
-charge.strength(-200),
-charge.distanceMax(250),
-charge.theta(0.98)
+${SPACE_COMMON}
 )
 `
   },
@@ -668,7 +671,12 @@ b . linksTo . d
     name: "graph3",
     label: "sequence as graph",
     comment: `turn a sequence into a graph`,
-    userland_code: `list(Alice, Bob, Carol, Dave, Elon, Fran)`
+    userland_code: `list(Alice, Bob, Carol, Dave, Elon, Fran)
+claim(
+${SPACE_COMMON}
+)
+
+`
   },
   {
     name: "symmetrical-1",
@@ -680,19 +688,33 @@ rule({
   then: [$y.$p.$x]
 })
 claim(Alice.knows.Bob)
+claim(
+${SPACE_COMMON}
+)
+
 `
   },
   {
     name: "range-1",
     label: "integer range",
     comment: `a range from zero up to the number`,
-    userland_code: `range(10)`
+    userland_code: `range(10)
+claim(
+${SPACE_COMMON}
+)
+
+`
   },
   {
     name: "cycle-1",
     label: "list cycle",
     comment: `make a list of the items with a linked head and tail`,
-    userland_code: `range(10)`
+    userland_code: `range(10)
+claim(
+${SPACE_COMMON}
+)
+
+`
   },
   {
     name: "graph4",
@@ -1015,7 +1037,7 @@ function make_model_dataflow(model_spec) {
 
 (async function() {
   const examples = [
-    all_examples.filter(_ => _.get_store || _.userland_code)[0]
+    all_examples.filter(_ => _.get_store || _.userland_code)[6]
   ];
 
   hdom.renderOnce(render_examples(examples), { root: "examples" });
