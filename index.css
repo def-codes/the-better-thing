@@ -107,13 +107,13 @@ textarea.userland-code {
 	stroke-dasharray: 0.3;
 }
 
-.resource {
+.Resource {
 	box-sizing: border-box;
 	position: absolute;
 	/* border: 1px solid red; */
 }
 /* DEBUG
-.resource::before {
+.Resource::before {
 	position: absolute;
 	content: '';
 	width: 0.5em;
@@ -178,4 +178,7 @@ textarea.userland-code {
 		inset 1px 1px 0em rgba(0, 0, 0, .3),
 		inset 0 0 2em rgba(64, 64, 64, 0.5),
 		inset 0 0 4em rgba(64, 64, 64, 0.5);
+}
+.Person  {
+  background: green;
 }

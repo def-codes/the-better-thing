@@ -11,6 +11,8 @@ charge.distanceMax(250),
 charge.theta(0.98),
 `;
 
+const TYPE = rdf.namedNode("isa");
+
 const is_node = term =>
   term.termType === "NamedNode" || term.termType === "BlankNode";
 
@@ -86,10 +88,10 @@ const match = (patterns, input) => {
 
 // ========================================  traversal (new)
 
-const all_outbound = (store, subject, property) =>
-  // !!!GLOBAL!!! !!!DEFINED IN SYSTEM!
+const all_values_for = (store, subject, property) =>
   tx.pluck(
     "object",
+    // !!!GLOBAL!!! !!!DEFINED IN SYSTEM!
     sync_query(store, [[subject, property, rdf.variable("object")]]) || []
   );
 
@@ -100,10 +102,7 @@ function traverse(store, start, follow) {
   while (queue.length > 0) {
     const subject = queue.pop();
     out.add(subject);
-    const objects = all_outbound(store, subject, follow);
-    console.log(`objects`, objects);
-
-    for (const object of objects)
+    for (const object of all_values_for(store, subject, follow))
       if (is_node(object) && !out.has(object)) queue.push(object);
   }
   return out;
@@ -490,8 +489,17 @@ const render_resource_nodes = (_, { store, resources }) => {
     {},
     tx.map(
       resource => [
-        "div.resource",
-        { "data-thing": resource.value },
+        "div",
+        {
+          "data-thing": resource.value,
+          class: [
+            "Resource",
+            ...tx.map(
+              type => type.value,
+              all_values_for(store, resource, TYPE) || []
+            )
+          ].join("  ")
+        },
         [
           "div.resource-content",
           {},
