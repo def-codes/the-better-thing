@@ -108,7 +108,7 @@ function traverse(store, start, follow) {
   return out;
 }
 
-// ================================= WORLD / READER / INTERPRETER
+// ================================= WORLD / INTERPRETER
 
 const make_world = () => {
   const store = new thi.ng.rstreamQuery.TripleStore();
@@ -228,6 +228,8 @@ const make_world = () => {
   return make_crazy_proxy(system);
 };
 
+// ============================================================ READER
+
 const read_userland_code = (code, world) =>
   new Function(
     "world",
@@ -247,17 +249,7 @@ function get_store_from(userland_code) {
   return world.store;
 }
 
-const FACES = Array.from(
-  "aaaaaaaabbbccccdddddeeeeeeeeeeeeffffgggghhhhiiiiiiiijjkklllllllllmmmmmnnnnnnooooooooooppppprrrrrrrsssssssssstttttttuuuuuuuvvwwwxyyyyz"
-).concat(["qu", "th", "in", "he"]);
-
-const BOARD_SIZE = { rows: 10, cols: 10 };
-const MIN_WORD_LENGTH = 7;
-const MAX_WORD_LENGTH = 100;
-
-function* combinations(as, bs) {
-  for (let a of as) for (let b of bs) yield [a, b];
-}
+// =============================================================== (WORD) TRIE
 
 function make_trie() {
   const trie = {};
@@ -288,6 +280,20 @@ function make_trie() {
       }
     }
   };
+}
+
+// ============================================= BOGGLE STUFF
+
+const FACES = Array.from(
+  "aaaaaaaabbbccccdddddeeeeeeeeeeeeffffgggghhhhiiiiiiiijjkklllllllllmmmmmnnnnnnooooooooooppppprrrrrrrsssssssssstttttttuuuuuuuvvwwwxyyyyz"
+).concat(["qu", "th", "in", "he"]);
+
+const BOARD_SIZE = { rows: 10, cols: 10 };
+const MIN_WORD_LENGTH = 7;
+const MAX_WORD_LENGTH = 100;
+
+function* combinations(as, bs) {
+  for (let a of as) for (let b of bs) yield [a, b];
 }
 
 const NEIGHBOR_DELTAS = [...combinations([-1, 0, 1], [-1, 0, 1])].filter(
@@ -349,12 +355,6 @@ const random_board = size => ({
   )
 });
 
-const angle_of = (x, y) =>
-  x === 0 ? (y < 0 ? 0 : Math.PI) : Math.atan(y / x) + (x < 0 ? Math.PI : 0);
-
-const angle_between = (x1, y1, x2, y2) => angle_of(x2 - x1, y2 - y1);
-const hypotenuse = (a, b) => Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
-
 function solve(trie, graph) {
   const uniques = new Set();
   const solutions = [];
@@ -391,7 +391,13 @@ function solve(trie, graph) {
   return solutions;
 }
 
-//=================
+// ======================================================  GRAPH VIEW SUPPORT
+
+const angle_of = (x, y) =>
+  x === 0 ? (y < 0 ? 0 : Math.PI) : Math.atan(y / x) + (x < 0 ? Math.PI : 0);
+
+const angle_between = (x1, y1, x2, y2) => angle_of(x2 - x1, y2 - y1);
+const hypotenuse = (a, b) => Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
 
 const render_properties = (_, properties) => [
   "div",
@@ -508,6 +514,8 @@ const property_placement_css = ({ triple, source, target, space_id }) => {
   return `${selector}{width:${width}px;transform: translate(${left}px,${top}px) rotate(${angle}rad) translateY(-50%);}`;
 };
 
+// ==================================================  MACRO HELPERS
+
 function* sequence_as_triples_cycle(seq) {
   const nodes = [...seq];
   const ids = nodes.map(node_or_blank);
@@ -540,8 +548,6 @@ const render_trie_node = (_, { value: [token, t] }) => [
   " ",
   ["span.count", t ? t.count : ""]
 ];
-
-const node_view = (_, x) => x.value;
 
 const all_examples = [
   {
@@ -656,7 +662,6 @@ ${SPACE_COMMON}
     async get_resources() {
       const trie = await get_trie();
       return {
-        node_view,
         graph: {
           nodes: {
             root: "root",
@@ -680,7 +685,6 @@ ${SPACE_COMMON}
     async get_resources() {
       const trie = await get_trie();
       return {
-        node_view,
         graph: {
           nodes: {
             root: "root",
