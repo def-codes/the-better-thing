@@ -891,7 +891,7 @@ function create_forcefield_dataflow({
   properties_style
 }) {
   // simulation driving a/the FORCEFIELD
-  const model_simulation = model_system.transform(
+  const force_simulation = model_system.transform(
     tx.map(system => system.find(rdf.namedNode(forcefield_id))),
     tx.keep()
   );
@@ -899,7 +899,7 @@ function create_forcefield_dataflow({
   // set the (d3) nodes ARRAY for a/the FORCEFIELD from the identified resources
   // AND broadcast it
   const model_forcefield_nodes = rs
-    .sync({ src: { resources, sim: model_simulation } })
+    .sync({ src: { resources, sim: force_simulation } })
     .transform(
       tx.map(({ resources, sim }) => ({
         sim,
@@ -909,13 +909,13 @@ function create_forcefield_dataflow({
       tx.pluck("nodes")
     );
 
-  // const tick_driver = rs.fromRAF();
-  const tick_driver = rs.fromInterval(100);
+  const tick_driver = rs.fromRAF();
+  //const tick_driver = rs.fromInterval(100);
   const ticks = rs.subscription();
   tick_driver.subscribe(ticks);
 
   // advance FORCEFIELD simulation PROCESS
-  rs.sync({ src: { ticks, sim: model_simulation } }).transform(
+  rs.sync({ src: { ticks, sim: force_simulation } }).transform(
     tx.sideEffect(({ sim }) => sim.tick())
   );
 
@@ -954,12 +954,72 @@ function create_forcefield_dataflow({
   );
 }
 
+function create_space_dataflow({
+  // A dedicated DOM node for this space
+  container,
+  model_id,
+  model_store,
+  model_system,
+  layer_id,
+  // which resources to represent in the space
+  resources,
+  // which properties to represent in the  space
+  properties
+}) {
+  // LAYER for representation of a set of resources
+  const resources_container = container.appendChild(
+    document.createElement("div")
+  );
+
+  // maintain representations of a set of resources in a given LAYER
+  rs.sync({
+    src: { store: model_store, resources },
+    id: `${model_id}-store-and-resources`
+  }).transform(
+    tx.map(({ store, resources }) => [
+      render_resource_nodes,
+      { store, resources }
+    ]),
+    updateDOM({ root: resources_container })
+  );
+
+  // LAYER for representation of a set of properties obtaining between resources
+  const properties_container = container.appendChild(
+    document.createElement("div")
+  );
+
+  // passive positioning of resource representations in a SPACE/LAYER
+  const nodes_style = container.appendChild(document.createElement("style"));
+
+  // passive placement of property representations in a SPACE/LAYER
+  // depends on positions of resource representations
+  const properties_style = container.appendChild(
+    document.createElement("style")
+  );
+
+  // maintain representations of the properties between a set of resources in a given LAYER
+  properties.transform(
+    tx.map(properties_to_show => [render_properties, properties_to_show]),
+    updateDOM({ root: properties_container })
+  );
+
+  // ========== FORCEFIELD/SIMULATION stuff
+
+  create_forcefield_dataflow({
+    layer_id,
+    forcefield_id: "space",
+    model_system,
+    resources, //model_resources,
+    properties, //model_properties,
+    nodes_style,
+    properties_style
+  });
+}
+
 function make_model_dataflow(model_spec) {
   const layer_id = model_spec.name;
   const model_id = model_spec.name;
   const root = document.getElementById(model_spec.name);
-  const html = root.querySelector(".space .html");
-  const svg = root.querySelector(".space .everything");
   const code_box = root.querySelector("textarea");
 
   // ============================== STORE & SYSTEM/RUNTIME
@@ -992,7 +1052,7 @@ function make_model_dataflow(model_spec) {
     `${model_id}/store`
   );
 
-  // the resources are listening to the store
+  // the resource metastream is based on the store
   model_store.subscribe(model_resources);
 
   // select all properties (triples) from the model that point to resources
@@ -1026,47 +1086,35 @@ function make_model_dataflow(model_spec) {
 
   // ==================== SPACE/PLANE stuff
 
-  // LAYER for representation of a set of resources
-  const resources_container = html.appendChild(document.createElement("div"));
+  const html = root.querySelector(".space .html");
 
-  // maintain representations of a set of resources in a given LAYER
-  rs.sync({
-    src: { store: model_store, resources: model_resources },
-    id: `${model_id}-store-and-resources`
-  }).transform(
-    tx.map(({ store, resources }) => [
-      render_resource_nodes,
-      { store, resources }
-    ]),
-    updateDOM({ root: resources_container })
+  const space_resources = model_store.transform(
+    tx.trace("store"),
+    tx.map(store =>
+      traverse(store, rdf.namedNode("Alice"), rdf.namedNode("knows"))
+    ),
+    tx.trace("resources")
   );
 
-  // LAYER for representation of a set of properties obtaining between resources
-  const properties_container = html.appendChild(document.createElement("div"));
+  const space_properties = rs
+    .sync({ src: { store: model_store, resources: space_resources } })
+    .transform(
+      tx.map(({ store, resources }) => [
+        ...tx.filter(
+          ([s, , o]) => is_node(o) && resources.has(s),
+          store.triples
+        )
+      ])
+    );
 
-  // passive positioning of resource representations in a SPACE/LAYER
-  const nodes_style = root.appendChild(document.createElement("style"));
-
-  // passive placement of property representations in a SPACE/LAYER
-  // depends on positions of resource representations
-  const properties_style = root.appendChild(document.createElement("style"));
-
-  // maintain representations of the properties between a set of resources in a given LAYER
-  model_properties.transform(
-    tx.map(properties_to_show => [render_properties, properties_to_show]),
-    updateDOM({ root: properties_container })
-  );
-
-  // ========== FORCEFIELD/SIMULATION stuff
-
-  create_forcefield_dataflow({
-    layer_id,
-    forcefield_id: "space",
+  create_space_dataflow({
+    container: html,
+    model_id,
+    model_store,
     model_system,
-    resources: model_resources,
-    properties: model_properties,
-    nodes_style,
-    properties_style
+    layer_id,
+    resources: space_resources,
+    properties: space_properties
   });
 
   if (model_spec.userland_code) model_code.next(model_spec.userland_code);
@@ -1075,7 +1123,7 @@ function make_model_dataflow(model_spec) {
 (async function() {
   const examples = all_examples
     .filter(_ => _.userland_code)
-    .filter(_ => _.name === "graph2");
+    .filter(_ => _.name === "subgraph");
 
   hdom.renderOnce(render_examples(examples), { root: "examples" });
 
