@@ -115,6 +115,36 @@ const make_world = () => {
       .subscribe(tx.comp(tx.flatten(), tx.map(read)));
 
   const system = {
+    mesh(rows, cols) {
+      const size = { rows, cols };
+
+      const ids = [...tx.map(mint_blank, tx.range(rows * cols))];
+
+      const links = tx.iterator(
+        tx.mapcat(n =>
+          tx.map(
+            other => [ids[n], rdf.namedNode("linksTo"), ids[other]],
+            neighbors_of_index(size, n)
+          )
+        ),
+
+        tx.range(rows * cols)
+      );
+
+      store.into(links);
+    },
+
+    // special macro for making a mesh
+    mesh0(rows, cols) {
+      const blanks = tx.iterator(
+        tx.map(n => [mint_blank(), rdf.namedNode("value"), rdf.literal(n)]),
+        tx.range(rows)
+      );
+
+      // this should be a separate step
+      store.into(blanks);
+    },
+
     rule: ({ when, then }) =>
       query(...when)(match =>
         then.forEach(clause =>
@@ -496,6 +526,16 @@ const render_trie_node = (_, { value: [token, t] }) => [
 const node_view = (_, x) => x.value;
 
 const all_examples = [
+  {
+    name: "mesh-macro",
+    label: "make a mesh",
+    comment: `create a mesh of blank nodes`,
+    userland_code: `mesh(3, 3)
+claim(
+${SPACE_COMMON}
+)
+`
+  },
   {
     name: "code-in-world",
     label: "simple claims",
@@ -1037,7 +1077,7 @@ function make_model_dataflow(model_spec) {
 
 (async function() {
   const examples = [
-    all_examples.filter(_ => _.get_store || _.userland_code)[6]
+    all_examples.filter(_ => _.get_store || _.userland_code)[0]
   ];
 
   hdom.renderOnce(render_examples(examples), { root: "examples" });
