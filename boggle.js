@@ -84,6 +84,28 @@ const match = (patterns, input) => {
     } catch (e) {}
 };
 
+// ========================================  traversal (new)
+
+const all_outbound = (store, subject, property) =>
+  // !!!GLOBAL!!! !!!DEFINED IN SYSTEM!
+  tx.pluck(
+    "object",
+    sync_query(store, [[subject, property, rdf.variable("object")]])
+  );
+
+// iterate all resources reachable by `follow` property from `start`
+function traverse(store, start, follow) {
+  const queue = [start];
+  const out = new Set();
+  while (queue.length > 0) {
+    const subject = queue.pop();
+    out.add(subject);
+    for (const object of all_outbound(store, subject, follow))
+      if (is_node(object) && !out.has(object)) queue.push(object);
+  }
+  return out;
+}
+
 // ================================= world
 
 const make_world = () => {
@@ -114,7 +136,25 @@ const make_world = () => {
       .addQueryFromSpec({ q: [{ where: clauses.map(as_triple) }] })
       .subscribe(tx.comp(tx.flatten(), tx.map(read)));
 
+  const as_named = expr => expr && match([([{ key }]) => n(key)], expr.context);
+
+  // start is an entry point
+  // - could later support multiple
+  // follow is a property to use for traversal
+  // - could later support multiple
+  //
+  // do an exhaustive traversal from the starting point(s)
   const system = {
+    subgraph(start_expr, follow_expr) {
+      const start = as_named(start_expr);
+      const follow = as_named(follow_expr);
+
+      if (start && follow) {
+        const items = traverse(store, start, follow);
+        console.log(`items`, items);
+      }
+    },
+
     mesh(rows, cols, prop) {
       const size = { rows, cols };
 
@@ -524,6 +564,29 @@ const render_trie_node = (_, { value: [token, t] }) => [
 const node_view = (_, x) => x.value;
 
 const all_examples = [
+  {
+    name: "subgraph",
+    label: "subgraph selection",
+    comment: `do an exhaustive search`,
+    userland_code: `claim(
+Alice . knows . Bob,
+Bob . knows . Carol,
+Carol . knows . Jake,
+Jake . knows .  Carol,
+Jake . knows .  Miriam,
+Miriam . knows .  Alice,
+Miriam . knows .  Bob
+)
+subgraph(Alice, knows)
+claim(
+foo.isa.forceLink,
+foo.id(_ => _.id),
+foo.connects.linksTo,
+space.hasForce.foo,
+${SPACE_COMMON}
+)
+`
+  },
   {
     name: "mesh-macro",
     label: "make a mesh",
