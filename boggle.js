@@ -108,7 +108,7 @@ function traverse(store, start, follow) {
   return out;
 }
 
-// ================================= world
+// ================================= WORLD / READER / INTERPRETER
 
 const make_world = () => {
   const store = new thi.ng.rstreamQuery.TripleStore();
@@ -916,10 +916,34 @@ function make_model_dataflow(model_spec) {
   );
 
   // the triple store for this model,  re-created whenever the code changes
-  const model_store = rs.subscription();
+  const model_store = rs.subscription().transform(
+    tx.sideEffect(store => {
+      if (!meld) {
+        console.warn("no meld!");
+        return;
+      }
+      if (typeof meld.apply_system !== "function") {
+        console.warn("expected meld.apply_system to be a function!");
+        return;
+      }
+      const system = meld.apply_system(store);
+
+      // FORCEFIELD stuff...
+      // ALSO, hardcoded
+      const sim =
+        system.find(rdf.namedNode("space")) || d3.forceSimulation().stop();
+      model_simulation.next(sim);
+      ////////////////////////////////////
+    })
+  );
 
   // the resources are listening to the store
   model_store.subscribe(model_resources);
+
+  // select all properties (triples) from the model that point to resources
+  const model_properties = model_store.transform(
+    tx.map(store => [...tx.filter(([, , o]) => is_node(o), store.triples)])
+  );
 
   // ================================== USERLAND CODE
 
@@ -941,25 +965,6 @@ function make_model_dataflow(model_spec) {
       // yes, we're rebuilding the world every time
       const store = get_store_from(code);
       // skip if there was a problem reading
-      if (!store) return;
-
-      if (!meld) {
-        console.warn("no meld!");
-        return;
-      }
-      if (typeof meld.apply_system !== "function") {
-        console.warn("expected meld.apply_system to be a function!");
-        return;
-      }
-      const system = meld.apply_system(store);
-
-      // FORCEFIELD stuff...
-      // ALSO, hardcoded
-      const sim =
-        system.find(rdf.namedNode("space")) || d3.forceSimulation().stop();
-      model_simulation.next(sim);
-      ////////////////////////////////////
-
       if (store) model_store.next(store);
     }
   });
@@ -1004,11 +1009,6 @@ function make_model_dataflow(model_spec) {
 
   // simulation driving a/the FORCEFIELD
   const model_simulation = rs.subscription();
-
-  // select all properties (triples) from the model that point to resources
-  const model_properties = model_store.transform(
-    tx.map(store => [...tx.filter(([, , o]) => is_node(o), store.triples)])
-  );
 
   // set the (d3) nodes ARRAY for a/the FORCEFIELD from the identified resources
   // AND broadcast it
