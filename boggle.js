@@ -115,15 +115,19 @@ const make_world = () => {
       .subscribe(tx.comp(tx.flatten(), tx.map(read)));
 
   const system = {
-    mesh(rows, cols) {
+    mesh(rows, cols, prop) {
       const size = { rows, cols };
+
+      const term = rdf.namedNode(
+        (prop && match([([{ key }]) => key], prop)) || "linksTo"
+      );
 
       const ids = [...tx.map(mint_blank, tx.range(rows * cols))];
 
       const links = tx.iterator(
         tx.mapcat(n =>
           tx.map(
-            other => [ids[n], rdf.namedNode("linksTo"), ids[other]],
+            other => [ids[n], term, ids[other]],
             neighbors_of_index(size, n)
           )
         ),
@@ -131,18 +135,8 @@ const make_world = () => {
         tx.range(rows * cols)
       );
 
-      store.into(links);
-    },
-
-    // special macro for making a mesh
-    mesh0(rows, cols) {
-      const blanks = tx.iterator(
-        tx.map(n => [mint_blank(), rdf.namedNode("value"), rdf.literal(n)]),
-        tx.range(rows)
-      );
-
       // this should be a separate step
-      store.into(blanks);
+      store.into(links);
     },
 
     rule: ({ when, then }) =>
@@ -443,15 +437,19 @@ const render_resource_nodes = (_, { store, resources }) => {
     {},
     tx.map(
       resource => [
-        "div.node",
+        "div.resource",
         { "data-thing": resource.value },
         [
-          "div.node-content",
+          "div.resource-content",
           {},
           !literal_props.has(resource)
             ? resource.value
             : tx.map(
-                ([, p, o]) => ["div", { "data-property": p.value }, o.value],
+                ([, p, o]) => [
+                  "div",
+                  { "data-property": p.value },
+                  o.value && o.value.toString()
+                ],
                 literal_props.get(resource)
               )
         ]
@@ -531,7 +529,12 @@ const all_examples = [
     label: "make a mesh",
     comment: `create a mesh of blank nodes`,
     userland_code: `mesh(3, 3)
+//range(10)
 claim(
+foo.isa.forceLink,
+foo.id(_ => _.id),
+foo.connects.linksTo,
+space.hasForce.foo,
 ${SPACE_COMMON}
 )
 `
@@ -880,17 +883,15 @@ function make_model_dataflow(model_spec) {
     }
   });
 
-  const model_both = rs.sync({
-    src: { store: model_store, resources: model_resources },
-    id: `${name}-store-and-resources`
-  });
-
   const nodes_style = root.appendChild(document.createElement("style"));
   const properties_style = root.appendChild(document.createElement("style"));
   const things_container = html.appendChild(document.createElement("div"));
   const properties_container = html.appendChild(document.createElement("div"));
 
-  model_both.transform(
+  rs.sync({
+    src: { store: model_store, resources: model_resources },
+    id: `${name}-store-and-resources`
+  }).transform(
     tx.map(({ store, resources }) => [
       render_resource_nodes,
       { store, resources }
@@ -937,6 +938,7 @@ function make_model_dataflow(model_spec) {
 
   // Fishy.  by_id is not actually used, but source/target lookup doesn't work
   // unless you await it.
+  /*
   const model_links = rs
     .sync({ src: { by_id: forcefield_nodes_by_id, store: model_store } })
     .transform(
@@ -981,6 +983,7 @@ function make_model_dataflow(model_spec) {
       return link_eles;
     })
   );
+  */
 
   // const tick_driver = rs.fromRAF();
   const tick_driver = rs.fromInterval(100);
@@ -990,7 +993,7 @@ function make_model_dataflow(model_spec) {
   rs.sync({ src: { ticks, sim: model_simulation } }).transform(
     tx.sideEffect(({ sim }) => sim.tick())
   );
-
+  /* these positions should be subscribable somewhere though
   rs.sync({ src: { ticks, link_eles: model_link_eles } }).subscribe({
     next({ link_eles }) {
       for (const [{ source, target }, line] of link_eles.entries()) {
@@ -1001,6 +1004,7 @@ function make_model_dataflow(model_spec) {
       }
     }
   });
+*/
 
   rs.sync({
     src: {

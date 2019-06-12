@@ -107,13 +107,13 @@ textarea.userland-code {
 	stroke-dasharray: 0.3;
 }
 
-.node {
+.resource {
 	box-sizing: border-box;
 	position: absolute;
 	/* border: 1px solid red; */
 }
 /* DEBUG
-.node::before {
+.resource::before {
 	position: absolute;
 	content: '';
 	width: 0.5em;
@@ -123,7 +123,7 @@ textarea.userland-code {
 	transform: translate(-50%, -50%);
 }
 */
-.node-content {
+.resource-content {
 	padding: 0.75em;
 	text-align: center;
 	transform: translate(-50%, -50%);
@@ -132,7 +132,7 @@ textarea.userland-code {
 	user-select: none;
 }
 
-.node-content:hover {
+.resource-content:hover {
 	background: rgba(255, 255, 0, .5);
 }
 

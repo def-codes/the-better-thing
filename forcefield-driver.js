@@ -65,6 +65,23 @@ const FORCEFIELD_DRIVER = {
         else simulation.force(force.value, force_instance);
       }
     },
+    /* Special “connects” property */
+    {
+      // let the type be implicit
+      // when: q("?force connects ?property"),
+      when: q("?force isa forceLink", "?force connects ?property"),
+      then({ force, property }, system) {
+        const force_instance = system.find(force);
+
+        const results = system.query_all(q(`?s ${property.value} ?o`));
+        const links = Array.from(results, ({ s, o }) => ({
+          source: s.value,
+          target: o.value
+        }));
+        // HACK: nodes may not be set yet.  still breaks if thing changes
+        setTimeout(() => force_instance.links(links), 17);
+      }
+    },
 
     // TEMP avoid need for logic driver
     // { when: q("?x isa Force", "?x ?p ?v"), then: setter },
