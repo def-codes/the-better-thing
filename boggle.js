@@ -497,9 +497,9 @@ function position_things(style_ele, space_id, things) {
   style_ele.innerHTML = things_position_css(space_id, things);
 }
 
-const property_placement_css = ({ triple, source, target, space_id }) => {
+const property_placement_css = ({ triple, source, target, layer_id }) => {
   const [s, p, o] = triple;
-  const selector = `#${space_id} [data-subject="${s.value}"][data-object="${
+  const selector = `#${layer_id} [data-subject="${s.value}"][data-object="${
     o.value
   }"]`;
   const { x: x1, y: y1 } = source;
@@ -872,8 +872,91 @@ const get_trie = (function() {
   };
 })();
 
+function create_forcefield_dataflow({
+  // for scoping of created style rules
+  // instead, provide a place to contribute style rules directly?
+  // even as objects?
+  layer_id,
+  // id if the forcefield resource with the associated siulation
+  forcefield_id,
+  // needed (indirectly) for getting at the created simulation
+  // there's got to be a way to avoid this
+  model_system,
+  // which resources to include in the forcefield
+  resources,
+  // which properties for which to update positioning rules
+  properties,
+  // style elements that are targets the the bespoke rule updates
+  nodes_style,
+  properties_style
+}) {
+  // simulation driving a/the FORCEFIELD
+  const model_simulation = model_system.transform(
+    tx.map(system => system.find(rdf.namedNode(forcefield_id))),
+    tx.keep()
+  );
+
+  // set the (d3) nodes ARRAY for a/the FORCEFIELD from the identified resources
+  // AND broadcast it
+  const model_forcefield_nodes = rs
+    .sync({ src: { resources, sim: model_simulation } })
+    .transform(
+      tx.map(({ resources, sim }) => ({
+        sim,
+        nodes: [...tx.map(({ value }) => ({ id: value }), resources)]
+      })),
+      tx.sideEffect(({ sim, nodes }) => sim.nodes(nodes)),
+      tx.pluck("nodes")
+    );
+
+  // const tick_driver = rs.fromRAF();
+  const tick_driver = rs.fromInterval(100);
+  const ticks = rs.subscription();
+  tick_driver.subscribe(ticks);
+
+  // advance FORCEFIELD simulation PROCESS
+  rs.sync({ src: { ticks, sim: model_simulation } }).transform(
+    tx.sideEffect(({ sim }) => sim.tick())
+  );
+
+  // update FORCEFIELD node positions on every tick
+  rs.sync({ src: { ticks, nodes: model_forcefield_nodes } }).subscribe({
+    next: ({ nodes }) => position_things(nodes_style, layer_id, nodes)
+  });
+
+  // index SIMULATION nodes by resource identifier, for property positioning
+  const nodes_by_id = model_forcefield_nodes.transform(
+    tx.map(nodes =>
+      tx.transduce(tx.map(node => [node.id, node]), tx.assocObj(), nodes)
+    )
+  );
+
+  // passively place link representations from a FORCEFIELD/SIMULATION
+  rs.sync({ src: { ticks, nodes_by_id, properties } }).transform(
+    tx.map(({ nodes_by_id, properties }) =>
+      [
+        ...tx.iterator(
+          tx.comp(
+            tx.map(triple => ({
+              layer_id,
+              triple,
+              source: nodes_by_id[triple[0].value],
+              target: nodes_by_id[triple[2].value]
+            })),
+            tx.filter(_ => _.source && _.target),
+            tx.map(property_placement_css)
+          ),
+          properties
+        )
+      ].join("\n")
+    ),
+    tx.sideEffect(css => (properties_style.innerHTML = css))
+  );
+}
+
 function make_model_dataflow(model_spec) {
-  const { name } = model_spec;
+  const layer_id = model_spec.name;
+  const model_id = model_spec.name;
   const root = document.getElementById(model_spec.name);
   const html = root.querySelector(".space .html");
   const svg = root.querySelector(".space .everything");
@@ -906,7 +989,7 @@ function make_model_dataflow(model_spec) {
   // a set of the resources in the store, (in subject or object position)
   const model_resources = rs.metaStream(
     store => resources_in(store),
-    `${name}/store`
+    `${model_id}/store`
   );
 
   // the resources are listening to the store
@@ -949,7 +1032,7 @@ function make_model_dataflow(model_spec) {
   // maintain representations of a set of resources in a given LAYER
   rs.sync({
     src: { store: model_store, resources: model_resources },
-    id: `${name}-store-and-resources`
+    id: `${model_id}-store-and-resources`
   }).transform(
     tx.map(({ store, resources }) => [
       render_resource_nodes,
@@ -963,9 +1046,6 @@ function make_model_dataflow(model_spec) {
 
   // passive positioning of resource representations in a SPACE/LAYER
   const nodes_style = root.appendChild(document.createElement("style"));
-  function update_positions(nodes) {
-    position_things(nodes_style, name, nodes);
-  }
 
   // passive placement of property representations in a SPACE/LAYER
   // depends on positions of resource representations
@@ -979,76 +1059,15 @@ function make_model_dataflow(model_spec) {
 
   // ========== FORCEFIELD/SIMULATION stuff
 
-  //register_force_simulation();
-
-  // simulation driving a/the FORCEFIELD
-  const model_simulation = model_system.transform(
-    tx.map(system => system.find(rdf.namedNode("space"))),
-    tx.keep()
-  );
-
-  // set the (d3) nodes ARRAY for a/the FORCEFIELD from the identified resources
-  // AND broadcast it
-  const model_forcefield_nodes = rs
-    .sync({ src: { resources: model_resources, sim: model_simulation } })
-    .transform(
-      tx.map(({ resources, sim }) => ({
-        sim,
-        nodes: [...tx.map(({ value }) => ({ id: value }), resources)]
-      })),
-      tx.sideEffect(({ sim, nodes }) => sim.nodes(nodes)),
-      tx.pluck("nodes")
-    );
-
-  // const tick_driver = rs.fromRAF();
-  const tick_driver = rs.fromInterval(100);
-  const ticks = rs.subscription();
-  tick_driver.subscribe(ticks);
-
-  // advance FORCEFIELD simulation PROCESS
-  rs.sync({ src: { ticks, sim: model_simulation } }).transform(
-    tx.sideEffect(({ sim }) => sim.tick())
-  );
-
-  // update FORCEFIELD node positions on every tick
-  rs.sync({ src: { ticks, nodes: model_forcefield_nodes } }).subscribe({
-    next: ({ nodes }) => update_positions(nodes)
+  create_forcefield_dataflow({
+    layer_id,
+    forcefield_id: "space",
+    model_system,
+    resources: model_resources,
+    properties: model_properties,
+    nodes_style,
+    properties_style
   });
-
-  // index SIMULATION nodes by resource identifier, for property positioning
-  const forcefield_nodes_by_id = model_forcefield_nodes.transform(
-    tx.map(nodes =>
-      tx.transduce(tx.map(node => [node.id, node]), tx.assocObj(), nodes)
-    )
-  );
-
-  // passively place property representations from a FORCEFIELD/SIMULATION
-  rs.sync({
-    src: {
-      ticks,
-      by_id: forcefield_nodes_by_id,
-      properties_to_show: model_properties
-    }
-  }).transform(
-    tx.map(({ by_id, properties_to_show }) =>
-      [
-        ...tx.iterator(
-          tx.comp(
-            tx.map(triple => ({
-              space_id: name,
-              triple,
-              source: by_id[triple[0].value],
-              target: by_id[triple[2].value]
-            })),
-            tx.filter(_ => _.source && _.target),
-            tx.map(property_placement_css)
-          ),
-          properties_to_show
-        )
-      ].join("\n")
-    ),
-    tx.sideEffect(css => (properties_style.innerHTML = css))
-  );
 
   if (model_spec.userland_code) model_code.next(model_spec.userland_code);
 }

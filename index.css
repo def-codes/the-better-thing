@@ -175,7 +175,7 @@ textarea.userland-code {
 	overflow: hidden;
 	border-radius: 50%;
 	box-shadow:
-		inset 1px 1px 0em rgba(0, 0, 0, .3),
+		inset -0.125em 0.125em 0em -.5em rgba(0, 0, 0, .3),
 		inset 0 0 2em rgba(64, 64, 64, 0.5),
 		inset 0 0 4em rgba(64, 64, 64, 0.5);
 }
