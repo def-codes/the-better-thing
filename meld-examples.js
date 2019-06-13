@@ -10,6 +10,90 @@ charge.theta(0.98),
 
 const MELD_EXAMPLES = [
   {
+    name: "traversal",
+    label: "traversal driver",
+    comment: `testing reified traversal`,
+    userland_code: `claim(
+t . isa . Traversal,
+t . startsFrom . forceCollide
+)
+
+forall(t, isa.Selected)
+
+//forall(subgraph(forceCollide, subclassOf), isa.Selected)
+
+claim(
+${SPACE_COMMON}
+)
+`
+  },
+
+  {
+    name: "classes",
+    label: "organizing classes",
+    comment: `rules for representing the graph of defined classes`,
+    userland_code: `claim(
+sc.connects.subclassOf,
+sc.isa.forceLink,
+space.hasForce.sc,
+sc.strength(.8),
+sc.distance(500),
+)
+
+forall(subgraph(forceCollide, subclassOf), isa.Selected)
+
+claim(
+${SPACE_COMMON}
+)
+`
+  },
+
+  {
+    name: "blank",
+    label: "blank slate",
+    comment: `type to see`,
+    userland_code: `// 
+claim(
+sc.connects.subclassOf,
+sc.isa.forceLink,
+space.hasForce.sc,
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+claim(
+${SPACE_COMMON}
+)
+`
+  },
+
+  {
     name: "forall",
     label: "forall macro",
     comment: `assert properties about subjects`,

@@ -3,9 +3,6 @@ const { updateDOM } = thi.ng.transducersHdom;
 
 const TYPE = rdf.namedNode("isa");
 
-const is_node = term =>
-  term.termType === "NamedNode" || term.termType === "BlankNode";
-
 const mint_blank = () => rdf.blankNode();
 
 const node_or_blank = x => (is_node(x) ? x : mint_blank());
@@ -91,6 +88,7 @@ const all_properties_for = (store, subject) =>
   ]) || [];
 
 // iterate all resources reachable by `follow` property from `start`
+// DEPRECATING: see traversal-driver
 function traverse(store, start, follow) {
   const queue = [];
   if (store.indexS.has(start)) queue.push(start);
@@ -153,6 +151,17 @@ const make_world = () => {
           [([{ key: p }, { key: o }]) => ({ p: n(p), o: n(o) })],
           conclusion.context
         ) || {};
+
+      // Recognize resources with iterable runtime values
+      // doesn't work in current examples, though, because of order
+      const maybe_term = as_named(subjects);
+      if (maybe_term) {
+        // get subject's value property and see whether it's a runtime iterable
+        const values = all_values_for(store, maybe_term, VALUE);
+        if (o && p)
+          store.into(tx.map(s => [is_node(s) ? s : as_named(s), p, o], values));
+        return;
+      }
 
       if (o && p)
         store.into(tx.map(s => [is_node(s) ? s : as_named(s), p, o], subjects));
@@ -847,8 +856,8 @@ function make_model_dataflow(model_spec) {
     model_store,
     model_system,
     layer_id,
-    resources: space_resources,
-    properties: space_properties
+    resources: model_resources, //space_resources,
+    properties: model_properties //space_properties
   });
 
   if (model_spec.userland_code) model_code.next(model_spec.userland_code);

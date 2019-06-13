@@ -1,13 +1,3 @@
-// Helper to make RDF terms from clauses as written.
-const q = (...clauses) =>
-  clauses.map(clause =>
-    clause
-      .split(/\s+/)
-      .map(term =>
-        term[0] === "?" ? rdf.variable(term.slice(1)) : rdf.namedNode(term)
-      )
-  );
-
 // Helper.  Both forces and forcefields use this pattern for setting properties.
 const setter = ({ x, p, v }, { find }) => {
   const instance = find(x);

@@ -141,9 +141,6 @@ main > header {
 }
 
 /** Coordinated HTML and SVG layers. */
-.space {
-	background: white;
-}
 .space > .html, .space > svg {
 	position: absolute;
 	left: 50%;
@@ -324,9 +321,13 @@ textarea.userland-code-input {
 
 .space {
 	position: relative;
+}
+/* PROVISIONAL */
+.Space.Porthole {
 	overflow: hidden;
 	border-radius: 50%;
 	box-shadow: inset 0 0 1.5em -0.25em black;
+	background: white;
 }
 .Person .resource-content {
   background: green;

@@ -10,7 +10,7 @@
     "build": "parcel build index.html",
     "start": "node server",
     "dev": "parcel serve index.html --open",
-    "meld": "live-server --watch='index.*,boggle.js,system.js,forcefield-driver.js,rdf.js'"
+    "meld": "live-server --watch='index.*,boggle.js,system.js,*-driver.js,support.js,rdf.js'"
   },
   "repository": {
     "type": "git",
