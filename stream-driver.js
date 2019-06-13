@@ -41,7 +41,7 @@
         // This rule will not fire until the source is implemented.
         when: q(
           "?listener listensTo ?source",
-          "?subscribable meld:implements ?source"
+          "?subscribable implements ?source"
         ),
         // we don't need the reference to source as such
         then({ listener, source, subscribable }, system) {

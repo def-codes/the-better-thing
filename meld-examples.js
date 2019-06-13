@@ -10,6 +10,16 @@ charge.theta(0.98),
 
 const MELD_EXAMPLES = [
   {
+    name: "representation",
+    label: "representation driver",
+    comment: `testing reified representations`,
+    userland_code: `claim(
+Alice . knows . Bob
+)
+`
+  },
+
+  {
     name: "rules",
     label: "rule driver",
     comment: `testing reified rules`,

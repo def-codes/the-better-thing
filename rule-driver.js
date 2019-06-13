@@ -24,7 +24,7 @@
         when: q(
           "?rule hasCondition ?predicate",
           "?rule hasConsequent ?consequent",
-          "?stream meld:implements ?predicate",
+          "?stream implements ?predicate",
           "?consequent hasClause ?cc1",
           "?cc1 hasSubject ?cs1",
           "?cc1 hasPredicate ?cp1",

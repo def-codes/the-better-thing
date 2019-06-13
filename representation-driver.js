@@ -23,6 +23,7 @@
 // that transforms an object into hiccup
 
 (function() {
+  // “Default” (currently only) renderer for properties
   const render_properties = (_, properties) => [
     "div",
     tx.map(
@@ -89,29 +90,34 @@
   const REPRESENTATION_DRIVER = {
     claims: q(
       "Representation isa Class",
-      "ResourceRepresentation subclassOf Representation"
+      "ResourceRepresentation subclassOf Representation",
+      // an everything listener
+      "EverythingWatcher hasClause EverythingScope",
+      "EverythingScope hasSubject ?subject",
+      "EverythingScope hasPredicate ?predicate",
+      "EverythingScope hasPredicate ?object"
     ),
 
     // EVERYBODY GETS A REPRESENTATION!
     rules: [
       {
+        when: q("?stream implements EverythingScope"),
+        then({ stream }, system) {
+          console.log(`STREAM`, stream);
+        }
+      },
+      {
         // yeah, kind of.  but what we mean to say is that
         // for all resources, there exists a representation
         // and a representation is a stream, and the stream listens to the resource
         // which in turn has to be provided as a stream
-        when_all: q("?s ?p ?o"),
+        when_all: q("?s pancake ?o"),
         then(properties, system) {
-          const { hdom } = thi.ng;
-          hdom.renderOnce(
-            [render_properties, tx.map(({ s, p, o }) => [s, p, o], properties)],
-            { root: system.dom_root }
-          );
-          return;
-          system.dom_root;
-          const stream = rs.stream();
+          const { updateDOM } = thi.ng.transducersHdom;
 
-          const sub = stream_for_resource_and_all_its_properties.transform(
-            tx.map(renderer_for_resource)
+          something.transform(
+            [render_properties, tx.map(({ s, p, o }) => [s, p, o], properties)],
+            updateDOM({ root: system.dom_root })
           );
         }
       }

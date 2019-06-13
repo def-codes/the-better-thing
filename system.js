@@ -11,7 +11,7 @@ const register_driver = driver => drivers.push(driver);
 
 const TYPE = rdf.namedNode("isa"); // s/b rdf:type
 const VALUE = rdf.namedNode("value"); // s/b rdf:value
-const IMPLEMENTS = rdf.namedNode("meld:implements");
+const IMPLEMENTS = rdf.namedNode("implements"); // s/b meld:
 
 const mint_blank = () => rdf.blankNode();
 
@@ -117,7 +117,33 @@ function foo() {
 }
 
 // behavior is undefined if store is not empty
+// returns a bunch of subscriptions
+// sync version below probably garbage
 const apply_drivers_to = (store, system) => {
+  const subs = [];
+  for (const { claims, rules } of drivers) {
+    store.into(claims);
+    for (const { when, when_all, then } of rules)
+      try {
+        subs.push(
+          live_query(store, when || when_all).subscribe({
+            next(results) {
+              if (results) {
+                if (when_all) then(results, system);
+                else for (const result of results) then(result, system);
+              }
+            }
+          })
+        );
+      } catch (error) {
+        console.error("problem appying rule: ", when, error);
+      }
+  }
+  return subs;
+};
+
+// behavior is undefined if store is not empty
+const sync_apply_drivers_to = (store, system) => {
   for (const { claims, rules } of drivers) {
     store.into(claims);
     for (const { when, when_all, then } of rules)
@@ -173,10 +199,10 @@ const monotonic_system = ({ id, store, dom_root }) => {
     }
   };
 
-  apply_drivers_to(store, system);
+  const rule_subscriptions = apply_drivers_to(store, system);
 
   return function dispose() {
-    console.warn("System dispose is not implemented");
+    for (const sub of rule_subscriptions) if (sub) sub.unsubscribe();
   };
 };
 
