@@ -99,10 +99,13 @@
         // for all resources, there exists a representation
         // and a representation is a stream, and the stream listens to the resource
         // which in turn has to be provided as a stream
-        when: q("?s ?p ?o"),
-        then({}, system) {
+        when_all: q("?s ?p ?o"),
+        then(properties, system) {
           const { hdom } = thi.ng;
-          hdom.renderOnce("zero the hero", { root: system.dom_root });
+          hdom.renderOnce(
+            [render_properties, tx.map(({ s, p, o }) => [s, p, o], properties)],
+            { root: system.dom_root }
+          );
           return;
           system.dom_root;
           const stream = rs.stream();
