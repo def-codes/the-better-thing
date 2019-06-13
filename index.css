@@ -110,9 +110,11 @@
 body {
 	font-size: 32pt;
 	font-family: 'FiraSansCondensed', sans-serif;
+	color: #222;
 	overflow-x: hidden;
 	margin: 0;
 	background: #EEE;
+	scroll-behavior: smooth;
 }
 * {
 	box-sizing: border-box;
@@ -192,10 +194,23 @@ main > header {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-	box-sizing: border-box;
+	padding-bottom: 1em;
 }
 .example > .description > header {
 	flex: 0 0 auto;
+}
+.example > .description .heading {
+	margin-top: 0.5em;					/* beat heading */
+	margin-bottom: 0;					/* reset heading */
+	font-weight: 500;
+}
+.example > .description .heading .example-link {
+	text-decoration: none;
+	color: inherit;
+}
+.example > .description .comment {
+	margin: 0.5em 0;					/* beat p */
+	font-weight: 300;
 }
 .example > .description > .model-control {
 	flex: 1 1 auto;
@@ -212,12 +227,12 @@ main > header {
 .example > .representation .space {
 	height: 100%;
 }
-textarea.userland-code {
+textarea.userland-code-input {
 	background: none;			/* reset textarea */
 	border: none;				/* reset textarea */
 	font-family: inherit;		/* reset textarea */
 	font-size: 100%;
-	width: 100%;
+	width: 90%;
 	height: 100%;
 	overflow: hidden;
 }

@@ -844,12 +844,19 @@ const render_example = example => [
     "div.description",
     [
       "header",
-      ["h3", {}, ["a", { href: `#${example.name}` }, example.label]],
+      [
+        "h3.heading",
+        ["a.example-link", { href: `#${example.name}` }, example.label]
+      ],
       ["p.comment", example.comment]
     ],
     [
       "div.model-control",
-      ["textarea.userland-code", { spellcheck: false }, example.userland_code]
+      [
+        "textarea.userland-code-input",
+        { spellcheck: false },
+        example.userland_code
+      ]
     ]
   ],
   ["figure.representation", {}, [dom_svg_space, { id: example.name }]]
@@ -1107,7 +1114,7 @@ function make_model_dataflow(model_spec) {
       tx.map(({ store, resources }) => [
         ...tx.filter(
           ([s, , o]) => is_node(o) && resources.has(o) && resources.has(s),
-          console.log("tripes", store.triples) || store.triples
+          store.triples
         )
       ])
     );
@@ -1135,4 +1142,19 @@ function make_model_dataflow(model_spec) {
   hdom.renderOnce(render_examples(examples), { root: "examples" });
 
   for (const example of examples) make_model_dataflow(example);
+
+  // HACK: work around unwanted scrolling of page when focusing textarea.
+  document.body.addEventListener(
+    "focus",
+    function(event) {
+      event.preventDefault();
+      if (event.target.classList.contains("userland-code-input")) {
+        const ex = event.target.closest(".example");
+        if (ex) {
+          ex.scrollIntoView();
+        }
+      }
+    },
+    true
+  );
 })();
