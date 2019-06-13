@@ -57,7 +57,13 @@
 
   const render_result = result =>
     result.error
-      ? ["result.error", { "data-when": result.when }, result.error]
+      ? [
+          "result.error",
+          { "data-when": result.when },
+          result.error,
+          " line ",
+          result.error.lineNumber
+        ]
       : ["result.okay"];
 
   const { updateDOM } = thi.ng.transducersHdom;
