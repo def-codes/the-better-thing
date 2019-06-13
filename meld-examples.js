@@ -25,7 +25,8 @@ charge.distanceMax(250),
 charge.theta(0.98),
 //space.hasBodies(query(Alice.knows.$person)),
 space.hasBodies(query($subject.$predicate.$object)),
- ticker . hasInterval(500),
+// ticker . hasInterval(500),
+ ticker . isa . RAF,
  space.hasTicks.ticker,
 
 )

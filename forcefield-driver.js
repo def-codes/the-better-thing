@@ -18,9 +18,8 @@
 
   const property_placement_css = ({ triple, source, target, layer_id }) => {
     const [s, p, o] = triple;
-    const selector = `#${layer_id} [data-subject="${s.value}"][data-object="${
-      o.value
-    }"]`;
+    // const selector = `#${layer_id} [data-subject="${s.value}"][data-object="${
+    const selector = ` [data-subject="${s.value}"][data-object="${o.value}"]`;
     const { x: x1, y: y1 } = source;
     const { x: x2, y: y2 } = target;
     const top = y1.toFixed(2);
@@ -169,10 +168,40 @@
             tx.assocObj(),
             nodes
           );
+          console.log(`nodes_by_id`, nodes_by_id);
+          console.log(`system.dom_root`, system.dom_root);
+
+          const properties_style = system.dom_root.appendChild(
+            document.createElement("style")
+          );
+          console.log(`properties_style`, properties_style);
+
+          const v = rdf.variable;
+          const properties = Array.from(
+            system.query_all([[v("s"), v("p"), v("o")]]),
+            ({ s, p, o }) => [s, p, o]
+          );
 
           tick_stream.transform(
             tx.sideEffect(simulation.tick),
-            tx.trace("tickin")
+            tx.map(() =>
+              [
+                ...tx.iterator(
+                  tx.comp(
+                    tx.map(triple => ({
+                      layer_id: "forcefield",
+                      triple,
+                      source: nodes_by_id[triple[0].value],
+                      target: nodes_by_id[triple[2].value]
+                    })),
+                    tx.filter(_ => _.source && _.target),
+                    tx.map(property_placement_css)
+                  ),
+                  properties
+                )
+              ].join("\n")
+            ),
+            tx.sideEffect(css => (properties_style.innerHTML = css))
           );
         }
       },

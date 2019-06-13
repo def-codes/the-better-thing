@@ -79,6 +79,12 @@
         then({ timer, ms }, system) {
           system.register(timer, () => rs.fromInterval(ms.value));
         }
+      },
+      {
+        when: q("?timer isa RAF"),
+        then({ timer, ms }, system) {
+          system.register(timer, () => rs.fromRAF());
+        }
       }
     ]
   };
