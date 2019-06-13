@@ -126,16 +126,20 @@ function traverse(store, start, follow) {
 // ================================= WORLD / INTERPRETER
 
 const make_world = store => {
-  const { namedNode: n, literal: l } = rdf;
+  const { namedNode: n, variable: v, literal: l } = rdf;
+
+  // named node or variable
+  const nv = key => (key[0] === "$" ? v(key.slice(1)) : n(key));
 
   // default context.  treat expressions kind of like turtle
   // we can't tell whether brackets or dot was used for get
   // so we treat all keys as tokens (terms)
   // Actually would need to recur here (as_turtle) on s & p, etc
   const TURTLE_PATTERNS = [
-    ([{ key: s }, { key: p }, { key: o }]) => [n(s), n(p), n(o)],
+    ([{ key: s }, { key: p }, { key: o }]) => [nv(s), nv(p), nv(o)],
     // prettier-ignore
-    ([{ key: s }, { key: p }, { args: [o]}]) => [n(s), n(p), l(o)]
+    ([{ key: s }, { key: p }, { args: [o]}]) => [nv(s), nv(p), l(o)]
+    // ^ could the literal position meaningfully be a variable there?
   ];
 
   const as_turtle = expression =>

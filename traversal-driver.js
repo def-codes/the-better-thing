@@ -30,7 +30,11 @@ function traverse_all(store, starts, follow) {
 const TRAVERSAL_DRIVER = {
   claims: q(
     "Traversal isa Class",
-    "startsFrom isa Property"
+    "startsFrom isa Property",
+    // redundant?  anyway it's also a multivalue
+    //"startsFrom domain Resource",
+    "startsFrom range Traversal",
+    "Traversal subclassOf Stream" // ??
     // properties of traversal:
     // properties it will follow
     // properties it will skip

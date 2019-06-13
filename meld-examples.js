@@ -10,6 +10,21 @@ charge.theta(0.98),
 
 const MELD_EXAMPLES = [
   {
+    name: "queries",
+    label: "query driver",
+    comment: `testing reified queries`,
+    userland_code: `claim(
+query1 . isa . Query,
+clause1 . isa . Clause,
+clause1 . hasSubject . Alice,
+clause1 . hasPredicate . knows,
+clause1 . hasObject . $someone,
+query1 . hasClause . clause1
+)
+`
+  },
+
+  {
     name: "streams",
     label: "streams driver",
     comment: `testing reified streams`,

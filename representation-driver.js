@@ -86,11 +86,18 @@ const render_resource_nodes = (_, { store, resources }) => {
 };
 
 const REPRESENTATION_DRIVER = {
-  claims: q("Representation isa Class"),
+  claims: q(
+    "Representation isa Class",
+    "ResourceRepresentation subclassOf Representation"
+  ),
 
   // EVERYBODY GETS A REPRESENTATION!
   rules: [
     {
+      // yeah, kind of.  but what we mean to say is that
+      // for all resources, there exists a representation
+      // and a representation is a stream, and the stream listens to the resource
+      // which in turn has to be provided as a stream
       when: q("?s ?p ?o"),
       then({}, system) {
         const stream = rs.stream();

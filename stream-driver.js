@@ -43,9 +43,8 @@
           "?listener listensTo ?source",
           "?subscribable meld:implements ?source"
         ),
+        // we don't need the reference to source as such
         then({ listener, source, subscribable }, system) {
-          // we don't need the reference to source as such
-          // get the runtime value of the subscribable.
           const subscribable_instance = system.find(subscribable);
 
           // TODO: userland error reporting
