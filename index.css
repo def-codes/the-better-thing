@@ -213,11 +213,33 @@ main > header {
 	flex: 1 1 auto;
 	width: 100%;
 }
-.example > .description > .userland-code-error {
+.example > .description > .userland-code-result {
 	position: absolute;
 	border: 1px solid red;
 	top: 50%;
 	left: 50%;
+}
+.example .userland-code result {
+	padding: 1em;
+	opacity: 0;
+	transition: opacity 0.3s;
+	/* Not needed right now because result itself is throttled wierdly
+	transition-delay: 0.3s;
+	 */
+}
+.example .userland-code result.okay {
+	background: rgba(0, 196, 0, .3);
+	transition-delay: 0s;
+}
+.example .userland-code result.error {
+	opacity: 1;
+	background: rgba(196, 0, 0, .3);
+}
+.example .userland-code result.error[data-when="reading-code"] {
+	border: 1px solid black;
+}
+.example .userland-code result.error[data-when="creating-system"] {
+	border: 1px solid blue;
 }
 .example > .representation {
 	position: absolute;

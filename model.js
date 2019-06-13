@@ -31,7 +31,7 @@
           { spellcheck: false },
           example.userland_code
         ],
-        ["result.userland-code-error"]
+        ["div.userland-code-output"]
       ]
     ],
     [
@@ -48,18 +48,24 @@
   const representation_container = dom_root.querySelector(
     "[data-model-representation]"
   );
-  const error_container = dom_root.querySelector(".userland-code-error");
+  const output_container = dom_root.querySelector(".userland-code-output");
 
   //================================== USERLAND CODE
   // outside the scope of the model as such
 
   const interpret = monotonic_world({ id: model_spec.name, dom_root });
 
-  function sink(userland_code) {
-    const result = interpret(userland_code);
-    error_container.innerHTML =
-      result !== true ? "" : `${result.when} ${result.error}`;
-  }
+  const render_result = result =>
+    result.error
+      ? ["result.error", { "data-when": result.when }, result.error]
+      : ["result.okay"];
+
+  const { updateDOM } = thi.ng.transducersHdom;
+  const results = rs
+    .subscription()
+    .transform(tx.map(render_result), updateDOM({ root: output_container }));
+
+  const sink = userland_code => results.next(interpret(userland_code));
 
   const code_input = dom_root.querySelector(".userland-code-input");
 

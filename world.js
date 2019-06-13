@@ -24,13 +24,13 @@ ${userland_code}
       // currently does not return a meaningful result
       read(userland_code, interpreter);
     } catch (error) {
-      return { error, when: "reading userland code" };
+      return { error, when: "reading-code" };
     }
 
     try {
       dispose_old_system = meld.monotonic_system({ ...opts, store });
     } catch (error) {
-      return { error, when: "creating system" };
+      return { error, when: "creating-system" };
     }
 
     return true;
