@@ -22,90 +22,99 @@
 // a representation is implemented by a subscription
 // that transforms an object into hiccup
 
-const render_properties = (_, properties) => [
-  "div",
-  tx.map(
-    ([s, p, o]) => [
-      "div.Property",
-      {
-        "data-subject": s.value,
-        "data-property": p.value,
-        "data-object": o.value
-      },
-      p
-    ],
-    properties
-  )
-];
-
-// given a store and a list of resources, render those resources and their
-// (non-node) properties.
-const render_resource_nodes = (_, { store, resources }) => {
-  const literal_props = tx.transduce(
-    // Limit to literal (value) props, as nodes and links are displayed
-    // independently.  Allows links to be on separate layer.
-    tx.filter(([, , o]) => o.termType === "Literal"),
-    tx.groupByMap({ key: ([s]) => s }),
-    store.triples
-  );
-
-  return [
+(function() {
+  const render_properties = (_, properties) => [
     "div",
-    {},
     tx.map(
-      resource => [
-        "div",
+      ([s, p, o]) => [
+        "div.Property",
         {
-          "data-thing": resource.value,
-          class: [
-            "Resource",
-            ...tx.map(
-              type => type.value,
-              all_values_for(store, resource, TYPE) || []
-            )
-          ].join("  ")
+          "data-subject": s.value,
+          "data-property": p.value,
+          "data-object": o.value
         },
-        [
-          "div.resource-content",
-          {},
-          !literal_props.has(resource)
-            ? resource.value
-            : tx.map(
-                ([, p, o]) => [
-                  "div",
-                  { "data-property": p.value },
-                  o.value && o.value.toString()
-                ],
-                literal_props.get(resource)
-              )
-        ]
+        p
       ],
-      resources
+      properties
     )
   ];
-};
 
-const REPRESENTATION_DRIVER = {
-  claims: q(
-    "Representation isa Class",
-    "ResourceRepresentation subclassOf Representation"
-  ),
+  // given a store and a list of resources, render those resources and their
+  // (non-node) properties.
+  const render_resource_nodes = (_, { store, resources }) => {
+    const literal_props = tx.transduce(
+      // Limit to literal (value) props, as nodes and links are displayed
+      // independently.  Allows links to be on separate layer.
+      tx.filter(([, , o]) => o.termType === "Literal"),
+      tx.groupByMap({ key: ([s]) => s }),
+      store.triples
+    );
 
-  // EVERYBODY GETS A REPRESENTATION!
-  rules: [
-    {
-      // yeah, kind of.  but what we mean to say is that
-      // for all resources, there exists a representation
-      // and a representation is a stream, and the stream listens to the resource
-      // which in turn has to be provided as a stream
-      when: q("?s ?p ?o"),
-      then({}, system) {
-        const stream = rs.stream();
+    return [
+      "div",
+      {},
+      tx.map(
+        resource => [
+          "div",
+          {
+            "data-thing": resource.value,
+            class: [
+              "Resource",
+              ...tx.map(
+                type => type.value,
+                all_values_for(store, resource, TYPE) || []
+              )
+            ].join("  ")
+          },
+          [
+            "div.resource-content",
+            {},
+            !literal_props.has(resource)
+              ? resource.value
+              : tx.map(
+                  ([, p, o]) => [
+                    "div",
+                    { "data-property": p.value },
+                    o.value && o.value.toString()
+                  ],
+                  literal_props.get(resource)
+                )
+          ]
+        ],
+        resources
+      )
+    ];
+  };
 
-        const sub = stream_for_resource_and_all_its_properties.transform(
-          tx.map(renderer_for_resource)
-        );
+  const REPRESENTATION_DRIVER = {
+    claims: q(
+      "Representation isa Class",
+      "ResourceRepresentation subclassOf Representation"
+    ),
+
+    // EVERYBODY GETS A REPRESENTATION!
+    rules: [
+      {
+        // yeah, kind of.  but what we mean to say is that
+        // for all resources, there exists a representation
+        // and a representation is a stream, and the stream listens to the resource
+        // which in turn has to be provided as a stream
+        when: q("?s ?p ?o"),
+        then({}, system) {
+          const { hdom } = thi.ng;
+          hdom.renderOnce("zero the hero", { root: system.dom_root });
+          return;
+          system.dom_root;
+          const stream = rs.stream();
+
+          const sub = stream_for_resource_and_all_its_properties.transform(
+            tx.map(renderer_for_resource)
+          );
+        }
       }
-    }
-  ]
-};
+    ]
+  };
+
+  if (meld) meld.register_driver(REPRESENTATION_DRIVER);
+  else console.warn("No meld system found!");
+})();

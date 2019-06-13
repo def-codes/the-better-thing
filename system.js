@@ -147,6 +147,7 @@ const monotonic_system = ({ id, store, dom_root }) => {
   // The interface made available to drivers
   const system = {
     store,
+    dom_root,
     assert: fact => store.add(fact),
     query_all: where => sync_query(store, where),
     live_query: where => live_query(store, where),
