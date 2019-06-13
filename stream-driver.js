@@ -15,7 +15,11 @@
       "hasSource range StreamSource",
       "listensTo isa Property",
       "listensTo domain Subscribable",
-      "listensTo range Listener"
+      "listensTo range Listener",
+      // not a general stream thing as such
+      "Ticker subclassOf Stream",
+      "hasInterval domain Ticker",
+      "hasInterval range number"
     ),
     rules: [
       {
@@ -67,6 +71,14 @@
                 console.log(`subscription fired praise God!!!`, source, value);
               }
             })
+          );
+        }
+      },
+      {
+        when: q("?timer hasInterval ?ms"),
+        then({ timer, ms }, system) {
+          system.register(timer, () =>
+            rs.fromInterval(ms.value).subscribe(rs.trace("y a ti"))
           );
         }
       }
