@@ -12,6 +12,25 @@ const MELD_EXAMPLES = [
   {
     name: "forcefield",
     label: "forcefield driver",
+    comment: `testing reified forcefield (with query shorthand)`,
+    userland_code: `claim(
+Alice . knows . Bob,
+space.isa.Forcefield,
+space.hasForce.center,
+space.hasForce.charge,
+center.isa.forceCenter,
+charge.isa.forceManyBody,
+charge.strength(-200),
+charge.distanceMax(250),
+charge.theta(0.98),
+//space.hasBodies(query(Alice.knows.$person)),
+space.hasBodies(query($s.$p.$o)),
+)
+`
+  },
+  {
+    name: "forcefield-verbose",
+    label: "forcefield driver",
     comment: `testing reified forcefield`,
     userland_code: `claim(
 Alice . knows . Bob,

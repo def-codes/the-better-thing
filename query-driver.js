@@ -38,10 +38,10 @@
           // Still not quite there.  More to the point would be to assert a
           // stream with this thunk as its source.  could *almost* be done in a
           // rule.
-          system.register(query, () =>
-            system
-              .live_query([[subject, predicate, object]])
-              .transform(tx.trace("DEBUG QUERY"))
+          system.register(
+            query,
+            () => system.live_query([[subject, predicate, object]])
+            //.transform(tx.trace("DEBUG QUERY"))
           );
         }
       }
