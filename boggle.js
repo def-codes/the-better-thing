@@ -841,19 +841,18 @@ const render_example = example => [
   "article.example",
   { id: example.name },
   [
-    "div.panes",
+    "div.description",
     [
-      "div.description",
-      [
-        "header",
-        ["h3", example.label],
-        ["a", { href: `#${example.name}` }, example.name],
-        ["p", example.comment]
-      ],
-      ["div.model-control", ["textarea.userland-code", example.userland_code]]
+      "header",
+      ["h3", {}, ["a", { href: `#${example.name}` }, example.label]],
+      ["p.comment", example.comment]
     ],
-    ["figure.representation", {}, [dom_svg_space, { id: example.name }]]
-  ]
+    [
+      "div.model-control",
+      ["textarea.userland-code", { spellcheck: false }, example.userland_code]
+    ]
+  ],
+  ["figure.representation", {}, [dom_svg_space, { id: example.name }]]
 ];
 
 const render_examples = examples => [
@@ -1129,7 +1128,7 @@ function make_model_dataflow(model_spec) {
 (async function() {
   const examples = all_examples
     .filter(_ => _.userland_code)
-    .filter(_ => _.name === "symmetrical");
+    .filter(_ => ["symmetrical", "graph2"].includes(_.name));
 
   hdom.renderOnce(render_examples(examples), { root: "examples" });
 

@@ -54,40 +54,43 @@ body {
 }
 
 /* Examples */
-.example .space {
+.example {
 	position: relative;
-	width: 100%;
-	min-height: 100vh;
-	box-sizing: border-box;
-}
-.example .panes {
 	display: flex;
+	height: 100vh;
+	padding-left: 0.5em;
 }
-.example .panes > .description,
-.example .panes > .representation {
-	flex: 50%;
-	margin: 0;
-}
-
-/* Models (TRANSITIONAL) */
-.example .description {
+.example > .description {
 	display: flex;
 	flex-direction: column;
+	width: 100%;
 	box-sizing: border-box;
 }
-.example .description > header {
+.example > .description > header {
 	flex: 0 0 auto;
 }
-.example .description > .model-control {
+.example > .description > .model-control {
 	flex: 1 1 auto;
-	position: relative;
+	width: 100%;
+}
+.example > .representation {
+	position: absolute;
+	margin: 0; 					/* beat figure default */
+	top: 1em;
+	right: 1em;
+	bottom: 1em;
+	left: 50%;
+}
+.example > .representation .space {
+	height: 100%;
 }
 textarea.userland-code {
-	font-size: 150%;
+	background: none;			/* reset textarea */
+	border: none;				/* reset textarea */
+	font-family: inherit;		/* reset textarea */
+	font-size: 100%;
 	width: 100%;
 	height: 100%;
-	margin: 0;
-	padding: 0;
 }
 
 .graph-path:nth-of-type(1) { stroke-width: 0.4em; stroke: red; }
