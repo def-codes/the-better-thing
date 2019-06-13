@@ -34,7 +34,11 @@
           "data-property": p.value,
           "data-object": o.value
         },
-        p
+        s.value,
+        " ",
+        p.value,
+        " ",
+        o.value
       ],
       properties
     )
@@ -91,14 +95,14 @@
     claims: q(
       "Representation isa Class",
       "ResourceRepresentation subclassOf Representation",
-      // an everything listener
+      // Interesting thing here is that runtime can “remove” representation of
+      // things by extending this, i.e. by conjoining stricter criteria.
       "EverythingWatcher hasClause EverythingScope",
       "EverythingScope hasSubject ?subject",
       "EverythingScope hasPredicate ?predicate",
       "EverythingScope hasObject ?object"
     ),
 
-    // EVERYBODY GETS A REPRESENTATION!
     rules: [
       {
         when: q("?stream implements EverythingWatcher"),
@@ -112,21 +116,6 @@
                 properties
               )
             ]),
-            updateDOM({ root: system.dom_root })
-          );
-        }
-      },
-      {
-        // yeah, kind of.  but what we mean to say is that
-        // for all resources, there exists a representation
-        // and a representation is a stream, and the stream listens to the resource
-        // which in turn has to be provided as a stream
-        when_all: q("?s pancake ?o"),
-        then(properties, system) {
-          const { updateDOM } = thi.ng.transducersHdom;
-
-          something.transform(
-            [render_properties, tx.map(({ s, p, o }) => [s, p, o], properties)],
             updateDOM({ root: system.dom_root })
           );
         }
