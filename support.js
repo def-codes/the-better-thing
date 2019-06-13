@@ -92,7 +92,8 @@ const all_properties_for = (store, subject) =>
 
 // iterate all resources reachable by `follow` property from `start`
 function traverse(store, start, follow) {
-  const queue = [start];
+  const queue = [];
+  if (store.indexS.has(start)) queue.push(start);
   const out = new Set();
   while (queue.length > 0) {
     const subject = queue.pop();
