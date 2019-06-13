@@ -1128,7 +1128,9 @@ function make_model_dataflow(model_spec) {
 (async function() {
   const examples = all_examples
     .filter(_ => _.userland_code)
-    .filter(_ => ["symmetrical", "graph2"].includes(_.name));
+    .filter(_ =>
+      ["symmetrical", "graph2", "forall", "subgraph"].includes(_.name)
+    );
 
   hdom.renderOnce(render_examples(examples), { root: "examples" });
 

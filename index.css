@@ -118,6 +118,26 @@ body {
 	box-sizing: border-box;
 }
 
+/*
+  Rules for supporting slide presentation based on document sections.  Note that
+  scroll-snap rules were written for Firefox which supposedly supports an “older
+  version of the spec”. https://caniuse.com/#feat=css-snappoints
+*/
+body {
+	scroll-snap-type: mandatory;
+	scroll-snap-type: proximity;
+	scroll-snap-points-y: repeat(100vh);
+}
+main > header {
+	height: 100vh;
+}
+/* main > section, main > header { */
+.example, .slide {
+	height: 100vh;
+	scroll-snap-type: y mandatory;
+	scroll-snap-align: start;
+}
+
 /** Coordinated HTML and SVG layers. */
 .space {
 	background: white;
@@ -136,10 +156,10 @@ body {
 }
 /* This is probably a bad idea as it will throw off mouse coordinates */
 /* .space > .html, .space .everything { */
-/* 	transform: scale(1.5); */
+/*	transform: scale(1.5); */
 /* } */
 /* .space > .html { */
-/* 	transform-origin: top left; */
+/*	transform-origin: top left; */
 /* } */
 
 /* Triple store graphs */
@@ -166,7 +186,6 @@ body {
 .example {
 	position: relative;
 	display: flex;
-	height: 100vh;
 	padding-left: 0.5em;
 }
 .example > .description {
@@ -184,7 +203,7 @@ body {
 }
 .example > .representation {
 	position: absolute;
-	margin: 0; 					/* beat figure default */
+	margin: 0;					/* beat figure default */
 	top: 1em;
 	right: 1em;
 	bottom: 1em;
@@ -200,6 +219,7 @@ textarea.userland-code {
 	font-size: 100%;
 	width: 100%;
 	height: 100%;
+	overflow: hidden;
 }
 
 .graph-path:nth-of-type(1) { stroke-width: 0.4em; stroke: red; }
