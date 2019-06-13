@@ -27,8 +27,8 @@
       [
         "div.userland-code",
         [
-          "textarea.userland-code-input",
-          { spellcheck: false },
+          "code.userland-code-input",
+          { contenteditable: true, spellcheck: false },
           example.userland_code
         ],
         ["div.userland-code-output"]
@@ -78,7 +78,7 @@
   // update USERLAND CODE when the user makes edits
   rs.fromEvent(code_input, "input").transform(
     tx.throttleTime(1000),
-    tx.map(event => event.target.value),
+    tx.map(event => event.target.innerText),
     tx.sideEffect(sink)
   );
 
