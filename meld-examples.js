@@ -10,6 +10,18 @@ charge.theta(0.98),
 
 const MELD_EXAMPLES = [
   {
+    name: "streams",
+    label: "streams driver",
+    comment: `testing reified streams`,
+    userland_code: `claim(
+stream . isa . Stream, // (implicit)
+stream . hasSource(sub => { sub.next("hello"); sub.next("world"); }),
+sub . listensTo . stream
+)
+`
+  },
+
+  {
     name: "layers",
     label: "layers driver",
     comment: `testing reified layers`,

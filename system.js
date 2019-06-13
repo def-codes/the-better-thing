@@ -125,7 +125,7 @@ const apply_drivers_to = (store, system) => {
         const results = sync_query(store, when);
         if (results) for (const result of results) then(result, system);
       } catch (error) {
-        console.error("problem appying rule: ", error);
+        console.error("problem appying rule: ", when, error);
       }
   }
 };
@@ -152,7 +152,20 @@ const monotonic_system = ({ id, store, dom_root }) => {
     live_query: where => live_query(store, where),
     find: subject => registry.get(subject),
     register(subject, thunk) {
-      if (!registry.has(subject)) registry.set(subject, thunk());
+      if (!registry.has(subject)) {
+        // Theoretically it's possible for multiple drivers to implement
+        // different types for the same resource.  To support that, the blank
+        // node (and probably a tuple key) will be needed to distinguish them.
+        const value = thunk();
+        // console.log(`value`, value);
+
+        const value_id = mint_blank();
+        // console.log(`value_id`, value_id);
+
+        registry.set(value_id, value);
+        store.add([value_id, IMPLEMENTS, subject]);
+        registry.set(subject, value);
+      }
     }
   };
 
