@@ -852,28 +852,3 @@ function make_model_dataflow(model_spec) {
 
   if (model_spec.userland_code) model_code.next(model_spec.userland_code);
 }
-
-(async function() {
-  const examples = MELD_EXAMPLES.filter(_ => _.userland_code).filter(_ =>
-    ["symmetrical", "graph2", "forall", "subgraph"].includes(_.name)
-  );
-
-  hdom.renderOnce(render_examples(examples), { root: "examples" });
-
-  for (const example of examples) make_model_dataflow(example);
-
-  // HACK: work around unwanted scrolling of page when focusing textarea.
-  document.body.addEventListener(
-    "focus",
-    function(event) {
-      event.preventDefault();
-      if (event.target.classList.contains("userland-code-input")) {
-        const ex = event.target.closest(".example");
-        if (ex) {
-          ex.scrollIntoView();
-        }
-      }
-    },
-    true
-  );
-})();
