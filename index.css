@@ -1,6 +1,115 @@
+@font-face {
+  font-family: 'FiraSansCondensed';
+  font-style: normal;
+  font-weight: 100;
+  src: local('FiraSansCondensed Thin'), local('FiraSansCondensed-Thin'), url("/fonts/FiraSansCondensed-Thin.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'FiraSansCondensed';
+  font-style: italic;
+  font-weight: 100;
+  src: local('FiraSansCondensed Thin'), local('FiraSansCondensed-Thin'), url("/fonts/FiraSansCondensed-Thin.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'FiraSansCondensed';
+  font-style: normal;
+  font-weight: 200;
+  src: local('FiraSansCondensed ExtraLight'), local('FiraSansCondensed-ExtraLight'), url("/fonts/FiraSansCondensed-ExtraLight.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'FiraSansCondensed';
+  font-style: italic;
+  font-weight: 200;
+  src: local('FiraSansCondensed ExtraLightItalic'), local('FiraSansCondensed-ExtraLightItalic'), url("/fonts/FiraSansCondensed-ExtraLightItalic.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'FiraSansCondensed';
+  font-style: normal;
+  font-weight: 300;
+  src: local('FiraSansCondensed Light'), local('FiraSansCondensed-Light'), url("/fonts/FiraSansCondensed-Light.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'FiraSansCondensed';
+  font-style: italic;
+  font-weight: 300;
+  src: local('FiraSansCondensed LightItalic'), local('FiraSansCondensed-LightItalic'), url("/fonts/FiraSansCondensed-LightItalic.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'FiraSansCondensed';
+  font-style: normal;
+  font-weight: 400;
+  src: local('FiraSansCondensed Regular'), local('FiraSansCondensed-Regular'), url("/fonts/FiraSansCondensed-Regular.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'FiraSansCondensed';
+  font-style: italic;
+  font-weight: 400;
+  src: local('FiraSansCondensed Italic'), local('FiraSansCondensed-Italic'), url("/fonts/FiraSansCondensed-Italic.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'FiraSansCondensed';
+  font-style: normal;
+  font-weight: 500;
+  src: local('FiraSansCondensed Medium'), local('FiraSansCondensed-Medium'), url("/fonts/FiraSansCondensed-Medium.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'FiraSansCondensed';
+  font-style: italic;
+  font-weight: 500;
+  src: local('FiraSansCondensed Medium'), local('FiraSansCondensed-Medium'), url("/fonts/FiraSansCondensed-Medium.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'FiraSansCondensed';
+  font-style: normal;
+  font-weight: 600;
+  src: local('FiraSansCondensed SemiBold'), local('FiraSansCondensed-SemiBold'), url("/fonts/FiraSansCondensed-SemiBold.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'FiraSansCondensed';
+  font-style: italic;
+  font-weight: 600;
+  src: local('FiraSansCondensed SemiBoldItalic'), local('FiraSansCondensed-SemiBoldItalic'), url("/fonts/FiraSansCondensed-SemiBoldItalic.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'FiraSansCondensed';
+  font-style: normal;
+  font-weight: 700;
+  src: local('FiraSansCondensed Bold'), local('FiraSansCondensed-Bold'), url("/fonts/FiraSansCondensed-Bold.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'FiraSansCondensed';
+  font-style: italic;
+  font-weight: 700;
+  src: local('FiraSansCondensed BoldItalic'), local('FiraSansCondensed-BoldItalic'), url("/fonts/FiraSansCondensed-BoldItalic.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'FiraSansCondensed';
+  font-style: normal;
+  font-weight: 800;
+  src: local('FiraSansCondensed ExtraBold'), local('FiraSansCondensed-ExtraBold'), url("/fonts/FiraSansCondensed-ExtraBold.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'FiraSansCondensed';
+  font-style: italic;
+  font-weight: 800;
+  src: local('FiraSansCondensed ExtraBold'), local('FiraSansCondensed-ExtraBold'), url("/fonts/FiraSansCondensed-ExtraBold.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'FiraSansCondensed';
+  font-style: normal;
+  font-weight: 900;
+  src: local('FiraSansCondensed Black'), local('FiraSansCondensed-Black'), url("/fonts/FiraSansCondensed-Black.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'FiraSansCondensed';
+  font-style: italic;
+  font-weight: 900;
+  src: local('FiraSansCondensed Black'), local('FiraSansCondensed-Black'), url("/fonts/FiraSansCondensed-Black.ttf") format('truetype');
+}
+
 body {
 	font-size: 32pt;
-	font-family: sans-serif;
+	font-family: 'FiraSansCondensed', sans-serif;
 	overflow-x: hidden;
 	margin: 0;
 	background: #EEE;
