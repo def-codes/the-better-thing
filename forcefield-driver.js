@@ -73,6 +73,10 @@ const FORCEFIELD_DRIVER = {
       then({ force, property }, system) {
         const force_instance = system.find(force);
 
+        // Hardcode id accessor.  Userland has no need to get at this, as the id
+        // is always tied to the resource name.
+        force_instance.id(node => node.id);
+
         const results = system.query_all(q(`?s ${property.value} ?o`));
         if (results) {
           const links = Array.from(results, ({ s, o }) => ({

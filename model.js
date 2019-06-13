@@ -1,6 +1,4 @@
 function main() {
-  console.log(`line 2`);
-
   const { transducers: tx, rstream: rs, hdom } = thi.ng;
 
   const requested_model = window.location.search.replace(/^\?/, "");
