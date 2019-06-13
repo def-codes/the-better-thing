@@ -53,7 +53,10 @@
   //================================== USERLAND CODE
   // outside the scope of the model as such
 
-  const interpret = monotonic_world({ id: model_spec.name, dom_root });
+  const interpret = monotonic_world({
+    id: model_spec.name,
+    dom_root: representation_container
+  });
 
   const render_result = result =>
     result.error

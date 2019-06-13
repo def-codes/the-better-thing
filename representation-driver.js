@@ -95,15 +95,25 @@
       "EverythingWatcher hasClause EverythingScope",
       "EverythingScope hasSubject ?subject",
       "EverythingScope hasPredicate ?predicate",
-      "EverythingScope hasPredicate ?object"
+      "EverythingScope hasObject ?object"
     ),
 
     // EVERYBODY GETS A REPRESENTATION!
     rules: [
       {
-        when: q("?stream implements EverythingScope"),
+        when: q("?stream implements EverythingWatcher"),
         then({ stream }, system) {
-          console.log(`STREAM`, stream);
+          const stream_instance = system.find(stream);
+          stream_instance.transform(
+            tx.map(properties => [
+              render_properties,
+              tx.map(
+                ({ subject: s, predicate: p, object: o }) => [s, p, o],
+                properties
+              )
+            ]),
+            updateDOM({ root: system.dom_root })
+          );
         }
       },
       {

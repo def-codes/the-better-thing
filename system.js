@@ -76,6 +76,7 @@ const live_query = (store, where) =>
   store.addQueryFromSpec({
     q: [{ where: where.map(_ => _.map(rstream_variables)) }]
   });
+//.transform(tx.trace(JSON.stringify(where)));
 
 // given a store, create a subscription that yields all of the resources it
 // talks about, i.e. every named or blank node in a subject or object position.
@@ -187,14 +188,12 @@ const monotonic_system = ({ id, store, dom_root }) => {
         // different types for the same resource.  To support that, the blank
         // node (and probably a tuple key) will be needed to distinguish them.
         const value = thunk();
-        // console.log(`value`, value);
-
         const value_id = mint_blank();
-        // console.log(`value_id`, value_id);
+        //console.log(value, value_id, IMPLEMENTS, subject);
 
         registry.set(value_id, value);
-        store.add([value_id, IMPLEMENTS, subject]);
         registry.set(subject, value);
+        store.add([value_id, IMPLEMENTS, subject]);
       }
     }
   };

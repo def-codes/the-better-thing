@@ -26,7 +26,7 @@
       "hasClause range Clause"
     ),
     rules: [
-      // 1-ary queries
+      // 1-ary queries.  Any of the terms can be variables.
       {
         when: q(
           "?query hasClause ?clause",
@@ -35,25 +35,12 @@
           "?clause hasObject ?object"
         ),
         then({ query, subject, predicate, object }, system) {
-          system.register(query, () => {
-            // any of these can be variables.
-            console.log(
-              `query, subject, predicate, object`,
-              query,
-              subject,
-              predicate,
-              object
-            );
-            //return null;
-            // but wait... it's a stream source.  so you actually want to provide this as a thunk.
-            // ideally you would just state the existence of the stream resource, right?
-            // I mean... technically you could... in a rule, say
-            // when query has object, etc, then, there exists a stream source
-            //
-            return system
-              .live_query([[subject, predicate, object]])
-              .subscribe(rs.trace("yahoo"));
-          });
+          // Still not quite there.  More to the point would be to assert a
+          // stream with this thunk as its source.  could *almost* be done in a
+          // rule.
+          system.register(query, () =>
+            system.live_query([[subject, predicate, object]])
+          );
         }
       }
     ]
