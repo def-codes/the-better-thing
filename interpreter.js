@@ -150,10 +150,39 @@ const make_world = store => {
   const as_term = step =>
     step.key[0] === "$" ? `?${step.key.slice(1)}` : rdf.namedNode(step.key);
   const as_triple = _ => _.context.map(as_term);
-  const query = (...clauses) => read =>
-    store
-      .addQueryFromSpec({ q: [{ where: clauses.map(as_triple) }] })
-      .subscribe(tx.comp(tx.flatten(), tx.map(read)));
+
+  const reify_triple = id => ([s, p, o]) => [
+    [id, n("hasSubject"), s],
+    [id, n("hasPredicate"), p],
+    [id, n("hasObject"), o]
+  ];
+
+  const query = (...clauses) => {
+    const query_id = mint_blank();
+    const reified_clauses = clauses
+      .map(as_turtle)
+      .map(reify_triple(mint_blank()));
+
+    const all = [
+      ...tx.mapcat(x => x, reified_clauses),
+      ...reified_clauses.map(reified => [
+        query_id,
+        n("hasClause"),
+        reified[0][0]
+      ])
+    ];
+    console.log(`all`, all);
+    // TEMP: assert the query
+    store.into(all);
+
+    return query_id;
+  };
+
+  //       //  OBE
+  // const query = (...clauses) => read =>
+  //   store
+  //     .addQueryFromSpec({ q: [{ where: clauses.map(as_triple) }] })
+  //     .subscribe(tx.comp(tx.flatten(), tx.map(read)));
 
   const as_named = expr => expr && match([([{ key }]) => n(key)], expr.context);
 
@@ -217,7 +246,7 @@ const make_world = store => {
       // this should be a separate step
       store.into(links);
     },
-
+    // OBE: use real rules
     rule: ({ when, then }) =>
       query(...when)(match =>
         then.forEach(clause =>

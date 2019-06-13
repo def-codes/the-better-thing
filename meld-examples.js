@@ -10,6 +10,31 @@ charge.theta(0.98),
 
 const MELD_EXAMPLES = [
   {
+    name: "forcefield",
+    label: "forcefield driver",
+    comment: `testing reified forcefield`,
+    userland_code: `claim(
+Alice . knows . Bob,
+space.isa.Forcefield,
+space.hasForce.center,
+space.hasForce.charge,
+center.isa.forceCenter,
+charge.isa.forceManyBody,
+charge.strength(-200),
+charge.distanceMax(250),
+charge.theta(0.98),
+space.hasBodies.q,
+q . hasClause . clause1,
+clause1 . hasSubject . Alice,
+clause1 . hasPredicate . knows,
+clause1 . hasObject . $y,
+)
+//query(Alice.knows.$person)
+
+`
+  },
+
+  {
     name: "representation",
     label: "representation driver",
     comment: `testing reified representations`,
