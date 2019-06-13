@@ -162,7 +162,7 @@ main > header {
 /* } */
 
 /* Triple store graphs */
-.Property {
+.Space .Property {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -209,16 +209,22 @@ main > header {
 	margin: 0.5em 0;					/* beat p */
 	font-weight: 300;
 }
-.example > .description > .model-control {
+.example > .description > .userland-code {
 	flex: 1 1 auto;
 	width: 100%;
+}
+.example > .description > .userland-code-error {
+	position: absolute;
+	border: 1px solid red;
+	top: 50%;
+	left: 50%;
 }
 .example > .representation {
 	position: absolute;
 	margin: 0;					/* beat figure default */
-	top: 1em;
-	right: 1em;
-	bottom: 1em;
+	top: 0;
+	right: 0;
+	bottom: 0;
 	left: 50%;
 }
 .example > .representation .space {
@@ -256,8 +262,7 @@ textarea.userland-code-input {
 	stroke-dasharray: 0.3;
 }
 
-.Resource {
-	box-sizing: border-box;
+.Space .Resource {
 	position: absolute;
 	/* border: 1px solid red; */
 }
@@ -272,7 +277,16 @@ textarea.userland-code-input {
 	transform: translate(-50%, -50%);
 }
 */
-.resource-content {
+
+.Document {
+	border: 1px solid red;
+	overflow-y: auto;
+}
+.Document > .resource-content {
+	border: 1px solid blue;
+}
+
+.Space .resource-content {
 	padding: 0.75em;
 	text-align: center;
 	transform: translate(-50%, -50%);

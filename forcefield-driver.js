@@ -1,3 +1,85 @@
+function create_forcefield_dataflow({
+  // for scoping of created style rules
+  // instead, provide a place to contribute style rules directly?
+  // even as objects?
+  layer_id,
+  // id if the forcefield resource with the associated siulation
+  forcefield_id,
+  // needed (indirectly) for getting at the created simulation
+  // there's got to be a way to avoid this
+  model_system,
+  // which resources to include in the forcefield
+  resources,
+  // which properties for which to update positioning rules
+  properties,
+  // style elements that are targets the the bespoke rule updates
+  nodes_style,
+  properties_style
+}) {
+  // simulation driving a/the FORCEFIELD
+  const force_simulation = model_system.transform(
+    tx.map(system => system.find(rdf.namedNode(forcefield_id))),
+    tx.keep()
+  );
+
+  // set the (d3) nodes ARRAY for a/the FORCEFIELD from the identified resources
+  // AND broadcast it
+  const model_forcefield_nodes = rs
+    .sync({ src: { resources, sim: force_simulation } })
+    .transform(
+      tx.map(({ resources, sim }) => ({
+        sim,
+        nodes: [...tx.map(({ value }) => ({ id: value }), resources)]
+      })),
+      tx.sideEffect(({ sim, nodes }) => sim.nodes(nodes)),
+      tx.pluck("nodes")
+    );
+
+  // const tick_driver = rs.fromRAF();
+  const tick_driver = rs.fromInterval(100);
+  const ticks = rs.subscription();
+  tick_driver.subscribe(ticks);
+
+  // advance FORCEFIELD simulation PROCESS
+  rs.sync({ src: { ticks, sim: force_simulation } }).transform(
+    tx.sideEffect(({ sim }) => sim.tick())
+  );
+
+  // update FORCEFIELD node positions on every tick
+  rs.sync({ src: { ticks, nodes: model_forcefield_nodes } }).subscribe({
+    next: ({ nodes }) => position_things(nodes_style, layer_id, nodes)
+  });
+
+  // index SIMULATION nodes by resource identifier, for property positioning
+  const nodes_by_id = model_forcefield_nodes.transform(
+    tx.map(nodes =>
+      tx.transduce(tx.map(node => [node.id, node]), tx.assocObj(), nodes)
+    )
+  );
+
+  // passively place link representations from a FORCEFIELD/SIMULATION
+  rs.sync({ src: { ticks, nodes_by_id, properties } }).transform(
+    tx.map(({ nodes_by_id, properties }) =>
+      [
+        ...tx.iterator(
+          tx.comp(
+            tx.map(triple => ({
+              layer_id,
+              triple,
+              source: nodes_by_id[triple[0].value],
+              target: nodes_by_id[triple[2].value]
+            })),
+            tx.filter(_ => _.source && _.target),
+            tx.map(property_placement_css)
+          ),
+          properties
+        )
+      ].join("\n")
+    ),
+    tx.sideEffect(css => (properties_style.innerHTML = css))
+  );
+}
+
 // Helper.  Both forces and forcefields use this pattern for setting properties.
 const setter = ({ x, p, v }, { find }) => {
   const instance = find(x);

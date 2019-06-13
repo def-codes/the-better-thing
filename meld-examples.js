@@ -10,6 +10,24 @@ charge.theta(0.98),
 
 const MELD_EXAMPLES = [
   {
+    name: "layers",
+    label: "layers driver",
+    comment: `testing reified layers`,
+    userland_code: `claim(
+l . isa . Layer
+)
+`
+  },
+  {
+    name: "space",
+    label: "space driver",
+    comment: `testing reified space`,
+    userland_code: `claim(
+s . isa . Space
+)
+`
+  },
+  {
     name: "traversal",
     label: "traversal driver",
     comment: `testing reified traversal`,
