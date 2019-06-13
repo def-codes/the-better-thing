@@ -235,6 +235,7 @@ textarea.userland-code-input {
 	width: 90%;
 	height: 100%;
 	overflow: hidden;
+	resize: none;
 }
 
 .graph-path:nth-of-type(1) { stroke-width: 0.4em; stroke: red; }
