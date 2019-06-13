@@ -77,9 +77,7 @@
       {
         when: q("?timer hasInterval ?ms"),
         then({ timer, ms }, system) {
-          system.register(timer, () =>
-            rs.fromInterval(ms.value).subscribe(rs.trace("y a ti"))
-          );
+          system.register(timer, () => rs.fromInterval(ms.value));
         }
       }
     ]

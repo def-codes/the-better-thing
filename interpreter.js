@@ -174,7 +174,6 @@ const make_world = store => {
         reified[0][0]
       ])
     ];
-    console.log(`all`, all);
     // TEMP: assert the query
     store.into(all);
 

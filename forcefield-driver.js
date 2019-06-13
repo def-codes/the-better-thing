@@ -70,16 +70,6 @@
         tx.pluck("nodes")
       );
 
-    // const tick_driver = rs.fromRAF();
-    const tick_driver = rs.fromInterval(100);
-    const ticks = rs.subscription();
-    tick_driver.subscribe(ticks);
-
-    // advance FORCEFIELD simulation PROCESS
-    rs.sync({ src: { ticks, sim: force_simulation } }).transform(
-      tx.sideEffect(({ sim }) => sim.tick())
-    );
-
     // update FORCEFIELD node positions on every tick
     rs.sync({ src: { ticks, nodes: model_forcefield_nodes } }).subscribe({
       next: ({ nodes }) => position_things(nodes_style, layer_id, nodes)
@@ -162,10 +152,28 @@
         }
       },
       {
-        when: q("?field hasTicks ?ticks", "?source implements ?ticks"),
-        then({ ticks, source }, system) {
-          const source_instance = system.find(source);
-          source_instance.transform(tx.trace("TICK!"));
+        when: q(
+          "?field hasTicks ?ticks",
+          "?source implements ?ticks",
+          "?field hasNodes ?nodes",
+          "?nodesource implements ?nodes"
+        ),
+        then({ field, ticks, source, nodesource }, system) {
+          const nodes_stream = system.find(nodesource);
+          const simulation = system.find(field);
+          const tick_stream = system.find(source);
+          const nodes = simulation.nodes();
+
+          const nodes_by_id = tx.transduce(
+            tx.map(node => [node.id, node]),
+            tx.assocObj(),
+            nodes
+          );
+
+          tick_stream.transform(
+            tx.sideEffect(simulation.tick),
+            tx.trace("tickin")
+          );
         }
       },
       {
@@ -189,14 +197,21 @@
         // assume bodies is a stream
         when: q("?field hasBodies ?bodies", "?source implements ?bodies"),
         then: ({ field, bodies, source }, system) => {
-          const field_instance = system.find(field);
+          const simulation = system.find(field);
           const bodies_instance = system.find(source);
-          bodies_instance.transform(
-            tx.map(bodies => Array.from(bodies, body => ({ id: body.value }))),
-            tx.sideEffect(nodes => {
-              field_instance.nodes(nodes);
-            }),
-            tx.trace("NODES!!!")
+
+          const nodes_id = mint_blank();
+          system.assert([field, rdf.namedNode("hasNodes"), nodes_id]);
+          system.register(nodes_id, () =>
+            bodies_instance.transform(
+              tx.trace("BODIES"),
+              tx.map(bodies =>
+                // Hmmmm... depends on query variables
+                Array.from(bodies, body => ({ id: body.subject.value }))
+              ),
+              tx.sideEffect(simulation.nodes),
+              tx.trace("NODES!!!")
+            )
           );
         }
       },

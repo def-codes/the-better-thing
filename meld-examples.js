@@ -24,8 +24,8 @@ charge.strength(-200),
 charge.distanceMax(250),
 charge.theta(0.98),
 //space.hasBodies(query(Alice.knows.$person)),
-space.hasBodies(query($s.$p.$o)),
- ticker . hasInterval(1000),
+space.hasBodies(query($subject.$predicate.$object)),
+ ticker . hasInterval(500),
  space.hasTicks.ticker,
 
 )
