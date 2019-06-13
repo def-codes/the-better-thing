@@ -120,10 +120,13 @@ function foo() {
 const apply_drivers_to = (store, system) => {
   for (const { claims, rules } of drivers) {
     store.into(claims);
-    for (const { when, then } of rules)
+    for (const { when, when_all, then } of rules)
       try {
-        const results = sync_query(store, when);
-        if (results) for (const result of results) then(result, system);
+        const results = sync_query(store, when || when_all);
+        if (results) {
+          if (when_all) then(results, system);
+          else for (const result of results) then(result, system);
+        }
       } catch (error) {
         console.error("problem appying rule: ", when, error);
       }
