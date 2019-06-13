@@ -7,8 +7,9 @@
       "Object isa Class",
       "Triple isa Class", // ?
       "Query isa Class",
-      // assume conjunctive clauses
       "Clause isa Class",
+      // assume conjunctive clauses
+      "ConjunctiveClause isa Class",
       "Clause subclassOf Triple",
       "hasSubject isa Property",
       "hasPredicate isa Property",
@@ -35,8 +36,7 @@
         ),
         then({ query, subject, predicate, object }, system) {
           system.register(query, () => {
-            // note  it should be possible for any of these to be variables.
-            //
+            // any of these can be variables.
             console.log(
               `query, subject, predicate, object`,
               query,

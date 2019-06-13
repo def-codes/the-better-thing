@@ -10,6 +10,25 @@ charge.theta(0.98),
 
 const MELD_EXAMPLES = [
   {
+    name: "rules",
+    label: "rule driver",
+    comment: `testing reified rules`,
+    userland_code: `claim(
+rule1 . hasCondition . p1,
+rule1 . hasConsequent . c1,
+p1 . hasClause . pclause1,
+c1 . hasClause . cclause1,
+pclause1 . hasSubject . $x,
+pclause1 . hasPredicate . loves,
+pclause1 . hasObject . $y,
+cclause1 . hasSubject . $x,
+cclause1 . hasPredicate . likes,
+cclause1 . hasObject . $y
+)
+`
+  },
+
+  {
     name: "queries",
     label: "query driver",
     comment: `testing reified queries`,
