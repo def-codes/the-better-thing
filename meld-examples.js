@@ -10,6 +10,24 @@ charge.theta(0.98),
 
 const MELD_EXAMPLES = [
   {
+    name: "last-gasp",
+    label: "last gasp",
+    comment: `do or die`,
+    userland_code: `claim(
+A . B . C,
+a . isa . Container,
+a . contains . t,
+t . isa . Traversal,
+t . startsFrom . q,
+q . isa . Query,
+q . hasClause . c,
+c . hasSubject . A,
+c . hasPredicate . $predicate,
+c . hasObject . $object
+)`
+  },
+
+  {
     name: "projection",
     label: "project over",
     comment: `Support assertion of a link between any given resource and the expansion of a set.`,

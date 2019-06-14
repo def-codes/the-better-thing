@@ -121,52 +121,78 @@
     ),
 
     rules: [
+      // {
+      //   // Create the top-level containers
+      //   // when: q("?container isa Container", "?container contains ?content"),
+      //   // then({ container, content }, system) {
+      //   when_all: q("?host isa SuperContainer"),
+      //   then({}, system) {
+      //     system.live_query(q("?s ?p ?o")).transform(
+      //       //tx.map(({ s, p, o }) => [s, p, o]),
+      //       tx.map(() => [render_things, system.store.triples]),
+      //       updateDOM({ root: system.dom_root })
+      //     );
+      //   }
+      // },
+
       {
         // Create the top-level containers
-        // when: q("?container isa Container", "?container contains ?content"),
-        // then({ container, content }, system) {
         when_all: q("?host isa SuperContainer"),
-        then({}, system) {
-          system.live_query(q("?s ?p ?o")).transform(
-            //tx.map(({ s, p, o }) => [s, p, o]),
-            tx.map(() => [render_things, system.store.triples]),
-            updateDOM({ root: system.dom_root })
+        then(host, system) {
+          system.register(host, "SuperContainer", () =>
+            system.live_query(q("?container isa Container")).transform(
+              tx.map(containers => [
+                "div.SuperContainer",
+                tx.map(
+                  ({ container }) => [
+                    "div.Container",
+                    { "data-container": container.value, __skip: true }
+                  ],
+                  containers
+                )
+              ]),
+              updateDOM({ root: system.dom_root }),
+              tx.sideEffect(() => {
+                for (const ele of system.dom_root.querySelectorAll(
+                  `[data-container]`
+                )) {
+                  system.register(
+                    rdf.namedNode(ele.getAttribute("data-container")),
+                    "Container",
+                    () => ele
+                  );
+                }
+              })
+            )
           );
+        }
+      },
+
+      {
+        when: q(
+          "?container contains ?selection",
+          "?element implements ?container",
+          "?element as Container",
+          "?source implements ?selection",
+          "?source as Subscribable"
+        ),
+        then({ container, element, source }, { store, ...system }) {
+          console.log(`container, element, source`, container, element, source);
+          console.log(`system.find(element)`, system.find(element));
+          console.log(`system.find(source)`, system.find(source));
+
+          system.register(container, "Content", () => {
+            system
+              .find(source)
+              .transform(
+                tx.trace("things"),
+                tx.map(things => [render_things, things]),
+                updateDOM({ root: system.find(element), ctx: { store } })
+              );
+          });
         }
       }
 
-      // {
-      //   // Create the top-level containers
-      //   when_all: q("?host isa SuperContainer"),
-      //   then(host, system) {
-      //     system.register(host, "SuperContainer", () =>
-      //       system.live_query(q("?container isa Container")).transform(
-      //         tx.map(containers => [
-      //           "div.SuperContainer",
-      //           tx.map(
-      //             ({ container }) => [
-      //               "div.Container",
-      //               { "data-container": container.value, __skip: true }
-      //             ],
-      //             containers
-      //           )
-      //         ]),
-      //         updateDOM({ root: system.dom_root }),
-      //         tx.sideEffect(() => {
-      //           for (const ele of system.dom_root.querySelectorAll(
-      //             `[data-container]`
-      //           )) {
-      //             system.register(
-      //               rdf.namedNode(ele.getAttribute("data-container")),
-      //               "Container",
-      //               () => ele
-      //             );
-      //           }
-      //         })
-      //       )
-      //     );
-      //   }
-      // }
       // {
       //   when: q("?element implements ?container", "?element as Container"),
       //   then({ container, element }, system) {
