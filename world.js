@@ -28,6 +28,7 @@ ${userland_code}
     }
 
     try {
+      opts.dom_root.innerHTML = "";
       dispose_old_system = meld.monotonic_system({ ...opts, store });
     } catch (error) {
       return { error, when: "creating-system" };

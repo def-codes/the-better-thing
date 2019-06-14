@@ -84,7 +84,6 @@
           },
           [
             "div.resource-content",
-            {},
             resource.value,
             !literal_props.has(resource)
               ? null
@@ -122,21 +121,91 @@
       "AllFacts hasSubject ?subject",
       "AllFacts hasPredicate ?predicate",
       "AllFacts hasObject ?object",
-      "Everything tallies ViewFacts"
-      // "ViewThings hasClause AllThings",
-      // "AllThings hasSubject ?subject",
-      // "AllThings hasPredicate ?predicate",
-      // "AllThings hasObject ?object"
+      "Everything tallies ViewFacts",
+      "_host isa SuperContainer"
     ),
 
     rules: [
       {
+        when_all: q("?host isa SuperContainer"),
+        then(host, system) {
+          system.register(host, "SuperContainer", () =>
+            system.live_query(q("?container isa Container")).transform(
+              tx.map(containers => [
+                "div.SuperContainer",
+                tx.map(
+                  ({ container }) => [
+                    "div.Container",
+                    { "data-container": container.value, __skip: true }
+                  ],
+                  containers
+                )
+              ]),
+              updateDOM({ root: system.dom_root }),
+              tx.sideEffect(() => {
+                for (const ele of system.dom_root.querySelectorAll(
+                  `[data-container]`
+                )) {
+                  system.register(
+                    rdf.namedNode(ele.getAttribute("data-container")),
+                    "Container",
+                    () => ele
+                  );
+                }
+              })
+            )
+          );
+        }
+      },
+
+      {
+        // An idea...
         // and it's a hiccup function...
         // this should just be a stream transformation
         when: q("?component representsA ?type", "?thing isa ?type"),
         then({ component, thing, type }, system) {
           // then this is its representation qua that type
           system.assert();
+        }
+      },
+      // {
+      //   when_all: q("?container isa Container"),
+      //   then(containers, system) {
+      //     for (const { container } of containers) {
+      //       const ball = system.find([container, rdf.namedNode("Container")]);
+      //       console.log(`ball`, ball);
+
+      //       system.register(container, "Representation", () =>
+      //         system
+      //           .live_query(q(`${container.value} contains ?item`))
+      //           .transform(
+      //             tx.trace("wati sdfiojasd"),
+      //             tx.map(resources => {
+      //               console.log(`resources`, resources);
+      //               return [
+      //                 render_resource_nodes,
+      //                 { store: system.store, resources }
+      //               ];
+      //             }),
+      //             tx.trace("it were"),
+      //             updateDOM({ root: ball })
+      //           )
+      //       );
+      //     }
+      //   }
+      // },
+      {
+        when: q("?element implements ?container", "?element as Container"),
+        then({ container, element }, { register, live_query, store, find }) {
+          register(container, "Content", () =>
+            live_query(q(`${container.value} contains ?content`)).transform(
+              tx.map(resources => [
+                render_resource_nodes,
+                { store: store, resources: tx.map(_ => _.content, resources) }
+              ]),
+              updateDOM({ root: find(element) })
+            )
+          );
         }
       },
       {
@@ -158,15 +227,13 @@
       {
         when: q("?stream implements Everything", "?stream as Subscribable"),
         then({ stream }, system) {
-          system
-            .find(stream)
-            .transform(
-              tx.map(resources => [
-                render_resource_nodes,
-                { store: system.store, resources }
-              ]),
-              updateDOM({ root: system.dom_root })
-            );
+          system.find(stream).transform(
+            tx.map(resources => [
+              render_resource_nodes,
+              { store: system.store, resources }
+            ])
+            //updateDOM({ root: system.dom_root })
+          );
         }
       },
       {

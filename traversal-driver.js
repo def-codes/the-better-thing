@@ -69,7 +69,8 @@ const TRAVERSAL_DRIVER = {
             tx.dedupe(thi.ng.equiv.equiv)
           );
 
-        system.register(traversal, "Traversal", () => subscription);
+        // Don't use "Traverseal" because system doesn't know about subclasses
+        system.register(traversal, "Subscribable", () => subscription);
         // subscription.transform(
         //   tx.trace("raw"),
         //   tx.map(set => [...set]),

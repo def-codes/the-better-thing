@@ -370,3 +370,6 @@ code.userland-code-input:focus {
 .Selected .resource-content {
   background: rgba(64, 64, 196, .5);
 }
+[data-container] {
+	border: 1px solid green;
+}

@@ -7,6 +7,7 @@
       "Object isa Class",
       "Triple isa Class", // ?
       "Query isa Class",
+      "Query subclassOf Subscribable",
       "Clause isa Class",
       // assume conjunctive clauses
       "ConjunctiveClause isa Class",
@@ -40,8 +41,8 @@
           // rule.
           system.register(
             query,
-            // TODO: Query will break things when no subclass rule is in effect
-            "Subscribable", //"Query", // stream?
+            // Don't use "Query" because system doesn't know about subclasses
+            "Subscribable",
             () => system.live_query([[subject, predicate, object]])
             //.transform(tx.trace(`DEBUG QUERY ${query}`))
           );

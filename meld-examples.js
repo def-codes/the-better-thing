@@ -10,6 +10,44 @@ charge.theta(0.98),
 
 const MELD_EXAMPLES = [
   {
+    name: "projection",
+    label: "project over",
+    comment: `Support assertion of a link between any given resource and the expansion of a set.`,
+    userland_code: `claim(
+Alice . knows . Bob,
+Alice . knows . Carol,
+Alice . knows . John,
+Emily . knows . Alice,
+x . tallies . ViewFacts,
+Bob.age(30),
+Bob.weight(175),
+Frank . projectOver . x,
+foob . isa . Container
+)
+`
+  },
+
+  {
+    name: "containers",
+    label: "container driver",
+    comment: `declarative control over containment of things`,
+    userland_code: `claim(
+Alice . knows . Bob,
+Alice . knows . Carol,
+Alice . knows . John,
+Emily . knows . Alice,
+x . tallies . ViewFacts,
+Bob.age(30),
+Bob.weight(175),
+something . contains . x,
+blue .isa.Container,
+brown	 .isa.Container,
+blue.contains.x
+)
+`
+  },
+
+  {
     name: "selection",
     label: "resource selection",
     comment: `collect the resources named in a selection`,
