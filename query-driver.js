@@ -41,7 +41,7 @@
           system.register(
             query,
             () => system.live_query([[subject, predicate, object]])
-            //.transform(tx.trace("DEBUG QUERY"))
+            //.transform(tx.trace(`DEBUG QUERY ${query}`))
           );
         }
       }

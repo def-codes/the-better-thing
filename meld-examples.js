@@ -10,6 +10,20 @@ charge.theta(0.98),
 
 const MELD_EXAMPLES = [
   {
+    name: "selection",
+    label: "resource selection",
+    comment: `collect the resources named in a selection`,
+    userland_code: `claim(
+Alice . knows . Bob,
+Alice . knows . Carol,
+Alice . knows . John,
+Emily . knows . Alice,
+x . tallies . ViewFacts
+)
+`
+  },
+
+  {
     name: "forcefield",
     label: "forcefield driver",
     comment: `testing reified forcefield (with query shorthand)`,
