@@ -111,6 +111,13 @@
       "ResourceRepresentation subclassOf Representation",
       // Interesting thing here is that runtime can “remove” representation of
       // things by extending this, i.e. by conjoining stricter criteria.
+      "represents isa Property",
+      "representsA isa Property",
+      // function, whatever
+      // "representsA domain Component",
+      "representsA domain Type",
+      // "represents domain Resource",
+      // "represents range Representation",
       "ViewFacts hasClause AllFacts",
       "AllFacts hasSubject ?subject",
       "AllFacts hasPredicate ?predicate",
@@ -123,6 +130,30 @@
     ),
 
     rules: [
+      {
+        // and it's a hiccup function...
+        // this should just be a stream transformation
+        when: q("?component representsA ?type", "?thing isa ?type"),
+        then({ component, thing, type }, system) {
+          // then this is its representation qua that type
+          system.assert();
+        }
+      },
+      {
+        when: q("?stream implements Everything"),
+        then({ stream }, system) {
+          system.find(stream).transform(
+            tx.sideEffect(resources => {
+              for (const resource of resources)
+                system.assert([
+                  resource,
+                  rdf.namedNode("hasRepresentation"),
+                  rdf.literal("foo")
+                ]);
+            })
+          );
+        }
+      },
       {
         when: q("?stream implements Everything"),
         then({ stream }, system) {

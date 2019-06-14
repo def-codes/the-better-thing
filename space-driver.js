@@ -1,10 +1,9 @@
 (function() {
   const SPACE_DRIVER = {
     claims: q(
-      "Space isa Class"
-      // Special thing referring to this model
-      //"model"
-      // properties of space??
+      "Space subclassOf Container",
+      // need a "document driver"?
+      "Document subclassOf Container"
     ),
     rules: []
   };

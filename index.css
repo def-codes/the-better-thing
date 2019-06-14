@@ -162,7 +162,7 @@ main > header {
 /* } */
 
 /* Triple store graphs */
-.Document .Property,
+/* .Document .Property, */
 .Space .Property {
 	position: absolute;
 	top: 0;
@@ -305,7 +305,7 @@ code.userland-code-input:focus {
 	border: 1px solid blue;
 }
 
-.Document .resource-content,
+/* .Document .resource-content, */
 .Space .resource-content {
 	padding: 0.75em;
 	text-align: center;

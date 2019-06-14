@@ -1,0 +1,41 @@
+#+TITLE:containment
+
+What I have always wanted when doing web UI's, but have never had, is a /flat/,
+*hands-off* way to tell how to put pieces together.
+
+What I'm seeing now is that I can use selectors to target existing dom elements.
+
+https://github.com/thi-ng/umbrella/tree/master/packages/hdom#__skip
+
+Well, it might not be so simple.  If you're talking about from HDOM transducers,
+it's not clear how you'd coordinate the skip elements with arbitrary downstream
+selectors.
+
+So the solution may have to be more domain specific.
+
+For a truly monotonic system, this would not be an issue, because updateDOM
+would in fact never have occasion to update the DOM (it's just convenient to
+have it as a stream transformer).
+
+In an open-world assumption, you might have any number of parties wanting to
+share the same space with other elements.
+
+I think this isn't about hiccup templates as such.
+
+I do like the idea of a runtime element "implementing" a described container.
+This is the most idiomatic way (in the current setup) to get the element from
+the handler.
+
+
+
+
+* example one: the model
+
+The model itself must live in a container, and the model itself can be,
+e.g. space or a document.
+
+* example two: multiple spaces
+
+* example three: annotation of all things of a certain type
+
+* example four: spaces within spaces (worlds)
