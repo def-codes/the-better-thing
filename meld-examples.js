@@ -18,7 +18,9 @@ Alice . knows . Bob,
 Alice . knows . Carol,
 Alice . knows . John,
 Emily . knows . Alice,
-x . tallies . ViewFacts
+x . tallies . ViewFacts,
+Bob.age(30),
+Bob.weight(175)
 )
 `
   },

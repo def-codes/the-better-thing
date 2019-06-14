@@ -15,6 +15,7 @@
 //
 // this is where hdom functions are composed
 // but not applied
+// ^ that's not currently true
 //
 // the rule is that all things should have representations
 // unless the model specifically dictates otherwise
@@ -44,6 +45,16 @@
     )
   ];
 
+  const all_values_for = (store, subject, property) =>
+    tx.iterator(
+      tx.comp(
+        tx.map(index => store.triples[index]),
+        tx.filter(([, p]) => p === property),
+        tx.pluck(2)
+      ),
+      store.indexS.get(subject) || []
+    );
+
   // given a store and a list of resources, render those resources and their
   // (non-node) properties.
   const render_resource_nodes = (_, { store, resources }) => {
@@ -62,7 +73,7 @@
         resource => [
           "div",
           {
-            "data-thing": resource.value,
+            "data-resource": resource.value,
             class: [
               "Resource",
               ...tx.map(
@@ -74,12 +85,15 @@
           [
             "div.resource-content",
             {},
+            resource.value,
             !literal_props.has(resource)
-              ? resource.value
+              ? null
               : tx.map(
                   ([, p, o]) => [
                     "div",
                     { "data-property": p.value },
+                    p.value,
+                    " ",
                     o.value && o.value.toString()
                   ],
                   literal_props.get(resource)
@@ -97,15 +111,34 @@
       "ResourceRepresentation subclassOf Representation",
       // Interesting thing here is that runtime can “remove” representation of
       // things by extending this, i.e. by conjoining stricter criteria.
-      "EverythingWatcher hasClause EverythingScope",
-      "EverythingScope hasSubject ?subject",
-      "EverythingScope hasPredicate ?predicate",
-      "EverythingScope hasObject ?object"
+      "ViewFacts hasClause AllFacts",
+      "AllFacts hasSubject ?subject",
+      "AllFacts hasPredicate ?predicate",
+      "AllFacts hasObject ?object",
+      "Everything tallies ViewFacts"
+      // "ViewThings hasClause AllThings",
+      // "AllThings hasSubject ?subject",
+      // "AllThings hasPredicate ?predicate",
+      // "AllThings hasObject ?object"
     ),
 
     rules: [
       {
-        when: q("?stream implements EverythingWatcher"),
+        when: q("?stream implements Everything"),
+        then({ stream }, system) {
+          system
+            .find(stream)
+            .transform(
+              tx.map(resources => [
+                render_resource_nodes,
+                { store: system.store, resources }
+              ]),
+              updateDOM({ root: system.dom_root })
+            );
+        }
+      },
+      {
+        when: q("?stream implements ViewFacts"),
         then({ stream }, system) {
           const stream_instance = system.find(stream);
           stream_instance.transform(
@@ -115,8 +148,8 @@
                 ({ subject: s, predicate: p, object: o }) => [s, p, o],
                 properties
               )
-            ]),
-            updateDOM({ root: system.dom_root })
+            ])
+            //updateDOM({ root: system.dom_root })
           );
         }
       }
