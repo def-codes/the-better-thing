@@ -12,9 +12,13 @@
     ),
     rules: [
       {
-        when: q("?set tallies ?query", "?source implements ?query"),
+        when: q(
+          "?set tallies ?query",
+          "?source implements ?query",
+          "?source as Subscribable"
+        ),
         then({ set, source, query }, system) {
-          system.register(set, () =>
+          system.register(set, "Subscribable", () =>
             system.find(source).transform(
               tx.map(triples =>
                 tx.transduce(

@@ -36,7 +36,7 @@
             return;
           }
 
-          system.register(stream, () => rs.stream(source_function));
+          system.register(stream, "Stream", () => rs.stream(source_function));
         }
       },
       {
@@ -45,7 +45,8 @@
         // This rule will not fire until the source is implemented.
         when: q(
           "?listener listensTo ?source",
-          "?subscribable implements ?source"
+          "?subscribable implements ?source",
+          "?subscribable as Subscribable"
         ),
         // we don't need the reference to source as such
         then({ listener, source, subscribable }, system) {
@@ -65,7 +66,7 @@
           // Hmmm..... the rule doesn't talk about a subscription, but that's
           // what we're making here.
           const subscription = mint_blank();
-          system.register(subscription, () =>
+          system.register(subscription, "Subscribable", () =>
             subscribable_instance.subscribe({
               next(value) {
                 console.log(`subscription fired praise God!!!`, source, value);
@@ -77,13 +78,13 @@
       {
         when: q("?timer hasInterval ?ms"),
         then({ timer, ms }, system) {
-          system.register(timer, () => rs.fromInterval(ms.value));
+          system.register(timer, "Stream", () => rs.fromInterval(ms.value));
         }
       },
       {
         when: q("?timer isa RAF"),
         then({ timer, ms }, system) {
-          system.register(timer, () => rs.fromRAF());
+          system.register(timer, "Stream", () => rs.fromRAF());
         }
       }
     ]

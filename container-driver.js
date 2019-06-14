@@ -12,7 +12,7 @@
       {
         when: q("?something isa Container"),
         then({ something }, system) {
-          system.register(something, () => {
+          system.register(something, "Container", () => {
             // need to get *its* parent?
             const ele = root.appendChild(document.createElement("div"));
             ele.classList.add("Container");
@@ -22,10 +22,11 @@
       {
         when: q(
           "?container contains ?content",
-          "?parent implements ?container"
+          "?parent implements ?container",
+          "?parent as Container"
         ),
         then({ container, content, parent }, system) {
-          system.register(content /* as containee!! */, () => {
+          system.register(content, "Containee", () => {
             // Here we also want to assert that the item or items in content
             // have a representation in this container.
             //

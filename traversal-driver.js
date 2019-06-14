@@ -69,7 +69,7 @@ const TRAVERSAL_DRIVER = {
             tx.dedupe(thi.ng.equiv.equiv)
           );
 
-        system.register(traversal, () => subscription);
+        system.register(traversal, "Traversal", () => subscription);
         // subscription.transform(
         //   tx.trace("raw"),
         //   tx.map(set => [...set]),

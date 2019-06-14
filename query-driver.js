@@ -40,6 +40,8 @@
           // rule.
           system.register(
             query,
+            // TODO: Query will break things when no subclass rule is in effect
+            "Subscribable", //"Query", // stream?
             () => system.live_query([[subject, predicate, object]])
             //.transform(tx.trace(`DEBUG QUERY ${query}`))
           );

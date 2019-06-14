@@ -140,22 +140,24 @@
         when: q("?x isa ?type", "?type subclassOf Force"),
         then: ({ x, type }, system) => {
           if (typeof d3[type] === "function")
-            system.register(x, () => d3[type]());
+            system.register(x, "Force", () => d3[type]());
           else console.warn(`No such d3 force ${type}`);
         }
       },
       {
         when: q("?x isa Forcefield"),
         then({ x }, _) {
-          _.register(x, () => d3.forceSimulation().stop());
+          _.register(x, "Forcefield", () => d3.forceSimulation().stop());
         }
       },
       {
         when: q(
           "?field hasTicks ?ticks",
           "?source implements ?ticks",
+          "?source as Subscribable",
           "?field hasNodes ?nodes",
-          "?nodesource implements ?nodes"
+          "?nodesource implements ?nodes",
+          "?nodesource as Subscribable"
         ),
         then({ field, ticks, source, nodesource }, system) {
           const nodes_stream = system.find(nodesource);
@@ -224,14 +226,18 @@
       },
       {
         // assume bodies is a stream
-        when: q("?field hasBodies ?bodies", "?source implements ?bodies"),
+        when: q(
+          "?field hasBodies ?bodies",
+          "?source implements ?bodies",
+          "?source as Subscribable"
+        ),
         then: ({ field, bodies, source }, system) => {
           const simulation = system.find(field);
           const bodies_instance = system.find(source);
 
           const nodes_id = mint_blank();
           system.assert([field, rdf.namedNode("hasNodes"), nodes_id]);
-          system.register(nodes_id, () =>
+          system.register(nodes_id, "Subscribable", () =>
             bodies_instance.transform(
               tx.trace("BODIES"),
               tx.map(bodies =>

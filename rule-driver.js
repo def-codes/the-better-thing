@@ -25,6 +25,7 @@
           "?rule hasCondition ?predicate",
           "?rule hasConsequent ?consequent",
           "?stream implements ?predicate",
+          "?stream as Subscribable",
           "?consequent hasClause ?cc1",
           "?cc1 hasSubject ?cs1",
           "?cc1 hasPredicate ?cp1",

@@ -9,6 +9,7 @@ const register_driver = driver => drivers.push(driver);
 
 // =============== RDF helpers
 
+const AS = rdf.namedNode("as"); // for runtime only
 const TYPE = rdf.namedNode("isa"); // s/b rdf:type
 const VALUE = rdf.namedNode("value"); // s/b rdf:value
 const IMPLEMENTS = rdf.namedNode("implements"); // s/b meld:
@@ -172,7 +173,7 @@ const sync_apply_drivers_to = (store, system) => {
  * @returns {Function} (Provisional) dispose method.
  */
 const monotonic_system = ({ id, store, dom_root }) => {
-  const registry = new Map();
+  const registry = new thi.ng.associative.EquivMap();
 
   // The interface made available to drivers
   const system = {
@@ -182,17 +183,20 @@ const monotonic_system = ({ id, store, dom_root }) => {
     query_all: where => sync_query(store, where),
     live_query: where => live_query(store, where),
     find: subject => registry.get(subject),
-    register(subject, thunk) {
-      if (!registry.has(subject)) {
-        // Theoretically it's possible for multiple drivers to implement
-        // different types for the same resource.  To support that, the blank
-        // node (and probably a tuple key) will be needed to distinguish them.
+
+    // A single resource can be “implemented” once for each type.  This allows
+    // drivers to disambiguate the role for which they are querying
+    // implementations.
+    register(subject, type_name, thunk) {
+      const type = rdf.namedNode(type_name);
+      if (!registry.has([subject, type])) {
         const value = thunk();
         const value_id = mint_blank();
         //console.log(value, value_id, IMPLEMENTS, subject);
 
+        store.add([value_id, AS, type]);
         registry.set(value_id, value);
-        registry.set(subject, value);
+        registry.set([subject, type], value);
         store.add([value_id, IMPLEMENTS, subject]);
       }
     }

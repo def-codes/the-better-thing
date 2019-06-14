@@ -140,22 +140,23 @@
         }
       },
       {
+        //when: q("?stream implements Everything", "?stream as Subscribable"),
         when: q("?stream implements Everything"),
         then({ stream }, system) {
           system.find(stream).transform(
             tx.sideEffect(resources => {
-              for (const resource of resources)
-                system.assert([
-                  resource,
-                  rdf.namedNode("hasRepresentation"),
-                  rdf.literal("foo")
-                ]);
+              //   for (const resource of resources)
+              //     system.assert([
+              //       resource,
+              //       rdf.namedNode("hasRepresentation"),
+              //       rdf.literal("foo")
+              //     ]);
             })
           );
         }
       },
       {
-        when: q("?stream implements Everything"),
+        when: q("?stream implements Everything", "?stream as Subscribable"),
         then({ stream }, system) {
           system
             .find(stream)
@@ -169,9 +170,10 @@
         }
       },
       {
-        when: q("?stream implements ViewFacts"),
+        when: q("?stream implements ViewFacts", "?stream as Subscribable"),
         then({ stream }, system) {
           const stream_instance = system.find(stream);
+
           stream_instance.transform(
             tx.map(properties => [
               render_properties,
