@@ -8,9 +8,21 @@
       // not sure what to call this.  say that subject is set of resources named
       // in object (assuming object refers to a selection)
       "tallies isa Property",
-      "tallies domain Stream"
+      "tallies domain Stream",
+      "All isa SelectAll"
     ),
     rules: [
+      {
+        when: q("?all isa SelectAll"),
+        then({ all }, system) {
+          system.register(all, "SelectAll", () => {
+            const sub = rs.subscription();
+            sub.next(system.store.triples);
+            return sub;
+            //rs.stream(sub => sub.next(system.store.triples));
+          });
+        }
+      },
       {
         when: q(
           "?set tallies ?query",

@@ -15,15 +15,23 @@ const MELD_EXAMPLES = [
     comment: `do or die`,
     userland_code: `claim(
 A . B . C,
-a . isa . Container,
-a . contains . t,
-t . isa . Traversal,
-t . startsFrom . q,
-q . isa . Query,
-q . hasClause . c,
-c . hasSubject . A,
-c . hasPredicate . $predicate,
-c . hasObject . $object
+// a . isa . Container,
+// a . contains . t,
+// t . isa . Traversal,
+// t . startsFrom . q,
+// q . isa . Query,
+// q . hasClause . c,
+// c . hasSubject . A,
+// c . hasPredicate . $predicate,
+// c . hasObject . $object,
+
+e .isa.Container,
+e.contains.All,
+
+// b.isa.Container,
+// b.contains.x,
+// x.isa.Traversal,
+// x.startsFrom.A,
 )`
   },
 

@@ -7,15 +7,19 @@
 // - a container can be a document or a space.  this only affects CSS class
 
 (function() {
-  const render_things = (_, resources_or_triples) => [
-    "div",
-    {},
-    tx.map(
-      thing =>
-        is_node(thing) ? [render_resource, thing] : [render_triple, thing],
-      resources_or_triples
-    )
-  ];
+  const render_things = (_, resources_or_triples) => {
+    console.log(`resources_or_triples`, resources_or_triples);
+
+    return [
+      "div",
+      {},
+      tx.map(
+        thing =>
+          is_node(thing) ? [render_resource, thing] : [render_triple, thing],
+        resources_or_triples
+      )
+    ];
+  };
 
   const render_resource = () => ["div", "hello again"];
 
@@ -118,23 +122,22 @@
       "AllFacts hasObject ?object",
       "Everything tallies ViewFacts",
       "_host isa SuperContainer"
+      // make a fact here that creates a container that shows everything
+      //"",
     ),
 
     rules: [
       // {
-      //   // Create the top-level containers
-      //   // when: q("?container isa Container", "?container contains ?content"),
-      //   // then({ container, content }, system) {
       //   when_all: q("?host isa SuperContainer"),
       //   then({}, system) {
+      //     console.log(`syste`, system);
       //     system.live_query(q("?s ?p ?o")).transform(
       //       //tx.map(({ s, p, o }) => [s, p, o]),
       //       tx.map(() => [render_things, system.store.triples]),
       //       updateDOM({ root: system.dom_root })
       //     );
       //   }
-      // },
-
+      // }
       {
         // Create the top-level containers
         when_all: q("?host isa SuperContainer"),
@@ -167,7 +170,6 @@
           );
         }
       },
-
       {
         when: q(
           "?container contains ?selection",
@@ -176,10 +178,13 @@
           "?source implements ?selection",
           "?source as Subscribable"
         ),
-        then({ container, element, source }, { store, ...system }) {
-          console.log(`container, element, source`, container, element, source);
-          console.log(`system.find(element)`, system.find(element));
-          console.log(`system.find(source)`, system.find(source));
+        then({ container, selection, element, source }, { store, ...system }) {
+          console.log(
+            `container, selection, element`,
+            container,
+            selection,
+            element
+          );
 
           system.register(container, "Content", () => {
             system
@@ -192,61 +197,6 @@
           });
         }
       }
-
-      // {
-      //   when: q("?element implements ?container", "?element as Container"),
-      //   then({ container, element }, system) {
-      //     system.register(container, "Content", () =>
-      //       system
-      //         .live_query(q(`${container.value} contains ?content`))
-      //         .transform(
-      //           tx.map(contents => [
-      //             render_things,
-      //             {
-      //               store: system.store,
-      //               resources: tx.map(_ => {
-      //                 console.log(`_`, _);
-
-      //                 const input = _.content.value;
-      //                 try {
-      //                   const res = system.query_all(
-      //                     q(`?ref implements ${input}`, `?ref as Subscribable`)
-      //                   );
-      //                   if (res) {
-      //                     const val = system.find(res[0].ref).deref();
-      //                     console.log(`val`, val);
-      //                     return val;
-      //                   }
-      //                 } catch (error) {
-      //                   console.log("ERROR: ", error);
-      //                 }
-
-      //                 return _.content;
-      //               }, contents)
-      //             }
-      //           ]),
-      //           updateDOM({ root: system.find(element) })
-      //         )
-      //     );
-      //   }
-      // },
-      // {
-      //   when: q("?stream implements ViewFacts", "?stream as Subscribable"),
-      //   then({ stream }, system) {
-      //     const stream_instance = system.find(stream);
-
-      //     stream_instance.transform(
-      //       tx.map(properties => [
-      //         render_properties,
-      //         tx.map(
-      //           ({ subject: s, predicate: p, object: o }) => [s, p, o],
-      //           properties
-      //         )
-      //       ])
-      //       //updateDOM({ root: system.dom_root })
-      //     );
-      //   }
-      // }
     ]
   };
 

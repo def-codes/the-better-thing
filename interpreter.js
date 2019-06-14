@@ -126,7 +126,7 @@ function traverse(store, start, follow) {
 // ================================= WORLD / INTERPRETER
 
 const make_world = store => {
-  const { namedNode: n, variable: v, literal: l } = rdf;
+  const { namedNode: n, variable: v, literal: l, blankNode: b } = rdf;
 
   // named node or variable
   const nv = key => (key[0] === "$" ? v(key.slice(1)) : n(key));
@@ -141,8 +141,9 @@ const make_world = store => {
   const TURTLE_PATTERNS = [
     ([{ key: s }, { key: p }, { key: o }]) => [nv(s), nv(p), nv(o)],
     // prettier-ignore
-    ([{ key: s }, { key: p }, { args: [o]}]) => [nv(s), nv(p), ml(o)]
+    ([{ key: s }, { key: p }, { args: [o]}]) => [nv(s), nv(p), ml(o)],
     // ^ could the literal position meaningfully be a variable there?
+    ([{ key: p }, { key: o }]) => [b(), nv(p), nv(o)]
   ];
 
   const as_turtle = expression =>
