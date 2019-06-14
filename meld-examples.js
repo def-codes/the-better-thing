@@ -41,8 +41,9 @@ Bob.age(30),
 Bob.weight(175),
 something . contains . x,
 blue .isa.Container,
-brown	 .isa.Container,
-blue.contains.x
+brown .isa.Container,
+blue.contains.x,
+
 )
 `
   },

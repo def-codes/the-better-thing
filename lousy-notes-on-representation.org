@@ -1,0 +1,38 @@
+
+// representations are about the physical appearance
+// but NOT the placement and orientation of a thing
+//
+// works at the level of individual resources and properties
+// or facts
+//
+// every FACT is represented as such
+// every resource, too
+// each has exactly ONE representation
+// if you want to see “something” in more than one place,
+// it's really two different things
+//
+// this is not about the DOM.  representation should be
+// just data.  that way it can move between layers.
+// in fact, it's not even data, but functions
+//
+// this is where hdom functions are composed
+// but not applied
+// ^ that's not currently true
+//
+// the rule is that all things should have representations
+// unless the model specifically dictates otherwise
+//
+// a representation is implemented by a subscription
+// that transforms an object into hiccup
+
+
+      {
+        // An idea...
+        // and it's a hiccup function...
+        // this should just be a stream transformation
+        when: q("?component representsA ?type", "?thing isa ?type"),
+        then({ component, thing, type }, system) {
+          // then this is its representation qua that type
+          system.assert();
+        }
+      },

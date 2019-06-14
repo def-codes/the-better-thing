@@ -1,48 +1,43 @@
-// representations are about the physical appearance
-// but NOT the placement and orientation of a thing
-//
-// works at the level of individual resources and properties
-//
-// every FACT is represented as such
-// every resource, too
-// each has exactly ONE representation
-// if you want to see “something” in more than one place,
-// it's really two different things
-//
-// this is not about the DOM.  representation should be
-// just data.  that way it can move between layers.
-// in fact, it's not even data, but functions
-//
-// this is where hdom functions are composed
-// but not applied
-// ^ that's not currently true
-//
-// the rule is that all things should have representations
-// unless the model specifically dictates otherwise
-//
-// a representation is implemented by a subscription
-// that transforms an object into hiccup
+// New rules:
+// - a container can "contain" a single value
+// - that value is expected to be a selection
+// - a selection is a set of either resources or triples
+// - the container will contain STANDARD representations of those things
+// - the standard representations are just resource names and properties
+// - a container can be a document or a space.  this only affects CSS class
 
 (function() {
-  // “Default” (currently only) renderer for properties
-  const render_properties = (_, properties) => [
+  const render_things = (_, resources_or_triples) => [
     "div",
+    {},
     tx.map(
-      ([s, p, o]) => [
-        "div.Property",
-        {
-          "data-subject": s.value,
-          "data-property": p.value,
-          "data-object": o.value
-        },
-        s.value,
-        " ",
-        p.value,
-        " ",
-        o.value
-      ],
-      properties
+      thing =>
+        is_node(thing) ? [render_resource, thing] : [render_triple, thing],
+      resources_or_triples
     )
+  ];
+
+  const render_resource = () => ["div", "hello again"];
+
+  const render_triple = (_, [s, p, o]) => [
+    "div.Property",
+    {
+      "data-subject": s.value,
+      "data-property": p.value,
+      "data-object": o.value
+    },
+    s.value,
+    " ",
+    p.value,
+    " ",
+    o.value
+  ];
+
+  // “Default” (currently only) renderer for properties
+  // I don't think this will be used as such.
+  const render_triples = (_, triples) => [
+    "div",
+    tx.map(render_triple, triples)
   ];
 
   const all_values_for = (store, subject, property) =>
@@ -127,132 +122,105 @@
 
     rules: [
       {
+        // Create the top-level containers
+        // when: q("?container isa Container", "?container contains ?content"),
+        // then({ container, content }, system) {
         when_all: q("?host isa SuperContainer"),
-        then(host, system) {
-          system.register(host, "SuperContainer", () =>
-            system.live_query(q("?container isa Container")).transform(
-              tx.map(containers => [
-                "div.SuperContainer",
-                tx.map(
-                  ({ container }) => [
-                    "div.Container",
-                    { "data-container": container.value, __skip: true }
-                  ],
-                  containers
-                )
-              ]),
-              updateDOM({ root: system.dom_root }),
-              tx.sideEffect(() => {
-                for (const ele of system.dom_root.querySelectorAll(
-                  `[data-container]`
-                )) {
-                  system.register(
-                    rdf.namedNode(ele.getAttribute("data-container")),
-                    "Container",
-                    () => ele
-                  );
-                }
-              })
-            )
-          );
-        }
-      },
-
-      {
-        // An idea...
-        // and it's a hiccup function...
-        // this should just be a stream transformation
-        when: q("?component representsA ?type", "?thing isa ?type"),
-        then({ component, thing, type }, system) {
-          // then this is its representation qua that type
-          system.assert();
-        }
-      },
-      // {
-      //   when_all: q("?container isa Container"),
-      //   then(containers, system) {
-      //     for (const { container } of containers) {
-      //       const ball = system.find([container, rdf.namedNode("Container")]);
-      //       console.log(`ball`, ball);
-
-      //       system.register(container, "Representation", () =>
-      //         system
-      //           .live_query(q(`${container.value} contains ?item`))
-      //           .transform(
-      //             tx.trace("wati sdfiojasd"),
-      //             tx.map(resources => {
-      //               console.log(`resources`, resources);
-      //               return [
-      //                 render_resource_nodes,
-      //                 { store: system.store, resources }
-      //               ];
-      //             }),
-      //             tx.trace("it were"),
-      //             updateDOM({ root: ball })
-      //           )
-      //       );
-      //     }
-      //   }
-      // },
-      {
-        when: q("?element implements ?container", "?element as Container"),
-        then({ container, element }, { register, live_query, store, find }) {
-          register(container, "Content", () =>
-            live_query(q(`${container.value} contains ?content`)).transform(
-              tx.map(resources => [
-                render_resource_nodes,
-                { store: store, resources: tx.map(_ => _.content, resources) }
-              ]),
-              updateDOM({ root: find(element) })
-            )
-          );
-        }
-      },
-      {
-        //when: q("?stream implements Everything", "?stream as Subscribable"),
-        when: q("?stream implements Everything"),
-        then({ stream }, system) {
-          system.find(stream).transform(
-            tx.sideEffect(resources => {
-              //   for (const resource of resources)
-              //     system.assert([
-              //       resource,
-              //       rdf.namedNode("hasRepresentation"),
-              //       rdf.literal("foo")
-              //     ]);
-            })
-          );
-        }
-      },
-      {
-        when: q("?stream implements Everything", "?stream as Subscribable"),
-        then({ stream }, system) {
-          system.find(stream).transform(
-            tx.map(resources => [
-              render_resource_nodes,
-              { store: system.store, resources }
-            ])
-            //updateDOM({ root: system.dom_root })
-          );
-        }
-      },
-      {
-        when: q("?stream implements ViewFacts", "?stream as Subscribable"),
-        then({ stream }, system) {
-          const stream_instance = system.find(stream);
-
-          stream_instance.transform(
-            tx.map(properties => [
-              render_properties,
-              tx.map(
-                ({ subject: s, predicate: p, object: o }) => [s, p, o],
-                properties
-              )
-            ])
-            //updateDOM({ root: system.dom_root })
+        then({}, system) {
+          system.live_query(q("?s ?p ?o")).transform(
+            //tx.map(({ s, p, o }) => [s, p, o]),
+            tx.map(() => [render_things, system.store.triples]),
+            updateDOM({ root: system.dom_root })
           );
         }
       }
+
+      // {
+      //   // Create the top-level containers
+      //   when_all: q("?host isa SuperContainer"),
+      //   then(host, system) {
+      //     system.register(host, "SuperContainer", () =>
+      //       system.live_query(q("?container isa Container")).transform(
+      //         tx.map(containers => [
+      //           "div.SuperContainer",
+      //           tx.map(
+      //             ({ container }) => [
+      //               "div.Container",
+      //               { "data-container": container.value, __skip: true }
+      //             ],
+      //             containers
+      //           )
+      //         ]),
+      //         updateDOM({ root: system.dom_root }),
+      //         tx.sideEffect(() => {
+      //           for (const ele of system.dom_root.querySelectorAll(
+      //             `[data-container]`
+      //           )) {
+      //             system.register(
+      //               rdf.namedNode(ele.getAttribute("data-container")),
+      //               "Container",
+      //               () => ele
+      //             );
+      //           }
+      //         })
+      //       )
+      //     );
+      //   }
+      // }
+      // {
+      //   when: q("?element implements ?container", "?element as Container"),
+      //   then({ container, element }, system) {
+      //     system.register(container, "Content", () =>
+      //       system
+      //         .live_query(q(`${container.value} contains ?content`))
+      //         .transform(
+      //           tx.map(contents => [
+      //             render_things,
+      //             {
+      //               store: system.store,
+      //               resources: tx.map(_ => {
+      //                 console.log(`_`, _);
+
+      //                 const input = _.content.value;
+      //                 try {
+      //                   const res = system.query_all(
+      //                     q(`?ref implements ${input}`, `?ref as Subscribable`)
+      //                   );
+      //                   if (res) {
+      //                     const val = system.find(res[0].ref).deref();
+      //                     console.log(`val`, val);
+      //                     return val;
+      //                   }
+      //                 } catch (error) {
+      //                   console.log("ERROR: ", error);
+      //                 }
+
+      //                 return _.content;
+      //               }, contents)
+      //             }
+      //           ]),
+      //           updateDOM({ root: system.find(element) })
+      //         )
+      //     );
+      //   }
+      // },
+      // {
+      //   when: q("?stream implements ViewFacts", "?stream as Subscribable"),
+      //   then({ stream }, system) {
+      //     const stream_instance = system.find(stream);
+
+      //     stream_instance.transform(
+      //       tx.map(properties => [
+      //         render_properties,
+      //         tx.map(
+      //           ({ subject: s, predicate: p, object: o }) => [s, p, o],
+      //           properties
+      //         )
+      //       ])
+      //       //updateDOM({ root: system.dom_root })
+      //     );
+      //   }
+      // }
     ]
   };
 
