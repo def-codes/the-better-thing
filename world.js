@@ -6,11 +6,12 @@ const monotonic_world = opts => {
   let dispose_old_system;
 
   // Subscripton to all current facts, persisting over changing stores.
-  const facts = rs.metaStream(store =>
-    store
-      .addQueryFromSpec({ q: [{ where: [["?s", "?p", "?o"]] }] })
-      .transform(tx.map(() => store.triples))
-  );
+  const facts = rs.subscription();
+  // const facts = rs.metaStream(store =>
+  //   store
+  //     .addQueryFromSpec({ q: [{ where: [["?s", "?p", "?o"]] }] })
+  //     .transform(tx.map(() => store.triples))
+  // );
 
   const read = (userland_code, world) =>
     new Function(
@@ -20,13 +21,19 @@ ${userland_code}
 }`
     )(world);
 
+  let fact_push;
+
   function interpret(userland_code) {
     if (dispose_old_system) dispose_old_system();
+    if (fact_push) fact_push.unsubscribe();
 
     const store = new thi.ng.rstreamQuery.TripleStore();
-    const interpreter = make_world(store);
+    //facts.next(store);
+    fact_push = store
+      .addQueryFromSpec({ q: [{ where: [["?s", "?p", "?o"]] }] })
+      .transform(tx.sideEffect(() => facts.next(store.triples)));
 
-    facts.next(store);
+    const interpreter = make_world(store);
 
     try {
       // DESTRUCTIVELY update store.  See note there

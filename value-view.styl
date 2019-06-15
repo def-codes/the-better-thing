@@ -1,0 +1,184 @@
+// This is taken from a component that's been used in various contexts, mostly
+// for development.  It supports some cases that are not used here.  Ultimately
+// this (like everything else) will be converted to a dynamic model.  So for the
+// moment, if you change it, just run
+// 
+//     stylus value-view.styl --print > value-view.css
+//
+// And check in both files.
+
+$Glitter05 = rgba(225, 232, 238, 0.5)
+$neutralColor = $Glitter05
+$objectBorderColor = rgba($neutralColor, .8)
+$Flame = rgb(225, 92, 41)
+$mindgrubRed = #B30200;
+$accentColor = $Flame
+$accentLightColor = alpha($accentColor, 50%)
+
+.value-view
+  /* Null and undefined */
+  
+  [data-type="undefined"]
+    display inline-block
+
+    width 100%
+    background rgba($neutralColor, .8)
+    &::before
+      content '\00A0'
+    
+  [data-type="null"]
+  [data-type="undefined"]
+    position relative
+    cursor help
+    &::after
+      content '(undefined value)'
+      position absolute
+      display none
+    &:hover::after
+      display block
+      bottom 100%
+      margin-bottom .25em
+      font-size smaller
+      white-space nowrap
+      line-height 1.1
+      background white
+      padding .25em
+      box-shadow -.125em -.125em .75em -.25em #333
+  
+  [data-type="null"]
+    &::before
+      content '\2205'
+    &::after
+      content '(null value)'
+  
+  
+  /* Primitive values */
+  
+  [data-type="boolean"]
+    font-family monospace
+    font-weight bold
+  
+  
+  /* Composite values */
+  
+  [data-type="set"]
+  [data-type="array"]
+  [data-type="object-properties"]
+    list-style-type none  // beat ol or ul
+    margin-bottom 0      // beat ol or ul
+    padding-left 0        // beat ol or ul
+    &:empty
+      &::after
+        content '(empty ' attr(data-type) ')'
+        font-style italic
+  
+  @media screen and (max-width: 50rem)
+    [data-type="array"]
+    [data-type="object-properties"]
+      [data-type="array"]
+      [data-type="object-properties"]
+        padding-left 2em
+    
+    .object__key
+    .object__value
+      display block
+    
+  @media screen and (min-width: 50rem)
+    .object__key
+    .object__value
+      box-sizing border-box
+      // vertical-align top
+      padding .33em .5em
+  
+  .object__key
+    color #555
+    font-weight bold
+    text-align left
+  
+  .object__value
+    text-align right
+  
+  // Might be list or table
+  [data-type="array"]
+    box-sizing border-box
+    border-top 2px $accentLightColor
+    border-bottom @border-top
+    counter-reset: array-item;
+    
+  // Might be list item or table row
+  // I ONLY want this for "big" arrays, but it's hard to tell when that applies.
+  [data-type="array-item"]
+    counter-increment: array-item;
+    &:not(tr)
+      display flex
+      > *
+        flex auto
+      &:before
+        content counter(array-item)
+        flex 0 10 auto
+        padding-start .1em
+        padding-top .1em
+        padding-left .25em
+        padding-inline-start .25em
+        padding-right .5em
+        padding-inline-end .5em
+        font-weight bold
+        color $accentLightColor
+        
+    &:not(:last-child)
+      &, & > td
+        border-bottom 2px solid $accentLightColor // $mainDarkColor // $neutralColor
+  
+  
+  /* Key values */
+  
+  // Key-value pairs get some special treatment because they dominate the
+  // variety in structured objects.
+  
+  [data-type="key-value"]
+    box-sizing border-box
+    margin-top .25em
+    margin-bottom .25em
+    overflow hidden             // currently only to clip delete buttons
+    
+    border .2em solid $objectBorderColor
+    border-radius .5em
+    &:first-child
+      border-top-left-radius 1em
+      border-top-right-radius 1em
+    &:last-child
+      border-bottom-left-radius 1em
+      border-bottom-right-radius 1em
+    background rgba($neutralColor, .3)
+    
+    $floating = false
+    if $floating
+      box-shadow 1em 1em 2em -.5em
+      background rgba($neutralColor, 1)
+      border .2em solid rgba(white, .8)
+    
+    $space = false
+    if $space
+      transition transform .24s
+      transform-origin right center
+      transform-style preserve-3d
+      box-shadow 1em 1em 2em
+      position relative
+      [data-type="key-value"]
+        transform perspective(100vw) translateZ(40vw) scale(.5) rotateY(45deg)
+    
+    
+    
+    
+    display flex
+    flex-wrap wrap
+    > [data-type="object-key"]
+      flex 3 7 auto
+      padding-left 0.25em
+      padding-inline-start 0.25em
+      padding-right .5em
+      padding-inline-end .5em
+    > [data-type="object-value"]
+      flex 7 3 auto
+      padding-right .5em
+      padding-inline-end .5em

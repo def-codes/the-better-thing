@@ -3,8 +3,8 @@
 (function() {
   const { rstream: rs, transducers: tx } = thi.ng;
   const { updateDOM } = thi.ng.transducersHdom;
-  // const { render_value } = window;
-  console.log(`render_value`, render_value);
+  const { value_view } = window;
+  const { render_value } = value_view;
 
   const container = document.body.appendChild(document.createElement("div"));
 

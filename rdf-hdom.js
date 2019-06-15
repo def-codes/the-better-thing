@@ -17,7 +17,7 @@ const { render_triple, render_triples } = (function() {
   const render_triples = (_, triples) => [
     "div.triples",
     "facts",
-    tx.map(render_triple, triples)
+    tx.map(triple => [render_triple, triple], triples)
   ];
 
   return { render_triple, render_triples };

@@ -52,6 +52,20 @@
   const output_container = dom_root.querySelector(".userland-code-output");
   const host_output_container = dom_root.querySelector(".host-output");
 
+  //=================================== MESSAGES
+  // Need a go-to stream error handler for now. identify message and source
+  // actually, subscription can have id... how to make this available?
+
+  const messages = rs.subscription();
+  const catchall = source => ({
+    error: error => messages.next({ type: "error", source, error })
+  });
+  // do something with messages
+  messages.transform(
+    tx.filter(_ => _.type === "error"),
+    tx.sideEffect(console.error)
+  );
+
   //================================== USERLAND CODE
   // outside the scope of the model as such
 
@@ -62,10 +76,12 @@
 
   const { updateDOM } = thi.ng.transducersHdom;
 
-  facts.transform(
-    tx.map(triples => [render_triples, ["a,b,c".split()]]),
-    updateDOM({ root: host_output_container })
-  );
+  facts
+    .transform(
+      tx.map(triples => [render_triples, triples]),
+      updateDOM({ root: host_output_container })
+    )
+    .subscribe(catchall("host-triple-renderer"));
 
   const render_result = result =>
     result.error
@@ -79,12 +95,12 @@
       : ["result.okay"];
 
   const results = rs.subscription();
+  results
+    .transform(tx.map(render_result), updateDOM({ root: output_container }))
+    .subscribe(catchall("host-result-render"));
+  // TODO: add stack trace in custom error reporting & remove this
   results.transform(
-    tx.map(render_result),
-    updateDOM({ root: output_container })
-  );
-
-  results.transform(
+    tx.filter(_ => _.when === "creating-system"),
     tx.pluck("error"),
     tx.keep(),
     tx.sideEffect(console.orig.error)
@@ -95,11 +111,13 @@
   const code_input = dom_root.querySelector(".userland-code-input");
 
   // update USERLAND CODE when the user makes edits
-  rs.fromEvent(code_input, "input").transform(
-    tx.throttleTime(1000),
-    tx.map(event => event.target.innerText),
-    tx.sideEffect(sink)
-  );
+  rs.fromEvent(code_input, "input")
+    .transform(
+      tx.throttleTime(1000),
+      tx.map(event => event.target.innerText),
+      tx.sideEffect(sink)
+    )
+    .subscribe(catchall("userland-code-processor"));
 
   // Send initial USERLAND CODE now
   if (model_spec.userland_code) sink(model_spec.userland_code);

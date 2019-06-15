@@ -1,5 +1,4 @@
-// support system for simple, rule-based drivers of resource implementations.
-// monotonic: uses destroy-the-world semantics.
+// support system for monotonic, rule-based drivers of resource implementations.
 
 const { transducers: tx, rstream: rs, hdom } = thi.ng;
 const { updateDOM } = thi.ng.transducersHdom;
@@ -39,7 +38,8 @@ const sync_query = (store, where) => {
     })
     .subscribe({ next: result_set => (results = result_set) });
   // This is tricky, I think because of cached queries
-  // if (query.getState() >= 2 /*DONE*/) query.unsubscribe();
+  //if (query.getState() >= 2 /*DONE*/)
+  query.unsubscribe();
   return results;
 };
 
@@ -47,54 +47,9 @@ const live_query = (store, where) =>
   store.addQueryFromSpec({
     q: [{ where: where.map(_ => _.map(rstream_variables)) }]
   });
-//.transform(tx.trace(JSON.stringify(where)));
-
-// given a store, create a subscription that yields all of the resources it
-// talks about, i.e. every named or blank node in a subject or object position.
-const resources_in = store =>
-  store
-    .addQueryFromSpec({
-      q: [{ where: [["?subject", "?predicate", "?object"]] }]
-    })
-    .transform(
-      tx.map(triples =>
-        tx.transduce(
-          tx.comp(
-            tx.multiplex(tx.pluck("subject"), tx.pluck("object")),
-            tx.cat(),
-            tx.filter(is_node),
-            // This can't be doing anything after the above filter
-            tx.keep()
-          ),
-          tx.conj(),
-          triples
-        )
-      )
-    );
-
-function foo() {
-  // a set of the resources in the store, (in subject or object position)
-  const model_resources = rs.metaStream(
-    store => resources_in(store),
-    `${model_id}/store`
-  );
-
-  // the resource metastream is based on the store
-  model_store.subscribe(model_resources);
-
-  // select all properties (triples) from the model that point to resources
-  const model_properties = model_store.transform(
-    tx.map(store => [...tx.filter(([, , o]) => is_node(o), store.triples)])
-  );
-}
 
 const drivers = [];
-const register_driver = (name, init) => {
-  const driver = init({ q });
-  console.log(`drive`, driver);
-
-  drivers.push(driver);
-};
+const register_driver = (name, init) => drivers.push(init({ q }));
 
 // behavior is undefined if store is not empty
 // returns a bunch of subscriptions
@@ -103,22 +58,20 @@ const apply_drivers_to = (store, system) => {
   for (const { claims, rules } of drivers) {
     store.into(claims);
     for (const { when, when_all, then } of rules)
-      try {
-        subs.push(
-          live_query(store, when || when_all).subscribe({
-            next(results) {
-              console.log(`line 110`);
-
-              if (results) {
+      subs.push(
+        live_query(store, when || when_all).subscribe({
+          next(results) {
+            if (results) {
+              try {
                 if (when_all) then(results, system);
                 else for (const result of results) then(result, system);
+              } catch (error) {
+                console.error("problem appying rule: ", when, error);
               }
             }
-          })
-        );
-      } catch (error) {
-        console.error("problem appying rule: ", when, error);
-      }
+          }
+        })
+      );
   }
   return subs;
 };
