@@ -4,9 +4,6 @@
 const { transducers: tx, rstream: rs, hdom } = thi.ng;
 const { updateDOM } = thi.ng.transducersHdom;
 
-const drivers = [];
-const register_driver = driver => drivers.push(driver);
-
 // =============== RDF helpers
 
 const AS = rdf.namedNode("as"); // for runtime only
@@ -28,33 +25,6 @@ const q = (...clauses) =>
       .map(term =>
         term[0] === "?" ? rdf.variable(term.slice(1)) : rdf.namedNode(term)
       )
-  );
-
-// Convert resources to objects.  Higher-level than triples, but still doesn't
-// mean anything in its own right.  Basically it's like JSON-LD support.  keys
-// may include namespaces.
-const to_node_dict = store =>
-  tx.transduce(
-    tx.map(([id, props]) => [
-      id,
-      tx.transduce(
-        tx.map(idx => store.triples[idx]),
-        tx.groupByObj({
-          key: ([, p]) => p,
-          // This is a wonky reducer... the value is an array if there's more
-          // than one, and not otherwise.  How else do we know whether to expect
-          // multiple values?  Also, if you're going to do this, it should be a
-          // Set, not an array.
-          group: tx.reducer(
-            () => undefined,
-            (acc, [, , o]) => (acc === undefined ? o : [...acc, o])
-          )
-        }),
-        props
-      )
-    ]),
-    tx.assocObj(),
-    store.indexS
   );
 
 const rstream_variables = term =>
@@ -118,9 +88,16 @@ function foo() {
   );
 }
 
+const drivers = [];
+const register_driver = (name, init) => {
+  const driver = init({ q });
+  console.log(`drive`, driver);
+
+  drivers.push(driver);
+};
+
 // behavior is undefined if store is not empty
 // returns a bunch of subscriptions
-// sync version below probably garbage
 const apply_drivers_to = (store, system) => {
   const subs = [];
   for (const { claims, rules } of drivers) {
@@ -142,23 +119,6 @@ const apply_drivers_to = (store, system) => {
       }
   }
   return subs;
-};
-
-// behavior is undefined if store is not empty
-const sync_apply_drivers_to = (store, system) => {
-  for (const { claims, rules } of drivers) {
-    store.into(claims);
-    for (const { when, when_all, then } of rules)
-      try {
-        const results = sync_query(store, when || when_all);
-        if (results) {
-          if (when_all) then(results, system);
-          else for (const result of results) then(result, system);
-        }
-      } catch (error) {
-        console.error("problem appying rule: ", when, error);
-      }
-  }
 };
 
 /**

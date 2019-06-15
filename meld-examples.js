@@ -10,12 +10,24 @@ charge.theta(0.98),
 
 const MELD_EXAMPLES = [
   {
-    name: "clean-start",
-    label: "clean start",
-    comment: `the better better thing`,
+    name: "subscription",
+    label: "subscription driver",
+    comment: `in which Alice and Bob listen to one another`,
     userland_code: `claim(
-A . B . C,
+Alice . listensTo . Bob,
+Bob . listensTo . Carol,
 
+
+)`
+  },
+  {
+    name: "subscription-cycle",
+    label: "circular subscription",
+    comment: `circular subscriptions should be okay as long as they are async`,
+    userland_code: `claim(
+Alice . listensTo . Bob,
+Bob . listensTo . Carol,
+Carol . listensTo . Alice,
 
 )`
   },
