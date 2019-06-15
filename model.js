@@ -78,9 +78,17 @@
         ]
       : ["result.okay"];
 
-  const results = rs
-    .subscription()
-    .transform(tx.map(render_result), updateDOM({ root: output_container }));
+  const results = rs.subscription();
+  results.transform(
+    tx.map(render_result),
+    updateDOM({ root: output_container })
+  );
+
+  results.transform(
+    tx.pluck("error"),
+    tx.keep(),
+    tx.sideEffect(console.orig.error)
+  );
 
   const sink = userland_code => results.next(interpret(userland_code));
 
