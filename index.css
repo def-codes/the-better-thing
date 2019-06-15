@@ -133,6 +133,11 @@ body {
 main > header {
 	height: 100vh;
 }
+
+.host-output {
+	border: 3px solid green;
+}
+
 /* main > section, main > header { */
 .example, .slide {
 	height: 100vh;

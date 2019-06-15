@@ -3,14 +3,10 @@
 (function() {
   const { rstream: rs, transducers: tx } = thi.ng;
   const { updateDOM } = thi.ng.transducersHdom;
+  // const { render_value } = window;
+  console.log(`render_value`, render_value);
 
   const container = document.body.appendChild(document.createElement("div"));
-
-  const render_value = (_, value) => [
-    "span",
-    value ? JSON.stringify(value) : "(falsy)",
-    " "
-  ];
 
   const render_entry = (_, { method, args }) => [
     "div.console-entry",
@@ -44,6 +40,7 @@
     try {
       console[method] = function(...args) {
         sub.next({ method, args });
+        if (method === "error") orig.error(...args);
       };
     } catch (error) {
       orig.log("ERROR: ", error);

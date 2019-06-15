@@ -23,27 +23,6 @@
 
   const render_resource = () => ["div", "hello again"];
 
-  const render_triple = (_, [s, p, o]) => [
-    "div.Property",
-    {
-      "data-subject": s.value,
-      "data-property": p.value,
-      "data-object": o.value
-    },
-    s.value,
-    " ",
-    p.value,
-    " ",
-    o.value
-  ];
-
-  // “Default” (currently only) renderer for properties
-  // I don't think this will be used as such.
-  const render_triples = (_, triples) => [
-    "div",
-    tx.map(render_triple, triples)
-  ];
-
   const all_values_for = (store, subject, property) =>
     tx.iterator(
       tx.comp(

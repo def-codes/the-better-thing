@@ -1,10 +1,15 @@
 .console {
 	position: absolute;
 	bottom: 0;
+	max-height: 100%;
 	left: 50%;
 	font-size: 200;
 	translate: transform(-50%);
-	z-index: 999;
+	z-index: 9999;
 	padding: 0.5em 1em;
 	background: rgba(0, 0, 0, .2);
+	font-size: smaller;
+	box-sizing: border-box;
+	border: 4px solid green;
+	overflow: auto;
 }

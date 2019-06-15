@@ -107,6 +107,8 @@ const apply_drivers_to = (store, system) => {
         subs.push(
           live_query(store, when || when_all).subscribe({
             next(results) {
+              console.log(`line 110`);
+
               if (results) {
                 if (when_all) then(results, system);
                 else for (const result of results) then(result, system);
@@ -122,9 +124,7 @@ const apply_drivers_to = (store, system) => {
 };
 
 /**
- * A self-contained, monotonic system.  It can “change” internally in
- * forward-only kind of way, but once created it cannot be communicated with
- * from the outside.
+ * A monotonic, knowledge-based system.
  *
  * @param {string} id - Provisional.  Namespace if there were more than one.
  * @param {TripleStore} store - Should be an empty knowledge base.
@@ -136,7 +136,7 @@ const monotonic_system = ({ id, store, dom_root }) => {
   const registry = new thi.ng.associative.EquivMap();
 
   // The interface made available to drivers
-  const system = {
+  const for_drivers = {
     store,
     dom_root,
     assert: fact => store.add(fact),
@@ -162,7 +162,7 @@ const monotonic_system = ({ id, store, dom_root }) => {
     }
   };
 
-  const rule_subscriptions = apply_drivers_to(store, system);
+  const rule_subscriptions = apply_drivers_to(store, for_drivers);
 
   return function dispose() {
     for (const sub of rule_subscriptions) if (sub) sub.unsubscribe();

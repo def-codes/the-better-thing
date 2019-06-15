@@ -15,9 +15,9 @@
         then: () => {
           console.log(`line 17`);
 
-          return {
-            summer: {}
-          };
+          // return {
+          //   summer: {}
+          // };
         }
       }
     ]

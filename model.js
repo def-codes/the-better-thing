@@ -31,7 +31,8 @@
           { contenteditable: true, spellcheck: false },
           example.userland_code
         ],
-        ["div.userland-code-output"]
+        ["div.userland-code-output"],
+        ["div.host-output"]
       ]
     ],
     [
@@ -49,14 +50,22 @@
     "[data-model-representation]"
   );
   const output_container = dom_root.querySelector(".userland-code-output");
+  const host_output_container = dom_root.querySelector(".host-output");
 
   //================================== USERLAND CODE
   // outside the scope of the model as such
 
-  const interpret = monotonic_world({
+  const { interpret, facts } = monotonic_world({
     id: model_spec.name,
     dom_root: representation_container
   });
+
+  const { updateDOM } = thi.ng.transducersHdom;
+
+  facts.transform(
+    tx.map(triples => [render_triples, ["a,b,c".split()]]),
+    updateDOM({ root: host_output_container })
+  );
 
   const render_result = result =>
     result.error
@@ -69,7 +78,6 @@
         ]
       : ["result.okay"];
 
-  const { updateDOM } = thi.ng.transducersHdom;
   const results = rs
     .subscription()
     .transform(tx.map(render_result), updateDOM({ root: output_container }));
