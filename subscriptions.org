@@ -1,0 +1,29 @@
+#+TITLE:subscriptions
+
+The system and most drivers rely on subscriptions to keep things "up-to-date,"
+even though the system is effectively monotonic.  Here are some considerations
+about subscriptions and keeping them under control.
+
+Like everything else, they should be visible.
+
+They need to serve the monotonicity of the system, though they (and other
+runtime objects) do not need to be monotonic in exactly the same way.  For
+example, a runtime object may die and be disposed of, while a triple cannot.
+Triples can record the fact of the the activity's existence and of its later
+non-existence.  But they cannot be retracted as such.  In other words, the
+triple store is strictly monotonic, on account of its being assert-only.
+
+At the same time, subscriptions should not proliferate beyond the knowledge base
+itself, and the reasons for the subscriptions should be clear.
+
+The question arises of what driver handlers (rule consequents) can and cannot do
+(safely).  In general, drivers should be avoided, and especially driver
+handlers.  Drivers provide effects.
+
+It should not be necessary to treat other resources explicitly as streams for
+the sake of interacting with their content, unless you are dealing with the
+domain of streams themselves.  It is not intrinsic that any construct should
+have a certain backing implementation, especially insofar as you are only
+concerned with its value.
+
+

@@ -1,0 +1,56 @@
+#+TITLE:monotonicity in this model
+
+One of the key tradeoffs made in this model is that it uses a monotonic
+(forward-only) knowledge base.  You can assert facts, but never retract them.
+
+This /should/ be the basis of several simplifying assumptions.  If things can't
+"change," then a major class of problem (keeping a live runtime up-to-date) is
+largely eliminated.  In order to simulate changes to a model, a
+destroy-the-world wrapper is provided.
+
+This arrangement /must/ fundamentally impact the design and construction of the
+system and drivers, or else the research (and practical) value are lost.
+
+However, as more drivers have been added, the idiom has drifted back towards a
+change-oriented worldview.  More of the code is now concerned with constructing,
+tracking, and consuming a dataflow whose main purpose is to coordinate a set of
+ongoing processes whose lifecycle and indeed purpose are unclear.
+
+What are the sources of "change" in the system?
+
+How can the system be designed, and drivers constrained, to take best advantage
+of the upfront tradeoff?
+
+Where in the current code do we see evidence of monotonicity breaking down?
+Certainly in the driver handlers---though that's where most code is expected to
+be in any case.
+
+The system proceeds through an accrual of facts.
+
+The facts comprise atomic terms.  Basically, names and values.
+
+Some terms refer to defined concepts (resources); other are introduced by the
+model.  These "user-defined" terms can acquire meaning through relation to the
+defined concepts.
+
+The concepts by themselves are not dynamic.
+
+the composition 
+of terms into facts
+and of facts into a model
+occurs as a sequence of transactions with a knowledge base
+and the model thus cannot be seen as a single transaction in practice
+
+While the system does not support retraction or negation, it is nevertheless not
+static.  Facts are accrued /over time/, and processes represent the result of
+computations over time.
+
+The system uses a knowledge base to both control and reflect its runtime state.
+This sytem extends the RDF data model with references to runtime values and
+mechanisms (including processes).
+
+As such, the system resides in a middle region between pure computation and a
+dynamic environment.  While RDF graphs enjoy a theoretical model whereby they
+can be treated as a pure proposition (in which, e.g. order does not matter),
+this system treats RDF terms as something like a propositional bytecode, which
+

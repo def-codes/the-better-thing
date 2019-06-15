@@ -1,0 +1,10 @@
+.console {
+	position: absolute;
+	bottom: 0;
+	left: 50%;
+	font-size: 200;
+	translate: transform(-50%);
+	z-index: 999;
+	padding: 0.5em 1em;
+	background: rgba(0, 0, 0, .2);
+}

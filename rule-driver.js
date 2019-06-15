@@ -1,4 +1,8 @@
 (function() {
+  get_clauses_for = (store, expression) => {
+    //store.triples
+  };
+
   const RULE_DRIVER = {
     claims: [
       "Rule isa Class",
@@ -16,6 +20,18 @@
       "hasConsequent range RuleConsequent"
     ],
     rules: [
+      {
+        // It should be possible to handle all rule arities here.
+        when: q(
+          "?rule hasCondition ?condition",
+          "?rule hasConsequent ?consequent"
+        ),
+        then({ rule, condition, consequent }, system) {
+          // now synchronously get all of the clauses
+          get_clauses_for(store, condition);
+          get_clauses_for(store, consequent);
+        }
+      },
       // 1-ary rule
       //
       // unfortunately we can't just treat each clause separately and sync them

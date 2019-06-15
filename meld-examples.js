@@ -10,6 +10,17 @@ charge.theta(0.98),
 
 const MELD_EXAMPLES = [
   {
+    name: "clean-start",
+    label: "clean start",
+    comment: `the better better thing`,
+    userland_code: `claim(
+A . B . C,
+
+
+)`
+  },
+
+  {
     name: "last-gasp",
     label: "last gasp",
     comment: `do or die`,
