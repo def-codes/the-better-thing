@@ -89,7 +89,11 @@ const monotonic_system = ({ id, store, dom_root }) => {
   const registry = new thi.ng.associative.EquivMap();
 
   // The interface made available to drivers
-  const for_drivers = {
+  //
+  // TEMP: Changing handlers to return side-effect descriptions.  Read-only
+  // facilities will be added as needed.
+  const for_drivers = {};
+  const old_for_drivers = {
     store,
     dom_root,
     assert: fact => store.add(fact),
