@@ -20,6 +20,7 @@
   ];
 
   const orig = {};
+  Object.assign(console, { orig }); // escape hatch
 
   const sub = rs.subscription(
     {
