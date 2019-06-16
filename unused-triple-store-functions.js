@@ -1,5 +1,24 @@
+// several variants on this function here
+
+// Map the raw triples for a subject into a multi-valued JS object.
+const to_prop_dict = (subject_indices, all_triples) =>
+  tx.transduce(
+    tx.map(idx => all_triples[idx]),
+    // Assume all values are potentially multiple, hence wrapped in array.
+    tx.groupByObj({
+      key: ([, p]) => p,
+      group: tx.reducer(
+        () => undefined,
+        // conditional multivalue
+        // (acc, [, , o]) => (acc === undefined ? o : [...acc, o])
+        (acc, [, , o]) => (acc === undefined ? [o] : [...acc, o])
+      )
+    }),
+    subject_indices
+  );
+
 // Decomposed (and modified version of below)
-const to_prop_dict = (store, props) =>
+const another_to_prop_dict = (store, props) =>
   tx.transduce(
     tx.map(idx => store.triples[idx]),
     // Assume all values are potentially multiple, hence wrapped in array.

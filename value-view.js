@@ -56,6 +56,7 @@ var value_view = (function() {
       value: {
         ...value,
         message: value.message,
+        fileName: value.fileName,
         lineNumber: value.lineNumber,
         stack: value.stack
       },

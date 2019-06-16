@@ -57,8 +57,40 @@ Bob . hasInterval(250),
     label: "subscription driver (verbose)",
     comment: `in which Alice and Bob listen to one another`,
     userland_code: `claim(
+// Display
+Alice.hostOutput("Alice"),
+Carol.hostOutput("Carol"),
+
+Carol.hasInterval(200),
+
 Alice . isa . Subscribable,
-Bob . listensTo . Alice
+
+Alice . listensTo . Carol,
+//Alice . listensTo . Joan,
+
+
+)`
+  },
+
+  {
+    name: "stream-merge",
+    label: "merging streams",
+    comment: `in which Alice listens to two people at once`,
+    userland_code: `claim(
+// Display
+Alice.hostOutput("Alice"),
+Carol.hostOutput("Carol"),
+Joan.hostOutput("Joan"),
+
+Carol.hasInterval(200),
+
+Alice . isa . Subscribable,
+Alice . listensTo . Carol,
+
+Joan.hasInterval(500),
+
+// Uncomment to see Alice merging Carol & Joan's output
+//Alice . listensTo . Joan,
 
 )`
   },
