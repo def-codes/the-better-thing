@@ -10,6 +10,5 @@
 	background: rgba(0, 0, 0, .2);
 	font-size: smaller;
 	box-sizing: border-box;
-	border: 4px solid green;
 	overflow: auto;
 }

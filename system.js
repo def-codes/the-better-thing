@@ -92,7 +92,7 @@ const monotonic_system = ({ id, store, dom_root }) => {
   //
   // TEMP: Changing handlers to return side-effect descriptions.  Read-only
   // facilities will be added as needed.
-  const for_drivers = {};
+  const for_drivers = { store };
   const old_for_drivers = {
     store,
     dom_root,

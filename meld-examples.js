@@ -17,12 +17,16 @@ const MELD_EXAMPLES = [
 Alice . knows . Bob,
 Bob . knows . Carol,
 // We would expect this traversal to include the above two facts
-t . isa . Traversal,
+t . isa . XTraversal,
 t . startsFrom . Alice,
 
-//forall(t, isa.Selected)
-//forall(subgraph(forceCollide, subclassOf), isa.Selected)
+x . hasClause . c,
+c . hasSubject . $knower,
+c . hasPredicate . knows,
+c . hasObject . $knowee,
 
+t2 . isa . Traversal,
+t2 . startsFrom .x
 )
 `
   },
@@ -274,6 +278,16 @@ l . isa . Layer
     userland_code: `claim(
 s . isa . Space
 )
+`
+  },
+
+  {
+    name: "forall",
+    label: "forall macro",
+    comment: `this may become a thing`,
+    userland_code: `//forall(t, isa.Selected)
+//forall(subgraph(forceCollide, subclassOf), isa.Selected)
+
 `
   },
 

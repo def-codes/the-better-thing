@@ -52,7 +52,12 @@ var value_view = (function() {
   // props from prototype.
   const render_error = (_, value, path) => [
     render_object,
-    { ...value, lineNumber: value.lineNumber, stack: value.stack },
+    {
+      ...value,
+      lineNumber: value.lineNumber,
+      stack: value.stack,
+      message: value.message
+    },
     path
   ];
 

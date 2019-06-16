@@ -13,13 +13,13 @@ var triple_store_traversal = (function() {
       for (const index of store.indexS.get(subject) || []) {
         const triple = store.triples[index];
         const object = triple[2];
-        if (is_node(object)) {
-          out.add(triple);
-          if (!visited.has(object)) {
-            visited.add(object);
-            queue.push(object);
-          }
+        //        if (is_node(object)) {
+        out.add(triple);
+        if (!visited.has(object)) {
+          visited.add(object);
+          queue.push(object);
         }
+        //        }
       }
     }
     return out;
