@@ -48,57 +48,13 @@
           };
         }
       },
-      /*
-      {
-        // `listener` is a term referring to the resource to become a subscription.
-        // `subscribable` is a resource that we expect to refer to a stream
-        // This rule will not fire until the source is implemented.
-        when: q(
-          "?listener listensTo ?source",
-          "?subscribable implements ?source",
-          "?subscribable as Subscribable"
-          //"?target implements ?listener",
-          //"?target as Subscribable"
-        ),
-        // we don't need the reference to source as such
-        then({ listener, target, source, subscribable }, system) {
-          const subscribable_instance = system.find(subscribable);
-          const target_instance = system.find(target);
-          console.log(`listener, target, source`, listener, target, source);
-
-          // This kind of inconsistency could also be checked via above ontology
-          if (typeof subscribable_instance.subscribe !== "function")
-            return {
-              warning: {
-                message: "Expected ${subscribable.value} to be a subscribable",
-                context: { subscribable, subscribable_instance }
-              }
-            };
-
-          return {
-            register: {
-              subject: subscribable,
-              as_type: "Subscribable",
-              get: () =>
-                subscribable_instance.subscribe({
-                  next(value) {
-                    // console.log(
-                    //   `subscription fired praise God!!!`,
-                    //   source,
-                    //   value
-                    // );
-                  }
-                })
-            }
-          };
-        }
-      },
-*/
       {
         when: q("?timer hasInterval ?ms"),
         then: ({ timer, ms }) => ({
           register: {
             subject: timer,
+            // Here and below this seems it should be stream, but system doesn't
+            // traverse subclasses when doing these lookups.
             as_type: "Subscribable",
             get: () => rs.fromInterval(ms.value)
           }
@@ -109,7 +65,7 @@
         then: ({ timer }) => ({
           register: {
             subject: timer,
-            as_type: "Stream",
+            as_type: "Subscribable",
             get: () => rs.fromRAF()
           }
         })

@@ -108,6 +108,78 @@ Carol . hasInterval(10)
   },
 
   {
+    name: "transducers",
+    label: "transducers",
+    comment: `Transducers are algorithmic stream transformations`,
+    userland_code: `claim(
+Alice.hostOutput("Alice"),
+Bob.hostOutput("Bob"),
+
+Alice . hasInterval(250),
+Bob . listensTo . Alice,
+Bob . isa . Subscribable,
+
+Bob . transformsWith . t,
+t.mapsWith(x => x * 2)
+
+)`
+  },
+
+  {
+    name: "mapping-transducers",
+    label: "mapping transducers",
+    comment: `Mapping transducers apply a transformation to every value in an input stream.`,
+    userland_code: `claim(
+Alice.hostOutput("Alice"),
+Bob.hostOutput("Bob"),
+
+Alice . hasInterval(250),
+Bob . listensTo . Alice,
+Bob . isa . Subscribable,
+
+Bob . transformsWith . t,
+t.mapsWith(x => x * 2)
+
+)`
+  },
+
+  {
+    name: "filtering-transducers",
+    label: "filtering transducers",
+    comment: `Filtering conditionally include values from an input stream.`,
+    userland_code: `claim(
+Alice.hostOutput("Alice"),
+Bob.hostOutput("Bob"),
+
+Alice . hasInterval(250),
+Bob . listensTo . Alice,
+Bob . isa . Subscribable,
+
+Bob . transformsWith . t,
+t.filtersWith(x => x % 2 == 1)
+
+)`
+  },
+
+  {
+    name: "partitioning-transducers",
+    label: "partitioning transducers",
+    comment: `Partitioning batches an output stream by some size.`,
+    userland_code: `claim(
+Alice.hostOutput("Alice"),
+Bob.hostOutput("Bob"),
+
+Alice . hasInterval(250),
+Bob . listensTo . Alice,
+Bob . isa . Subscribable,
+
+Bob . transformsWith . t,
+t.partitionsBy(3)
+
+)`
+  },
+
+  {
     name: "traversal",
     label: "traversal driver",
     comment: `testing reified traversal`,
