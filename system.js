@@ -51,6 +51,15 @@ const live_query = (store, where) =>
 const drivers = [];
 const register_driver = (name, init) => drivers.push(init({ q }));
 
+const make_consequent_handler = (then, system, all) => results => {
+  if (!results) return;
+  const raw = all
+    ? [then(results, system)]
+    : tx.map(result => then(result, system), results);
+
+  //const effects = flatten
+};
+
 // behavior is undefined if store is not empty
 // returns a bunch of subscriptions
 const apply_drivers_to = (store, system) => {
@@ -60,16 +69,9 @@ const apply_drivers_to = (store, system) => {
     for (const { when, when_all, then } of rules)
       subs.push(
         live_query(store, when || when_all).subscribe({
-          next(results) {
-            if (results) {
-              try {
-                if (when_all) then(results, system);
-                else for (const result of results) then(result, system);
-              } catch (error) {
-                console.error("problem appying rule: ", when, error);
-              }
-            }
-          }
+          next: make_consequent_handler(then, system, !!when_all),
+          // TODO: formally indicate source
+          error: error => console.error("problem appying rule: ", when, error)
         })
       );
   }

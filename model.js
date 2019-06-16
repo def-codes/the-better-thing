@@ -1,5 +1,7 @@
 (function model_main() {
   const { transducers: tx, rstream: rs, hdom } = thi.ng;
+  const { rdf_hdom } = window;
+  const { render_triples } = rdf_hdom;
 
   //=========== LOAD MODEL
 

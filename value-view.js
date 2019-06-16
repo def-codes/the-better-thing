@@ -85,7 +85,7 @@ var value_view = (function() {
     return ["span", value ? JSON.stringify(value) : "(falsy)", " "];
   };
 
-  const render_value = (_, value) => [
+  const render_value = (_, { value }) => [
     "div.value-view",
     [render_value_impl, { value }]
   ];

@@ -1,8 +1,12 @@
 // Monotonic driver for (rstream) Stream and Subscription.
 (function() {
-  const STREAM_DRIVER = {
+  if (!meld) throw "No meld system found!";
+
+  const { rstream: rs } = thi.ng;
+
+  meld.register_driver("streamDriver", ({ q }) => ({
     claims: q(
-      "Function isa Class",
+      "Function isa Class", // provisional. this would belong somewhere else
       "Subscribable isa Class",
       "Stream isa Class",
       "Stream subclassOf Subscribable",
@@ -29,14 +33,15 @@
         then({ stream, source }, system) {
           const source_function = source.value;
 
-          // TODO: userland error reporting
           // This kind of inconsistency could also be checked via above ontology
           if (typeof source_function !== "function") {
             console.warn(`Unexpected stream source`, source);
             return;
           }
 
-          system.register(stream, "Stream", () => rs.stream(source_function));
+          return {
+            register: [stream, "Stream", () => rs.stream(source_function)]
+          };
         }
       },
       {
@@ -88,8 +93,5 @@
         }
       }
     ]
-  };
-
-  if (meld) meld.register_driver(STREAM_DRIVER);
-  else console.warn("No meld system found!");
+  }));
 })();

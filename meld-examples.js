@@ -10,6 +10,18 @@ charge.theta(0.98),
 
 const MELD_EXAMPLES = [
   {
+    name: "streams",
+    label: "streams driver",
+    comment: `testing reified streams`,
+    userland_code: `claim(
+//stream . isa . Stream, // (implicit)
+stream . hasSource(sub => { sub.next("hello"); sub.next("world"); }),
+//sub . listensTo . stream
+)
+`
+  },
+
+  {
     name: "traversal",
     label: "traversal driver",
     comment: `testing reified traversal`,
@@ -246,18 +258,6 @@ clause1 . hasSubject . Alice,
 clause1 . hasPredicate . knows,
 clause1 . hasObject . $someone,
 query1 . hasClause . clause1
-)
-`
-  },
-
-  {
-    name: "streams",
-    label: "streams driver",
-    comment: `testing reified streams`,
-    userland_code: `claim(
-stream . isa . Stream, // (implicit)
-stream . hasSource(sub => { sub.next("hello"); sub.next("world"); }),
-sub . listensTo . stream
 )
 `
   },

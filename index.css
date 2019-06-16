@@ -141,6 +141,7 @@ main > header {
 	max-width: 50%;
 	padding: 0.25em 0.5em;
 	background: rgba(0, 0, 0, 0.1);
+	z-index: 9999;
 }
 
 /* main > section, main > header { */
