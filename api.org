@@ -1,0 +1,70 @@
+#+TITLE:MELD system and drivers
+
+What can drivers do?
+
+Drivers can make claims.  Claims included in a drivers metadata are asserted at
+the time the driver is registered.
+
+But anyone can make claims.
+
+One of the system's design objectives is to support the reification of otherwise
+invisible runtime mechanisms through drivers.  Drivers can execute host code
+that userland code cannot (or should not, anyway).
+
+Drivers are a last resort.  What can be done in userland code, should be done in
+userland code.
+
+It's not unthinkable that drivers could be defined in models themselves (to
+increase their portability).  In this case, the system would first scan for
+drivers and load them before proceeding.  For this purpose, it would need a
+"driver driver" built in.
+
+To support userland usage of queries, we need a query driver.
+
+To support userland usage of rules, we need a rule driver.  Since half of rules
+are queries, the rule driver is either dependent on or closely related to the
+query driver.
+
+Reified queries allow userland code to express conjunctions* of RDF clauses.  (*
+In principle, you can define any logical composition of RDF clauses, as well as
+some types of clauses that are not strictly logical, such as optional clauses.
+See SPARQL, which surely has reification in RDF form.)
+
+What happens with queries expressed in userland?
+
+Internally, queries must be mapped to a form recognizable by the rule engine,
+which is implementation-dependent (it's rstream-query, in our case).
+
+For the purposes of userland code, it's expected that queries can be treated as
+a kind of "reactive variable"---a term that can be used in other expressions and
+which will resolve to its "current" result set, depending on the state of the
+model.  Recall that even in a monotonic system, a query's results can still
+"change" as new assertions are made.
+
+(One interesting thing about queries is that adding clauses can actually shrink
+the result set, since clauses can be (and currently must be) and-ed together.
+This has important consequences for the monotonicity of such operations.)
+
+If a query is a "reactive variable," what is its value?  Its associated clauses?
+Which can in fact change.  Or its result set?  It must be possible to
+distinguish these.
+
+How can we implement queries in such a way that they can be implemented by
+userland code and also leveraged by other drivers (particularly rules)?  And do
+all of this in a way that doesn't violate monotonicity assumptions.
+
+Clearly a userland query implementation of queries will require us to
+- offer a vocabulary for the representation of query expressions
+- translate a query expression into a form usable by the underlying engine
+- register a subscription to the results of that query so that...
+  - the results of the query have to matter, be seen, something
+
+Queries are a very basic mechanism, but they are not the /only/ mechanism for the
+selection of subgraphs.  rstream-query happens to support certain kinds of
+query, and we don't even use all of them.  Meanhwhile, I have already written
+code for doing other types of traversals which has representation in userland.
+And we already know that even the query type we /do/ support will yield results
+that can either shrink or grow even in a monotonic system, it's worth
+considering how we can generalize this support so that other defined queries (as
+long as they can be processed by some driver) can be used by other drivers as
+well as userland code.

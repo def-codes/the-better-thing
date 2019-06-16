@@ -1,4 +1,10 @@
 (function() {
+  // this is just a special kind of traversal:
+  // starting at the node identifying the expression
+  // traverse into "hasClause"
+  // and traverse from there into hasS, hasP, hasO
+  // those terms have to be final, right?
+  // how would you know that a term at that point weren't to be taken at face value?
   get_clauses_for = (store, expression) => {
     //store.triples
   };
@@ -9,8 +15,7 @@
       "RulePredicate isa Class",
       "RuleConsequent isa Class",
       "RulePredicate subclassOf Query",
-      // no... thing with multiple clauses.  anyway we're not really using the ontology
-      //"RuleConsequent subclassOf Clause"
+      //"RuleConsequent subclassOf Expression...?"
       // hasPredicate is already used by clause... I know.  Namespaces.
       "hasCondition isa Property", // hasPredicate
       "hasCondition domain Rule", // hasPredicate

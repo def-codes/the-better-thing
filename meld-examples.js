@@ -10,6 +10,24 @@ charge.theta(0.98),
 
 const MELD_EXAMPLES = [
   {
+    name: "traversal",
+    label: "traversal driver",
+    comment: `testing reified traversal`,
+    userland_code: `claim(
+Alice . knows . Bob,
+Bob . knows . Carol,
+// We would expect this traversal to include the above two facts
+t . isa . Traversal,
+t . startsFrom . Alice,
+
+//forall(t, isa.Selected)
+//forall(subgraph(forceCollide, subclassOf), isa.Selected)
+
+)
+`
+  },
+
+  {
     name: "subscription",
     label: "subscription driver",
     comment: `in which Alice and Bob listen to one another`,
@@ -20,6 +38,29 @@ Bob . listensTo . Carol,
 
 )`
   },
+
+  {
+    name: "blank-nodes",
+    label: "blank nodes",
+    comment: `blank nodes (a.k.a bnodes) are anonymous resources.  They are critical to the
+expression of compound structures in RDF, because you don't want to have to
+explicitly name everything.  Blank nodes are created when the system generates a
+node for some reason`,
+    userland_code: `claim(
+// blank nodes 
+isa . Person,
+
+// or for the literal form:
+// TBD, not supported yet!
+hasStrength(50)
+
+// you can also use them in place of where a node would go
+// TBD, not supported yet!
+space . hasForce ( x(50) )
+
+)`
+  },
+
   {
     name: "subscription-cycle",
     label: "circular subscription",
@@ -232,24 +273,6 @@ l . isa . Layer
     comment: `testing reified space`,
     userland_code: `claim(
 s . isa . Space
-)
-`
-  },
-  {
-    name: "traversal",
-    label: "traversal driver",
-    comment: `testing reified traversal`,
-    userland_code: `claim(
-t . isa . Traversal,
-t . startsFrom . forceCollide
-)
-
-forall(t, isa.Selected)
-
-//forall(subgraph(forceCollide, subclassOf), isa.Selected)
-
-claim(
-${SPACE_COMMON}
 )
 `
   },

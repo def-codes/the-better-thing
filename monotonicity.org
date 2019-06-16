@@ -54,3 +54,14 @@ dynamic environment.  While RDF graphs enjoy a theoretical model whereby they
 can be treated as a pure proposition (in which, e.g. order does not matter),
 this system treats RDF terms as something like a propositional bytecode, which
 
+We can use runtime objects to represent values that may change
+non-monotonically, even while their underlying description does not.  Indeed,
+this consideration would drive the choice of whether a "reified" value (one
+expressed in the model) or a runtime value better suited a particular use case.
+If a "variable" can be expressed in such a way that its value can grow
+(i.e. take on more properies) but never change, then direct representation as a
+resource should be preferred.  If not, then the resource can be associated with
+a runtime value, with the understanding that its value at any given time is not
+part of the model as such (and also that we cannot make assertions based on its
+current value?  But why not, as long as we can't make retractions?)
+

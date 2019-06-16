@@ -10,12 +10,14 @@
       <header>
         <h1>the better thing</h1>
         <ul>
+          <li><a href="model.html?traversal">traversal</a></li>
           <li><a href="model.html?subscription">subscription</a></li>
           <li><a href="model.html?projection">projection</a></li>
           <li><a href="model.html?containers">containers</a></li>
           <li><a href="model.html?selection">selection</a></li>
           <li><a href="model.html?representation">representation</a></li>
           <li><a href="model.html?facts">facts</a></li>
+          <li><a href="model.html?blank-nodes">blank nodes</a></li>
           <li><a href="model.html?streams">streams</a></li>
           <li><a href="model.html?queries">queries</a></li>
           <li><a href="model.html?rules">rules</a></li>
@@ -145,12 +147,23 @@
           <p>we put things into space</p>
         </section>
         <section>
-          <h3>homoiconicity</h3>
+          <h3>userland homoiconicity</h3>
           <p>work at once on model and its representation</p>
+        </section>
+        <section>
+          <h3>rdf as bytecode</h3>
+          <p>See this for example.
+          https://m00natic.github.io/lisp/manual-jit.html
+          https://news.ycombinator.com/item?id=20191406
+          looks interesting (on my reading list), but still no mention of RDF
+          </p>
         </section>
         <section>
           <h3>death to console log</h3>
           <p>visible, dynamic... but deserves mention</p>
+          <p>actually... we can intercept console log and do a “good thing” with
+          it.  someone has to work on drivers and interop, after all, so why not
+          make things less painful?</p>
         </section>
         <section>
           <h3>multi-dialect</h3>
@@ -167,6 +180,16 @@
           <h3>cut the machine loose</h3>
           <p>RDF as compilation source and target</p>
           <p>there is no reason to use lower-level languages</p>
+        </section>
+      </section>
+      <section>
+        <h2>future</h2>
+        <section>
+          <h3>reintroduce namespaces</h3>
+          <ul>
+            <li>can still write "bare" terms by defaulting certain imports</li>
+            <li>or you can use prefix approach (CURIE's) </li>
+          </ul>
         </section>
       </section>
       <section>
