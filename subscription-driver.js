@@ -4,6 +4,22 @@
 
   const { rstream: rs, transducers: tx } = thi.ng;
 
+  // Wrapper for stream merge that supports dynamic setting of transform.
+  // This makes the API much more amenable to use with the system.
+  const metamerge = () => {
+    let current = rs.merge();
+
+    const meta = rs.metaStream(sub => (current = sub));
+    meta.next(current);
+
+    return Object.assign(meta, {
+      add: (...args) => current.add(...args),
+      set_transform(xform) {
+        meta.next(rs.merge({ src: current.sources.keys(), xform }));
+      }
+    });
+  };
+
   meld.register_driver(NAME, ({ q }) => ({
     claims: q(
       "Subscribable isa Class",
@@ -18,8 +34,24 @@
         // Should be implied by listensTo
         when: q("?subject isa Subscribable"),
         then: ({ subject }) => ({
-          register: { subject, as_type: "Subscribable", get: () => rs.merge() }
+          register: { subject, as_type: "Subscribable", get: () => metamerge() }
         })
+      },
+      {
+        when: q(
+          "?subject transformsWith ?transform",
+          "?transducer implements ?transform",
+          "?transducer as Transducer",
+          "?metamerge implements ?subject",
+          "?metamerge as Subscribable" // subscription would make more sense here...
+        ),
+        then: ({ transducer, metamerge }, { find }) => {
+          // Logging the metamerge instances crashes, probably the value render.
+          // Could be related to IDeref?
+          find(metamerge).set_transform(find(transducer));
+          // SIDE EFFECTING!!! TODO
+          return {};
+        }
       },
       {
         comment:

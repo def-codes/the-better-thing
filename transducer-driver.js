@@ -44,7 +44,7 @@
           register: {
             subject,
             as_type: "Transducer",
-            get: () => tx.partitionBy(size.value)
+            get: () => tx.partition(size.value)
           }
         })
       }
