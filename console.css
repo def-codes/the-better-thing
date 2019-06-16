@@ -4,12 +4,12 @@
 	max-height: 100%;
 	left: 50%;
 	font-size: 200;
-	translate: transform(-50%);
+	transform: translate(-50%);
 	z-index: 9999;
 	padding: 0.5em 1em;
 	background: rgba(0, 0, 0, .2);
 	font-size: smaller;
 	box-sizing: border-box;
 	overflow: auto;
-	box-shadow: 0 0 1.2em 0.2em rgba(51, 51, 51, .5)
+	box-shadow: 0 0 1.2em  rgba(51, 51, 51, .5)
 }

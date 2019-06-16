@@ -14,7 +14,8 @@ const MELD_EXAMPLES = [
     label: "streams driver",
     comment: `testing reified streams`,
     userland_code: `claim(
-//stream . isa . Stream, // (implicit)
+// stream . isa . Stream, // (implicit)
+// stream . hasSource("booty"), // will be ignored with warning
 stream . hasSource(sub => { sub.next("hello"); sub.next("world"); }),
 //sub . listensTo . stream
 )

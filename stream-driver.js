@@ -31,16 +31,23 @@
         // `source` is a (literal) term whose value is the source function.
         when: q("?stream hasSource ?source"),
         then({ stream, source }, system) {
-          const source_function = source.value;
-
           // This kind of inconsistency could also be checked via above ontology
-          if (typeof source_function !== "function") {
-            console.warn(`Unexpected stream source`, source);
-            return;
-          }
+          if (typeof source.value !== "function")
+            return {
+              warning: {
+                message: "Expected stream `source` to be a function",
+                context: { source }
+              }
+            };
 
           return {
-            register: [stream, "Stream", () => rs.stream(source_function)]
+            register: {
+              subject: stream,
+              as_type: "Stream",
+              thunk: () => rs.stream(source.value)
+              // DEBUG: uncomment to log stream values
+              // .subscribe(rs.trace("boodycall"))
+            }
           };
         }
       },
