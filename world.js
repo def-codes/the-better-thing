@@ -26,6 +26,7 @@ ${userland_code}
   function interpret(userland_code) {
     if (dispose_old_system) dispose_old_system();
     if (fact_push) fact_push.unsubscribe();
+    opts.ports.cleanup();
 
     const store = new thi.ng.rstreamQuery.TripleStore();
     //facts.next(store);

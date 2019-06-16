@@ -52,6 +52,9 @@ const drivers = [];
 const register_driver = (name, init) => drivers.push(init({ q }));
 
 const HANDLERS = {
+  register_output_port({ name, subject, source }, system) {
+    system.register_output_port(name, subject, source);
+  },
   register({ subject, as_type, thunk }, system) {
     system.register(subject, as_type, thunk);
   },
@@ -115,7 +118,7 @@ const apply_drivers_to = (store, helpers, system) => {
  *
  * @returns {Function} (Provisional) dispose method.
  */
-const monotonic_system = ({ id, store, dom_root }) => {
+const monotonic_system = ({ id, store, dom_root, ports }) => {
   const registry = new thi.ng.associative.EquivMap();
 
   // The interface made available to drivers
@@ -126,6 +129,13 @@ const monotonic_system = ({ id, store, dom_root }) => {
   const system = {
     store,
     dom_root,
+    register_input_port: () => {
+      /* TBD */
+    },
+    register_output_port: (name, subject, source) => {
+      const stream = system.find(source);
+      ports.add(name, stream);
+    },
     assert: fact => store.add(fact),
     query_all: where => sync_query(store, where),
     live_query: where => live_query(store, where),

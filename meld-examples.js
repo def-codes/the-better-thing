@@ -9,6 +9,22 @@ charge.theta(0.98),
 `;
 
 const MELD_EXAMPLES = [
+  {
+    name: "host",
+    label: "host interop (dataflow output)",
+    comment: `A model needs a host in order to function.  Since an empty model can't do anything—not even display its own contents!—we'll need help from the host in order to get this thing off the ground.`,
+    userland_code: `claim(
+
+Alice . hasInterval(100),
+Alice . hostOutput("Alice"),
+
+// Bob . isa . Person,
+// Bob . age(35),
+// Bob . hostOutput("Bob-port")
+)
+`
+  },
+
   // Which of these examples should come first?
   // without subscription, how do you see the results?
   // without stream, how do you get a dataful source to subscribe to?

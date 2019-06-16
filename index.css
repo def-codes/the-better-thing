@@ -147,6 +147,19 @@ main > header {
 	z-index: 999;
 }
 
+.host-output-ports {
+	position: absolute;
+	top: 0.5em;
+	right: 0.5em;
+	bottom: 0.5em;
+	overflow: auto;
+	max-width: 50%;
+	padding: 0.25em 0.5em;
+	background: rgba(0, 0, 0, 0.1);
+	box-shadow: 0 0 1.2em rgba(51, 51, 51, .5);
+	z-index: 999;
+}
+
 /* main > section, main > header { */
 .example, .slide {
 	height: 100vh;
@@ -222,6 +235,8 @@ main > header {
 .example > .description .comment {
 	margin: 0.5em 0;					/* beat p */
 	font-weight: 300;
+	max-width: 50%;
+	z-index: 1000;
 }
 .example > .description > .userland-code {
 	flex: 1 1 auto;

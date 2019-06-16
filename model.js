@@ -1,7 +1,8 @@
 (function model_main() {
   const { transducers: tx, rstream: rs, hdom } = thi.ng;
-  const { rdf_hdom } = window;
+  const { rdf_hdom, value_view } = window;
   const { render_triples } = rdf_hdom;
+  const { render_value } = value_view;
 
   //=========== LOAD MODEL
 
@@ -34,7 +35,8 @@
           example.userland_code
         ],
         ["div.userland-code-output"],
-        ["div.host-output"]
+        ["div.host-output"],
+        ["div.host-output-ports"]
       ]
     ],
     [
@@ -53,6 +55,7 @@
   );
   const output_container = dom_root.querySelector(".userland-code-output");
   const host_output_container = dom_root.querySelector(".host-output");
+  const ports_container = dom_root.querySelector(".host-output-ports");
 
   //=================================== MESSAGES
   // Need a go-to stream error handler for now. identify message and source
@@ -63,17 +66,58 @@
     error: error => messages.next({ type: "error", source, error })
   });
   // do something with messages
-  messages.transform(
-    tx.filter(_ => _.type === "error"),
-    tx.sideEffect(console.error)
-  );
+  messages
+    .transform(tx.filter(_ => _.type === "error"), tx.sideEffect(console.error))
+    .subscribe(catchall("message-display"));
+
+  //================================== HOST DATAFLOW INTEROP
+  // under construction
+  const ports = (function() {
+    let registry = {};
+
+    const ensure_port_container = name => {
+      let ele = ports_container.querySelector(`[data-port="${name}"]`);
+      if (!ele) {
+        ele = ports_container.appendChild(document.createElement("div"));
+        ele.setAttribute("data-port", name);
+      }
+      return ele;
+    };
+
+    return {
+      cleanup() {
+        for (const { sub, ele } of Object.values(registry)) {
+          sub.unsubscribe();
+          ele.parentNode.removeChild(ele);
+        }
+        registry = {};
+      },
+      add(name, sub) {
+        const ele = ensure_port_container(name);
+        registry[name] = {
+          ele,
+          sub: sub
+            .transform(
+              tx.map(value => [
+                "article.port-output",
+                ["h3", name],
+                [render_value, { value }]
+              ]),
+              updateDOM({ root: ele })
+            )
+            .subscribe(catchall(`host output port display for “${name}”`))
+        };
+      }
+    };
+  })();
 
   //================================== USERLAND CODE
   // outside the scope of the model as such
 
   const { interpret, facts } = monotonic_world({
     id: model_spec.name,
-    dom_root: representation_container
+    dom_root: representation_container,
+    ports
   });
 
   const { updateDOM } = thi.ng.transducersHdom;
