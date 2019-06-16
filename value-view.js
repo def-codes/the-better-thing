@@ -17,18 +17,18 @@ var value_view = (function() {
     Array.from(array, (value, index) => [
       "li",
       { "data-type": "array-item" },
-      [render_value, { value, path: [...path, index] }]
+      [render_value_impl, { value, path: [...path, index] }]
     ])
   ];
 
-  const render_iterable = (_, type, { value: iterable, path }) => [
+  const render_iterable = (_, { type, value: iterable, path }) => [
     "ul",
     { "data-type": `${type} iterable` },
     // Use number in path, but the iterable may not be indexable as such.
     Array.from(iterable, (value, number) => [
       "li",
       { "data-type": "iterable-item" },
-      [render_value, { value, path: [...path, number] }]
+      [render_value_impl, { value, path: [...path, number] }]
     ])
   ];
 
@@ -43,7 +43,7 @@ var value_view = (function() {
       [
         "div",
         { "data-type": "object-value" },
-        [render_value, { value, path: [...path, key] }]
+        [render_value_impl, { value, path: [...path, key] }]
       ]
     ])
   ];
@@ -53,12 +53,14 @@ var value_view = (function() {
   const render_error = (_, { value, path }) => [
     render_object,
     {
-      ...value,
-      message: value.message,
-      lineNumber: value.lineNumber,
-      stack: value.stack
-    },
-    path
+      value: {
+        ...value,
+        message: value.message,
+        lineNumber: value.lineNumber,
+        stack: value.stack
+      },
+      path
+    }
   ];
 
   const render_value_impl = (_, { value, path = [] }) => {
@@ -74,7 +76,8 @@ var value_view = (function() {
       return [render_primitive, { value }];
 
     if (value instanceof Error) return [render_error, { value, path }];
-    if (value instanceof Set) return [render_iterable, "set", { value, path }];
+    if (value instanceof Set)
+      return [render_iterable, { type: "set", value, path }];
 
     if (Array.isArray(value)) return [render_array, { value, path }];
     if (typeof value === "object") return [render_object, { value, path }];
