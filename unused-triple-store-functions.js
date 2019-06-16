@@ -1,7 +1,23 @@
+// Decomposed (and modified version of below)
+const to_prop_dict = (store, props) =>
+  tx.transduce(
+    tx.map(idx => store.triples[idx]),
+    // Assume all values are potentially multiple, hence wrapped in array.
+    tx.groupByObj({ key: ([, p]) => p }),
+    props
+  );
+
+const to_node_dict = store =>
+  tx.transduce(
+    tx.map(([id, props]) => [id, to_prop_dict(store, props)]),
+    tx.assocObj(),
+    store.indexS
+  );
+
 // Convert resources to objects.  Higher-level than triples, but still doesn't
 // mean anything in its own right.  Basically it's like JSON-LD support.  keys
 // may include namespaces.
-const to_node_dict = store =>
+const wonky_to_node_dict = store =>
   tx.transduce(
     tx.map(([id, props]) => [
       id,

@@ -18,9 +18,9 @@ const MELD_EXAMPLES = [
 Alice . hasInterval(100),
 Alice . hostOutput("Alice"),
 
-// Bob . isa . Person,
-// Bob . age(35),
-// Bob . hostOutput("Bob-port")
+// Uncomment to add a port for bob
+// Bob.hasInterval(250),
+// Bob.hostOutput("Robert")
 )
 `
   },
@@ -54,6 +54,17 @@ Bob . hasInterval(250),
 
   {
     name: "subscription",
+    label: "subscription driver (verbose)",
+    comment: `in which Alice and Bob listen to one another`,
+    userland_code: `claim(
+Alice . isa . Subscribable,
+Bob . listensTo . Alice
+
+)`
+  },
+
+  {
+    name: "subscription-simple",
     label: "subscription driver",
     comment: `in which Alice and Bob listen to one another`,
     userland_code: `claim(

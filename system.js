@@ -55,8 +55,8 @@ const HANDLERS = {
   register_output_port({ name, subject, source }, system) {
     system.register_output_port(name, subject, source);
   },
-  register({ subject, as_type, thunk }, system) {
-    system.register(subject, as_type, thunk);
+  register({ subject, as_type, get }, system) {
+    system.register(subject, as_type, get);
   },
   warning({ message, context }) {
     console.warn(message, context);
@@ -144,10 +144,20 @@ const monotonic_system = ({ id, store, dom_root, ports }) => {
     // A single resource can be “implemented” once for each type.  This allows
     // drivers to disambiguate the role for which they are querying
     // implementations.
-    register(subject, type_name, thunk) {
+    register(subject, type_name, get) {
       const type = rdf.namedNode(type_name);
       if (!registry.has([subject, type])) {
-        const value = thunk();
+        let value;
+        try {
+          value = get();
+        } catch (error) {
+          // Should also know driver/rule source here.
+          console.error(
+            `Error getting value for ${subject.value} as type ${type_name}`,
+            error
+          );
+          return;
+        }
         const value_id = mint_blank();
         //console.log(value, value_id, IMPLEMENTS, subject);
 

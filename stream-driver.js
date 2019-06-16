@@ -1,25 +1,22 @@
 // Monotonic driver for (rstream) Stream and Subscription.
+// Not sure if subscription and stream can be separated as such.
 (function() {
-  if (!meld) throw "No meld system found!";
+  const NAME = "streamDriver";
+  if (!meld) throw `${NAME}: No meld system found!`;
 
   const { rstream: rs } = thi.ng;
 
-  meld.register_driver("streamDriver", ({ q }) => ({
+  meld.register_driver(NAME, ({ q }) => ({
     claims: q(
       "Function isa Class", // provisional. this would belong somewhere else
-      "Subscribable isa Class",
       "Stream isa Class",
       "Stream subclassOf Subscribable",
       "StreamSource isa Class",
-      "StreamSource subclassOf Subscribable",
       "StreamSource subclassOf Function",
       "Listener isa Class",
       "hasSource isa Property",
       "hasSource domain Stream",
       "hasSource range StreamSource",
-      "listensTo isa Property",
-      "listensTo domain Subscribable",
-      "listensTo range Listener",
       // not a general stream thing as such
       "Ticker subclassOf Stream",
       "hasInterval domain Ticker",
@@ -44,9 +41,9 @@
             register: {
               subject: stream,
               as_type: "Stream",
-              thunk: () => rs.stream(source.value)
+              get: () => rs.stream(source.value)
               // DEBUG: uncomment to log stream values
-              // .subscribe(rs.trace("boodycall"))
+              // .subscribe(rs.trace("DEBUG stream"))
             }
           };
         }
@@ -93,7 +90,7 @@
           register: {
             subject: timer,
             as_type: "Stream",
-            thunk: () => rs.fromInterval(ms.value)
+            get: () => rs.fromInterval(ms.value)
           }
         })
       },
@@ -103,7 +100,7 @@
           register: {
             subject: timer,
             as_type: "Stream",
-            thunk: () => rs.fromRAF()
+            get: () => rs.fromRAF()
           }
         })
       }
