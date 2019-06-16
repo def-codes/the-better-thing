@@ -9,6 +9,9 @@ charge.theta(0.98),
 `;
 
 const MELD_EXAMPLES = [
+  // Which of these examples should come first?
+  // without subscription, how do you see the results?
+  // without stream, how do you get a dataful source to subscribe to?
   {
     name: "streams",
     label: "streams driver",
@@ -20,6 +23,29 @@ stream . hasSource(sub => { sub.next("hello"); sub.next("world"); }),
 //sub . listensTo . stream
 )
 `
+  },
+
+  {
+    name: "ticker",
+    label: "tikers",
+    comment: `A ticker is a stream that counts over a specified time interval.`,
+    userland_code: `claim(
+Alice . hasInterval(1000),
+Bob . hasInterval(250),
+)
+`
+  },
+
+  {
+    name: "subscription",
+    label: "subscription driver",
+    comment: `in which Alice and Bob listen to one another`,
+    userland_code: `claim(
+Alice . listensTo . Bob,
+Bob . listensTo . Carol,
+Carol . hasInterval(10)
+
+)`
   },
 
   {
@@ -42,18 +68,6 @@ t2 . isa . Traversal,
 t2 . startsFrom .x
 )
 `
-  },
-
-  {
-    name: "subscription",
-    label: "subscription driver",
-    comment: `in which Alice and Bob listen to one another`,
-    userland_code: `claim(
-Alice . listensTo . Bob,
-Bob . listensTo . Carol,
-
-
-)`
   },
 
   {

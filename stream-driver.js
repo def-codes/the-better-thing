@@ -89,15 +89,23 @@
       },
       {
         when: q("?timer hasInterval ?ms"),
-        then({ timer, ms }, system) {
-          system.register(timer, "Stream", () => rs.fromInterval(ms.value));
-        }
+        then: ({ timer, ms }) => ({
+          register: {
+            subject: timer,
+            as_type: "Stream",
+            thunk: () => rs.fromInterval(ms.value)
+          }
+        })
       },
       {
         when: q("?timer isa RAF"),
-        then({ timer, ms }, system) {
-          system.register(timer, "Stream", () => rs.fromRAF());
-        }
+        then: ({ timer }) => ({
+          register: {
+            subject: timer,
+            as_type: "Stream",
+            thunk: () => rs.fromRAF()
+          }
+        })
       }
     ]
   }));
