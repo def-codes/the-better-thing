@@ -6,20 +6,15 @@ const monotonic_world = opts => {
   let dispose_old_system;
 
   // Subscripton to all current facts, persisting over changing stores.
+  //
+  // A metaStream would make sense here, but using it in this way causes an
+  // illegal state error whose cause was not obvious.  This approach works fine.
   const facts = rs.subscription();
   // const facts = rs.metaStream(store =>
   //   store
   //     .addQueryFromSpec({ q: [{ where: [["?s", "?p", "?o"]] }] })
   //     .transform(tx.map(() => store.triples))
   // );
-
-  const read = (userland_code, world) =>
-    new Function(
-      "world",
-      `with (world) { 
-${userland_code}
-}`
-    )(world);
 
   let fact_push;
 
