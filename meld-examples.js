@@ -13,15 +13,13 @@ const MELD_EXAMPLES = [
     name: "host",
     label: "host interop (dataflow output)",
     comment: `A model needs a host in order to function.  Since an empty model can't do anything—not even display its own contents!—we'll need help from the host in order to get this thing off the ground.`,
-    userland_code: `claim(
-
-Alice . hasInterval(100),
-Alice . hostOutput("Alice"),
+    userland_code: `Alice . hasInterval(100)
+Alice . hostOutput("Alice")
 
 // Uncomment to add a port for bob
-// Bob.hasInterval(250),
+// Bob.hasInterval(250)
 // Bob.hostOutput("Robert")
-)
+
 `
   },
 
@@ -32,12 +30,12 @@ Alice . hostOutput("Alice"),
     name: "streams",
     label: "streams driver",
     comment: `testing reified streams`,
-    userland_code: `claim(
-// stream . isa . Stream, // (implicit)
-// stream . hasSource("booty"), // will be ignored with warning
-stream . hasSource(sub => { sub.next("hello"); sub.next("world"); }),
+    userland_code: `
+// stream . isa . Stream // (implicit)
+// stream . hasSource("brother") // will be ignored with warning
+stream . hasSource(sub => { sub.next("hello"); sub.next("world"); })
 //sub . listensTo . stream
-)
+
 `
   },
 
@@ -45,10 +43,8 @@ stream . hasSource(sub => { sub.next("hello"); sub.next("world"); }),
     name: "ticker",
     label: "tikers",
     comment: `A ticker is a stream that counts over a specified time interval.`,
-    userland_code: `claim(
-Alice . hasInterval(1000),
-Bob . hasInterval(250),
-)
+    userland_code: `Alice . hasInterval(1000)
+Bob . hasInterval(250)
 `
   },
 
@@ -56,55 +52,52 @@ Bob . hasInterval(250),
     name: "subscription",
     label: "subscription driver (verbose)",
     comment: `in which Alice and Bob listen to one another`,
-    userland_code: `claim(
-// Display
-Alice.hostOutput("Alice"),
-Carol.hostOutput("Carol"),
+    userland_code: `// Display
+Alice.hostOutput("Alice")
+Carol.hostOutput("Carol")
 
-Carol.hasInterval(200),
+Carol.hasInterval(200)
 
-Alice . isa . Subscribable,
+Alice . isa . Subscribable
 
-Alice . listensTo . Carol,
-//Alice . listensTo . Joan,
+Alice . listensTo . Carol
+//Alice . listensTo . Joan
 
-
-)`
+`
   },
 
   {
     name: "stream-merge",
     label: "merging streams",
     comment: `in which Alice listens to two people at once`,
-    userland_code: `claim(
-// Display
+    userland_code: `// Display
 Alice.hostOutput("Alice"),
-Carol.hostOutput("Carol"),
-Joan.hostOutput("Joan"),
+Carol.hostOutput("Carol")
+Joan.hostOutput("Joan")
 
-Carol.hasInterval(200),
+Carol.hasInterval(200)
 
-Alice . isa . Subscribable,
-Alice . listensTo . Carol,
+Alice . isa . Subscribable
+Alice . listensTo . Carol
 
-Joan.hasInterval(500),
+Joan.hasInterval(500)
 
 // Uncomment to see Alice merging Carol & Joan's output
-//Alice . listensTo . Joan,
+//Alice . listensTo . Joan
 
-)`
+`
   },
 
   {
     name: "subscription-simple",
     label: "subscription driver",
     comment: `in which Alice and Bob listen to one another`,
-    userland_code: `claim(
-Alice . listensTo . Bob,
-Bob . listensTo . Carol,
+    userland_code: `
+Alice . listensTo . Bob
+Bob . listensTo . Carol
 Carol . hasInterval(10)
 
-)`
+`
   },
 
   {
@@ -128,75 +121,72 @@ t.mapsWith(x => x * 2)
     name: "mapping-transducers",
     label: "mapping transducers",
     comment: `Mapping transducers apply a transformation to every value in an input stream.`,
-    userland_code: `claim(
-Alice.hostOutput("Alice"),
-Bob.hostOutput("Bob"),
+    userland_code: `
+Alice.hostOutput("Alice")
+Bob.hostOutput("Bob")
 
-Alice . hasInterval(250),
-Bob . listensTo . Alice,
-Bob . isa . Subscribable,
+Alice . hasInterval(250)
+Bob . listensTo . Alice
+Bob . isa . Subscribable
 
-Bob . transformsWith . t,
+Bob . transformsWith . t
 t.mapsWith(x => x * 2)
 
-)`
+`
   },
 
   {
     name: "filtering-transducers",
     label: "filtering transducers",
-    comment: `Filtering conditionally include values from an input stream.`,
-    userland_code: `claim(
-Alice.hostOutput("Alice"),
-Bob.hostOutput("Bob"),
+    comment: `Filtering conditionally includes values from an input stream.`,
+    userland_code: `Alice.hostOutput("Alice")
+Bob.hostOutput("Bob")
 
-Alice . hasInterval(250),
-Bob . listensTo . Alice,
-Bob . isa . Subscribable,
+Alice . hasInterval(250)
+Bob . listensTo . Alice
+Bob . isa . Subscribable
 
-Bob . transformsWith . t,
+Bob . transformsWith . t
 t.filtersWith(x => x % 2 == 1)
 
-)`
+`
   },
 
   {
     name: "partitioning-transducers",
     label: "partitioning transducers",
     comment: `Partitioning batches an output stream by some size.`,
-    userland_code: `claim(
-Alice.hostOutput("Alice"),
-Bob.hostOutput("Bob"),
+    userland_code: `Alice.hostOutput("Alice")
+Bob.hostOutput("Bob")
 
-Alice . hasInterval(250),
-Bob . listensTo . Alice,
-Bob . isa . Subscribable,
+Alice . hasInterval(250)
+Bob . listensTo . Alice
+Bob . isa . Subscribable
 
-Bob . transformsWith . t,
+Bob . transformsWith . t
 t.partitionsBy(3)
 
-)`
+`
   },
 
   {
     name: "traversal",
     label: "traversal driver",
     comment: `testing reified traversal`,
-    userland_code: `claim(
-Alice . knows . Bob,
-Bob . knows . Carol,
+    userland_code: `Alice . knows . Bob
+Bob . knows . Carol
 // We would expect this traversal to include the above two facts
-t . isa . XTraversal,
-t . startsFrom . Alice,
+t . isa . XTraversal
+t . startsFrom . Alice
 
-x . hasClause . c,
-c . hasSubject . $knower,
-c . hasPredicate . knows,
-c . hasObject . $knowee,
+x . hasClause . c
+c . hasSubject . $knower
+c . hasPredicate . knows
+c . hasObject . $knowee
 
-t2 . isa . Traversal,
+t2 . isa . Traversal
 t2 . startsFrom .x
-)
+
 `
   },
 
@@ -207,9 +197,8 @@ t2 . startsFrom .x
 expression of compound structures in RDF, because you don't want to have to
 explicitly name everything.  Blank nodes are created when the system generates a
 node for some reason`,
-    userland_code: `claim(
-// blank nodes 
-isa . Person,
+    userland_code: `// blank nodes 
+isa . Person
 
 // or for the literal form:
 // TBD, not supported yet!
@@ -219,62 +208,34 @@ hasStrength(50)
 // TBD, not supported yet!
 space . hasForce ( x(50) )
 
-)`
+`
   },
 
   {
     name: "subscription-cycle",
     label: "circular subscription",
     comment: `circular subscriptions should be okay as long as they are async`,
-    userland_code: `claim(
-Alice . listensTo . Bob,
-Bob . listensTo . Carol,
-Carol . listensTo . Alice,
+    userland_code: `Alice . listensTo . Bob
+Bob . listensTo . Carol
+Carol . listensTo . Alice
 
-)`
-  },
-
-  {
-    name: "last-gasp",
-    label: "last gasp",
-    comment: `do or die`,
-    userland_code: `claim(
-A . B . C,
-// a . isa . Container,
-// a . contains . t,
-// t . isa . Traversal,
-// t . startsFrom . q,
-// q . isa . Query,
-// q . hasClause . c,
-// c . hasSubject . A,
-// c . hasPredicate . $predicate,
-// c . hasObject . $object,
-
-e .isa.Container,
-e.contains.All,
-
-// b.isa.Container,
-// b.contains.x,
-// x.isa.Traversal,
-// x.startsFrom.A,
-)`
+`
   },
 
   {
     name: "projection",
     label: "project over",
     comment: `Support assertion of a link between any given resource and the expansion of a set.`,
-    userland_code: `claim(
-Alice . knows . Bob,
-Alice . knows . Carol,
-Alice . knows . John,
-Emily . knows . Alice,
-x . tallies . ViewFacts,
-Bob.age(30),
-Bob.weight(175),
-Frank . projectOver . x,
+    userland_code: `Alice . knows . Bob
+Alice . knows . Carol
+Alice . knows . John
+Emily . knows . Alice
+x . tallies . ViewFacts
+Bob.age(30)
+Bob.weight(175)
+Frank . projectOver . x
 foob . isa . Container
-)
+
 `
   },
 
@@ -282,20 +243,18 @@ foob . isa . Container
     name: "containers",
     label: "container driver",
     comment: `declarative control over containment of things`,
-    userland_code: `claim(
-Alice . knows . Bob,
-Alice . knows . Carol,
-Alice . knows . John,
-Emily . knows . Alice,
-x . tallies . ViewFacts,
-Bob.age(30),
-Bob.weight(175),
-something . contains . x,
-blue .isa.Container,
-brown .isa.Container,
-blue.contains.x,
+    userland_code: `Alice . knows . Bob
+Alice . knows . Carol
+Alice . knows . John
+Emily . knows . Alice
+x . tallies . ViewFacts
+Bob.age(30)
+Bob.weight(175)
+something . contains . x
+blue .isa.Container
+brown .isa.Container
+blue.contains.x
 
-)
 `
   },
 
@@ -303,15 +262,14 @@ blue.contains.x,
     name: "selection",
     label: "resource selection",
     comment: `collect the resources named in a selection`,
-    userland_code: `claim(
-Alice . knows . Bob,
-Alice . knows . Carol,
-Alice . knows . John,
-Emily . knows . Alice,
-x . tallies . ViewFacts,
-Bob.age(30),
+    userland_code: `Alice . knows . Bob
+Alice . knows . Carol
+Alice . knows . John
+Emily . knows . Alice
+x . tallies . ViewFacts
+Bob.age(30)
 Bob.weight(175)
-)
+
 `
   },
 
@@ -319,45 +277,42 @@ Bob.weight(175)
     name: "forcefield",
     label: "forcefield driver",
     comment: `testing reified forcefield (with query shorthand)`,
-    userland_code: `claim(
-Alice . knows . Bob,
-space.isa.Forcefield,
-space.hasForce.center,
-space.hasForce.charge,
-center.isa.forceCenter,
-charge.isa.forceManyBody,
-charge.strength(-200),
-charge.distanceMax(250),
-charge.theta(0.98),
-//space.hasBodies(query(Alice.knows.$person)),
-space.hasBodies(query($subject.$predicate.$object)),
-// ticker . hasInterval(500),
- ticker . isa . RAF,
- space.hasTicks.ticker,
+    userland_code: `Alice . knows . Bob
+space.isa.Forcefield
+space.hasForce.center
+space.hasForce.charge
+center.isa.forceCenter
+charge.isa.forceManyBody
+charge.strength(-200)
+charge.distanceMax(250)
+charge.theta(0.98)
+//space.hasBodies(query(Alice.knows.$person))
+space.hasBodies(query($subject.$predicate.$object))
+// ticker . hasInterval(500)
+ticker . isa . RAF
+space.hasTicks.ticker
 
-)
 `
   },
   {
     name: "forcefield-verbose",
     label: "forcefield driver",
     comment: `testing reified forcefield`,
-    userland_code: `claim(
-Alice . knows . Bob,
-space.isa.Forcefield,
-space.hasForce.center,
-space.hasForce.charge,
-center.isa.forceCenter,
-charge.isa.forceManyBody,
-charge.strength(-200),
-charge.distanceMax(250),
-charge.theta(0.98),
-space.hasBodies.q,
-q . hasClause . clause1,
-clause1 . hasSubject . Alice,
-clause1 . hasPredicate . knows,
-clause1 . hasObject . $y,
-)
+    userland_code: `Alice . knows . Bob
+space.isa.Forcefield
+space.hasForce.center
+space.hasForce.charge
+center.isa.forceCenter
+charge.isa.forceManyBody
+charge.strength(-200)
+charge.distanceMax(250)
+charge.theta(0.98)
+space.hasBodies.q
+q . hasClause . clause1
+clause1 . hasSubject . Alice
+clause1 . hasPredicate . knows
+clause1 . hasObject . $y
+
 //query(Alice.knows.$person)
 
 `
@@ -367,9 +322,8 @@ clause1 . hasObject . $y,
     name: "representation",
     label: "representation driver",
     comment: `testing reified representations`,
-    userland_code: `claim(
-Alice . knows . Bob
-)
+    userland_code: `Alice . knows . Bob
+
 `
   },
 
@@ -377,18 +331,17 @@ Alice . knows . Bob
     name: "rules",
     label: "rule driver",
     comment: `testing reified rules`,
-    userland_code: `claim(
-rule1 . hasCondition . p1,
-rule1 . hasConsequent . c1,
-p1 . hasClause . pclause1,
-c1 . hasClause . cclause1,
-pclause1 . hasSubject . $x,
-pclause1 . hasPredicate . loves,
-pclause1 . hasObject . $y,
-cclause1 . hasSubject . $x,
-cclause1 . hasPredicate . likes,
+    userland_code: `rule1 . hasCondition . p1
+rule1 . hasConsequent . c1
+p1 . hasClause . pclause1
+c1 . hasClause . cclause1
+pclause1 . hasSubject . $x
+pclause1 . hasPredicate . loves
+pclause1 . hasObject . $y
+cclause1 . hasSubject . $x
+cclause1 . hasPredicate . likes
 cclause1 . hasObject . $y
-)
+
 `
   },
 
@@ -396,14 +349,13 @@ cclause1 . hasObject . $y
     name: "queries",
     label: "query driver",
     comment: `testing reified queries`,
-    userland_code: `claim(
-query1 . isa . Query,
-clause1 . isa . Clause,
-clause1 . hasSubject . Alice,
-clause1 . hasPredicate . knows,
-clause1 . hasObject . $someone,
+    userland_code: `query1 . isa . Query
+clause1 . isa . Clause
+clause1 . hasSubject . Alice
+clause1 . hasPredicate . knows
+clause1 . hasObject . $someone
 query1 . hasClause . clause1
-)
+
 `
   },
 
@@ -411,19 +363,13 @@ query1 . hasClause . clause1
     name: "layers",
     label: "layers driver",
     comment: `testing reified layers`,
-    userland_code: `claim(
-l . isa . Layer
-)
-`
+    userland_code: `l . isa . Layer`
   },
   {
     name: "space",
     label: "space driver",
     comment: `testing reified space`,
-    userland_code: `claim(
-s . isa . Space
-)
-`
+    userland_code: `s . isa . Space`
   },
 
   {
@@ -440,19 +386,16 @@ s . isa . Space
     name: "classes",
     label: "organizing classes",
     comment: `rules for representing the graph of defined classes`,
-    userland_code: `claim(
-sc.connects.subclassOf,
-sc.isa.forceLink,
-space.hasForce.sc,
-sc.strength(.8),
-sc.distance(500),
-)
+    userland_code: `
+sc.connects.subclassOf
+sc.isa.forceLink
+space.hasForce.sc
+sc.strength(.8)
+sc.distance(500)
 
 forall(subgraph(forceCollide, subclassOf), isa.Selected)
 
-claim(
 ${SPACE_COMMON}
-)
 `
   },
 
@@ -460,44 +403,11 @@ ${SPACE_COMMON}
     name: "blank",
     label: "blank slate",
     comment: `type to see`,
-    userland_code: `// 
-claim(
-sc.connects.subclassOf,
-sc.isa.forceLink,
-space.hasForce.sc,
-)
+    userland_code: `sc.connects.subclassOf
+sc.isa.forceLink
+space.hasForce.sc
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-claim(
 ${SPACE_COMMON}
-)
 `
   },
 
@@ -506,13 +416,12 @@ ${SPACE_COMMON}
     label: "forall macro",
     comment: `assert properties about subjects`,
     userland_code: `forall([Alice, Bob], isa.Person)
-claim(
-foo.isa.forceLink,
-foo.id(_ => _.id),
-foo.connects.linksTo,
-space.hasForce.foo,
+foo.isa.forceLink
+foo.id(_ => _.id)
+foo.connects.linksTo
+space.hasForce.foo
+
 ${SPACE_COMMON}
-)
 `
   },
 
@@ -520,23 +429,21 @@ ${SPACE_COMMON}
     name: "subgraph",
     label: "subgraph selection",
     comment: `do an exhaustive search`,
-    userland_code: `claim(
-Alice . knows . Bob,
-Bob . knows . Carol,
-Carol . knows . Jake,
-Jake . knows .  Carol,
-Jake . knows .  Miriam,
-Miriam . knows .  Alice,
+    userland_code: `Alice . knows . Bob
+Bob . knows . Carol
+Carol . knows . Jake
+Jake . knows .  Carol
+Jake . knows .  Miriam
+Miriam . knows .  Alice
 Miriam . knows .  Bob
-)
+
 forall(subgraph(Alice, knows), isa.Selected)
-claim(
-foo.isa.forceLink,
-foo.id(_ => _.id),
-foo.connects.linksTo,
-space.hasForce.foo,
+
+foo.isa.forceLink
+foo.id(_ => _.id)
+foo.connects.linksTo
+space.hasForce.foo
 ${SPACE_COMMON}
-)
 `
   },
   {
@@ -545,24 +452,24 @@ ${SPACE_COMMON}
     comment: `create a mesh of blank nodes`,
     userland_code: `mesh(3, 3)
 //range(10)
-claim(
-foo.isa.forceLink,
-foo.id(_ => _.id),
-foo.connects.linksTo,
-space.hasForce.foo,
+
+foo.isa.forceLink
+foo.id(_ => _.id)
+foo.connects.linksTo
+space.hasForce.foo
+
 ${SPACE_COMMON}
-)
 `
   },
   {
     name: "code-in-world",
     label: "simple claims",
     comment: `testing expression reader`,
-    userland_code: `claim(
-Alice.loves.Bob,
-Bob.likes.Alice,
+    userland_code: `Alice.loves.Bob
+Bob.likes.Alice
+
 ${SPACE_COMMON}
-)
+
 `
   },
   {
@@ -692,16 +599,15 @@ ${SPACE_COMMON}
     label: "testing another graph",
     comment: `an example graph`,
     userland_code: `
-claim(
-a . value . Alice,
-b . value . Bob,
-c . value . Carol,
-d . value . Dave,
-a . linksTo . b,
-a . linksTo . c,
-b . linksTo . d,
+a . value . Alice
+b . value . Bob
+c . value . Carol
+d . value . Dave
+a . linksTo . b
+a . linksTo . c
+b . linksTo . d
+
 ${SPACE_COMMON}
-)
 `
   },
   {
@@ -709,9 +615,8 @@ ${SPACE_COMMON}
     label: "sequence as graph",
     comment: `turn a sequence into a graph`,
     userland_code: `list(Alice, Bob, Carol, Dave, Elon, Fran)
-claim(
+
 ${SPACE_COMMON}
-)
 
 `
   },
@@ -724,10 +629,9 @@ rule({
   when: [$p.isa.SymmetricalProperty, $x.$p.$y],
   then: [$y.$p.$x]
 })
-claim(Alice.knows.Bob)
-claim(
+Alice.knows.Bob
+
 ${SPACE_COMMON}
-)
 
 `
   },
@@ -736,9 +640,8 @@ ${SPACE_COMMON}
     label: "integer range",
     comment: `a range from zero up to the number`,
     userland_code: `range(10)
-claim(
+
 ${SPACE_COMMON}
-)
 
 `
   },
@@ -747,9 +650,8 @@ ${SPACE_COMMON}
     label: "list cycle",
     comment: `make a list of the items with a linked head and tail`,
     userland_code: `range(10)
-claim(
+
 ${SPACE_COMMON}
-)
 
 `
   },
