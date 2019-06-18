@@ -208,6 +208,88 @@ t.partitionsBy(3)
   },
 
   {
+    name: "sparql-where",
+    label: "SPARQL WHERE",
+    comment: `SPARQL queries support a WHERE clause for describing the subgraphs you're interested in.`,
+    userland_code: `Alice . knows . Bob
+Alice . knows . Carol
+Carol . knows . Bob
+
+// A standalone WHERE doesn't do anything...  right?
+WHERE(Alice.knows.$someone)
+// results [{someone: Bob}, {someone: Carol}]
+
+// Note this “someone” is independent of the above
+WHERE($anyone.knows.$someone)
+// results [{anyone: Alice, someone: Bob}... etc
+
+// Clauses are conjunctive (and-ed)
+WHERE(Alice.knows.$someone, Carol.knows.$someone)
+// results [{someone: Bob}]
+
+// No results
+WHERE(Alice.knows.$someone, Bob.knows.$someone)
+// results []
+
+`
+  },
+
+  {
+    name: "sparql-select",
+    label: "SPARQL SELECT",
+    comment: `SELECT is one of the four ways to request results from a SPARQL query.  For each
+time that the pattern matched in the graph, creates a “record,” which is a
+dictionary containing the matched value for the defined variables.`,
+    userland_code: `Alice . knows . Bob
+Alice . knows . Carol
+Carol . knows . Bob
+
+SELECT($someone)
+.WHERE($someone.knows.Alice)
+
+SELECT($someone, $anyone)
+.WHERE($someone.knows.$anyone)
+
+`
+  },
+
+  {
+    name: "sparql-construct",
+    label: "SPARQL CONSTRUCT",
+    comment: `A CONSTRUCT clause allows you to describe a (new) graph based on a SPARQL query
+result set.  A CONSTRUCT clause is itself a graph template.  For each result,
+the template is filled out with any variables.  May also include “ground”
+triples, i.e. those without variables.`,
+    userland_code: `Alice . knows . Bob
+Alice . knows . Carol
+Carol . knows . Bob
+
+WHERE($someone.knows.$anyone)
+.CONSTRUCT(
+  $someone.shouldVisit.$anyone, 
+  $anyone.shouldVisit.$someone
+)
+
+`
+  },
+
+  {
+    name: "sparql-describe",
+    label: "SPARQL DESCRIBE",
+    comment: `DESCRIBE means “give me information about these resources” from the matched set.
+What information to include is up to the implementation.  I'll have more to say
+about that anon.`,
+    userland_code: `Alice . knows . Bob
+Alice . knows . Carol
+Carol . knows . Bob
+
+WHERE($someone.isa.Person)
+.DESCRIBE($someone)
+
+`
+  },
+
+  {
     name: "traversal",
     label: "traversal driver",
     comment: `testing reified traversal`,
@@ -419,7 +501,8 @@ query1 . hasClause . clause1
 
 `
   },
-
+  // TODO: OWL: transitive properties
+  // TODO: interpreter macros
   {
     name: "classes",
     label: "organizing classes",
@@ -461,6 +544,13 @@ space.hasForce.foo
 
 ${SPACE_COMMON}
 `
+  },
+
+  {
+    name: "subclasses",
+    label: "subclasses",
+    comment: `Subclass relationships let you refine and specialize types.`,
+    userland_code: `Alice . knows . Bob`
   },
 
   {
