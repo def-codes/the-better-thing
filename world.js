@@ -2,52 +2,65 @@
 // which is not designed to deal with retractions.  So if you want to get the
 // effect of arbitrary edits, you have to destroy the world and re-create it
 // every time.  Options are same as monotonic_system, minus `store`.
-const monotonic_world = opts => {
-  let dispose_old_system;
+var meld_world = (function() {
+  const { userland_code_reader, meld_interpreter } = window;
+  const { read } = userland_code_reader;
+  const { interpret } = meld_interpreter;
 
-  // Subscripton to all current facts, persisting over changing stores.
-  //
-  // A metaStream would make sense here, but using it in this way causes an
-  // illegal state error whose cause was not obvious.  This approach works fine.
-  const facts = rs.subscription();
-  // const facts = rs.metaStream(store =>
-  //   store
-  //     .addQueryFromSpec({ q: [{ where: [["?s", "?p", "?o"]] }] })
-  //     .transform(tx.map(() => store.triples))
-  // );
+  const monotonic_world = opts => {
+    let dispose_old_system;
 
-  let fact_push;
+    // Subscripton to all current facts, persisting over changing stores.
+    //
+    // A metaStream would make sense here, but using it in this way causes an
+    // illegal state error whose cause was not obvious.  This approach works fine.
+    const facts = rs.subscription();
+    // const facts = rs.metaStream(store =>
+    //   store
+    //     .addQueryFromSpec({ q: [{ where: [["?s", "?p", "?o"]] }] })
+    //     .transform(tx.map(() => store.triples))
+    // );
 
-  function interpret(userland_code) {
-    if (dispose_old_system) dispose_old_system();
-    if (fact_push) fact_push.unsubscribe();
-    opts.ports.cleanup();
+    let fact_push;
 
-    const store = new thi.ng.rstreamQuery.TripleStore();
-    //facts.next(store);
-    fact_push = store
-      .addQueryFromSpec({ q: [{ where: [["?s", "?p", "?o"]] }] })
-      .transform(tx.sideEffect(() => facts.next(store.triples)));
+    function _interpret(userland_code) {
+      if (dispose_old_system) dispose_old_system();
+      if (fact_push) fact_push.unsubscribe();
+      opts.ports.cleanup();
 
-    const interpreter = make_world(store);
+      const store = new thi.ng.rstreamQuery.TripleStore();
+      //facts.next(store);
+      fact_push = store
+        .addQueryFromSpec({ q: [{ where: [["?s", "?p", "?o"]] }] })
+        .transform(tx.sideEffect(() => facts.next(store.triples)));
 
-    try {
-      // DESTRUCTIVELY update store.  See note there
-      // currently does not return a meaningful result
-      read(userland_code, interpreter);
-    } catch (error) {
-      return { error, when: "reading-code" };
+      let statements;
+      try {
+        statements = read(userland_code);
+      } catch (error) {
+        return { error, when: "reading-code" };
+      }
+
+      let new_triples;
+      try {
+        new_triples = interpret(statements);
+      } catch (error) {
+        return { error, when: "interpreting-code" };
+      }
+      store.into(new_triples);
+
+      try {
+        opts.dom_root.innerHTML = "";
+        dispose_old_system = meld.monotonic_system({ ...opts, store });
+      } catch (error) {
+        return { error, when: "creating-system" };
+      }
+
+      return true;
     }
 
-    try {
-      opts.dom_root.innerHTML = "";
-      dispose_old_system = meld.monotonic_system({ ...opts, store });
-    } catch (error) {
-      return { error, when: "creating-system" };
-    }
+    return { interpret: _interpret, facts };
+  };
 
-    return true;
-  }
-
-  return { interpret, facts };
-};
+  return { monotonic_world };
+})();

@@ -75,7 +75,8 @@ as the context.  The VM could thus be used in place of the `with` block.
 
 */
 var userland_code_reader = (function() {
-  const inspect = require && require("util").inspect;
+  const globalThis = this;
+  const inspect = globalThis.require && globalThis.require("util").inspect;
   const CONTEXT = Symbol("context");
   const EXPR = Symbol("expr");
 
@@ -260,12 +261,7 @@ var userland_code_reader = (function() {
           const got = serialize(expr);
           if (got === expected) {
             // console.log(`PASS`, got);
-          } else
-            console.log(
-              "FAIL",
-              { expected, got },
-              inspect(expr, { depth: 10 })
-            );
+          } else console.log("FAIL", { expected, got }, expr);
         }
       }
     }
@@ -274,7 +270,7 @@ var userland_code_reader = (function() {
   };
 
   ///////////// TEST
-  if (true) {
+  if (false) {
     const result = read(
       `OneTerm
 a = b
@@ -292,8 +288,6 @@ you.and(what.$army)
 one.for(the.money, two.for.the.show)(3)`,
       true
     );
-    console.log(inspect(result, { depth: 7 }));
-
     //////////////////////// TEST
   }
 

@@ -1,8 +1,9 @@
 (function model_main() {
   const { transducers: tx, rstream: rs, hdom } = thi.ng;
-  const { rdf_hdom, value_view } = window;
+  const { rdf_hdom, value_view, meld_world } = window;
   const { render_triples } = rdf_hdom;
   const { render_value } = value_view;
+  const { monotonic_world } = meld_world;
 
   //=========== LOAD MODEL
 

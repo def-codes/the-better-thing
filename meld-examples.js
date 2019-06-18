@@ -111,18 +111,17 @@ Carol . hasInterval(10)
     name: "transducers",
     label: "transducers",
     comment: `Transducers are algorithmic stream transformations`,
-    userland_code: `claim(
-Alice.hostOutput("Alice"),
-Bob.hostOutput("Bob"),
+    userland_code: `Alice.hostOutput("Alice")
+Bob.hostOutput("Bob")
 
-Alice . hasInterval(250),
-Bob . listensTo . Alice,
-Bob . isa . Subscribable,
+Alice . hasInterval(250)
+Bob . listensTo . Alice
+Bob . isa . Subscribable
 
-Bob . transformsWith . t,
+Bob . transformsWith . t
 t.mapsWith(x => x * 2)
 
-)`
+`
   },
 
   {
