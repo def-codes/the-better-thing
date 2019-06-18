@@ -67,6 +67,44 @@ Alice . listensTo . Carol
   },
 
   {
+    name: "subscription-chain",
+    label: "subscription chain (transitive listening)",
+    comment: `a game of telephone`,
+    userland_code: `// Display
+Alice.hostOutput("Alice")
+Bob.hostOutput("Bob")
+Carol.hostOutput("Carol")
+
+Alice.hasInterval(200)
+Bob . listensTo . Alice
+Carol . listensTo . Bob
+
+Bob . isa . Subscribable
+Carol . isa . Subscribable
+
+`
+  },
+
+  {
+    name: "subscription-broadcast",
+    label: "subscription broadcast (multiple listeners)",
+    comment: `Alice speaks directly to everyone`,
+    userland_code: `// Display
+Alice.hostOutput("Alice")
+Bob.hostOutput("Bob")
+Carol.hostOutput("Carol")
+
+Alice.hasInterval(200)
+Bob . listensTo . Alice
+Carol . listensTo . Alice
+
+Bob . isa . Subscribable
+Carol . isa . Subscribable
+
+`
+  },
+
+  {
     name: "stream-merge",
     label: "merging streams",
     comment: `in which Alice listens to two people at once`,
