@@ -24,16 +24,6 @@ var meld_world = (function() {
     let fact_push;
 
     function _interpret(userland_code) {
-      if (dispose_old_system) dispose_old_system();
-      if (fact_push) fact_push.unsubscribe();
-      opts.ports.cleanup();
-
-      const store = new thi.ng.rstreamQuery.TripleStore();
-      //facts.next(store);
-      fact_push = store
-        .addQueryFromSpec({ q: [{ where: [["?s", "?p", "?o"]] }] })
-        .transform(tx.sideEffect(() => facts.next(store.triples)));
-
       let statements;
       try {
         statements = read(userland_code);
@@ -47,6 +37,16 @@ var meld_world = (function() {
       } catch (error) {
         return { error, when: "interpreting-code" };
       }
+      if (dispose_old_system) dispose_old_system();
+      if (fact_push) fact_push.unsubscribe();
+      opts.ports.cleanup();
+
+      const store = new thi.ng.rstreamQuery.TripleStore();
+      //facts.next(store);
+      fact_push = store
+        .addQueryFromSpec({ q: [{ where: [["?s", "?p", "?o"]] }] })
+        .transform(tx.sideEffect(() => facts.next(store.triples)));
+
       store.into(new_triples);
 
       try {
