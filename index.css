@@ -126,13 +126,17 @@ body {
   version of the spec”. https://caniuse.com/#feat=css-snappoints
 */
 body {
+  /* 
 	scroll-snap-type: mandatory;
 	scroll-snap-type: proximity;
 	scroll-snap-points-y: repeat(100vh);
+ */
 }
+/* 
 main > header {
 	height: 100vh;
 }
+ */
 
 .host-output {
 	position: absolute;
