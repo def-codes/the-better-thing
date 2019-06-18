@@ -5,8 +5,11 @@ to support extreme late-binding and lazy-eval expressions.  They are "quasi"
 AST's because they are not exactly tree-structured as such.
 
 Technically, this is a general-purpose tool (to the extent it has any purpose at
-all), but it was motivated by the wish to combine aspects of Turtle and Lisp
-into a hosted environment where JavaScript evaluation is available.
+all), but it was motivated by the wish to bootstrap a userland programming
+environment combining aspects of Turtle and Lisp.  The intention was never to
+make a language that is interesting in its own right, but to leverage an
+existing host in the service of a dynamic system that could in turn be used to
+build more powerful interpreters.
 
 This is a reader only and does not impute any semantics to the constructions it
 collects.
@@ -27,6 +30,8 @@ applications you can use any expression.
 
 Documentation of capabilities and format.
 
+(See the type definition)
+
 The output structure includes two types of top-level statement: expressions, and
 assignments.  An assignment associates an expression with a term.  An expression
 is a nested list of elements.  There are three types of element: terms,
@@ -35,30 +40,7 @@ expressions.  Both array elements and object key values can be expressions.  For
 these purposes, we count lambdas and regexp literals as primitives, since they
 are opaque.
 
-Here it is:
-
-Assignment = { assign: { term: string, value: AnyExpression } }
-TopExpression = [Term, (Term | Call)*]
-Term = { term: string }
-Call = { args: AnyExpression[] }
-// nope. still wrong.  expression is wrapped in an array
-AnyExpression = Expression | Literal
-Literal = Term | Array | Object | Primitive
-Primitive = string | number | boolean | symbol | bigint | RegExp (except don't use symbol)
-Array = 
-
-With this, it's possible to 
-
-Examples
-term
-chain.of.terms
-term(...ArgList)
-chain.of.terms(...ArgList)
-you.are(3).and.I.am(five)
-
 This reader is limited by the capabilities of the technique.
-
-Following is an initial attempt at defining the recognized grammar.
 
 While the language is technically JS, the reader is only concerned with what can
 be captured by proxies.  In particular, the following constructs are
@@ -72,35 +54,12 @@ These constructs can be used inside of lambdas that are captured by the reader,
 but they cannot be captured at the top level.  While the reader can't prevent
 their use, the result of doing so is undefined.
 
-Statement -> Expression | Assignment
-Assignment -> Term = Expression
-Expression -> Term | KeyAccess 
-Term -> bottom?
-Literal -> ObjectLiteral | ArrayLiteral | JSFunctionLiteral | JSPrimitiveLiteral | JSRegExpLiteral
-ObjectLiteral -> basically an object literal where values are Expr
-KeyAccess -> Expression.Term
-ArrayLiteral -> [List]
-Application -> Expression(List)
-List -> ∅
-List -> Expression, List
-
 We can only capture arbitrary terms when they are used against other proxy
 expressions.  So, for example,
 
 A.B
 
-is okay, as well as
-
-A.B.C
-
-and (technically)
-
-(A.B).C
-
-although it's not clear what the latter would mean, and I'm not sure I could (or
-should) distinguish it from the former.
-
-But it's NOT meaningful to say
+is okay, but NOT
 
 {}.foo
 [].foo
@@ -120,108 +79,91 @@ var userland_code_reader = (function() {
   const CONTEXT = Symbol("context");
   const EXPR = Symbol("expr");
 
-  // General walker for plain JS objects.
+  // General walker for plain JS objects.  Uses reverse path.
   function* walk(x, path = []) {
     if (Array.isArray(x))
-      for (let i = 0; i < x.length; i++) yield* walk(x[i], [...path, i]);
+      for (let i = 0; i < x.length; i++) yield* walk(x[i], [i, ...path]);
     else if (x !== null && typeof x === "object") {
-      for (const [k, v] of Object.entries(x)) yield* walk(v, [...path, k]);
+      for (const [k, v] of Object.entries(x)) yield* walk(v, [k, ...path]);
       for (const s of Object.getOwnPropertySymbols(x))
-        yield* walk(x[s], [...path, s]);
+        yield* walk(x[s], [s, ...path]);
     } else yield [x, path];
   }
 
-  // This is no good, either, because it doesn't know that args arrays shouldn't
-  // be treated as literals.
-  const map_deep_no = (fn, x) =>
+  // General mapper over plain JS objects
+  const map = (fn, x) =>
     Array.isArray(x)
-      ? fn(x.map(item => map_deep(fn, item)))
-      : x !== null && typeof x === "object"
-      ? fn(
-          Object.entries(x).reduce(
-            (acc, [k, v]) => Object.assign(acc, { [k]: map_deep(fn, v) }),
-            {}
-          )
-        )
-      : fn(x);
-
-  const map_deep = (fn, x) =>
-    Array.isArray(x)
-      ? x.map(item => map_deep(fn, item))
+      ? x.map(fn)
       : x !== null && typeof x === "object"
       ? Object.entries(x).reduce(
-          (acc, [k, v]) => Object.assign(acc, { [k]: map_deep(fn, v) }),
+          (acc, [k, v]) => Object.assign(acc, { [k]: fn(v) }),
           {}
         )
       : fn(x);
 
-  const serialize_literal = val =>
-    Array.isArray(val)
-      ? `[${val.map(serialize).join(", ")}]`
-      : val !== null && typeof val === "object"
-      ? `{${Object.entries(val)
-          .map(([key, value]) => `${key}: ${serialize(value)}`)
-          .join(", ")}}`
-      : val.toString();
-
-  const serialize = expr =>
-    !Array.isArray(expr)
-      ? `not an array: ${JSON.stringify(expr)}`
-      : expr.reduce(
-          (acc, val) =>
-            val.set
-              ? `${val.set.key} = ${serialize(val.set.value)}`
-              : val.args
-              ? acc + `(${val.args.map(serialize).join(", ")})`
-              : val.key
-              ? acc + (acc ? "." : "") + val.key
-              : val.literal
-              ? serialize_literal(val.literal)
-              : "unk",
-          ""
-        );
-
-  // Short-circuits for all crazy proxies.  Mostly to prevent inspection from
-  // blowing up.
+  // Mostly short circuits to prevent proxies from blowing up inspection.
   const ALWAYS = {
     [Symbol.unscopables]: undefined, // checked when using `with` block
     [Symbol.iterator]: undefined,
     [Symbol.toPrimitive]: undefined,
     [Symbol.toStringTag]: undefined,
     [inspect && inspect.custom]: undefined,
-    toJSON: () => `{"crazy":"proxy"}`,
+    toJSON: () => `{"crazy":"proxy"}`, // mostly to smoke out who's asking
     toString: () => `unsupported`,
     inspect: undefined // for node only
   };
 
-  const make_crazy_proxy = collector => {
+  // Replace a proxy with plain objects.
+  const sanitize_proxy = value => value[CONTEXT] || [{ literal: value }];
+
+  // Recursively expunge proxies from constituent values.
+  const sanitize = x =>
+    map(v => {
+      const context = v[CONTEXT];
+      if (!context)
+        return {
+          literal: Array.isArray(v)
+            ? v.map(sanitize)
+            : v !== null && typeof v === "object"
+            ? Object.entries(v).reduce(
+                (acc, [k, v]) => Object.assign(acc, { [k]: sanitize(v) }),
+                {}
+              )
+            : v
+        };
+
+      const { args, assign } = context;
+      return args
+        ? { args: args.map(sanitize) }
+        : assign
+        ? { assign: { ...assign, value: sanitize(assign.value) } }
+        : context;
+    }, x);
+
+  // Use the same target for every proxy.  We don't do anything with the actual
+  // object, so there's no need to instantiate a new target each time.
+  //
+  // Use function as target so that result is always invokable.
+  const target = () => {};
+
+  const make_scanner = collector => {
     let expr_id = 0;
 
     const make_proxy = (context = []) => {
       collector.push(context);
 
-      // Use function as target so that result is always invokable.
-      const target = () => {};
-      const local = { [CONTEXT]: context };
-
-      // Replace a proxy with plain objects.
-      const sanitize_proxy = value => value[CONTEXT] || [{ literal: value }];
-
-      // Recursively expunge proxies from constituent values.
-      const sanitize = x => map_deep(sanitize_proxy, x);
-
       // Extend a proxy's context with a new expression segment.
       const recur_with = step =>
         make_proxy([...context, Object.assign(step, { [EXPR]: expr_id++ })]);
 
-      const scopes = [ALWAYS, local];
+      const scopes = [ALWAYS, { [CONTEXT]: context }];
       return new Proxy(target, {
-        has: (target, key) => true,
+        has: (_target, _key) => true,
 
         apply: (_target, _this, args) => recur_with({ args: sanitize(args) }),
 
         set: (_target, key, value) =>
-          recur_with({ set: { key, value: sanitize(value) } }),
+          recur_with({ assign: { term: key, value: sanitize(value) } }),
 
         get: (_target, key, _receiver) => {
           // Interesting, the runtime queries name on a function that's being
@@ -235,7 +177,7 @@ var userland_code_reader = (function() {
           if (key === "name") console.log(`name?`, context);
 
           for (const scope of scopes) if (key in scope) return scope[key];
-          return recur_with({ key });
+          return recur_with({ term: key });
         }
       });
     };
@@ -243,55 +185,116 @@ var userland_code_reader = (function() {
     return make_proxy();
   };
 
-  const read = userland_code => {
-    const collector = [];
-    new Function(
-      "world",
-      `with (world) { 
-${userland_code}
-}`
-    )(make_crazy_proxy(collector));
-    return collector;
+  /*
+    The trick to collecting statements is that we can't tell in the proxy where
+    we are relative to any other expression.  To solve this, we keep a unique ID
+    on every expression and dump the accumulated context every time it changes.
+    Basically a “statement” is an expression that isn't part of another
+    expression.  So we return only the contexts containing at least one element
+    not used in any other context.
+   */
+
+  // The serialization is really just for tests
+
+  const serialize_literal = val =>
+    Array.isArray(val)
+      ? `[${val.map(serialize).join(", ")}]`
+      : val !== null && typeof val === "object"
+      ? `{${Object.entries(val)
+          .map(([key, value]) => `${key}: ${serialize(value)}`)
+          .join(", ")}}`
+      : typeof val === "string"
+      ? JSON.stringify(val)
+      : val.toString();
+
+  const serialize = expr =>
+    Array.isArray(expr)
+      ? expr.reduce(
+          (acc, val) =>
+            val.assign
+              ? `${val.assign.term} = ${serialize(val.assign.value)}`
+              : val.args
+              ? acc + `(${val.args.map(serialize).join(", ")})`
+              : val.term
+              ? acc + (acc ? "." : "") + val.term
+              : "unk",
+          ""
+        )
+      : expr.literal
+      ? serialize_literal(expr.literal)
+      : "unk";
+
+  const scan = code => {
+    const contexts = [];
+    new Function("world", `with (world) { ${code} }`)(make_scanner(contexts));
+    return contexts;
   };
 
-  // ===== TEST
-  const TEST_LINES = `OneTerm
+  const read = (userland_code, TEST_MODE) => {
+    const collected = scan(userland_code);
+
+    // Get all of the expression id's referenced for each context.
+    const idx = new Map();
+    for (const expr of collected)
+      idx.set(
+        expr,
+        [...walk(expr)].filter(([v, [key]]) => key === EXPR).map(([v]) => v)
+      );
+
+    // For tests only
+    const lines = userland_code.split("\n");
+    let i = 0;
+
+    const statements = [];
+    for (const expr of collected) {
+      const unique = idx.get(expr).some(id => {
+        for (const [key, value] of idx.entries())
+          if (key !== expr && value.includes(id)) return false;
+        return true;
+      });
+      if (unique) {
+        statements.push(expr);
+
+        if (TEST_MODE) {
+          const expected = lines[i++];
+          const got = serialize(expr);
+          if (got === expected) {
+            // console.log(`PASS`, got);
+          } else
+            console.log(
+              "FAIL",
+              { expected, got },
+              inspect(expr, { depth: 10 })
+            );
+        }
+      }
+    }
+
+    return statements;
+  };
+
+  ///////////// TEST
+  if (true) {
+    const result = read(
+      `OneTerm
+a = b
+f.y(n => n.weight)
 TermWith(SomeArgument)
 This.Isa.Triple
 x.strength(10)
+You(get.a.car).You(get.a.car).everybody(gets.a.car)
+dict({roses: "red", violets: blue, sugar: true})
 names(Alice, Bob, Carol)
 names([george, paul, john])
 Kilroy.was.here
 a = plus(b, c)
 you.and(what.$army)
-one.for(the.money, two.for.the.show)(3)`;
-  const lines = TEST_LINES.split("\n");
-  const t = read(TEST_LINES);
-  const idx = new Map();
-  for (const expr of t)
-    idx.set(
-      expr,
-      [...walk(expr)]
-        .filter(([v, path]) => path[path.length - 1] === EXPR)
-        .map(([v]) => v)
+one.for(the.money, two.for.the.show)(3)`,
+      true
     );
+    console.log(inspect(result, { depth: 7 }));
 
-  let i = 0;
-  for (const expr of t) {
-    const ids = idx.get(expr);
-    const unique = ids.some(id => {
-      for (const [key, value] of idx.entries())
-        if (key !== expr) if (value.includes(id)) return false;
-      return true;
-    });
-    if (unique) {
-      const expected = lines[i++];
-      const got = serialize(expr);
-      if (got === expected) {
-        // console.log(`PASS`, got);
-      } else
-        console.log("FAIL", { expected, got }, inspect(expr, { depth: 10 }));
-    }
+    //////////////////////// TEST
   }
 
   return { read };

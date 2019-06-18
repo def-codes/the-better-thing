@@ -1,11 +1,11 @@
 type Statement = Assignment | TermTree;
+// actually, you can assign to any expression *ending in* a term
 type Assignment = { assign: { term: string; value: AnyExpression } };
-type TermTree = [Term, ...(Term | Application)[]];
 type Term = { term: string };
-type Application = { args: AnyExpression[] };
+type TermTree = [Term, ...(Term | { list: AnyExpression[] })[]];
 type AnyExpression = TermTree | { literal: Literal };
-type Literal = Array<AnyExpression> | Record<PropertyKey, AnyExpression> | Atom;
 type Atom = string | number | boolean | symbol | bigint | RegExp | Function;
+type Literal = Atom | Array<AnyExpression> | Record<PropertyKey, AnyExpression>;
 
 /*
 
@@ -46,7 +46,11 @@ i.e.
 As a result, you can simplify the representation of term-based expressions by
 using lists (which is what I did in the first place).
 
+Also doesn't work:
 
+foo(RED = 5)
+
+thought it possibly could with some craftiness.
 
 
 */
