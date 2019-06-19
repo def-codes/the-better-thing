@@ -1,0 +1,54 @@
+#+TITLE:representation
+
+* representation
+
+The thing itself /versus/ the representation.
+
+We need a way to describe what we want to see, and then get it.
+
+Things should be visible by default.
+
+It should be easy to assert representations.
+
+The same "thing" can be represented more than once in the same model.
+
+The same "thing" can be represented more than once in the same /space/, although
+this would be unusual.
+
+Representations must be reified.
+
+Representations must be associated with a resource.
+
+A "namespace" has some analog to a space.
+
+What are the primitive domains relevant to graphical representation?
+
+Geometry is one of them.
+
+Representation is not immanent in the model:
+- any egress is not necessarily a representation
+- any computation is not necessarily a representation
+
+Rather, representation is a semantic that must be claimed (asserted) between two
+resources, one of which is itself a representation.
+
+* Of representations and monotonicity
+
+Hiccup (for example) gives us a way to represent DOM as pure data.
+
+updateDOM (for example) gives us a way to apply a dataflow node to the DOM.
+
+Dataflow nodes don't need to be monotonic even when the model they represent is.
+
+This presents a tradeoff between reification and monotonicity, in that the
+constituents of the representation are essentially opaque.  As such, they can't
+be addressed directly with rules.
+
+That may be a false dichotomy, though.  It's only the /computed/ result that's
+opaque.  To the extent that this structure is driven by representations, those
+can be targeted with monotonically-increasing rules and statements.
+
+* alternative to representation
+
+So maybe this isn't about representation.
+

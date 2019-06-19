@@ -130,7 +130,6 @@ const monotonic_system = ({ id, store, dom_root, ports }) => {
   const driver_helpers = { store, find };
   const system = {
     store,
-    dom_root,
     find,
     register_input_port: () => {
       /* TBD */
@@ -170,6 +169,12 @@ const monotonic_system = ({ id, store, dom_root, ports }) => {
       }
     }
   };
+
+  if (dom_root) {
+    const n = rdf.namedNode;
+    // system.assert([n("home"), n("isa"), n("ModelDomRoot")]);
+    system.register(n("home"), "ModelDomRoot", () => dom_root);
+  }
 
   const rule_subscriptions = apply_drivers_to(store, driver_helpers, system);
 

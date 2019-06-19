@@ -10,6 +10,27 @@ charge.theta(0.98),
 
 const MELD_EXAMPLES = [
   {
+    name: "maybe-representation",
+    label: "maybe representation",
+    comment: "what is this really about",
+    userland_code: `Alice . hostOutput("Alice")
+Bob . hostOutput("Bob")
+
+Alice . hasInterval(100)
+
+Bob.isa.Subscribable
+Bob.listensTo.Alice
+Bob.transformsWith.h
+h.hasRoot.home
+
+// Alice . knows . Bob
+// X.contains.Y
+// P.isa.Circle
+// Q.isa.Square
+`
+  },
+
+  {
     name: "host",
     label: "host interop (dataflow output)",
     comment: `A model needs a host in order to function.  Since an empty model can't do anything—not even display its own contents!—we'll need help from the host in order to get this thing off the ground.`,
@@ -474,8 +495,17 @@ clause1 . isa . Clause
 clause1 . hasSubject . Alice
 clause1 . hasPredicate . knows
 clause1 . hasObject . $someone
-query1 . hasClause . clause1
 
+clause2 . isa . Clause
+clause2 . hasSubject . $someone
+clause2 . hasPredicate . isa
+clause2 . hasObject . Person
+
+query1 . hasClause . clause1
+query1 . hasClause . clause2
+Alice.isa.Subscribable
+Alice.listensTo.query1
+Alice.hostOutput("Alice")
 `
   },
 

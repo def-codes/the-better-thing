@@ -12,6 +12,8 @@
 // That is separately interesting, topic of graph canonicalization
 // https://lists.w3.org/Archives/Public/semantic-web/2015May/0097.html
 // http://cui.unige.ch/isi/icle-wiki/_media/cours:sw:rdf-s_semantics.pdf
+//
+// http://vocab.org/riro/gpt
 (function() {
   const NAME = "sparqlDriver";
   if (!meld) throw `${NAME}: No meld system found!`;
@@ -29,8 +31,6 @@
       // - ask (not implemented)
       ""
     ),
-    rules: [
-
-    ]
+    rules: []
   }));
 })();
