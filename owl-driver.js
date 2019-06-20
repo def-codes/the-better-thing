@@ -5,7 +5,6 @@
   const NAME = "owlBasicDriver";
   if (!meld) throw `${NAME}: No meld system found!`;
 
-  const { rstream: rs } = thi.ng;
   const { rdf } = window;
 
   const n = rdf.namedNode;
@@ -29,7 +28,7 @@
       },
       {
         name: "SubclassRule",
-        when: q("?s subclassOf ?c", "?x isa ?c"),
+        when: q("?s subclassOf ?c", "?x isa ?s"),
         then: ({ x, c }) => ({ assert: [[x, ISA, c]] })
       },
       {
@@ -39,13 +38,8 @@
       },
       {
         name: "SymmetricalPropertyRule",
-        when: q("?p isa SymmetricalProperty", "?x ?p? ?y"),
+        when: q("?p isa SymmetricalProperty", "?x ?p ?y"),
         then: ({ y, p, x }) => ({ assert: [[y, p, x]] })
-      },
-      {
-        name: "TransitivePropertyRule",
-        when: q("?p isa TransitiveProperty", "?x ?p ?y", "?y ?p ?z"),
-        then: ({ x, p, z }) => ({ assert: [[x, p, z]] })
       },
       {
         name: "TransitivePropertyRule",
