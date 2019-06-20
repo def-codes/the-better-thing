@@ -68,6 +68,9 @@ var value_view = (function() {
     if (value === null) return [render_null];
     if (value === undefined) return [render_undefined];
 
+    // Limit depth to avoid crash from cycles.
+    if (path.length > 7) return null;
+
     if (typeof value === "function") return [render_function, { value }];
     if (
       typeof value === "number" ||

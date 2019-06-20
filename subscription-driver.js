@@ -8,6 +8,7 @@
   // This makes the API much more amenable to use with the system.
   const metamerge = () => {
     let current = rs.merge();
+    let current_xform;
 
     const meta = rs.metaStream(sub => (current = sub));
     meta.next(current);
@@ -15,7 +16,11 @@
     return Object.assign(meta, {
       add: (...args) => current.add(...args),
       set_transform(xform) {
-        meta.next(rs.merge({ src: current.sources.keys(), xform }));
+        // Don't rebuild if transform hasn't really changed, in case that's not
+        // prevented upstream.
+        if (xform !== current_xform)
+          meta.next(rs.merge({ src: current.sources.keys(), xform }));
+        current_xform = xform;
       }
     });
   };
@@ -46,8 +51,8 @@
           "?metamerge as Subscribable" // subscription would make more sense here...
         ),
         then: ({ transducer, metamerge }, { find }) => {
-          // Logging the metamerge instances crashes, probably the value render.
-          // Could be related to IDeref?
+          // TODO: how to short-circuit this so that it won't be called with
+          // identical values?
           find(metamerge).set_transform(find(transducer));
           // SIDE EFFECTING!!! TODO
           return {};
@@ -68,8 +73,8 @@
           // Luckily, merge.sources is a Map, so adding the same stream multiple
           // times is a no-op.  Note that adding also subscribes.
           //
-          // Interestingly, you merge will also add any stream sent to it as
-          // input, so merge.next should also work here.
+          // Interestingly, merge will also add any stream sent to it as input,
+          // so merge.next should also work here.
           find(merge).add(find(stream));
           return {};
         }
