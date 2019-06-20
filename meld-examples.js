@@ -10,9 +10,10 @@ charge.theta(0.98),
 
 const MELD_EXAMPLES = [
   {
-    name: "maybe-representation",
-    label: "maybe representation",
-    comment: "what is this really about",
+    name: "hdom",
+    label: "primitive hdom",
+    comment:
+      "@thi.ng/hdom transducer can be bound to a DOM node to keep DOM synced with a template.",
     userland_code: `Alice . hostOutput("Alice")
 Bob . hostOutput("Bob")
 
@@ -27,6 +28,38 @@ h.hasRoot.home
 // X.contains.Y
 // P.isa.Circle
 // Q.isa.Square
+`
+  },
+
+  {
+    name: "hdom-template",
+    label: "hdom with template",
+    comment: "Typically, an hdom node is preceded by a mapping transform.",
+    userland_code: `Alice . hostOutput("Alice")
+Carol.hostOutput("Carol")
+Bob . hostOutput("Bob")
+Joan . hostOutput("Joan")
+
+Alice . hasInterval(100)
+
+Carol.isa.Subscribable
+Carol.listensTo.Joan
+
+Carol.transformsWith.m
+m.mapsWith(n  => ["p", {}, '#', n ])
+
+Joan .listensTo.Alice
+Joan .isa.Subscribable
+Joan . transformsWith.j
+j.mapsWith(x => x % 2)
+
+Bob.isa.Subscribable
+Bob.listensTo.Carol
+// When Bob gets an hdom transducer, Carol stops updating.
+// Works with other transducers.
+h.hasRoot.home
+Bob.transformsWith.h
+//h.mapsWith(n => ({stuff: n}))
 `
   },
 
