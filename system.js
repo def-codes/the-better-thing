@@ -90,8 +90,7 @@ const make_consequent_handler = (then, helpers, system, all) => results => {
   if (output)
     for (const definitions of Array.isArray(output) ? output : [output])
       for (const [key, value] of Object.entries(definitions))
-        for (const def of Array.isArray(value) ? value : [value])
-          process_effect_definition(key, def, system);
+        process_effect_definition(key, value, system);
 };
 
 // behavior is undefined if store is not empty

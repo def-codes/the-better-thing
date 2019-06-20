@@ -610,7 +610,9 @@ ${SPACE_COMMON}
     name: "subclasses",
     label: "subclasses",
     comment: `Subclass relationships let you refine and specialize types.`,
-    userland_code: `Alice . knows . Bob`
+    userland_code: `Bob.isa.Square
+Square.subclassOf.Shape
+`
   },
 
   {
