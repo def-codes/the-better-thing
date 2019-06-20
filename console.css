@@ -7,7 +7,7 @@
 	transform: translate(-50%);
 	z-index: 9999;
 	padding: 0.5em 1em;
-	background: rgba(0, 0, 0, .2);
+	background-color: rgba(196, 196, 196, 0.85);
 	font-size: smaller;
 	box-sizing: border-box;
 	overflow: auto;

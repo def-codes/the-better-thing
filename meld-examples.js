@@ -55,11 +55,8 @@ j.mapsWith(x => x % 2)
 
 Bob.isa.Subscribable
 Bob.listensTo.Carol
-// When Bob gets an hdom transducer, Carol stops updating.
-// Works with other transducers.
 h.hasRoot.home
 Bob.transformsWith.h
-//h.mapsWith(n => ({stuff: n}))
 `
   },
 

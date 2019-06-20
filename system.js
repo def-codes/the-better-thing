@@ -52,6 +52,9 @@ const drivers = [];
 const register_driver = (name, init) => drivers.push(init({ q }));
 
 const HANDLERS = {
+  assert(facts, system) {
+    system.assert_all(facts);
+  },
   register_output_port({ name, subject, source }, system) {
     system.register_output_port(name, subject, source);
   },
@@ -138,7 +141,7 @@ const monotonic_system = ({ id, store, dom_root, ports }) => {
       const stream = system.find(source);
       ports.add(name, stream);
     },
-    assert: fact => store.add(fact),
+    assert_all: facts => store.into(facts),
     query_all: where => sync_query(store, where),
     live_query: where => live_query(store, where),
 
