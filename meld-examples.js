@@ -607,6 +607,37 @@ ${SPACE_COMMON}
   },
 
   {
+    name: "inverse-properties",
+    label: "inverse properties",
+    comment: `Properties are directional.  Inverse properties let you give names to the “same” property in either direction.`,
+    userland_code: `Alice.defeated.Bob
+wasDefeatedBy.inverseOf.defeated
+
+Bob.respects.Alice
+respects.inverseOf.isRespectedBy
+`
+  },
+
+  {
+    name: "symmetric-properties",
+    label: "symmetric properties",
+    comment: `A symmetric property is one that is always mutually true of its subject and object.  That is, it always applies in both directions`,
+    userland_code: `Alice.isMarriedTo.Carol
+isMarriedTo.isa.SymmetricProperty
+`
+  },
+
+  {
+    name: "transitive-properties",
+    label: "transitive properties",
+    comment: `Relationships are not transitive unless you explicitly say so.`,
+    userland_code: `Alice.isTheBossOf.Bob
+Bob.isTheBossOf.Carol
+isTheBossOf.isa.TransitiveProperty
+`
+  },
+
+  {
     name: "subclasses",
     label: "subclasses",
     comment: `Subclass relationships let you refine and specialize types.`,
@@ -810,21 +841,7 @@ ${SPACE_COMMON}
 
 `
   },
-  {
-    name: "symmetrical",
-    label: "symmetrical property",
-    comment: `a symmetrical property always applies in both directions`,
-    userland_code: `claim(knows.isa.SymmetricalProperty)
-rule({
-  when: [$p.isa.SymmetricalProperty, $x.$p.$y],
-  then: [$y.$p.$x]
-})
-Alice.knows.Bob
 
-${SPACE_COMMON}
-
-`
-  },
   {
     name: "range-1",
     label: "integer range",

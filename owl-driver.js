@@ -37,9 +37,23 @@
         then: ({ x, sub, y }) => ({ assert: [[x, sub, y]] })
       },
       {
-        name: "SymmetricalPropertyRule",
-        when: q("?p isa SymmetricalProperty", "?x ?p ?y"),
+        name: "SymmetricPropertyRule",
+        when: q("?p isa SymmetricProperty", "?x ?p ?y"),
         then: ({ y, p, x }) => ({ assert: [[y, p, x]] })
+      },
+      {
+        name: "InversePropertyRule1",
+        when: q("?forward inverseOf ?backward", "?x ?forward ?y"),
+        then: ({ y, backward, x }) => ({
+          assert: [[y, backward, x]]
+        })
+      },
+      {
+        name: "InversePropertyRule2",
+        when: q("?forward inverseOf ?backward", "?y ?backward ?x"),
+        then: ({ x, forward, y }) => ({
+          assert: [[x, forward, y]]
+        })
       },
       {
         name: "TransitivePropertyRule",
