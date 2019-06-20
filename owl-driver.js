@@ -33,8 +33,9 @@
       },
       {
         name: "SubpropertyRule",
-        when: q("?sub subpropertyOf ?super", "?x ?super ?y"),
-        then: ({ x, sub, y }) => ({ assert: [[x, sub, y]] })
+        when: q("?sub subpropertyOf ?super", "?x ?sub ?y"),
+        // `super` is a reserved word
+        then: ({ x, super: S, y }) => ({ assert: [[x, S, y]] })
       },
       {
         name: "SymmetricPropertyRule",

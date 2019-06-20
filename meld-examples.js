@@ -19,7 +19,6 @@ Bob . hostOutput("Bob")
 
 Alice . hasInterval(100)
 
-Bob.isa.Subscribable
 Bob.listensTo.Alice
 Bob.transformsWith.h
 h.hasRoot.home
@@ -42,18 +41,15 @@ Joan . hostOutput("Joan")
 
 Alice . hasInterval(100)
 
-Carol.isa.Subscribable
 Carol.listensTo.Joan
 
 Carol.transformsWith.m
 m.mapsWith(n  => ["p", {}, '#', n ])
 
 Joan .listensTo.Alice
-Joan .isa.Subscribable
 Joan . transformsWith.j
 j.mapsWith(x => x % 2)
 
-Bob.isa.Subscribable
 Bob.listensTo.Carol
 h.hasRoot.home
 Bob.transformsWith.h
@@ -109,8 +105,6 @@ Carol.hostOutput("Carol")
 
 Carol.hasInterval(200)
 
-Alice . isa . Subscribable
-
 Alice . listensTo . Carol
 //Alice . listensTo . Joan
 
@@ -130,9 +124,6 @@ Alice.hasInterval(200)
 Bob . listensTo . Alice
 Carol . listensTo . Bob
 
-Bob . isa . Subscribable
-Carol . isa . Subscribable
-
 `
   },
 
@@ -149,9 +140,6 @@ Alice.hasInterval(200)
 Bob . listensTo . Alice
 Carol . listensTo . Alice
 
-Bob . isa . Subscribable
-Carol . isa . Subscribable
-
 `
   },
 
@@ -166,7 +154,6 @@ Joan.hostOutput("Joan")
 
 Carol.hasInterval(200)
 
-Alice . isa . Subscribable
 Alice . listensTo . Carol
 
 Joan.hasInterval(500)
@@ -198,7 +185,6 @@ Bob.hostOutput("Bob")
 
 Alice . hasInterval(250)
 Bob . listensTo . Alice
-Bob . isa . Subscribable
 
 Bob . transformsWith . t
 t.mapsWith(x => x * 2)
@@ -216,7 +202,6 @@ Bob.hostOutput("Bob")
 
 Alice . hasInterval(250)
 Bob . listensTo . Alice
-Bob . isa . Subscribable
 
 Bob . transformsWith . t
 t.mapsWith(x => x * 2)
@@ -233,7 +218,6 @@ Bob.hostOutput("Bob")
 
 Alice . hasInterval(250)
 Bob . listensTo . Alice
-Bob . isa . Subscribable
 
 Bob . transformsWith . t
 t.filtersWith(x => x % 2 == 1)
@@ -250,7 +234,6 @@ Bob.hostOutput("Bob")
 
 Alice . hasInterval(250)
 Bob . listensTo . Alice
-Bob . isa . Subscribable
 
 Bob . transformsWith . t
 t.partitionsBy(3)
@@ -533,7 +516,6 @@ clause2 . hasObject . Person
 
 query1 . hasClause . clause1
 query1 . hasClause . clause2
-Alice.isa.Subscribable
 Alice.listensTo.query1
 Alice.hostOutput("Alice")
 `
@@ -561,7 +543,6 @@ Alice.hostOutput("Alice")
 
 `
   },
-  // TODO: OWL: transitive properties
   // TODO: interpreter macros
   {
     name: "classes",
@@ -607,6 +588,26 @@ ${SPACE_COMMON}
   },
 
   {
+    name: "property-domain",
+    label: "property domain",
+    comment: `The domain of a property lets you infer the type of the subject in statements that use it.`,
+    userland_code: `teaches.domain.Teacher
+Alice.teaches.Bob
+// so Alice is a Teacher
+`
+  },
+
+  {
+    name: "property-range",
+    label: "property range",
+    comment: `The range of a property lets you infer the type of the object in statements that use it.`,
+    userland_code: `teaches.range.Student
+Alice.teaches.Bob
+// so Bob is a Student
+`
+  },
+
+  {
     name: "inverse-properties",
     label: "inverse properties",
     comment: `Properties are directional.  Inverse properties let you give names to the “same” property in either direction.`,
@@ -643,6 +644,17 @@ isTheBossOf.isa.TransitiveProperty
     comment: `Subclass relationships let you refine and specialize types.`,
     userland_code: `Bob.isa.Square
 Square.subclassOf.Shape
+`
+  },
+
+  {
+    name: "subproperties",
+    label: "subproperties",
+    comment: `Subproperty relationships let you refine and specialize properties.  Whatever is true of a property is also true of its subproperties.`,
+    // ^ is that correct, or is it just true that s P o implies s P' o?
+    userland_code: `wrote.subpropertyOf.created
+Fitzgerald.wrote.TheGreatGatsby
+// Fitzgerald created TheGreatGatsby
 `
   },
 
