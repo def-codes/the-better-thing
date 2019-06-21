@@ -10,6 +10,25 @@ charge.theta(0.98),
 
 const MELD_EXAMPLES = [
   {
+    name: "bug",
+    label: "bug repro",
+    comment: "FIXME",
+    userland_code: `Alice . hostOutput("Alice")
+Alice . hasInterval(100)
+
+// Host output isn't showing
+Bob . hostOutput("Bob")
+Bob.listensTo.Alice
+// Doesn't help
+Bob.isa.Subscribable
+
+// Also doesn't work
+Carol.hostOutput("Carol")
+Carol.listensTo.Bob
+`
+  },
+
+  {
     name: "hdom",
     label: "primitive hdom",
     comment:
