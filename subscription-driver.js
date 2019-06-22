@@ -7,7 +7,7 @@
   // Wrapper for stream merge that supports dynamic setting of transform.
   // This makes the API much more amenable to use with the system.
   const metamerge = id => {
-    let current = rs.merge({ id: `${id} merge`, close: false });
+    let current;
     let current_xform;
 
     // Returning the same stream as the current one (which shouldn't happen),
@@ -16,7 +16,7 @@
       sub => (current === sub ? null : (current = sub)),
       `${id} metamerge`
     );
-    meta.next(current);
+    meta.next(rs.merge({ id: `${id} merge`, close: false }));
 
     return Object.assign(meta, {
       add: (...args) => current.add(...args),
@@ -43,7 +43,6 @@
     ),
     rules: [
       {
-        // Should be implied by listensTo
         when: q("?subject isa Subscribable"),
         then: ({ subject }) => ({
           register: {
