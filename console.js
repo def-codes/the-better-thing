@@ -4,7 +4,7 @@
   const { rstream: rs, transducers: tx } = thi.ng;
   const { updateDOM } = thi.ng.transducersHdom;
   const { value_view } = window;
-  const { render_value } = value_view;
+  const { render, render_value } = value_view;
 
   const container = document.body.appendChild(document.createElement("div"));
 
@@ -32,7 +32,7 @@
     tx.comp(
       tx.slidingWindow(10),
       tx.map(entries => [render_entries, entries]),
-      updateDOM({ root: container })
+      updateDOM({ root: container, ctx: { render } })
     )
   );
 

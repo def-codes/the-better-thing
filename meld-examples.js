@@ -10,6 +10,29 @@ charge.theta(0.98),
 
 const MELD_EXAMPLES = [
   {
+    name: "views",
+    label: "views",
+    comment: "WIP approach to views",
+    userland_code: `Alice . hostOutput("Alice")
+Bob . hostOutput("Bob")
+
+v.isa.View
+model.contains.v
+
+Alice . hasInterval(100)
+
+Bob.listensTo.Alice
+v.viewOf.Bob
+
+//Bob.transformsWith.h
+//h.hasRoot.home
+
+
+
+`
+  },
+
+  {
     name: "hdom",
     label: "primitive hdom",
     comment:

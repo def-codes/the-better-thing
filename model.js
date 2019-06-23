@@ -2,7 +2,7 @@
   const { transducers: tx, rstream: rs, hdom } = thi.ng;
   const { rdf_hdom, value_view, meld_world } = window;
   const { render_triples } = rdf_hdom;
-  const { render_value } = value_view;
+  const { render, render_value } = value_view;
   const { monotonic_world } = meld_world;
 
   //=========== LOAD MODEL
@@ -104,7 +104,7 @@
                 ["h3", name],
                 [render_value, { value }]
               ]),
-              updateDOM({ root: ele })
+              updateDOM({ root: ele, ctx: { render } })
             )
             .subscribe(catchall(`host output port display for “${name}”`))
         };
@@ -126,7 +126,7 @@
   facts
     .transform(
       tx.map(triples => [render_triples, triples]),
-      updateDOM({ root: host_output_container })
+      updateDOM({ root: host_output_container, ctx: { render } })
     )
     .subscribe(catchall("host-triple-renderer"));
 

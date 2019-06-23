@@ -11,28 +11,28 @@ var value_view = (function() {
     value.toString()
   ];
 
-  const render_array = (_, { value: array, path }) => [
+  const render_array = ({ render }, { value: array, path }) => [
     "ol",
     { "data-type": "array" },
     Array.from(array, (value, index) => [
       "li",
       { "data-type": "array-item" },
-      [render_value_impl, { value, path: [...path, index] }]
+      [render, { value, path: [...path, index] }]
     ])
   ];
 
-  const render_iterable = (_, { type, value: iterable, path }) => [
+  const render_iterable = ({ render }, { type, value: iterable, path }) => [
     "ul",
     { "data-type": `${type} iterable` },
     // Use number in path, but the iterable may not be indexable as such.
     Array.from(iterable, (value, number) => [
       "li",
       { "data-type": "iterable-item" },
-      [render_value_impl, { value, path: [...path, number] }]
+      [render, { value, path: [...path, number] }]
     ])
   ];
 
-  const render_object = (_, { value: object, path }) => [
+  const render_object = ({ render }, { value: object, path }) => [
     "div",
     { "data-type": "object-properties" },
     Array.from(Object.entries(object), ([key, value]) => [
@@ -43,7 +43,7 @@ var value_view = (function() {
       [
         "div",
         { "data-type": "object-value" },
-        [render_value_impl, { value, path: [...path, key] }]
+        [render, { value, path: [...path, key] }]
       ]
     ])
   ];
@@ -64,7 +64,8 @@ var value_view = (function() {
     }
   ];
 
-  const render_value_impl = (_, { value, path = [] }) => {
+  // Dispatcher
+  const render = (_, { value, path = [] }) => {
     if (value === null) return [render_null];
     if (value === undefined) return [render_undefined];
 
@@ -89,10 +90,10 @@ var value_view = (function() {
     return ["span", value ? JSON.stringify(value) : "(falsy)", " "];
   };
 
-  const render_value = (_, { value }) => [
+  const render_value = ({ render }, { value }) => [
     "div.value-view",
-    [render_value_impl, { value }]
+    [render, { value }]
   ];
 
-  return { render_value };
+  return { render_value, render };
 })();

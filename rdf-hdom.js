@@ -2,6 +2,8 @@
 // re `var`, see note in value-view.js
 var rdf_hdom = (function() {
   const { value_view } = window;
+  // NOTE: This view (and any one using `render_value` now assumes that `render`
+  // is in context.)
   const { render_value } = value_view;
 
   const as_string = v => (v ? v.toString() : undefined);
