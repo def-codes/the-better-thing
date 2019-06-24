@@ -12,7 +12,13 @@
   const ISA = n("isa");
 
   meld.register_driver(NAME, ({ q }) => ({
-    claims: q(),
+    claims: q(
+      // RDFS:
+      "domain domain Property",
+      "domain range Class", // right? or type?
+      "range domain Property",
+      "range range Class" // right? or type?
+    ),
     // Is Class a Class?
     rules: [
       // Domain and range are really from RDFS
