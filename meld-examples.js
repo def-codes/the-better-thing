@@ -22,6 +22,7 @@ Alice . hasInterval(100)
 
 Bob.listensTo.Alice
 v.viewOf.Bob
+v.viewIn.home
 
 // Carol.listensTo.Bob
 // Carol.transformsWith.m
@@ -29,9 +30,9 @@ v.viewOf.Bob
 
 Carol.hostOutput("Carol")
 
-foo.listensTo.ListenerForv
-foo.transformsWith.h
-h.hasRoot.home
+// foo.listensTo.ListenerForv
+// foo.transformsWith.h
+// h.hasRoot.home
 
 //ListenerForv.hostOutput("lv")
 
