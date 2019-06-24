@@ -16,18 +16,24 @@ const MELD_EXAMPLES = [
     userland_code: `Alice . hostOutput("Alice")
 Bob . hostOutput("Bob")
 
-v.isa.View
-model.contains.v
+// model.contains.v
 
 Alice . hasInterval(100)
 
 Bob.listensTo.Alice
 v.viewOf.Bob
 
-//Bob.transformsWith.h
-//h.hasRoot.home
+// Carol.listensTo.Bob
+// Carol.transformsWith.m
+// m.mapsWith(c => c)
 
+Carol.hostOutput("Carol")
 
+foo.listensTo.ListenerForv
+foo.transformsWith.h
+h.hasRoot.home
+
+//ListenerForv.hostOutput("lv")
 
 `
   },
