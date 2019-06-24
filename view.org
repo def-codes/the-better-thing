@@ -1,0 +1,254 @@
+#+TITLE:views
+
+A view is a resource that asserts the existence of a tangible representation of
+another resource.  It captures an intent.
+
+* domains
+
+What domains are involved in the description of views?
+
+- tangibles
+- composition
+- structure
+- representation
+
+For web output:
+- DOM (HTML, SVG)
+- Canvas
+
+* tangibles and containment
+
+Views involve tangibles.
+
+In space, tangibles may have a graph structure every bit as much as virtual
+things (though many kinds of graph would be impractical).
+
+/Containment/ is a notion that can impose a hierarchy on the physical world.  How?
+Because (direct) containment in the physical world is a functional property (you can only
+have one direct container) and it is acyclical (a thing cannot, directly or
+indirectly, contain itself).
+
+Except in pathological cases, we cannot talk about an object as being directly
+contained by more than one independent container.  In other words, 
+
+We may talk about containment.
+
+#+begin_src ttl
+:A tbd:contains :B
+#+end_src
+
+When we talk about views, we talk about structures.  Why?  Because we can't
+express what we want in a single term.
+
+Containment relates to views in both a user-facing and an
+implementation-specific way.
+
+The user-facing way is noted above: containment implies a tree.
+
+
+* examples in turtle
+
+#+begin_src ttl
+@prefix : <http://example.com> .
+@prefix def: <http://def.codes/views> .
+:AliceView def:views :Alice .
+#+end_src
+
+Alice is not defined yet.  But the view knows that Alice is a resource (because
+not a literal), and so can represent Alice on that fact alone.  (Note this
+requires some additional RDFS inference).
+
+But how do we know that we should view Alice in the first place?  What happens
+when we introduce Bob?
+
+#+begin_src ttl
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+:Bob foaf:knows :Carol .
+#+end_src
+
+If Bob (or Carol for that matter) doesn't happen to be connected to Alice, then
+they will remain in the dreaded invisible-by-default state.
+
+#+begin_src ttl
+:Bob foaf:knows :Alice .
+#+end_src
+
+But even if Bob is connected to Alice, it's not clear that a view of Alice would
+reflect facts in which Alice is the /object/.
+
+More likely, we would view the model as a whole.
+
+#+begin_src ttl
+:ModelView a view:View ; view:of :model ; view:in :GivenContainer .
+#+end_src
+
+Or, with a blank node and some inference,
+
+#+begin_src ttl
+[ view:of :model ; view:in :GivenContainer ] .
+#+end_src
+
+Facts like this can easily be included in a built-in "visibility" driver.  But
+how would they lead to the inclusion of the "contents" of the model?  That is,
+what query would select all of the facts "local" to the model.  I think the
+answer to this will involve namespaces and models as namespaces.
+
+Again, the immediate question is, on what basis do you determine and create the
+containers that you need?  If the contents of a view are to be based on queries
+of resources, does this mean that every element rendered has a corresponding
+resource?  Not every /element/.  There are still two kinds of node: containers
+and... things that use HDOM transducers.
+
+A thing can be both a container and content.
+
+The "open world" challenge presented here is that a thing can be not-a-container
+one minute, and a container the next.  So you cannot say that branch and leaf
+types are disjunct without sacrificing a monotonic growth model.
+
+I've been persuading myself that that something like this
+
+#+begin_src ttl
+:model tbd:contains [ view:of :model ] .
+#+end_src
+
+is something you should expect to do what it sounds like.
+
+But I'm less sure about the specifics.
+
+* prior art: Fresnel
+
+[[https://www.w3.org/2005/04/fresnel-info/manual/#hs][Fresnel]], a "display vocabulary for RDF", addresses the problem this way:
+
+#+begin_quote
+Fresnel adheres to a strict separation between data selection and formatting. The Fresnel rendering process can be decomposed in three steps:
+
+1. Selection: the parts of the RDF graph to be displayed are selected and
+   ordered using Fresnel lenses. The result of the selection step is an ordered
+   tree of RDF nodes, not containing any formatting information yet.
+
+2. Formatting: Fresnel formats are then applied to the tree, adding formatting
+   information and hooks to CSS classes to nodes of the tree.
+
+3. Output Generation: the result of the second step is rendered into the
+   appropriate output format.
+#+end_quote
+
+While it appears that the Fresnel vocabulary never gained (or sustained)
+traction, its breakdown of the problem is instructive.
+
+Fresnel describes a rendering process whose first steps results in "an ordered
+tree of RDF nodes."
+
+I'm interested in two words there: "ordered" and "tree."
+
+* whence trees?
+
+The matter of translating RDF (or any complex runtime data structure) into a
+view on a web page involves a graph-to-tree conversion, if only because the
+final target (the DOM) is a tree.
+
+Given that the translation will involve more than one step, at what stage do we
+change from a graph into a tree?  Again, Fresnel does this in the first step.
+
+* whence ordering?
+
+Fresnel lenses resemble templates, and they produce an ordered structure.
+Templates are implicitly understood as order-preserving.
+
+However, I'm not convinced that ordering is essential to representation.  In an
+open-world model, someone can say that "X hasPart Y" and someone else can say
+that "X hasPart Z."  These two statements need not be in conflict, and we can
+imagine them as having meaningful interpretations even in the absence of a way
+for their authors to /coordinate/ how X presents Y and Z.
+
+It's possible that, if necessary, rules about ordering could be processed
+separately.  
+
+The notion of a specific ordering of things makes sense in a flat, static
+environment.  In (virtual) space, however, where we don't expect (or need)
+objects to have rigid positions, a direct ordering gives way to more dynamic
+placement schemes.  For example, we may describe object placement through a
+composition of influencing forces.  Such a scheme would not be guaranteed to
+produce a specific ordering, yet it is tolerant of compositions not foreseen by
+the "lens" authors, and it is capable of expressing far more sophisticated
+intents than a mere numbering.
+
+In other words, in space, we are motivated to decouple the composition of things
+from their placement.
+
+* and DOM containers
+
+HOW does this help with DOM containers.
+
+Because without the view, you wouldn't attempt to represent anything.
+But when you view a container, you view its contents.
+
+* intents
+
+Let's look at this from the perspective of intents.
+
+Intent could be seen as the driver of all actual work in the runtime.
+
+MELD's desiderata could be formulated as a list of intents:
+- discover (view discovery)
+- view
+- inspect (view parts)
+- trace (view provenance)
+- decompose (basically, inspect)
+- recompose
+- move/copy/export
+- start
+- stop
+
+Obviously, we'd prefer if we could trace model fragments back to their
+originating (human) intent.
+
+But these intents would not have a 1:1 relationship with views or containers.
+
+A view is still a view, regardless of whether it's used in service of another
+intent.  The fact that a view exists represents a (possibly additional) intent
+to view whatever is in question.
+
+So, in conclusion, views are first-class with respect to... viewing, and other
+intents are orthogonal.
+
+
+
+
+
+* view descriptions
+
+
+* composition
+Proposal: rule-based structure composition using Lisp-like templates.
+
+How can multiple independent parties describe a single hierarchical structure?
+
+Each party contributes claims about what constitues a certain type of thing.
+
+(So this imports the notion of types.)
+
+The knowledge takes the form of rules.
+
+The rule antecedents are types (not graph patterns?)
+
+The rule consequents are templates.
+
+The templates support destructuring of the matched body.
+
+Intuitively, it's a way of saying A Foo has a part Bar.
+
+Is =hasPart= different than =contains=?  What do other vocabs have to say?
+
+* special (non-resource-based) views
+
+What about views involving, say scatter plots, or line plots, or bitmaps?  These
+may comprise a large number of elements not represented as resources in the
+model as such.  Even in these cases, we would expect the created elements to be
+traceable to the "containing" resource along with some keypath.
+
+It seems to me that even in these cases, you still have to get all of the data
+necessary for the view into a single resource so that you can emit it using,
+e.g. hdom.  Indeed, these are the cases where hdom would shine.
+
+Still, the question remains, how would these things be assigned containers?
