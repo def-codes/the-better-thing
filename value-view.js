@@ -2,6 +2,10 @@
 // as a module and hence not put this in scope.  for standalone page, checkout
 // inline modules https://v8.dev/features/modules
 var value_view = (function() {
+  // Circular dependency...
+  //const { rdf_hdom } = window;
+  //const { render_triples } = rdf_hdom;
+
   const render_function = (_, { value: fn }) => ["code", fn.toString()];
   const render_null = _ => ["span", { "data-type": "null" }, "∅"];
   const render_undefined = _ => ["span", { "data-type": "undefined" }, "⊥"];
@@ -79,6 +83,8 @@ var value_view = (function() {
       typeof value === "boolean"
     )
       return [render_primitive, { value }];
+    // SPECIAL CASE: testing
+    if (value["@type"] === "triples") return [rdf_hdom.render_triples, value];
 
     if (value instanceof Error) return [render_error, { value, path }];
     if (value instanceof Set)

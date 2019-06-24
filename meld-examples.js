@@ -38,6 +38,15 @@ Carol.hostOutput("Carol")
 
 `
   },
+  {
+    name: "subgraph-view",
+    label: "subgraph view",
+    comment: "Subgraphs.",
+    userland_code: `Alice . hostOutput("Alice")
+Alice . isa . AllFacts
+
+`
+  },
 
   {
     name: "hdom",

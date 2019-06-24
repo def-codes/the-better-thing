@@ -122,11 +122,17 @@ const monotonic_system = ({ id, store, dom_root, ports }) => {
 
   const find = subject => registry.get(subject);
 
+  const unstable_live_query = where => live_query(store, where);
+
   // The interface made available to drivers
   //
   // TEMP: Changing handlers to return side-effect descriptions.  Read-only
   // facilities will be added as needed.
-  const driver_helpers = { store, find };
+  const driver_helpers = {
+    store,
+    find,
+    unstable_live_query
+  };
   const system = {
     store,
     find,
@@ -139,7 +145,6 @@ const monotonic_system = ({ id, store, dom_root, ports }) => {
     },
     assert_all: facts => store.into(facts),
     query_all: where => sync_query(store, where),
-    live_query: where => live_query(store, where),
 
     // A single resource can be “implemented” once for each type.  This allows
     // drivers to disambiguate the role for which they are querying

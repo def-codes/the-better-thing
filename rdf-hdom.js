@@ -23,11 +23,25 @@ var rdf_hdom = (function() {
       : o.value
   ];
 
-  const render_triples = (_, triples) => [
-    "div.triples",
-    "facts",
-    tx.map(triple => [render_triple, triple], triples)
-  ];
+  const render_triples = (_, triples) => {
+    console.orig.log(`triples`, triples);
+    // return null;
+    return [
+      "div.triples",
+      "facts",
+      tx.map(
+        triple => [
+          render_triple,
+          // TRANSITIONAL: should always use rdf.js form unless directly
+          // interoping with rstream-query.
+          Array.isArray(triple)
+            ? triple
+            : [triple.subject, triple.predicate, triple.object]
+        ],
+        triples
+      )
+    ];
+  };
 
   return { render_triple, render_triples };
 })();
