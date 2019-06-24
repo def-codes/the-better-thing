@@ -90,10 +90,10 @@ var value_view = (function() {
     return ["span", value ? JSON.stringify(value) : "(falsy)", " "];
   };
 
-  const render_value = ({ render }, { value }) => [
-    "div.value-view",
-    [render, { value }]
-  ];
+  // Wraps value in format needed for `render`, and wrap result in class needed
+  // for stylesheets.  Referencing `render` directly rather than from context
+  // because this may be called before hdom... wait.
+  const render_value = value => ["div.value-view", [render, { value }]];
 
   return { render_value, render };
 })();

@@ -4,11 +4,10 @@ var rdf_hdom = (function() {
   const { value_view } = window;
   // NOTE: This view (and any one using `render_value` now assumes that `render`
   // is in context.)
-  const { render_value } = value_view;
 
   const as_string = v => (v ? v.toString() : undefined);
 
-  const render_triple = (_, [s, p, o]) => [
+  const render_triple = ({ render }, [s, p, o]) => [
     "div.Property",
     {
       "data-subject": as_string(s.value),
@@ -19,7 +18,9 @@ var rdf_hdom = (function() {
     " ",
     p.value,
     " ",
-    o.termType === "Literal" ? [render_value, { value: o.value }] : o.value
+    o.termType === "Literal"
+      ? ["div.value-view", [render, { value: o.value }]]
+      : o.value
   ];
 
   const render_triples = (_, triples) => [

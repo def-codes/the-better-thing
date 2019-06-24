@@ -1,7 +1,6 @@
 // support system for monotonic, rule-based drivers of resource implementations.
 
 const { transducers: tx, rstream: rs, hdom } = thi.ng;
-const { updateDOM } = thi.ng.transducersHdom;
 
 // =============== RDF helpers
 
@@ -37,8 +36,6 @@ const sync_query = (store, where) => {
       q: [{ where: where.map(_ => _.map(rstream_variables)) }]
     })
     .subscribe({ next: result_set => (results = result_set) });
-  // This is tricky, I think because of cached queries
-  //if (query.getState() >= 2 /*DONE*/)
   query.unsubscribe();
   return results;
 };

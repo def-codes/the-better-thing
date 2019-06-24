@@ -2,7 +2,7 @@
   const { transducers: tx, rstream: rs, hdom } = thi.ng;
   const { rdf_hdom, value_view, meld_world } = window;
   const { render_triples } = rdf_hdom;
-  const { render, render_value } = value_view;
+  const { render } = value_view;
   const { monotonic_world } = meld_world;
 
   //=========== LOAD MODEL
@@ -102,7 +102,7 @@
               tx.map(value => [
                 "article.port-output",
                 ["h3", name],
-                [render_value, { value }]
+                ["div.value-view", [render, { value }]]
               ]),
               updateDOM({ root: ele, ctx: { render } })
             )

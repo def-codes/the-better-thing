@@ -11,7 +11,7 @@
   const render_entry = (_, { method, args }) => [
     "div.console-entry",
     { "data-method": method },
-    tx.map(arg => [render_value, { value: arg }], args)
+    tx.map(render_value, args)
   ];
 
   const render_entries = (_, entries) => [

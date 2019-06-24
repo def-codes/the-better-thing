@@ -2,8 +2,10 @@
   const NAME = "hdomDriver";
   if (!meld) throw `${NAME}: No meld system found!`;
 
+  const { value_view } = window;
   const { transducersHdom } = thi.ng;
   const { updateDOM } = transducersHdom;
+  const { render } = value_view;
 
   meld.register_driver(NAME, ({ q }) => ({
     claims: q(
@@ -25,7 +27,8 @@
             // See notes elsewhere
             // as_type: "HdomTransducer",
             as_type: "Transducer",
-            get: () => updateDOM({ root: find(element) })
+            // HACK: on what basis is this the context??
+            get: () => updateDOM({ root: find(element), ctx: { render } })
           }
         })
       }
