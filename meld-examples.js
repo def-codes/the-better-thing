@@ -562,10 +562,17 @@ Alice.hostOutput("Alice")
 
   {
     name: "layers",
-    label: "layers driver",
-    comment: `testing reified layers`,
-    userland_code: `l . isa . Layer`
+    label: "layers",
+    comment: `TEMP layers hack`,
+    userland_code: `s.hasSource(sub => { sub.next({layers: [
+"billy", "jean", "is", "not", "my", "lover"
+]}) })
+v.viewOf.s
+v.viewIn.home
+
+`
   },
+
   {
     name: "space",
     label: "space driver",

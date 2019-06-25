@@ -84,6 +84,12 @@ var value_view = (function() {
     )
       return [render_primitive, { value }];
     // SPECIAL CASE: testing
+    if (Array.isArray(value.layers))
+      return [
+        "div.layers",
+        tx.map(layer => ["div.layer", [render, { value: layer }]], value.layers)
+      ];
+
     if (value["@type"] === "triples")
       return [rdf_hdom.render_triples, { value }];
 

@@ -144,7 +144,7 @@ main > header {
 	right: 0.5em;
 	bottom: 0.5em;
 	overflow: auto;
-	max-width: 50%;
+	max-width: 33%;
 	padding: 0.25em 0.5em;
 	background: rgba(0, 0, 0, 0.1);
 	box-shadow: 0 0 1.2em rgba(51, 51, 51, .5);
