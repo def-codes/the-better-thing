@@ -567,9 +567,15 @@ Alice.hostOutput("Alice")
     userland_code: `s.hasSource(sub => { sub.next({layers: [
 "billy", "jean", "is", "not", "my", "lover"
 ]}) })
-v.viewOf.s
-v.viewIn.home
 
+home.contains.more
+Alice.hasInterval(100)
+vv.viewOf.Alice
+vv.viewIn.more
+
+v.viewOf.s
+v.viewIn.thing
+home.contains.thing
 `
   },
 

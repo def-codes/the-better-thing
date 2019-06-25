@@ -18,7 +18,8 @@
       {
         when: q(
           "?subject hasRoot ?container",
-          "?element implements ?container"
+          "?element implements ?container",
+          "?element as Container"
         ),
         // Reify the hdom transducer
         then: ({ subject, element }, { find }) => ({
