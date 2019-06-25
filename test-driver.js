@@ -17,6 +17,9 @@
             get: () =>
               query(q("?subject ?predicate ?object")).transform(
                 tx.map(results =>
+                  // MUTATING!
+                  // Also, these are not rdf.js triples.
+                  // HACK: @type is just a signal to value view
                   Object.assign(results, { "@type": "triples" })
                 )
               )

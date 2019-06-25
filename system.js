@@ -5,7 +5,6 @@ const { transducers: tx, rstream: rs, hdom } = thi.ng;
 // =============== RDF helpers
 
 const AS = rdf.namedNode("as"); // for runtime only
-const TYPE = rdf.namedNode("isa"); // s/b rdf:type
 const VALUE = rdf.namedNode("value"); // s/b rdf:value
 const IMPLEMENTS = rdf.namedNode("implements"); // s/b meld:
 

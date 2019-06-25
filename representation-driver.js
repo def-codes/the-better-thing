@@ -23,67 +23,6 @@
     ];
   };
 
-  const render_resource = () => ["div", "hello again"];
-
-  const all_values_for = (store, subject, property) =>
-    tx.iterator(
-      tx.comp(
-        tx.map(index => store.triples[index]),
-        tx.filter(([, p]) => p === property),
-        tx.pluck(2)
-      ),
-      store.indexS.get(subject) || []
-    );
-
-  // given a store and a list of resources, render those resources and their
-  // (non-node) properties.
-  const render_resource_nodes = (_, { store, resources }) => {
-    const literal_props = tx.transduce(
-      // Limit to literal (value) props, as nodes and links are displayed
-      // independently.  Allows links to be on separate layer.
-      tx.filter(([, , o]) => o.termType === "Literal"),
-      tx.groupByMap({ key: ([s]) => s }),
-      store.triples
-    );
-
-    return [
-      "div",
-      {},
-      tx.map(
-        resource => [
-          "div",
-          {
-            "data-resource": resource.value,
-            class: [
-              "Resource",
-              ...tx.map(
-                type => type.value,
-                all_values_for(store, resource, TYPE) || []
-              )
-            ].join("  ")
-          },
-          [
-            "div.resource-content",
-            resource.value,
-            !literal_props.has(resource)
-              ? null
-              : tx.map(
-                  ([, p, o]) => [
-                    "div",
-                    { "data-property": p.value },
-                    p.value,
-                    " ",
-                    o.value && o.value.toString()
-                  ],
-                  literal_props.get(resource)
-                )
-          ]
-        ],
-        resources
-      )
-    ];
-  };
-
   const REPRESENTATION_DRIVER = {
     claims: q(
       "Representation isa Class",
