@@ -27,7 +27,7 @@
         // `stream` is a term referring to the resource to be implemented.
         // `source` is a (literal) term whose value is the source function.
         when: q("?stream hasSource ?source"),
-        then({ stream, source }, system) {
+        then({ stream, source }) {
           // This kind of inconsistency could also be checked via above ontology
           if (typeof source.value !== "function")
             return {
@@ -40,7 +40,9 @@
           return {
             register: {
               subject: stream,
-              as_type: "Stream",
+              // Here and below this seems it should be stream, but system doesn't
+              // traverse subclasses when doing these lookups.
+              as_type: "Subscribable",
               get: () => rs.stream(source.value)
               // DEBUG: uncomment to log stream values
               // .subscribe(rs.trace("DEBUG stream"))
@@ -53,8 +55,6 @@
         then: ({ timer, ms }) => ({
           register: {
             subject: timer,
-            // Here and below this seems it should be stream, but system doesn't
-            // traverse subclasses when doing these lookups.
             as_type: "Subscribable",
             get: () => rs.fromInterval(ms.value)
           }

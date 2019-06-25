@@ -84,7 +84,8 @@ var value_view = (function() {
     )
       return [render_primitive, { value }];
     // SPECIAL CASE: testing
-    if (value["@type"] === "triples") return [rdf_hdom.render_triples, value];
+    if (value["@type"] === "triples")
+      return [rdf_hdom.render_triples, { value }];
 
     if (value instanceof Error) return [render_error, { value, path }];
     if (value instanceof Set)

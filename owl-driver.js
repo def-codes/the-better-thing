@@ -11,7 +11,7 @@
 
   const ISA = n("isa");
 
-  meld.register_driver(NAME, ({ q }) => ({
+  meld.register_driver(NAME, ({ q, is_node }) => ({
     claims: q(
       // RDFS:
       "domain domain Property",
@@ -30,7 +30,10 @@
       {
         name: "PropertyRangeRule",
         when: q("?property range ?type", "?any ?property ?value"),
-        then: ({ value, type }) => ({ assert: [[value, ISA, type]] })
+        then: ({ value, type }) =>
+          // Only object-valued terms should appear in subject position.
+          // TODO: How would you say this in userland?
+          is_node(value) ? { assert: [[value, ISA, type]] } : {}
       },
       {
         name: "SubclassRule",

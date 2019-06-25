@@ -46,7 +46,7 @@ const live_query = (store, where) =>
   });
 
 const drivers = [];
-const register_driver = (name, init) => drivers.push(init({ q }));
+const register_driver = (name, init) => drivers.push(init({ q, is_node }));
 
 const HANDLERS = {
   assert(facts, system) {

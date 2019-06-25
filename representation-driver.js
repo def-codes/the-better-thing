@@ -15,7 +15,9 @@
       {},
       tx.map(
         thing =>
-          is_node(thing) ? [render_resource, thing] : [render_triple, thing],
+          is_node(thing)
+            ? [render_resource, thing]
+            : [render_triple, { value: thing }],
         resources_or_triples
       )
     ];

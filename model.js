@@ -125,7 +125,7 @@
 
   facts
     .transform(
-      tx.map(triples => [render_triples, triples]),
+      tx.map(triples => [render_triples, { value: triples }]),
       updateDOM({ root: host_output_container, ctx: { render } })
     )
     .subscribe(catchall("host-triple-renderer"));

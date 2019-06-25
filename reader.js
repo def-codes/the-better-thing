@@ -278,6 +278,8 @@ f.y(n => n.weight)
 TermWith(SomeArgument)
 This.Isa.Triple
 x.strength(10)
+stream.hasSource(sub => { sub.next("hello"); sub.next("world"); })
+who.calls(() => { throw "me"; })
 You(get.a.car).You(get.a.car).everybody(gets.a.car)
 dict({roses: "red", violets: blue, sugar: true})
 names(Alice, Bob, Carol)
