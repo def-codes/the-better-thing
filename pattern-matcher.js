@@ -15,7 +15,7 @@ var pattern_matcher = (function() {
             ? pattern_proxy(value)
             : value;
         }
-        throw Error("No such key");
+        throw Error(`No such key ‘${key.toString()}’`);
       }
     });
 

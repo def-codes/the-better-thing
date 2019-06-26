@@ -47,6 +47,16 @@
             get: () => tx.partition(size.value)
           }
         })
+      },
+      {
+        when: q("?subject partitionsWith ?spec"),
+        then: ({ subject, spec }) => ({
+          register: {
+            subject,
+            as_type: "Transducer",
+            get: () => tx.partition(spec.value.size, spec.value.step)
+          }
+        })
       }
     ]
   }));

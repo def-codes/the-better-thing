@@ -624,7 +624,7 @@ vv.viewIn.more
 
 Bob.listensTo.Alice
 Bob.transformsWith.m
-m.partitionsBy(5)
+m.partitionsWith({size:5, step: 1})
 b.viewOf.Bob
 home.contains.bcon
 b.viewIn.bcon
