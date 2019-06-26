@@ -10,6 +10,33 @@ charge.theta(0.98),
 
 const MELD_EXAMPLES = [
   {
+    name: "dataflow-repeat-values-bug",
+    label: "repeating values bug",
+    comment: "This was a repro case for a bug in dataflow, which is fixed now.",
+    userland_code: `Alice . hostOutput("Alice")
+Bob . hostOutput("Bob")
+
+Alice . hasInterval(300)
+
+Bob.listensTo.Alice
+Bob.transformsWith.m
+m.partitionsBy(5)
+
+// ListenerForv.listensTo.Bob
+// ListenerForv.transformsWith.MapperForv
+// MapperForv.mapsWith(x => ["b", {}, x.toString()])
+// Listener2Forv.listensTo.ListenerForv
+// Listener2Forv.transformsWith.HdomForv
+// HdomForv.hasRoot.home
+
+// This expands something very close to the above
+v.viewOf.Bob
+v.viewIn.home
+
+`
+  },
+
+  {
     name: "views",
     label: "views",
     comment: "WIP approach to views",
@@ -277,7 +304,11 @@ Bob . listensTo . Alice
 Bob . transformsWith . t
 t.partitionsBy(3)
 
-`
+Carol.listensTo.Bob
+Carol.transformsWith.m
+m.mapsWith(batch => ({batch}))
+Carol.hostOutput("Carol")
+ `
   },
 
   {
@@ -573,6 +604,35 @@ Alice.hasInterval(100)
 vv.viewOf.Alice
 vv.viewIn.more
 
+v.viewOf.s
+v.viewIn.thing
+home.contains.thing
+`
+  },
+
+  {
+    name: "layers-moving",
+    label: "moving layers",
+    comment: `Layers in a dataflow`,
+    userland_code: `home.contains.more
+// To get the desired effect here, you'd first have to use a partitioning step
+// of 1, which isn't currently supported.
+Alice.hostOutput("Alice")
+Alice.hasInterval(250)
+vv.viewOf.Alice
+vv.viewIn.more
+
+Bob.listensTo.Alice
+Bob.transformsWith.m
+m.partitionsBy(5)
+b.viewOf.Bob
+home.contains.bcon
+b.viewIn.bcon
+Bob.hostOutput("Bob")
+
+s.listensTo.Bob
+s.transformsWith.mm
+mm.mapsWith(layers => ({layers}))
 v.viewOf.s
 v.viewIn.thing
 home.contains.thing

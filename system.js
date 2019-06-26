@@ -119,6 +119,9 @@ const apply_drivers_to = (store, helpers, system) => {
 const monotonic_system = ({ id, store, dom_root, ports }) => {
   const registry = new thi.ng.associative.EquivMap();
 
+  // If you need this, Godspeed.
+  // window.system = { store, registry };
+
   const find = subject => registry.get(subject);
 
   const unstable_live_query = where => live_query(store, where);
@@ -162,6 +165,16 @@ const monotonic_system = ({ id, store, dom_root, ports }) => {
           );
           return;
         }
+
+        // I won't judge you for using this.
+        // if (type_name === "Subscribable") {
+        //   value.subscribe(
+        //     tx.sideEffect(value =>
+        //       console.orig.log(subject.value, "DEBUG", value)
+        //     )
+        //   );
+        // }
+
         const value_id = mint_blank();
         //console.log(value, value_id, IMPLEMENTS, subject);
 

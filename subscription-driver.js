@@ -17,7 +17,7 @@
       // truly tear down this node (e.g. for non-monotonic dataflows), we'd want
       // to unsubscribe this as well.  A way to opt out of this behavior is
       // under consideration: https://github.com/thi-ng/umbrella/issues/74
-      merge.subscribe({});
+      merge.subscribe({}, `dummy for ${id} merge`);
       return merge;
     };
 
@@ -30,7 +30,11 @@
     meta.next(make_merge());
 
     return Object.assign(meta, {
-      add: (...args) => current.add(...args),
+      // You MUST NOT add the same source to a `StreamMerge`.  It does not check
+      // for duplicates, and repeat subscribers will result in bad behavior.
+      add: sub => {
+        if (!current.sources.has(sub)) current.add(sub);
+      },
       set_transform(xform) {
         // Don't rebuild if transform hasn't really changed, in case that's not
         // prevented upstream.
@@ -88,13 +92,13 @@
           "?stream implements ?source",
           "?stream as Subscribable"
         ),
-        // SIDE EFFECTING!  how to avoid this?
-        then: ({ subject, stream, merge }, { find }) => {
-          // Luckily, merge.sources is a Map, so adding the same stream multiple
-          // times is a no-op.  Note that adding also subscribes.
-          //
-          // Interestingly, merge will also add any stream sent to it as input,
-          // so merge.next should also work here.
+        // SIDE EFFECTING!  I'm avoiding adding a "side_effect" return type, but
+        // in this case we're not registering a value.  We *do* need to avoid
+        // adding the stream multiple times for the same instance of this rule
+        // (i.e. resource pair), but that is currently handled by the metamerge.
+        //
+        // Note that adding also subscribes.
+        then: ({ subject, source, stream, merge }, { find }) => {
           find(merge).add(find(stream));
           return {};
         }

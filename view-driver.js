@@ -9,15 +9,22 @@
   const ISA = n("isa");
 
   const RENDER_VALUE = rdf.literal(render_value, n("javascriptFunction"));
+  const LISTENS_TO = n("listensTo");
+  const TRANSFORMS_WITH = n("transformsWith");
 
   meld.register_driver(NAME, ({ q }) => ({
-    claims: q(
-      "viewOf domain View"
-      // TBD
-      // "viewOf range Resource"
-      // "contains domain Container",
-      // "contains range Content"
-    ),
+    claims: [
+      ...q(
+        "viewOf domain View"
+        // TBD
+        // "viewOf range Resource"
+        // "contains domain Container",
+        // "contains range Content"
+      )
+      // TODO: s/b rdf:value, and should be able to dereference.  i.e. a ref to
+      //   this should work in place of the literal (polymorphically)
+      //[n("Render"), n("value"), RENDER_VALUE]
+    ],
     rules: [
       {
         when: q(
@@ -49,19 +56,17 @@
           // you would need a variant of the Turtle-like expression expander
           // that used (“minted”) variables instead of blank nodes for
           // placeholders.  These unbound variables would be treated as above.
-          console.log(`viewOf RULE FIRED`);
-
           const listener = n(`ListenerFor${view.value}`);
           const listener2 = n(`Listener2For${view.value}`);
           const mapper = n(`MapperFor${view.value}`);
           const xform = n(`HdomFor${view.value}`);
           return {
             assert: [
-              [listener, n("listensTo"), thing],
-              [listener, n("transformsWith"), mapper],
+              [listener, LISTENS_TO, thing],
+              [listener, TRANSFORMS_WITH, mapper],
               [mapper, n("mapsWith"), RENDER_VALUE],
-              [listener2, n("listensTo"), listener],
-              [listener2, n("transformsWith"), xform],
+              [listener2, LISTENS_TO, listener],
+              [listener2, TRANSFORMS_WITH, xform],
               [xform, n("hasRoot"), container]
             ]
           };
