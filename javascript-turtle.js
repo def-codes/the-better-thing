@@ -41,6 +41,8 @@ $T(s1, { p1: o1, p2: o2 });
 // triples.  Any arity greater than 3 is interpreted this way?  It doesn't
 // distinguish the first two parts.
 $T(s, p, o1, o2);
+// OR
+$T(s, p, [o1, o2]); // but how do you know this isn't an array literal, or a list?
 
 // 2.4 IRI's
 //
@@ -65,7 +67,7 @@ $T.BinaryTree;
 "Hello".lang.en;
 "Hello".en;
 (3).L;
-'{"foo":"bar"}'.dt("http://json.org");
+'{"foo":"bar"}'.L("http://json.org");
 (x => x * x).L;
 
 // 2.6 RDF Blank Nodes
@@ -98,14 +100,16 @@ $T([], p, [p2, [p3, o3]]);
 // Or, as noted above,
 // prettier-ignore
 {} // <- blank node
-// or
+// OR
 ({}.B);
-// or
-$T({ p, o });
+// OR
+$T({ p: o });
+
 $T({}, p, o); // bnode as subject
 $T({ p1: o1, p2: o2 });
 $T({}, p, { p2: { p3, o3 } });
-// ^ This is much better than array approach.
+// ^ This is much better than array approach.  Though doesn't address how you'd
+// use e.g. variables or blank nodes for keys, not to mention prefixed terms.
 
 // 2.8 Collections
 //
@@ -116,3 +120,19 @@ $T({}, p, { p2: { p3, o3 } });
 //
 // Arrays are one option, though I think an explicit list construct may be
 // better.
+
+// If you're willing to use the proxy, you have more options.
+_ => _.Alice.knows.Bob;
+_ => [_.Alice.knows.Bob, _.Alice.knows.Carol];
+_ => _.Alice.knows(_.Bob, _.Carol);
+_ => _.Alice(_.likes.Bob, _.loves.Carol);
+// Alice likes Bob and Dave, and loves Carol
+_ => _.Alice(_.likes(_.Bob, _.Dave), _.loves.Carol);
+// Alice likes Bob and also a scientist (who may or may not be Bob)
+_ => _.Alice(_.likes(_.Bob, _.a.Scientist), _.loves.Carol);
+// Alice likes someone who is a poet and also someone who is a preacher
+_ => _.Alice(_.likes(_.a.Poet, _.a.Preacher), _.loves.Carol);
+// Alice likes someone who is both a poet and a preacher
+_ => _.Alice(_.likes(_.a(_.Poet, _.Preacher)), _.loves.Carol);
+// Alice likes an ordered list of things, which makes a blank node (in context).
+_ => _.Alice(_.likesInOrder([_.Spaghetti, _.Springtime, _.Spatulas]));
