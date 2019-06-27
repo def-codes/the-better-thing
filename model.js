@@ -1,12 +1,21 @@
-(function model_main() {
-  const { transducers: tx, rstream: rs, hdom } = thi.ng;
-  const { rdf_hdom, value_view, meld_world } = window;
-  const { render_triples } = rdf_hdom;
-  const { render } = value_view;
-  const { monotonic_world } = meld_world;
+import { render } from "./modules/value-view.mjs";
+import { monotonic_world } from "./modules/world.mjs";
+import { render_triples } from "./modules/rdf-hdom.mjs";
+import { MELD_EXAMPLES } from "./meld-examples.js";
 
-  //=========== LOAD MODEL
+// Hack for browser/node support
+import * as rs1 from "../node_modules/@thi.ng/rstream/lib/index.umd.js";
+import * as tx1 from "../node_modules/@thi.ng/transducers/lib/index.umd.js";
+import * as hdom1 from "../node_modules/@thi.ng/hdom/lib/index.umd.js";
+import * as txhdom1 from "../node_modules/@thi.ng/transducers-hdom/lib/index.umd.js";
+const rs = Object.keys(rs1).length ? rs1 : thi.ng.rstream;
+const tx = Object.keys(tx1).length ? tx1 : thi.ng.transducers;
+const hdom = Object.keys(hdom1).length ? hdom1 : thi.ng.hdom;
+const txhdom = Object.keys(txhdom1).length ? txhdom1 : thi.ng.transducersHdom;
 
+//=========== LOAD MODEL
+
+function main() {
   const requested_model = window.location.search.replace(/^\?/, "");
   if (!requested_model) return;
   const model_spec = MELD_EXAMPLES.find(_ => _.name === requested_model);
@@ -168,4 +177,6 @@
 
   // Send initial USERLAND CODE now
   if (model_spec.userland_code) sink(model_spec.userland_code);
-})();
+}
+
+main();

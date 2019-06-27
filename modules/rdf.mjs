@@ -187,4 +187,4 @@ const makeIdentityFactory = baseFactory => {
   };
 };
 
-var rdf = makeIdentityFactory(dataFactory);
+export default makeIdentityFactory(dataFactory);

@@ -8,7 +8,7 @@ charge.distanceMax(250),
 charge.theta(0.98),
 `;
 
-const MELD_EXAMPLES = [
+export const MELD_EXAMPLES = [
   {
     name: "dataflow-repeat-values-bug",
     label: "repeating values bug",

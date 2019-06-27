@@ -1,6 +1,6 @@
 // Alternate, hijacked console implementation.  Load for side-effects.
 // CONSOLE IS DEAD LONG LIVE CONSOLE
-//import { render, render_value } from "./value-view.mjs";
+import { render, render_value } from "./value-view.mjs";
 
 // Hack for browser/node support
 import * as rs1 from "../node_modules/@thi.ng/rstream/lib/index.umd.js";
@@ -17,8 +17,7 @@ const container = document.body.appendChild(document.createElement("div"));
 const render_entry = (_, { method, args }) => [
   "div.console-entry",
   { "data-method": method },
-  //tx.map(render_value, args)
-  tx.map(value => ["pre", value.toString()], args)
+  tx.map(render_value, args)
 ];
 
 const render_entries = (_, entries) => [
