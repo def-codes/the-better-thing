@@ -1,57 +1,30 @@
 // Alternate, hijacked console implementation.  Load for side-effects.
 // CONSOLE IS DEAD LONG LIVE CONSOLE
-//import { render, render_value } from "./value-view.mjs";
 
-// Hack for browser/node support
-import * as rs1 from "../node_modules/@thi.ng/rstream/lib/index.umd.js";
-import * as tx1 from "../node_modules/@thi.ng/transducers/lib/index.umd.js";
-import * as txhdom1 from "../node_modules/@thi.ng/transducers-hdom/lib/index.umd.js";
-const rs = Object.keys(rs1).length ? rs1 : thi.ng.rstream;
-const tx = Object.keys(tx1).length ? tx1 : thi.ng.transducers;
-const txhdom = Object.keys(txhdom1).length ? txhdom1 : thi.ng.transducersHdom;
+// Create stream source function for console entries in well-known location.
 
-const { updateDOM } = txhdom;
+// Idea is to provide console entries as a subscribable without needing to have
+// loaded a subscription implementation.  Expecting source to be constructed
+// only once.
 
-const container = document.body.appendChild(document.createElement("div"));
+(function() {
+  const orig = {}; // escape hatch
+  let _sub;
 
-const render_entry = (_, { method, args }) => [
-  "div.console-entry",
-  { "data-method": method },
-  //tx.map(render_value, args)
-  tx.map(value => ["pre", value.toString()], args)
-];
+  const source = sub => (_sub = sub);
 
-const render_entries = (_, entries) => [
-  "div.console",
-  tx.map(entry => [render_entry, entry], entries)
-];
+  Object.assign(console, { orig, source });
 
-const orig = {};
-Object.assign(console, { orig }); // escape hatch
-
-const sub = rs.subscription(
-  {
-    error(error) {
-      alert("see console, sheep");
-      orig.error("Alt log failed", error);
+  for (const method of ["log", "warn", "error"]) {
+    orig[method] = console[method];
+    try {
+      console[method] = function(...args) {
+        if (_sub) _sub.next({ method, args });
+        if (method === "error") orig.error(...args);
+      };
+    } catch (error) {
+      orig.log("ERROR: ", error);
+      throw error;
     }
-  },
-  tx.comp(
-    tx.slidingWindow(10),
-    tx.map(entries => [render_entries, entries]),
-    updateDOM({ root: container, ctx: { render } })
-  )
-);
-
-for (const method of ["log", "warn", "error"]) {
-  orig[method] = console[method];
-  try {
-    console[method] = function(...args) {
-      sub.next({ method, args });
-      if (method === "error") orig.error(...args);
-    };
-  } catch (error) {
-    orig.log("ERROR: ", error);
-    throw error;
   }
-}
+})();
