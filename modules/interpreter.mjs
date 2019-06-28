@@ -15,10 +15,11 @@ const trip = (s, p, o) => [
 
 // ================================= WORLD / INTERPRETER
 
+const identity = x => x;
+
 export const interpret = statements => {
-  // Would be mapcat assuming
   return tx.transduce(
-    tx.comp(tx.map(as_turtle), tx.keep()),
+    tx.comp(tx.map(as_turtle), tx.keep(), tx.mapcat(identity)),
     tx.push(),
     statements
   );

@@ -29,13 +29,12 @@ export function* expecting_statements(exprs) {
   for (const expr of exprs) yield* expecting_statement(expr);
 }
 
-function* expecting_statement(expr) {
+export function* expecting_statement(expr) {
   if (expr.length > 3) throw "Expecting statement: invalid arity";
 
   const [first, second, third] = expr;
   if (!first) throw "Expecting statement: first part is required";
   if (!second) throw "Expecting statement: second part is required";
-
   if (!first.term) throw "Expecting statement: first part must be a term";
 
   if (!third) {
@@ -113,10 +112,8 @@ function* expecting_predicate_object(expr, { subject }) {
 
   // Simple predicate-object.
   if (predicate.term && object.term) {
-    // Predicate object for contextual subject
-    if (subject) yield [subject, predicate, object];
-    // New anonymous node
-    else yield [mint(), predicate, object];
+    // Predicate object for contextual subject or new anonymous node
+    yield [subject || mint(), predicate, object];
     return;
   }
 
@@ -136,12 +133,13 @@ function* expecting_predicate_object(expr, { subject }) {
 }
 
 function* expecting_object(expr, { subject, predicate }) {
-  // Why is this not  wrapped in some cases?
   if ("literal" in expr) {
     yield [subject, predicate, expr];
     return;
   }
-  if (!Array.isArray(expr)) throw "Expecting object: expected array";
+
+  if (!Array.isArray(expr))
+    throw "Expecting object: expected array (expression)";
 
   const [first, second] = expr;
 
@@ -149,17 +147,14 @@ function* expecting_object(expr, { subject, predicate }) {
   if (!first) throw "Expecting object: first part is required";
 
   if (expr.length === 1) {
-    // Simple term (named or literal).
-    // For literals, don't we need to “deeply de-literal” here?
-    if ("literal" in first || "term" in first) {
+    if (first.term) {
       yield [subject, predicate, first];
       return;
     }
     throw "Expecting object: invalid unary expression";
   }
   if (expr.length === 2) {
-    // Object list
-    // New context because not connected to containing expr
+    // Object list.  New context because not connected to containing expr.
     const object_facts = scan_as(expecting_predicate_object, expr, {
       subject: mint()
     });
@@ -167,8 +162,7 @@ function* expecting_object(expr, { subject, predicate }) {
       // In addition to the collected facts, yield a fact (for *this* position)
       // based on head of result where object is the (presumably minted) id of
       // the implicit object.
-      const [first] = object_facts;
-      const [object] = first;
+      const [[object]] = object_facts;
       yield [subject, predicate, object];
       yield* object_facts;
       return;

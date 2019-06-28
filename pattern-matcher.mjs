@@ -1,3 +1,5 @@
+// This is no longer used here and probably should be scrapped.
+
 /**
  * A crude utility for mapping from defined patterns to recognized structures.
  * Proxy is used here to trap destructuring attempts by the runtime in order to
