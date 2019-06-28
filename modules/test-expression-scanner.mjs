@@ -1,21 +1,19 @@
-import { make_scanner, normalize } from "./expression-scanner.mjs";
+import { with_scanner } from "./expression-scanner.mjs";
 import { read } from "./reader.mjs";
 
+// for node
 import { createRequireFromPath } from "module";
 const require = createRequireFromPath(import.meta.url);
 
 const { inspect } = require("util");
 
 function test_scanner() {
-  const contexts = [];
-  const scanner = make_scanner(contexts);
   const ex = _ => [
     _.Alice.knows.Bob,
     _.Bob.loves.Alice(_.bearbags),
     _.Carol.alias("Foo", "Bar")
   ];
-  ex(scanner);
-  const normalized = normalize(contexts);
+  const normalized = with_scanner(ex);
   console.log(`normalized`, inspect(normalized, { depth: 5 }));
 }
 
@@ -25,4 +23,5 @@ function test_reader() {
   console.log(`blah`, blah);
 }
 
-test_scanner();
+//test_scanner();
+test_reader();

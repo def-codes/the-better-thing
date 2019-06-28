@@ -14,7 +14,7 @@ function* walk(x, path = []) {
 //const globalThis = this;
 //const inspect = globalThis.require && globalThis.require("util").inspect;
 const CONTEXT = Symbol("context");
-export const EXPR = Symbol("expr");
+const EXPR = Symbol("expr");
 
 // Mostly short circuits to prevent proxies from blowing up inspection.
 const ALWAYS = {
@@ -72,7 +72,7 @@ const sanitize = x =>
 // Use function as target so that result is always invokable.
 const target = () => {};
 
-export const make_scanner = collector => {
+const make_scanner = collector => {
   let expr_id = 0;
 
   const make_proxy = (context = []) => {
@@ -120,7 +120,7 @@ export const make_scanner = collector => {
   not used in any other context.
 */
 // Normalize scan results.
-export const normalize = collected => {
+const normalize = collected => {
   // Get all of the expression id's referenced for each context.
   const idx = new Map();
   for (const expr of collected)
@@ -140,4 +140,12 @@ export const normalize = collected => {
     if (unique) statements.push(expr);
   }
   return statements;
+};
+
+/** Run the given function with an expression scanner as its argument and return
+ * the collected statements.. */
+export const with_scanner = fn => {
+  const contexts = [];
+  fn(make_scanner(contexts));
+  return normalize(contexts);
 };
