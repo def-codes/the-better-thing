@@ -1,88 +1,111 @@
-import { with_scanner } from "./expression-scanner.mjs";
-import { serialize } from "./expression-serializer.mjs";
+// should mint be in context?
 
-// for node
-import { createRequireFromPath } from "module";
-const require = createRequireFromPath(import.meta.url);
-const { inspect } = require("util");
-
+let count = 0;
 const mint = (function() {
-  let count = 0;
   return () => ({ term: { minted: count++ } });
 })();
 
-// should mint be in context?
-
-function* expecting_statements(exprs) {
-  for (const expr of exprs) yield* expecting_statement(expr, []);
+function scan_as(fn, expr_or_exprs, context = {}) {
+  try {
+    return [...fn(expr_or_exprs, context)];
+  } catch (error) {
+    return { error };
+  }
 }
 
-function* expecting_statement(expr, context) {
+function scan_as_list(fn, exprs, context = {}) {
+  const out = [];
+  for (const expr of exprs) {
+    const facts = scan_as(fn, expr, context);
+    if (facts.error) return facts;
+    out.push(...facts);
+  }
+  return out;
+}
+
+export function* expecting_statements(exprs) {
+  // HACK: for testing, reset counter
+  count = 0;
+  for (const expr of exprs) yield* expecting_statement(expr);
+}
+
+function* expecting_statement(expr) {
   if (expr.length > 3) throw "Expecting statement: invalid arity";
 
-  const [subject, predicate, object] = expr;
-  if (!subject) throw "Expecting statement: missing subject";
-  if (!predicate) throw "Expecting statement: missing predicate";
+  const [first, second, third] = expr;
+  if (!first) throw "Expecting statement: first part is required";
+  if (!second) throw "Expecting statement: second part is required";
 
-  if (!object) {
-    // Subject + predicate-object list
-    if (subject.term && predicate.args) {
-      try {
-        const out = [];
-        for (const fact of expecting_predicate_object_list(expr, { subject }))
-          out.push(fact);
-        yield* out;
-        return;
-      } catch (error) {
-        console.log("ERROR: ", error);
-        throw "Expecting ${l}";
-      }
+  if (!first.term) throw "Expecting statement: first part must be a term";
+
+  if (!third) {
+    // Simple blank node
+    if (second.term) {
+      yield [mint(), first, second];
       return;
+    }
+
+    const [subject, predicate] = [first, second];
+
+    if (predicate.args) {
+      const { args } = predicate;
+
+      // Subject + predicate-object list
+      const po_facts = scan_as_list(expecting_predicate_object, args, {
+        subject
+      });
+      if (!po_facts.error) {
+        yield* po_facts;
+        return;
+      }
+
+      // Predicate + object list: blank node
+      const o_facts = scan_as_list(expecting_object, args);
+      if (!o_facts.error) {
+        yield* o_facts;
+        return;
+      }
+      throw o_facts.error;
     }
 
     throw "Expecting statement: invalid two-part statement";
   }
 
+  const [subject, predicate, object] = expr;
+
   // Simple triple.
-  if (subject.term && predicate.term && object.term) {
+  if (predicate.term && object.term) {
     yield [subject, predicate, object];
     return;
   }
 
   // Subject + predicate with object list.
-  if (subject.term && predicate.term && object.args) {
-    try {
-      const things = [
-        ...expecting_object_list(object.args, { subject, predicate })
-      ];
-      // Don't yield until collection has succeeded.
-      yield* things;
+  if (predicate.term && object.args) {
+    const o_list_facts = scan_as_list(expecting_object, object.args, {
+      subject,
+      predicate
+    });
+    if (!o_list_facts.error) {
+      yield* o_list_facts;
       return;
-    } catch (error) {
-      console.log(`ERROR`, error);
-      console.log(`Expecting statement: failed to read object list...`);
-      // There's no fallback here...
     }
+    // There's no fallback here...
+    throw o_list_facts.error;
+    throw `Expecting statement: failed to read object list...`;
   }
 
   throw "Expecting statement: exhausted";
 }
 
-function* expecting_predicate_object_list(exprs, context) {
-  try {
-    const out = [];
-    for (const expr of exprs)
-      for (const fact of expecting_predicate_object(expr, context))
-        out.push(fact);
-    yield* out;
-  } catch (error) {
-    console.log("ERROR: ", error);
-    throw "Expecting predicate object list: failed to read predicate object list";
-  }
-}
+// Above are never called recursively.  Below are always called with context.
+
+// expr means an array of elements (term, literal, or array)
+// exprs means an array of expr's
 
 function* expecting_predicate_object(expr, { subject }) {
-  if (expr.length !== 2) throw "Expecting predicate object: invalid arity";
+  if (expr.length !== 2) {
+    throw "Expecting predicate object: invalid arity";
+  }
 
   const [predicate, object] = expr;
   if (!predicate) throw "Expecting predicate object: missing predicate";
@@ -92,114 +115,67 @@ function* expecting_predicate_object(expr, { subject }) {
   if (predicate.term && object.term) {
     // Predicate object for contextual subject
     if (subject) yield [subject, predicate, object];
-    // New minted (blank) node
-    // ?????????
+    // New anonymous node
     else yield [mint(), predicate, object];
     return;
   }
 
   if (predicate.term && object.args) {
-    try {
-      const objects = [
-        ...object.args.map(arg =>
-          expecting_object_list(arg, { subject, predicate })
-        )
-      ];
-    } catch (error) {
-      console.log("ERROR: ", error);
-      throw error;
+    // Predicate + object list
+    const o_list_facts = scan_as_list(expecting_object, object.args, {
+      subject,
+      predicate
+    });
+    if (!o_list_facts.error) {
+      yield* o_list_facts;
+      return;
     }
   }
 
   throw "Expecting predicate object: exhausted";
 }
 
-function* expecting_object_list(exprs, context) {
-  try {
-    const out = [];
-    for (const expr of exprs)
-      for (const fact of expecting_object(expr, context)) out.push(fact);
-    yield* out;
-  } catch (error) {
-    console.log("ERROR: ", error);
-    throw "Expecting object list: failed to read object";
+function* expecting_object(expr, { subject, predicate }) {
+  // Why is this not  wrapped in some cases?
+  if ("literal" in expr) {
+    yield [subject, predicate, expr];
+    return;
   }
-}
+  if (!Array.isArray(expr)) throw "Expecting object: expected array";
 
-function* expecting_object(expr0, { subject, predicate }) {
-  //console.log(`EXPECTING OBJECT`, expr);
+  const [first, second] = expr;
 
-  if (Array.isArray(expr0)) {
-    const [expr] = expr0;
+  if (expr.length > 3) throw "Expecting object: invalid arity";
+  if (!first) throw "Expecting object: first part is required";
+
+  if (expr.length === 1) {
+    // Simple term (named or literal).
     // For literals, don't we need to “deeply de-literal” here?
-    if (expr.literal || expr.term) {
-      yield [subject, predicate, expr];
+    if ("literal" in first || "term" in first) {
+      yield [subject, predicate, first];
       return;
     }
-
-    try {
-      // New context because not connected to containing expr
-      const objects = [
-        ...expr.map(expr => expecting_predicate_object(expr, {}))
-      ];
+    throw "Expecting object: invalid unary expression";
+  }
+  if (expr.length === 2) {
+    // Object list
+    // New context because not connected to containing expr
+    const object_facts = scan_as(expecting_predicate_object, expr, {
+      subject: mint()
+    });
+    if (!object_facts.error) {
       // In addition to the collected facts, yield a fact (for *this* position)
       // based on head of result where object is the (presumably minted) id of
       // the implicit object.
-      const [first] = objects;
+      const [first] = object_facts;
       const [object] = first;
       yield [subject, predicate, object];
-      yield* objects;
+      yield* object_facts;
       return;
-    } catch (error) {
-      console.log("ERROR: ", error);
-      throw "Expecting object: failed to read blank nodes";
     }
+
+    throw object_facts.error;
   }
 
   throw "Expecting object: exhausted";
 }
-
-const TEST_CASES = [
-  _ => _.Alice.knows.Bob,
-  _ => _.Alice.knows.Bob.Barker,
-  _ => [_.Alice.knows.Bob, _.Alice.knows.Carol],
-  _ => _.Alice.knows(_.Bob, _.Carol),
-  _ => _.Alice(_.likes.Bob, _.loves.Carol),
-  _ => _.Alice.age(95),
-  _ => _.Alice.alias("Ali", "Alicia"),
-  _ => _.Alice(_.likes(_.Bob, _.Dave), _.loves.Carol),
-  _ => _.Alice(_.likes(_.Bob, _.a.Scientist), _.loves.Carol),
-  _ => _.Alice(_.likes(_.a.Poet, _.a.Preacher), _.loves.Carol),
-  _ => _.Alice(_.likes(_.a(_.Poet, _.Preacher)), _.loves.Carol)
-];
-
-function test() {
-  for (const test_case of TEST_CASES) {
-    console.log(`===`, test_case);
-    let exprs, expansion;
-    try {
-      exprs = with_scanner(test_case);
-    } catch (error) {
-      console.log("ERROR scanning: ", error);
-      continue;
-    }
-
-    for (const expr of exprs)
-      try {
-        const serialized = serialize(expr);
-        console.log("expr", serialized);
-      } catch (error) {
-        console.log("ERROR serializing: ", expr, error);
-      }
-
-    try {
-      expansion = [...expecting_statements(exprs)];
-      console.log(`expansion`, expansion);
-    } catch (error) {
-      console.log("ERROR expanding: ", error);
-      console.log(`exprs`, inspect(exprs, { depth: null }));
-    }
-  }
-}
-
-test();
