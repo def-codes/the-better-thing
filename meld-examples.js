@@ -18,9 +18,7 @@ Bob . hostOutput("Bob")
 
 Alice . hasInterval(300)
 
-Bob.listensTo.Alice
-Bob.transformsWith.m
-m.partitionsBy(5)
+Bob(listensTo.Alice, transformsWith(partitionsBy(5)))
 
 // ListenerForv.listensTo.Bob
 // ListenerForv.transformsWith.MapperForv
@@ -30,8 +28,7 @@ m.partitionsBy(5)
 // HdomForv.hasRoot.home
 
 // This expands something very close to the above
-v.viewOf.Bob
-v.viewIn.home
+v(viewOf.Bob, viewIn.home)
 
 `
   },

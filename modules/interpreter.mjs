@@ -5,13 +5,20 @@ import { as_turtle } from "./turtle.mjs";
 import * as tx1 from "../node_modules/@thi.ng/transducers/lib/index.umd.js";
 const tx = Object.keys(tx1).length ? tx1 : thi.ng.transducers;
 
-// We're not actually changing to RDF triples as such...
-// just using RDF terms with rstream-query-style tuples
-const trip = (s, p, o) => [
-  typeof s === "string" ? rdf.namedNode(s) : s,
-  typeof p === "string" ? rdf.namedNode(p) : p,
-  !o || !o.termType ? rdf.literal(o) : o
-];
+/** Replace variables with new blank nodes in the given triples. */
+// Using rstream-style (array) triples with RDF.js terms.
+const sub_blank_nodes = triples => {
+  const map = new Map();
+  const sub = term => {
+    if (term.termType === "Variable") {
+      if (!map.has(term.value)) map.set(term.value, rdf.blankNode());
+      return map.get(term.value);
+    }
+    return term;
+  };
+  // Covers predicate for good measure but only expecting vars in s & o pos's.
+  return triples.map(triple => triple.map(sub));
+};
 
 // ================================= WORLD / INTERPRETER
 
@@ -19,7 +26,12 @@ const identity = x => x;
 
 export const interpret = statements => {
   return tx.transduce(
-    tx.comp(tx.map(as_turtle), tx.keep(), tx.mapcat(identity)),
+    tx.comp(
+      tx.map(as_turtle),
+      tx.keep(),
+      tx.map(sub_blank_nodes),
+      tx.mapcat(identity)
+    ),
     tx.push(),
     statements
   );
