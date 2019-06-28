@@ -23,7 +23,25 @@ function* expecting_statement(expr, context) {
   const [subject, predicate, object] = expr;
   if (!subject) throw "Expecting statement: missing subject";
   if (!predicate) throw "Expecting statement: missing predicate";
-  if (!object) throw "Expecting statement: missing object";
+
+  if (!object) {
+    // Subject + predicate-object list
+    if (subject.term && predicate.args) {
+      try {
+        const out = [];
+        for (const fact of expecting_predicate_object_list(expr, { subject }))
+          out.push(fact);
+        yield* out;
+        return;
+      } catch (error) {
+        console.log("ERROR: ", error);
+        throw "Expecting ${l}";
+      }
+      return;
+    }
+
+    throw "Expecting statement: invalid two-part statement";
+  }
 
   // Simple triple.
   if (subject.term && predicate.term && object.term) {
@@ -121,16 +139,16 @@ function* expecting_object(expr0, { subject, predicate }) {
 
     try {
       // New context because not connected to containing expr
-      // SHOULD BE predicate object? i.e blank node?
       const objects = [
         ...expr.map(expr => expecting_predicate_object(expr, {}))
       ];
-      yield* objects;
-      // ALSO yield fact based on head of result
-      // where object is the (presumably minted) id of the
+      // In addition to the collected facts, yield a fact (for *this* position)
+      // based on head of result where object is the (presumably minted) id of
+      // the implicit object.
       const [first] = objects;
       const [object] = first;
       yield [subject, predicate, object];
+      yield* objects;
       return;
     } catch (error) {
       console.log("ERROR: ", error);
