@@ -37,26 +37,20 @@ v(viewOf.Bob, viewIn.home)
     name: "views",
     label: "views",
     comment: "WIP approach to views",
-    userland_code: `Alice . hostOutput("Alice")
-Bob . hostOutput("Bob")
+    userland_code: `Alice(hasInterval(100), hostOutput("Alice"))
+Bob(listensTo.Alice, hostOutput("Bob"))
 
 // model.contains.v
 
-Alice . hasInterval(100)
+v(viewOf.Bob, viewIn.home)
 
-Bob.listensTo.Alice
-v.viewOf.Bob
-v.viewIn.home
+Carol(listensTo.Bob, 
+  transformsWith(mapsWith(c => c)), 
+  hostOutput("Carol"))
 
-// Carol.listensTo.Bob
-// Carol.transformsWith.m
-// m.mapsWith(c => c)
-
-Carol.hostOutput("Carol")
-
-// foo.listensTo.ListenerForv
-// foo.transformsWith.h
-// h.hasRoot.home
+foo(
+  listensTo.ListenerForv,
+  transformsWith(hasRoot.home))
 
 //ListenerForv.hostOutput("lv")
 
@@ -82,9 +76,7 @@ Bob . hostOutput("Bob")
 
 Alice . hasInterval(100)
 
-Bob.listensTo.Alice
-Bob.transformsWith.h
-h.hasRoot.home
+Bob(listensTo.Alice, transformsWith(hasRoot.home))
 
 // Alice . knows . Bob
 // X.contains.Y
@@ -104,18 +96,17 @@ Joan . hostOutput("Joan")
 
 Alice . hasInterval(100)
 
-Carol.listensTo.Joan
+Carol(
+  listensTo.Joan,
+  transformsWith(mapsWith(n  => ["p", {}, '#', n ])))
 
-Carol.transformsWith.m
-m.mapsWith(n  => ["p", {}, '#', n ])
+Joan(
+  listensTo.Alice,
+  transformsWith(mapsWith(x => x % 2)))
 
-Joan .listensTo.Alice
-Joan . transformsWith.j
-j.mapsWith(x => x % 2)
-
-Bob.listensTo.Carol
-h.hasRoot.home
-Bob.transformsWith.h
+Bob(
+  listensTo.Carol,
+  transformsWith(hasRoot.home))
 `
   },
 
@@ -127,8 +118,7 @@ Bob.transformsWith.h
 Alice . hostOutput("Alice")
 
 // Uncomment to add a port for bob
-// Bob.hasInterval(250)
-// Bob.hostOutput("Robert")
+// Bob(hasInterval(250), hostOutput("Robert"))
 
 `
   },
@@ -144,8 +134,18 @@ Alice . hostOutput("Alice")
 // stream . isa . Stream // (implicit)
 // stream . hasSource("brother") // will be ignored with warning
 stream . hasSource(sub => { sub.next("hello"); sub.next("world"); })
-//sub . listensTo . stream
 
+// Streams don't do anything until they have a listener.
+someone . listensTo . stream
+someone . hostOutput("someone")
+
+// This issues "hello" and then "world" in immediate succession.  To see both
+// values, you'd have to e.g. partition it.
+// TODO: This isn't working
+someone_else(
+  listensTo.stream, 
+  transformsWith(partitionsBy(2)),
+  hostOutput("both"))
 `
   },
 
@@ -164,9 +164,7 @@ Bob . hasInterval(250)
     comment: `in which Alice and Bob listen to one another`,
     userland_code: `// Display
 Alice.hostOutput("Alice")
-Carol.hostOutput("Carol")
-
-Carol.hasInterval(200)
+Carol(hasInterval(200), hostOutput("Carol"))
 
 Alice . listensTo . Carol
 //Alice . listensTo . Joan
@@ -179,13 +177,9 @@ Alice . listensTo . Carol
     label: "subscription chain (transitive listening)",
     comment: `a game of telephone`,
     userland_code: `// Display
-Alice.hostOutput("Alice")
-Bob.hostOutput("Bob")
-Carol.hostOutput("Carol")
-
-Alice.hasInterval(200)
-Bob . listensTo . Alice
-Carol . listensTo . Bob
+Alice(hasInterval(200), hostOutput("Alice"))
+Bob(listensTo . Alice, hostOutput("Bob"))
+Carol(listensTo . Bob, hostOutput("Carol"))
 
 `
   },
@@ -247,10 +241,9 @@ Carol . hasInterval(10)
 Bob.hostOutput("Bob")
 
 Alice . hasInterval(250)
-Bob . listensTo . Alice
 
-Bob . transformsWith . t
-t.mapsWith(x => x * 2)
+Bob.listensTo.Alice
+Bob.transformsWith(mapsWith(x => x * 2)))
 
 `
   },
@@ -266,8 +259,8 @@ Bob.hostOutput("Bob")
 Alice . hasInterval(250)
 Bob . listensTo . Alice
 
-Bob . transformsWith . t
-t.mapsWith(x => x * 2)
+Bob . transformsWith . mapper
+mapper . mapsWith(x => x * 2)
 
 `
   },
@@ -282,8 +275,8 @@ Bob.hostOutput("Bob")
 Alice . hasInterval(250)
 Bob . listensTo . Alice
 
-Bob . transformsWith . t
-t.filtersWith(x => x % 2 == 1)
+Bob . transformsWith . odd
+odd . filtersWith(x => x % 2 == 1)
 
 `
   },
@@ -298,13 +291,13 @@ Bob.hostOutput("Bob")
 Alice . hasInterval(250)
 Bob . listensTo . Alice
 
-Bob . transformsWith . t
-t.partitionsBy(3)
+Bob . transformsWith . batchesOfThree
+batchesOfThree . partitionsBy(3)
 
-Carol.listensTo.Bob
-Carol.transformsWith.m
-m.mapsWith(batch => ({batch}))
-Carol.hostOutput("Carol")
+Carol(
+  listensTo.Bob,
+  transformsWith(mapsWith(batch => ({batch}))),
+  hostOutput("Carol"))
  `
   },
 
@@ -614,25 +607,23 @@ home.contains.thing
     userland_code: `home.contains.more
 // To get the desired effect here, you'd first have to use a partitioning step
 // of 1, which isn't currently supported.
-Alice.hostOutput("Alice")
-Alice.hasInterval(250)
-vv.viewOf.Alice
-vv.viewIn.more
+Alice(hasInterval(250), hostOutput("Alice"))
+vv(viewOf.Alice, viewIn.more)
 
-Bob.listensTo.Alice
-Bob.transformsWith.m
-m.partitionsWith({size:5, step: 1})
-b.viewOf.Bob
+Bob(
+  listensTo.Alice,
+  // transformsWith(partitionsWith({size:5, step: 1})),
+  transformsWith(partitionsBy(6)),
+  hostOutput("Bob"))
+
 home.contains.bcon
-b.viewIn.bcon
-Bob.hostOutput("Bob")
+b(viewOf.Bob, viewIn.bcon)
 
-s.listensTo.Bob
-s.transformsWith.mm
-mm.mapsWith(layers => ({layers}))
-v.viewOf.s
-v.viewIn.thing
 home.contains.thing
+v(viewOf.s, viewIn.thing)
+s(listensTo.Bob,
+  hostOutput("S"),
+  transformsWith(mapsWith(layers => ({layers}))))
 `
   },
 
