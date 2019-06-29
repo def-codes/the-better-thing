@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "clean": "rm -rf script/",
+    "build": "tsc --build",
     "bundle": "rollup -c",
     "start": "node server",
     "meld": "live-server --watch='index.*,script/*'"

@@ -8,7 +8,7 @@ const TO_INLINE = {
 const TEST_MODULES = [];
 
 /** Modules built in this project. */
-const modules = [["expression-reader"]];
+const modules = [["expression-reader"], ["rdf-data-model"]];
 
 // Unfortunately, rollup doesn't support wildcards for specifying externals.
 const things = (

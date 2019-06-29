@@ -2,6 +2,7 @@
   "include": [],
   "files": [],
   "references": [
-    {"path": "src/expression-reader" }
+    {"path": "src/expression-reader" },
+    {"path": "src/rdf-data-model" }
   ]
 }
