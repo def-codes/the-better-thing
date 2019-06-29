@@ -1,5 +1,5 @@
-import { read } from "./reader";
-import { serialize } from "./expression-serializer";
+import { read } from "../reader";
+import { serialize } from "../serializer";
 
 function run_reader_test(userland_code) {
   for (const line of userland_code.split("\n")) {

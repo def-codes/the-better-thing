@@ -31,7 +31,8 @@
     "@thi.ng/transducers-hdom": "2.0.23",
     "d3-force": "2.0.1",
     "node-static": "0.7.11",
-    "requirejs": "2.3.6"
+    "requirejs": "2.3.6",
+    "tslib": "1.10.0"
   },
   "devDependencies": {
     "live-server": "1.2.1",

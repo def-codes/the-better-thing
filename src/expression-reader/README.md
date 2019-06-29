@@ -1,8 +1,9 @@
-# Reader
+# Expression reader
 
-Reader for a term-oriented subset of JS.  Returns quasi-AST's that can be used
-to support extreme late-binding and lazy-eval expressions.  They are "quasi"
-AST's because they are not exactly tree-structured as such.
+Reader and expression scanner for a term-oriented subset of JS.  Returns
+quasi-AST's that can be used to support extreme late-binding and lazy-eval
+expressions.  They are “quasi” AST's because they are not exactly
+tree-structured as such.
 
 Technically, this is a general-purpose tool (to the extent it has any purpose at
 all), but it was motivated by the wish to bootstrap a userland programming

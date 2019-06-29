@@ -142,7 +142,7 @@ const normalize = collected => {
 };
 
 /** Run the given function with an expression scanner as its argument and return
- * the collected statements.. */
+ * the collected statements. */
 export const with_scanner = fn => {
   const contexts = [];
   fn(make_scanner(contexts));

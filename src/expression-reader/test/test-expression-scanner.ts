@@ -1,11 +1,8 @@
-import { with_scanner } from "./expression-scanner";
-import { read } from "./reader";
+import { with_scanner } from "../scanner";
+import { read } from "../reader";
 
 // for node
-import { createRequireFromPath } from "module";
-const require = createRequireFromPath(import.meta.url);
-
-const { inspect } = require("util");
+//const { inspect } = require("util");
 
 function test_scanner() {
   const ex = _ => [
@@ -14,7 +11,7 @@ function test_scanner() {
     _.Carol.alias("Foo", "Bar")
   ];
   const normalized = with_scanner(ex);
-  console.log(`normalized`, inspect(normalized, { depth: 5 }));
+  //console.log(`normalized`, inspect(normalized, { depth: 5 }));
 }
 
 function test_reader() {

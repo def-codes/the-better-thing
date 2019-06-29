@@ -1,10 +1,7 @@
 {
-  "compilerOptions": {
-		"baseUrl": "src",
-		"module": "umd",
-		"moduleResolution": "node",
-		"outDir": "script",
-		"strictNullChecks": false,
-		"target": "ES2017"
-  }
+  "include": [],
+  "files": [],
+  "references": [
+    {"path": "src/expression-reader" }
+  ]
 }
