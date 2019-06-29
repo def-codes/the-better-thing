@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "clean": "rm -rf script/",
+    "bundle": "rollup -c",
     "start": "node server",
     "meld": "live-server --watch='index.*,script/*'"
   },
@@ -37,6 +38,7 @@
   "devDependencies": {
     "live-server": "1.2.1",
     "parcel-bundler": "1.12.3",
+    "rollup": "1.16.3",
     "typescript": "3.5.2"
   }
 }
