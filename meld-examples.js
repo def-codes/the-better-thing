@@ -123,6 +123,32 @@ Alice . hostOutput("Alice")
 `
   },
 
+  {
+    name: "streams-order-bug",
+    label: "BUG repro case for stream subscription",
+    comment: `Order in the statement of facts is not supposed to matter, at least not in the initial batch of a model's persisted facts.  But with synchronous stream subscriptions, order does matter.`,
+    userland_code: `
+stream . hasSource(sub => { sub.next("hello"); sub.next("world"); })
+
+// see below
+//someone_else. listensTo.stream
+
+someone . listensTo . stream
+someone . hostOutput("someone")
+
+// This issues "hello" and then "world" in immediate succession.  To see both
+// values, you'd have to e.g. partition it.
+
+// If you move this 'listensTo' before the previous 'listensTo', then you see
+// both outputs.  That's because the stream is synchronously consumed once its
+// first listener is attached.
+someone_else. listensTo.stream
+someone_else. transformsWith(partitionsBy(2))
+someone_else. hostOutput("both")
+
+`
+  },
+
   // Which of these examples should come first?
   // without subscription, how do you see the results?
   // without stream, how do you get a dataful source to subscribe to?
@@ -141,7 +167,6 @@ someone . hostOutput("someone")
 
 // This issues "hello" and then "world" in immediate succession.  To see both
 // values, you'd have to e.g. partition it.
-// TODO: This isn't working
 someone_else(
   listensTo.stream, 
   transformsWith(partitionsBy(2)),
