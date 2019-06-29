@@ -42,7 +42,10 @@ const sync_query = (store, where) => {
       q: [{ where: where.map(_ => _.map(rstream_variables)) }]
     })
     .subscribe({ next: result_set => (results = result_set) });
-  query.unsubscribe();
+  // TODO: Currently, unsubscribing any query makes it impossible to add others,
+  // due to the transitive closing of shared streams.  See
+  // https://github.com/thi-ng/umbrella/issues/91
+  // query.unsubscribe();
   return results;
 };
 
