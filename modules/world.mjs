@@ -9,8 +9,12 @@ import { monotonic_system } from "./system.mjs";
 // Hack for browser/node support
 import * as rs1 from "../node_modules/@thi.ng/rstream/lib/index.umd.js";
 import * as tx1 from "../node_modules/@thi.ng/transducers/lib/index.umd.js";
+import * as rq1 from "../node_modules/@thi.ng/rstream-query/lib/index.umd.js";
 const rs = Object.keys(rs1).length ? rs1 : thi.ng.rstream;
 const tx = Object.keys(tx1).length ? tx1 : thi.ng.transducers;
+const rq = Object.keys(rq1).length ? rq1 : thi.ng.rstreamQuery;
+
+const { TripleStore } = rq;
 
 export const monotonic_world = opts => {
   let dispose_old_system;
@@ -46,7 +50,7 @@ export const monotonic_world = opts => {
     if (fact_push) fact_push.unsubscribe();
     opts.ports.cleanup();
 
-    const store = new thi.ng.rstreamQuery.TripleStore();
+    const store = new TripleStore();
     //facts.next(store);
     fact_push = store
       .addQueryFromSpec({ q: [{ where: [["?s", "?p", "?o"]] }] })

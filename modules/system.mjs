@@ -17,9 +17,31 @@ const IMPLEMENTS = rdf.namedNode("implements"); // s/b meld:
 
 const mint_blank = () => rdf.blankNode();
 
+/** Replace variables with new blank nodes in the given triples. */
+// Using rstream-style (array) triples with RDF.js terms.
+export const sub_blank_nodes = triples => {
+  const map = new Map();
+  const sub = term => {
+    if (term.termType === "Variable") {
+      if (!map.has(term.value)) map.set(term.value, mint_blank());
+      return map.get(term.value);
+    }
+    return term;
+  };
+  // Covers predicate for good measure but only expecting vars in s & o pos's.
+  return triples.map(triple => triple.map(sub));
+};
+
+// ================================= WORLD / INTERPRETER
+
 // Used by other support functions.
 const is_node = term =>
   term.termType === "NamedNode" || term.termType === "BlankNode";
+
+const is_variable = term => term.termType === "Variable";
+
+const has_open_variables = triples =>
+  triples.some(triple => triple.some(is_variable));
 
 // Helper (for drivers) to make RDF terms from clauses as written.
 const q = (...clauses) =>
@@ -59,8 +81,14 @@ export const register_driver = (name, init) =>
   drivers.push(init({ q, is_node }));
 
 const HANDLERS = {
-  assert(facts, system) {
-    system.assert_all(facts);
+  // When the asserted triples contain open variables (i.e. any variable terms),
+  // this treats them as a “there exists” assertion.
+  assert(triples, system) {
+    if (has_open_variables(triples)) {
+      const existing = sync_query(system.store, triples);
+      if (!existing || existing.size === 0)
+        system.assert_all(sub_blank_nodes(triples));
+    } else system.assert_all(triples);
   },
   register_output_port({ name, subject, source }, system) {
     system.register_output_port(name, subject, source);

@@ -10,6 +10,18 @@ charge.theta(0.98),
 
 export const MELD_EXAMPLES = [
   {
+    name: "there-exists",
+    label: "there exists",
+    comment: `Rules that assert the existence of a dynamic set of facts.  Right now this is implicitly tested by rules in the test driver.`,
+    userland_code: `
+Alice.hasInterval(100)
+Bob(listensTo(Alice))
+v.viewOf.Bob
+// there exists
+`
+  },
+
+  {
     name: "dataflow-repeat-values-bug",
     label: "repeating values bug",
     comment: "This was a repro case for a bug in dataflow, which is fixed now.",

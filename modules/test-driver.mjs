@@ -1,5 +1,12 @@
 // clearinghouse for rules under development
+import rdf from "./rdf.mjs";
 import { register_driver } from "./system.mjs";
+
+import { render, render_value } from "./value-view.mjs";
+
+const n = rdf.namedNode;
+const v = rdf.variable;
+const { literal } = rdf;
 
 // Hack for browser/node support
 import * as rs1 from "../node_modules/@thi.ng/rstream/lib/index.umd.js";
@@ -10,6 +17,25 @@ const tx = Object.keys(tx1).length ? tx1 : thi.ng.transducers;
 register_driver("testDriver", ({ q }) => ({
   claims: q(),
   rules: [
+    {
+      comment: "Automatically create host output for all dataflow nodes.",
+      when: q("?subject isa Subscribable"),
+      then: ({ subject }) => ({
+        assert: [[subject, n("hostOutput"), literal(subject.value)]]
+      })
+    },
+    {
+      comment: "Create a view in the main container for all dataflow nodes.",
+      when: q("?subject isa Subscribable"),
+      then: ({ subject }) => ({
+        assert: [
+          [n("home"), n("contains"), v("container")],
+          [v("view"), n("viewOf"), subject],
+          [v("view"), n("viewIn"), v("container")]
+        ]
+      })
+    },
+
     // Hack to support multiple containers.  I think this would even support
     // nested containers, though I have no designs on that for this temporary
     // approach.
