@@ -1,9 +1,6 @@
 // This is a circular dependency...
-import { render_triples } from "./rdf-hdom.mjs";
-
-// Hack for browser/node support
-import * as tx1 from "../node_modules/@thi.ng/transducers/lib/index.umd.js";
-const tx = Object.keys(tx1).length ? tx1 : thi.ng.transducers;
+import * as tx from "@thi.ng/transducers";
+import { render_triples } from "./rdf-hdom";
 
 const render_function = (_, { value: fn }) => ["code", fn.toString()];
 const render_null = _ => ["span", { "data-type": "null" }, "∅"];
@@ -73,7 +70,7 @@ export const render = (_, { value, path = [] }) => {
   if (value === undefined) return [render_undefined];
 
   // Limit depth to avoid crash from cycles.
-  if (path.length > 7) return null;
+  if (path.length > 11) return null;
 
   if (typeof value === "function") return [render_function, { value }];
   if (

@@ -1,7 +1,10 @@
 // Viewing of dataflow resources
-import { register_driver } from "./system.mjs";
-import rdf from "./rdf.mjs";
-import { render, render_value } from "./value-view.mjs";
+import { register_driver } from "./system";
+// Should these be provided by system?
+import { with_scanner } from "./expression-scanner";
+import { as_turtle } from "./turtle";
+import rdf from "./rdf";
+import { render, render_value } from "./value-view";
 
 const n = rdf.namedNode;
 const v = rdf.variable;
@@ -32,33 +35,37 @@ register_driver("viewDriver", ({ q }) => ({
         "?view viewIn ?container"
       ),
       then: ({ view, thing, container }) => {
-        // TODO: Two-part proposal for dealing with this.
-        //
-        // The more concise way to say this would be something like
-        //
-        //  ∃
-        //    listensTo(listensTo.?thing, transformsWith(mapsWith(RENDER_VALUE))),
-        //      transformsWith(hasRoot.?container)
-        //
-        // Requirement is to keep the implied nodes anonymous but still defend
-        // against the rule firing again.
-        //
-        // Part 1: Support “there exists” conclusions,which may contain
-        // unbound variables.  To implement this, you can run a synchronous
-        // test when the rule fires.  If it passes (something matches), you're
-        // done.  If it fails, then you substitute new blank nodes for the
-        // variables and assert the result.
-        //
-        // Part 2: Support “there exists” conclusions with implicit blank
-        // nodes. For cases like this one, where you don't actually need
-        // explicit unbound variables in the conclusion.  To implement this,
-        // you would need a variant of the Turtle-like expression expander
-        // that used (“minted”) variables instead of blank nodes for
-        // placeholders.  These unbound variables would be treated as above.
         const listener = v(`ListenerFor${view.value}`);
         const listener2 = v(`Listener2For${view.value}`);
         const mapper = v(`MapperFor${view.value}`);
         const xform = v(`HdomFor${view.value}`);
+
+        const [scanned1] = with_scanner(_ =>
+          _.doodad1(
+            _.listensTo(thing),
+            _.transformsWith(
+              _.mapsWith(RENDER_VALUE)
+              //_.mapsWith(x => ["pre", {}, x.toString()])
+              //_.partitionsBy(3)
+            )
+          )
+        );
+        console.log(`scanned1`, scanned1);
+
+        const blah1 = as_turtle(scanned1);
+        console.log(`blah1`, blah1);
+
+        const [scanned2] = with_scanner(_ =>
+          _.doodad2(
+            _.listensTo(_.doodad1),
+            _.transformsWith(_.hasRoot(container))
+          )
+        );
+        console.log(`scanned2`, scanned2);
+
+        const blah2 = as_turtle(scanned2);
+        console.log(`blah2`, blah2);
+
         return {
           assert: [
             [listener, LISTENS_TO, thing],
@@ -67,6 +74,7 @@ register_driver("viewDriver", ({ q }) => ({
             [listener2, LISTENS_TO, listener],
             [listener2, TRANSFORMS_WITH, xform],
             [xform, n("hasRoot"), container]
+            //...blah
           ]
         };
       }

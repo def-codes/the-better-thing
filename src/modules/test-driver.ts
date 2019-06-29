@@ -1,32 +1,27 @@
 // clearinghouse for rules under development
-import rdf from "./rdf.mjs";
-import { register_driver } from "./system.mjs";
-
-import { render, render_value } from "./value-view.mjs";
+import * as tx from "@thi.ng/transducers";
+import rdf from "./rdf";
+import { register_driver } from "./system";
 
 const n = rdf.namedNode;
 const v = rdf.variable;
 const { literal } = rdf;
-
-// Hack for browser/node support
-import * as rs1 from "../node_modules/@thi.ng/rstream/lib/index.umd.js";
-import * as tx1 from "../node_modules/@thi.ng/transducers/lib/index.umd.js";
-const rs = Object.keys(rs1).length ? rs1 : thi.ng.rstream;
-const tx = Object.keys(tx1).length ? tx1 : thi.ng.transducers;
 
 register_driver("testDriver", ({ q }) => ({
   claims: q(),
   rules: [
     {
       comment: "Automatically create host output for all dataflow nodes.",
-      when: q("?subject isa Subscribable"),
+      // DISABLE: this creates too much output & blocks fact list
+      when: q("?subject isa XSubscribable"),
       then: ({ subject }) => ({
         assert: [[subject, n("hostOutput"), literal(subject.value)]]
       })
     },
     {
       comment: "Create a view in the main container for all dataflow nodes.",
-      when: q("?subject isa Subscribable"),
+      // DISABLE: this creates too much output & blocks fact list
+      when: q("?subject isa XSubscribable"),
       then: ({ subject }) => ({
         assert: [
           [n("home"), n("contains"), v("container")],

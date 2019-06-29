@@ -1,8 +1,8 @@
 // Temporary driver for selected OWL properties.
 // Prefer to implement these as reified (userland) rules, but some pieces are
 // still not in place.
-import { register_driver } from "./system.mjs";
-import rdf from "./rdf.mjs";
+import { register_driver } from "./system";
+import rdf from "./rdf";
 
 const n = rdf.namedNode;
 

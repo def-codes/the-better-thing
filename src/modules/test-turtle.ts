@@ -1,7 +1,7 @@
-import { with_scanner } from "./expression-scanner.mjs";
-import { serialize } from "./expression-serializer.mjs";
+import { with_scanner } from "./expression-scanner";
+import { serialize } from "./expression-serializer";
 
-import { expecting_statements } from "./turtle-expand.mjs";
+import { expecting_statements } from "./turtle-expand";
 
 // for node
 import { createRequireFromPath } from "module";

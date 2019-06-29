@@ -1,10 +1,7 @@
 // Monotonic driver for (rstream) Stream and Subscription.
 // Not sure if subscription and stream can be separated as such.
-import { register_driver } from "./system.mjs";
-
-// Hack for browser/node support
-import * as rs1 from "../node_modules/@thi.ng/rstream/lib/index.umd.js";
-const rs = Object.keys(rs1).length ? rs1 : thi.ng.rstream;
+import * as rs from "@thi.ng/rstream";
+import { register_driver } from "./system";
 
 register_driver("streamDriver", ({ q }) => ({
   claims: q(

@@ -1,6 +1,6 @@
 // The host driver supports a vocabulary describing dataflow interop between the
 // model and its runtime context.
-import { register_driver } from "./system.mjs";
+import { register_driver } from "./system";
 
 register_driver("hostDriver", ({ q }) => ({
   claims: q(

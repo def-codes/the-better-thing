@@ -1,5 +1,3 @@
-// How to make this work in Node with ES modules?
-
 // General walker for plain JS objects.  Uses reverse path.
 function* walk(x, path = []) {
   if (Array.isArray(x))
@@ -11,6 +9,7 @@ function* walk(x, path = []) {
   } else yield [x, path];
 }
 
+// How to make this work in Node with ES modules?
 //const globalThis = this;
 //const inspect = globalThis.require && globalThis.require("util").inspect;
 const CONTEXT = Symbol("context");

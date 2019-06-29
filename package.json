@@ -7,10 +7,9 @@
     "last 1 Firefox version"
   ],
   "scripts": {
-    "build": "parcel build index.html",
+    "clean": "rm -rf script/",
     "start": "node server",
-    "dev": "parcel serve index.html --open",
-    "meld": "live-server --watch='index.*,boggle.js,system.js,interpreter.js,*-driver.js,rdf.js'"
+    "meld": "live-server --watch='index.*,script/*'"
   },
   "repository": {
     "type": "git",
@@ -31,10 +30,12 @@
     "@thi.ng/transducers": "5.3.7",
     "@thi.ng/transducers-hdom": "2.0.23",
     "d3-force": "2.0.1",
-    "node-static": "0.7.11"
+    "node-static": "0.7.11",
+    "requirejs": "2.3.6"
   },
   "devDependencies": {
     "live-server": "1.2.1",
-    "parcel-bundler": "1.12.3"
+    "parcel-bundler": "1.12.3",
+    "typescript": "3.5.2"
   }
 }

@@ -1,13 +1,6 @@
 // support system for monotonic, rule-based drivers of resource implementations.
-import rdf from "./rdf.mjs";
-
-// Hack for browser/node support
-import * as rs1 from "../node_modules/@thi.ng/rstream/lib/index.umd.js";
-import * as tx1 from "../node_modules/@thi.ng/transducers/lib/index.umd.js";
-import * as ass1 from "../node_modules/@thi.ng/transducers/lib/index.umd.js";
-const rs = Object.keys(rs1).length ? rs1 : thi.ng.rstream;
-const tx = Object.keys(tx1).length ? tx1 : thi.ng.transducers;
-const associative = Object.keys(ass1).length ? ass1 : thi.ng.associative;
+import { EquivMap } from "@thi.ng/associative";
+import rdf from "./rdf";
 
 // =============== RDF helpers
 
@@ -156,7 +149,7 @@ const apply_drivers_to = (store, helpers, system) => {
  * @returns {Function} (Provisional) dispose method.
  */
 export const monotonic_system = ({ id, store, dom_root, ports }) => {
-  const registry = new associative.EquivMap();
+  const registry = new EquivMap();
 
   // If you need this, Godspeed.
   // window.system = { store, registry };

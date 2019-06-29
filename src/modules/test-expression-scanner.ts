@@ -1,5 +1,5 @@
-import { with_scanner } from "./expression-scanner.mjs";
-import { read } from "./reader.mjs";
+import { with_scanner } from "./expression-scanner";
+import { read } from "./reader";
 
 // for node
 import { createRequireFromPath } from "module";

@@ -1,3 +1,6 @@
+#+TITLE:Notes on reader api, temp
+
+#+begin_src typescript
 type Statement = Assignment | TermTree;
 // actually, you can assign to any expression *ending in* a term
 type Assignment = { assign: { term: string; value: AnyExpression } };
@@ -6,18 +9,19 @@ type TermTree = [Term, ...(Term | { list: AnyExpression[] })[]];
 type AnyExpression = TermTree | { literal: Literal };
 type Atom = string | number | boolean | symbol | bigint | RegExp | Function;
 type Literal = Atom | Array<AnyExpression> | Record<PropertyKey, AnyExpression>;
-
-/*
+#+end_src
 
 A single term is a term expression
 You can join a term to a term expression
 You can apply any term expression to any list of inner expressions
 inner expressions are term expressions plus literals
 
-// 1 way to combine 1 term
+1 way to combine 1 term
+#+begin_src js
 A
 A()
 A()()
+#+end_src
 
 None of these constructs *mean* anything.  The effect of application, with or
 without arguments, is up to the interpreter.
@@ -25,35 +29,43 @@ without arguments, is up to the interpreter.
 Both chaining and calling are right-associative.  Grouping subexpressions has no
 effect.  These forms
 
+#+begin_src js
 (A())()()
 (A()())()
+#+end_src
 
 are equivalent to (and indistinguishable from)
 
+#+begin_src js
 A()()
+#+end_src
 
-
-// 2 ways to combine 2 terms
+2 ways to combine 2 terms
+#+begin_src js
 A.B
 A(B)
+#+end_src
 
 i.e.
 
-(A)(B) is the same as A
-(A.B)(C) is the same as A.B(C)
+#+begin_src js
+(A)(B) // is the same as A
+(A.B)(C) // is the same as A.B(C)
 // induction, etc
+#+end_src
 
 As a result, you can simplify the representation of term-based expressions by
 using lists (which is what I did in the first place).
 
 Also doesn't work:
 
+#+begin_src js
 foo(RED = 5)
+#+end_src
 
 thought it possibly could with some craftiness.
 
-
-*/
+#+begin_src js
 A.B.C;
 A.B(C /* ... */);
 A(B /* ... */).C;
@@ -62,16 +74,14 @@ A(B.C /* ... */);
 A.B(C /* ... */); // same as (A.B)(C) but that would give unexpected result with ASI
 A(B /* ... */)(C /* ... */); // same as (A)(B)(C)
 A(B(C /* ... */) /* ... */);
-
-/*
+#+end_src
 
 Reasons to use application:
 - need literals
 - group terms separately from rest of expression (but still join to it)
 - different semantics than extension by term
 
-*/
-
+#+begin_src typescript
 // Examples
 const STATEMENTS: Statement[] = [
   { assign: { term: "Hello", value: { literal: "World" } } },
@@ -92,3 +102,4 @@ const STATEMENTS: Statement[] = [
     { args: [{ literal: { Basil: { literal: "dog" } } }] }
   ]
 ];
+#+end_src

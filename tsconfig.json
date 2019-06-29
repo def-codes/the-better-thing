@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+		"baseUrl": "src",
+		"module": "umd",
+		"moduleResolution": "node",
+		"outDir": "script",
+		"strictNullChecks": false,
+		"target": "ES2017"
+  }
+}

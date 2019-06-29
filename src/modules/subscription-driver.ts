@@ -1,10 +1,6 @@
-import { register_driver } from "./system.mjs";
-
-// Hack for browser/node support
-import * as rs1 from "../node_modules/@thi.ng/rstream/lib/index.umd.js";
-import * as tx1 from "../node_modules/@thi.ng/transducers/lib/index.umd.js";
-const rs = Object.keys(rs1).length ? rs1 : thi.ng.rstream;
-const tx = Object.keys(tx1).length ? tx1 : thi.ng.transducers;
+import * as tx from "@thi.ng/transducers";
+import * as rs from "@thi.ng/rstream";
+import { register_driver } from "./system";
 
 // Wrapper for stream merge that supports dynamic setting of transform.
 // This makes the API much more amenable to use with the system.

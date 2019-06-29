@@ -1,10 +1,6 @@
 // Provide hdom components for representing basic RDF constructs.
-
-import rdf from "./rdf.mjs";
-
-// Hack for browser/node support
-import * as tx1 from "../node_modules/@thi.ng/transducers/lib/index.umd.js";
-const tx = Object.keys(tx1).length ? tx1 : thi.ng.transducers;
+import * as tx from "@thi.ng/transducers";
+import rdf from "./rdf";
 
 // NOTE: This view (and any one using `render_value` now assumes that `render`
 // is in context.)
