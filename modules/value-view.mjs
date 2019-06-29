@@ -1,6 +1,10 @@
 // This is a circular dependency...
 import { render_triples } from "./rdf-hdom.mjs";
 
+// Hack for browser/node support
+import * as tx1 from "../node_modules/@thi.ng/transducers/lib/index.umd.js";
+const tx = Object.keys(tx1).length ? tx1 : thi.ng.transducers;
+
 const render_function = (_, { value: fn }) => ["code", fn.toString()];
 const render_null = _ => ["span", { "data-type": "null" }, "∅"];
 const render_undefined = _ => ["span", { "data-type": "undefined" }, "⊥"];
@@ -85,7 +89,7 @@ export const render = (_, { value, path = [] }) => {
       tx.map(layer => ["div.layer", [render, { value: layer }]], value.layers)
     ];
 
-  if (value["@type"] === "triples") return [rdf_hdom.render_triples, { value }];
+  if (value["@type"] === "triples") return [render_triples, { value }];
 
   if (value instanceof Error) return [render_error, { value, path }];
   if (value instanceof Set)
