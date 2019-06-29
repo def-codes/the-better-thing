@@ -4,6 +4,7 @@ import rdf from "./rdf.mjs";
 import { render, render_value } from "./value-view.mjs";
 
 const n = rdf.namedNode;
+const v = rdf.variable;
 const ISA = n("isa");
 
 const RENDER_VALUE = rdf.literal(render_value, n("javascriptFunction"));
@@ -54,10 +55,10 @@ register_driver("viewDriver", ({ q }) => ({
         // you would need a variant of the Turtle-like expression expander
         // that used (“minted”) variables instead of blank nodes for
         // placeholders.  These unbound variables would be treated as above.
-        const listener = n(`ListenerFor${view.value}`);
-        const listener2 = n(`Listener2For${view.value}`);
-        const mapper = n(`MapperFor${view.value}`);
-        const xform = n(`HdomFor${view.value}`);
+        const listener = v(`ListenerFor${view.value}`);
+        const listener2 = v(`Listener2For${view.value}`);
+        const mapper = v(`MapperFor${view.value}`);
+        const xform = v(`HdomFor${view.value}`);
         return {
           assert: [
             [listener, LISTENS_TO, thing],
