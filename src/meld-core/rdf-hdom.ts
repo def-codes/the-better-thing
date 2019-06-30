@@ -1,6 +1,10 @@
 // Provide hdom components for representing basic RDF constructs.
 import * as tx from "@thi.ng/transducers";
-import rdf from "./rdf";
+import rdf from "@def.codes/rdf-data-model";
+import { Term } from "@def.codes/rdf-data-model";
+
+// TRANSITIONAL: still coupled to rstream-query
+import * as rq from "@thi.ng/rstream-query";
 
 // NOTE: This view (and any one using `render_value` now assumes that `render`
 // is in context.)
@@ -25,7 +29,11 @@ export const render_triple = ({ render }, { value: [s, p, o] }) => [
     : o.value
 ];
 
-export const render_triples = (_, { value: triples }) => [
+export const render_triples = (
+  _,
+  // see note below
+  { value: triples }: { value: Iterable<any> }
+) => [
   "div.triples",
   "facts",
   tx.map(
@@ -43,20 +51,23 @@ export const render_triples = (_, { value: triples }) => [
   )
 ];
 
-const all_values_for = (store, subject, property) =>
+const all_values_for = (store: rq.TripleStore, subject, property) =>
   tx.iterator(
     tx.comp(
       tx.map(index => store.triples[index]),
       tx.filter(([, p]) => p === property),
-      tx.pluck(2)
+      tx.pluck<any, Term>(2)
     ),
     store.indexS.get(subject) || []
   );
 
 // given a store and a list of resources, render those resources and their
 // (non-node) properties.
-const render_resource_nodes = (_, { store, resources }) => {
-  const literal_props = tx.transduce(
+const render_resource_nodes = (
+  _,
+  { store, resources }: { store: rq.TripleStore; resources: Iterable<Term> }
+) => {
+  const literal_props: Map<Term, [Term, Term, Term][]> = tx.transduce(
     // Limit to literal (value) props, as nodes and links are displayed
     // independently.  Allows links to be on separate layer.
     tx.filter(([, , o]) => o.termType === "Literal"),

@@ -1,6 +1,6 @@
 // support system for monotonic, rule-based drivers of resource implementations.
 import { EquivMap } from "@thi.ng/associative";
-import rdf from "./rdf";
+import rdf from "@def.codes/rdf-data-model";
 
 // =============== RDF helpers
 

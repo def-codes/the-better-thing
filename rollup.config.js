@@ -12,16 +12,17 @@ const modules = [
   ["expression-reader"],
   ["rdf-data-model"],
   ["rdf-expressions"],
-  ["rdf-expressions-test"]
+  ["rdf-expressions-test"],
+  ["meld-core"]
 ];
 
 // Unfortunately, rollup doesn't support wildcards for specifying externals.
 const things = (
   "rstream rstream-graph rstream-csp transducers paths hdom dcons " +
-  "iterators atom csp compose associative checks interceptors"
+  "iterators atom csp compose associative checks interceptors rstream-query"
 )
   .split(" ")
-  .map(name => `thi.ng/${name}`);
+  .map(name => `@thi.ng/${name}`);
 
 /** Modules imported by this project. */
 const imports = [...things];

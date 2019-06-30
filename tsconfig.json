@@ -5,6 +5,7 @@
     {"path": "src/expression-reader" },
     {"path": "src/rdf-data-model" },
     {"path": "src/rdf-expressions" },
-    {"path": "src/rdf-expressions-test" }
+    {"path": "src/rdf-expressions-test" },
+    {"path": "src/meld-core" }
   ]
 }

@@ -5,7 +5,7 @@
 import * as rs from "@thi.ng/rstream";
 import * as tx from "@thi.ng/transducers";
 import { TripleStore } from "@thi.ng/rstream-query";
-import { read } from "./reader";
+import { read } from "@def.codes/expression-reader";
 import { interpret } from "./interpreter";
 import { monotonic_system } from "./system";
 
@@ -47,7 +47,7 @@ export const monotonic_world = opts => {
     //facts.next(store);
     fact_push = store
       .addQueryFromSpec({ q: [{ where: [["?s", "?p", "?o"]] }] })
-      .transform(tx.sideEffect(() => facts.next(store.triples)));
+      .subscribe(tx.sideEffect(() => facts.next(store.triples)));
 
     store.into(new_triples);
 
