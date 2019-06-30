@@ -7,7 +7,7 @@
     "last 1 Firefox version"
   ],
   "scripts": {
-    "clean": "rm -rf script/",
+    "clean": "rm -rf build/ node_modules/@def.codes/",
     "build": "tsc --build",
     "bundle": "rollup -c",
     "start": "node server",
@@ -15,14 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://git.mindgrub.net/MindgrubLabs/meld/the-better-thing"
+    "url": "https://github.com/def-codes/the-better-thing"
   },
   "keywords": [
     "dynamic",
     "modeling"
   ],
   "author": "Gavin Cannizzaro <gcannizzaro@mindgrub.com>",
-  "license": "GPL-3.0-or-later",
+  "license": "BSD-3-Clause",
   "dependencies": {
     "@thi.ng/dcons": "2.0.19",
     "@thi.ng/hdom": "7.2.8",

@@ -1,12 +1,8 @@
-import { MELD_EXAMPLES } from "./meld-examples.js";
+import * as rs from "@thi.ng/rstream";
+import * as tx from "@thi.ng/transducers";
+import * as hdom from "@thi.ng/hdom";
 
-// Hack for browser/node support
-import * as rs1 from "./node_modules/@thi.ng/rstream/lib/index.umd.js";
-import * as tx1 from "./node_modules/@thi.ng/transducers/lib/index.umd.js";
-import * as hdom1 from "./node_modules/@thi.ng/hdom/lib/index.umd.js";
-const rs = Object.keys(rs1).length ? rs1 : thi.ng.rstream;
-const tx = Object.keys(tx1).length ? tx1 : thi.ng.transducers;
-const hdom = Object.keys(hdom1).length ? hdom1 : thi.ng.hdom;
+import { MELD_EXAMPLES } from "./meld-examples";
 
 //  const { MELD_EXAMPLES } = window;
 console.log(`MELD_examples`, MELD_EXAMPLES);
@@ -26,7 +22,10 @@ document.body.addEventListener(
   "focus",
   function(event) {
     event.preventDefault();
-    if (event.target.classList.contains("userland-code-input")) {
+    if (
+      event.target instanceof HTMLElement &&
+      event.target.classList.contains("userland-code-input")
+    ) {
       const ex = event.target.closest(".example");
       if (ex) {
         ex.scrollIntoView();

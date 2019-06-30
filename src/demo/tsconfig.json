@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig-composite",
+	"compilerOptions": {
+		"lib": [
+			"DOM",
+			"ES2015",
+			"ES2016",
+			"ES2017"
+		]
+	},
+  "references": [
+    { "path": "../expression-reader" },
+    { "path": "../rdf-data-model" }
+  ]
+}
