@@ -4,6 +4,7 @@
   "references": [
     {"path": "src/expression-reader" },
     {"path": "src/rdf-data-model" },
-    {"path": "src/rdf-expressions" }
+    {"path": "src/rdf-expressions" },
+    {"path": "src/rdf-expressions-test" }
   ]
 }

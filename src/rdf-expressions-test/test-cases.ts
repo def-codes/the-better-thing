@@ -1,10 +1,4 @@
-import { with_scanner, serialize } from "@def.codes/expression-reader";
-
-import { expecting_statements } from "../turtle-expand";
-
-const { inspect } = require("util");
-
-const TEST_CASES = [
+export const TEST_CASES = [
   [
     "Simple triple",
     _ => _.Alice.knows.Bob,
@@ -191,51 +185,3 @@ const TEST_CASES = [
   ]
 */
 ];
-
-function test() {
-  for (const [name, fn, expect] of TEST_CASES) {
-    let exprs,
-      scanner_error,
-      expander_error,
-      expansion,
-      expressions = [];
-    try {
-      exprs = with_scanner(fn);
-    } catch (error) {
-      console.log("ERROR scanning: ", error);
-      continue;
-    }
-
-    for (const expr of exprs)
-      try {
-        expressions.push(serialize(expr));
-      } catch (error) {
-        console.log("ERROR serializing: ", expr, error);
-      }
-
-    console.log(`===`, name);
-    console.log(`---`, expressions.join(", "));
-
-    try {
-      expansion = [...expecting_statements(exprs)];
-    } catch (error) {
-      console.log("ERROR expanding: ", error);
-    }
-
-    const expected_json = JSON.stringify(expect);
-    const got_json = JSON.stringify(expansion);
-    if (expected_json === got_json) {
-      console.log("PASS!");
-      // console.log(`expected_json`, expected_json);
-      // console.log(`got_json`, got_json);
-    } else {
-      console.log(`FAIL! expected`, inspect(expect, { depth: null }));
-      console.log(`exprs`, inspect(exprs, { depth: null }));
-      console.log(`expansion`, inspect(expansion, { depth: null }));
-      console.log(`expected_json`, expected_json);
-      console.log(`got_json`, got_json);
-    }
-  }
-}
-
-test();

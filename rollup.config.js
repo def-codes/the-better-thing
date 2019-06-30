@@ -8,7 +8,12 @@ const TO_INLINE = {
 const TEST_MODULES = [];
 
 /** Modules built in this project. */
-const modules = [["expression-reader"], ["rdf-data-model"]];
+const modules = [
+  ["expression-reader"],
+  ["rdf-data-model"],
+  ["rdf-expressions"],
+  ["rdf-expressions-test"]
+];
 
 // Unfortunately, rollup doesn't support wildcards for specifying externals.
 const things = (
@@ -22,7 +27,7 @@ const things = (
 const imports = [...things];
 
 // Our own modules are “external” when they are importing each other.
-const external = [...imports, ...modules.map(([name]) => name)];
+const external = [...imports, ...modules.map(([name]) => `@def.codes/${name}`)];
 
 const globals = {};
 external.forEach(name => (globals[name] = name));
@@ -42,7 +47,9 @@ const bundle = ([name, { standalone, split, dir, ...config } = {}]) => ({
     name,
     format: "umd",
     ...(!(config && config.output && config.output.dir) &&
-      (split ? { dir: `script/${name}` } : { file: `script/${name}.js` })),
+      (split
+        ? { dir: `node_modules/@def.codes/${name}` }
+        : { file: `node_modules/@def.codes/${name}.js` })),
     sourcemap: true,
     globals, // Suppress “Missing global variable names” warning
     ...((config && config.output) || {})
