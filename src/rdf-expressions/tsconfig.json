@@ -1,0 +1,7 @@
+{
+  "extends": "../tsconfig-composite",
+  "references": [
+    { "path": "../expression-reader" },
+    { "path": "../rdf-data-model" }
+  ]
+}

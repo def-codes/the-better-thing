@@ -19,6 +19,9 @@
     "noUnusedLocals": false,
     "noImplicitAny": false,
     "outDir": "../build/modules",
+    "paths": {
+      "@def.codes/*": [ "*" ]
+    },
     "rootDir": ".",
     "skipLibCheck": true,
     "strictNullChecks": false,

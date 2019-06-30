@@ -1,21 +1,61 @@
 # Expression reader
 
-Reader and expression scanner for a term-oriented subset of JS.  Returns
-quasi-AST's that can be used to support extreme late-binding and lazy-eval
-expressions.  They are “quasi” AST's because they are not exactly
-tree-structured as such.
+This package provides tools for reading a subset of JavaScript as structured
+expressions, with minimal overhead.
 
-Technically, this is a general-purpose tool (to the extent it has any purpose at
-all), but it was motivated by the wish to bootstrap a userland programming
-environment combining aspects of Turtle and Lisp.  The intention was never to
-make a language that is interesting in its own right, but to leverage an
-existing host in the service of a dynamic system that could in turn be used to
-build more powerful interpreters.
+## Motivation
+
+Lisp has never been matched for its balance of a small kernel with power of
+expression.
+
+JavaScript is a low-level language
+
+
+
+the good parts
+
+yet it is widely available.
+
+late binding and lazy evaluation
+
+motivated by the wish to bootstrap a userland programming environment
+
+combining aspects of Turtle and Lisp.
+
+The intention was never to make a language that is interesting in its own right,
+but to leverage an existing host in the service of a dynamic system that could
+in turn be used to build more powerful interpreters.
 
 This is a reader only and does not impute any semantics to the constructions it
 collects.
 
+term-oriented 
+
+
 Invariant: proxies should never escape reader.
+
+## Usage
+
+The expression scanner can be used directly from JavaScript code, or indirectly
+through dynamically-evaluated text.
+
+Both versions rely on a `Proxy` to support the use of arbitrary terms.
+
+### In kernelspace
+
+```
+_ => _.Alice.knows.Bob
+```
+
+### In userspace
+
+This works through an (ab)use of the `with` block.
+
+
+
+```
+Alice.knows.Bob
+```
 
 ## Concepts
 

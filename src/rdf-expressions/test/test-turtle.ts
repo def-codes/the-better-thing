@@ -1,11 +1,7 @@
-import { with_scanner } from "./expression-scanner";
-import { serialize } from "./expression-serializer";
+import { with_scanner, serialize } from "@def.codes/expression-reader";
 
-import { expecting_statements } from "./turtle-expand";
+import { expecting_statements } from "../turtle-expand";
 
-// for node
-import { createRequireFromPath } from "module";
-const require = createRequireFromPath(import.meta.url);
 const { inspect } = require("util");
 
 const TEST_CASES = [

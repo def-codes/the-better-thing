@@ -5,9 +5,9 @@ const mint = (function() {
   return () => ({ term: { minted: count++ } });
 })();
 
-function scan_as(fn, expr_or_exprs, context = {}) {
+function scan_as(fn, expr, context = {}): readonly any[] | { error: Error } {
   try {
-    return [...fn(expr_or_exprs, context)];
+    return [...fn(expr, context)];
   } catch (error) {
     return { error };
   }

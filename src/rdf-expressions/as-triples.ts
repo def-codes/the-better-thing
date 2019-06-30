@@ -1,4 +1,4 @@
-import rdf from "./rdf";
+import rdf from "@def.codes/rdf-data-model";
 import { expecting_statement } from "./turtle-expand";
 
 const { namedNode: n, variable: v, literal: l, blankNode: b } = rdf;
@@ -26,7 +26,7 @@ const as_term = value => {
 const rdfify_terms = spo => spo.map(as_term);
 
 // Expression here is a single statement from expression scanner.
-export const as_turtle = expression => {
+export const as_triples = expression => {
   if (expression) {
     try {
       return Array.from(expecting_statement(expression), rdfify_terms);
