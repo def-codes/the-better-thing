@@ -1,4 +1,4 @@
-var requirejs = function() {
+var requirejs = (function() {
   const paths = {};
   const mappings = {};
 
@@ -14,4 +14,4 @@ var requirejs = function() {
     ] = `/node_modules/@thi.ng/${thing}/lib/index.umd.js`;
 
   return { baseUrl: "/node_modules", paths, map: { "*": mappings } };
-};
+})();

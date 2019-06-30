@@ -9,6 +9,7 @@ const TEST_MODULES = [];
 
 /** Modules built in this project. */
 const modules = [
+  ["meld-demo"],
   ["console-stream"],
   ["expression-reader"],
   ["rdf-data-model"],

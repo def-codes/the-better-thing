@@ -1,17 +1,9 @@
-import { render } from "./modules/value-view.mjs";
-import { monotonic_world } from "./modules/world.mjs";
-import { render_triples } from "./modules/rdf-hdom.mjs";
+import * as tx from "@thi.ng/transducers";
+import * as rs from "@thi.ng/rstream";
+import { renderOnce } from "@thi.ng/hdom";
+import { updateDOM } from "@thi.ng/transducers-hdom";
+import { render, monotonic_world, render_value } from "@def.codes/meld-core";
 import { MELD_EXAMPLES } from "./meld-examples.js";
-
-// Hack for browser/node support
-import * as rs1 from "../node_modules/@thi.ng/rstream/lib/index.umd.js";
-import * as tx1 from "../node_modules/@thi.ng/transducers/lib/index.umd.js";
-import * as hdom1 from "../node_modules/@thi.ng/hdom/lib/index.umd.js";
-import * as txhdom1 from "../node_modules/@thi.ng/transducers-hdom/lib/index.umd.js";
-const rs = Object.keys(rs1).length ? rs1 : thi.ng.rstream;
-const tx = Object.keys(tx1).length ? tx1 : thi.ng.transducers;
-const hdom = Object.keys(hdom1).length ? hdom1 : thi.ng.hdom;
-const txhdom = Object.keys(txhdom1).length ? txhdom1 : thi.ng.transducersHdom;
 
 //=========== LOAD MODEL
 
@@ -55,7 +47,7 @@ function main() {
     ]
   ];
 
-  hdom.renderOnce(render_example(model_spec), { root: "model" });
+  renderOnce(render_example(model_spec), { root: "model" });
 
   // Pull dom nodes from the rendered result.
   // The highest-level (probably empty) node available to the app.
@@ -71,7 +63,10 @@ function main() {
   // Need a go-to stream error handler for now. identify message and source
   // actually, subscription can have id... how to make this available?
 
-  const messages = rs.subscription();
+  const messages = rs.subscription<
+    any,
+    { type: "error"; source: string; error }
+  >();
   const catchall = source => ({
     error: error => messages.next({ type: "error", source, error })
   });
@@ -83,7 +78,10 @@ function main() {
   //================================== HOST DATAFLOW INTEROP
   // under construction
   const ports = (function() {
-    let registry = {};
+    let registry: Record<
+      string,
+      { sub: rs.Subscription<any, any>; ele: Element }
+    > = {};
 
     const ensure_port_container = name => {
       let ele = ports_container.querySelector(`[data-port="${name}"]`);
@@ -130,11 +128,10 @@ function main() {
     ports
   });
 
-  const { updateDOM } = thi.ng.transducersHdom;
-
   facts
     .transform(
-      tx.map(triples => [render_triples, { value: triples }]),
+      // HACK: see
+      tx.map(triples => [render_value, { "@type": "triples", value: triples }]),
       updateDOM({ root: host_output_container, ctx: { render } })
     )
     .subscribe(catchall("host-triple-renderer"));
@@ -150,7 +147,7 @@ function main() {
         ]
       : ["result.okay"];
 
-  const results = rs.subscription();
+  const results = rs.subscription<any, { when: string; error: any }>();
   results
     .transform(tx.map(render_result), updateDOM({ root: output_container }))
     .subscribe(catchall("host-result-render"));
@@ -170,7 +167,10 @@ function main() {
   rs.fromEvent(code_input, "input")
     .transform(
       tx.throttleTime(1000),
-      tx.map(event => event.target.innerText),
+      tx.map(
+        event => event.target instanceof HTMLElement && event.target.innerText
+      ),
+      tx.keep(),
       tx.sideEffect(sink)
     )
     .subscribe(catchall("userland-code-processor"));

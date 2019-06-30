@@ -1,3 +1,5 @@
+import { MeldExample } from "./types";
+
 const SPACE_COMMON = `space.isa.Forcefield,
 space.hasForce.center,
 space.hasForce.charge,
@@ -8,7 +10,7 @@ charge.distanceMax(250),
 charge.theta(0.98),
 `;
 
-export const MELD_EXAMPLES = [
+export const MELD_EXAMPLES: MeldExample[] = [
   {
     name: "there-exists",
     label: "there exists",

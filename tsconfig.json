@@ -2,6 +2,7 @@
   "include": [],
   "files": [],
   "references": [
+    {"path": "src/meld-demo" },
     {"path": "src/console-stream" },
     {"path": "src/expression-reader" },
     {"path": "src/rdf-data-model" },

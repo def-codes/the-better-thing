@@ -9,6 +9,8 @@
 		]
 	},
   "references": [
+    { "path": "../console-stream" },
+    { "path": "../meld-core" },
     { "path": "../expression-reader" },
     { "path": "../rdf-data-model" }
   ]
