@@ -8,6 +8,8 @@ import {
   HijackedConsoleMessage
 } from "@def.codes/console-stream";
 
+//hijack_console();
+
 const render_entry = (_: any, { method, args }: HijackedConsoleMessage) => [
   "div.console-entry",
   { "data-method": method },
@@ -20,8 +22,6 @@ const render_entries = (_: any, entries: Iterable<HijackedConsoleMessage>) => [
 ];
 
 export function register_console() {
-  hijack_console();
-
   if (!console.source) {
     console.log("Console stream source not found.  SAD!");
     return;

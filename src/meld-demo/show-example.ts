@@ -2,7 +2,12 @@ import * as tx from "@thi.ng/transducers";
 import * as rs from "@thi.ng/rstream";
 import { renderOnce } from "@thi.ng/hdom";
 import { updateDOM } from "@thi.ng/transducers-hdom";
-import { render, monotonic_world, render_value } from "@def.codes/meld-core";
+import {
+  render,
+  monotonic_world,
+  render_value,
+  render_triples
+} from "@def.codes/meld-core";
 import { MELD_EXAMPLES } from "./meld-examples.js";
 
 //=========== LOAD MODEL
@@ -130,7 +135,7 @@ export function show_example(model_name) {
   facts
     .transform(
       // HACK: see
-      tx.map(triples => [render_value, { "@type": "triples", value: triples }]),
+      tx.map(triples => [render_triples, { value: triples }]),
       updateDOM({ root: host_output_container, ctx: { render } })
     )
     .subscribe(catchall("host-triple-renderer"));
@@ -155,7 +160,8 @@ export function show_example(model_name) {
     tx.filter(_ => _.when === "creating-system"),
     tx.pluck("error"),
     tx.keep(),
-    tx.sideEffect(console.orig.error)
+    //tx.sideEffect(console.orig.error)
+    tx.sideEffect(console.error)
   );
 
   const sink = userland_code => results.next(interpret(userland_code));

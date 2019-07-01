@@ -1,8 +1,8 @@
-export * from "./owl-driver";
-export * from "./transducer-driver";
-export * from "./stream-driver";
-export * from "./host-driver";
-export * from "./subscription-driver";
-export * from "./hdom-driver";
-export * from "./view-driver";
-export * from "./test-driver";
+export { default as owlDriver } from "./owl-driver";
+export { default as transducerDriver } from "./transducer-driver";
+export { default as streamDriver } from "./stream-driver";
+export { default as hostDriver } from "./host-driver";
+export { default as subscriptionDriver } from "./subscription-driver";
+export { default as hdomDriver } from "./hdom-driver";
+export { default as viewDriver } from "./view-driver";
+export { default as testDriver } from "./test-driver";

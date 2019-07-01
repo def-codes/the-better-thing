@@ -1,5 +1,4 @@
 import * as rs from "@thi.ng/rstream";
-import { register_driver } from "../system";
 
 // Wrapper for stream merge that supports dynamic setting of transform.
 // This makes the API much more amenable to use with the system.
@@ -45,62 +44,65 @@ const metamerge = id => {
   });
 };
 
-register_driver("subscriptionDriver", ({ q }) => ({
-  claims: q(
-    "Subscribable isa Class",
-    "listensTo isa Property",
-    // In effect, we implement these with StreamMerge
-    // StreamSync will have to be its own thing with its own descriptions
-    "listensTo domain Subscribable"
-    // "listensTo range Listener"
-  ),
-  rules: [
-    {
-      when: q("?subject isa Subscribable"),
-      then: ({ subject }) => ({
-        register: {
-          subject,
-          as_type: "Subscribable",
-          get: () => metamerge(subject.value)
+export default {
+  name: "subscriptionDriver",
+  init: ({ q }) => ({
+    claims: q(
+      "Subscribable isa Class",
+      "listensTo isa Property",
+      // In effect, we implement these with StreamMerge
+      // StreamSync will have to be its own thing with its own descriptions
+      "listensTo domain Subscribable"
+      // "listensTo range Listener"
+    ),
+    rules: [
+      {
+        when: q("?subject isa Subscribable"),
+        then: ({ subject }) => ({
+          register: {
+            subject,
+            as_type: "Subscribable",
+            get: () => metamerge(subject.value)
+          }
+        })
+      },
+      {
+        when: q(
+          "?subject transformsWith ?transform",
+          "?transducer implements ?transform",
+          "?transducer as Transducer",
+          "?metamerge implements ?subject",
+          "?metamerge as Subscribable" // subscription would make more sense here...
+        ),
+        then: ({ transducer, metamerge }, { find }) => {
+          // TODO: how to short-circuit this so that it won't be called with
+          // identical values?
+          find(metamerge).set_transform(find(transducer));
+          // SIDE EFFECTING!!! TODO
+          return {};
         }
-      })
-    },
-    {
-      when: q(
-        "?subject transformsWith ?transform",
-        "?transducer implements ?transform",
-        "?transducer as Transducer",
-        "?metamerge implements ?subject",
-        "?metamerge as Subscribable" // subscription would make more sense here...
-      ),
-      then: ({ transducer, metamerge }, { find }) => {
-        // TODO: how to short-circuit this so that it won't be called with
-        // identical values?
-        find(metamerge).set_transform(find(transducer));
-        // SIDE EFFECTING!!! TODO
-        return {};
+      },
+      {
+        comment:
+          "See https://github.com/thi-ng/umbrella/tree/master/packages/rstream#stream-merging",
+        when: q(
+          "?subject listensTo ?source",
+          "?merge implements ?subject",
+          "?merge as Subscribable",
+          "?stream implements ?source",
+          "?stream as Subscribable"
+        ),
+        // SIDE EFFECTING!  I'm avoiding adding a "side_effect" return type, but
+        // in this case we're not registering a value.  We *do* need to avoid
+        // adding the stream multiple times for the same instance of this rule
+        // (i.e. resource pair), but that is currently handled by the metamerge.
+        //
+        // Note that adding also subscribes.
+        then: ({ subject, source, stream, merge }, { find }) => {
+          find(merge).add(find(stream));
+          return {};
+        }
       }
-    },
-    {
-      comment:
-        "See https://github.com/thi-ng/umbrella/tree/master/packages/rstream#stream-merging",
-      when: q(
-        "?subject listensTo ?source",
-        "?merge implements ?subject",
-        "?merge as Subscribable",
-        "?stream implements ?source",
-        "?stream as Subscribable"
-      ),
-      // SIDE EFFECTING!  I'm avoiding adding a "side_effect" return type, but
-      // in this case we're not registering a value.  We *do* need to avoid
-      // adding the stream multiple times for the same instance of this rule
-      // (i.e. resource pair), but that is currently handled by the metamerge.
-      //
-      // Note that adding also subscribes.
-      then: ({ subject, source, stream, merge }, { find }) => {
-        find(merge).add(find(stream));
-        return {};
-      }
-    }
-  ]
-}));
+    ]
+  })
+};
