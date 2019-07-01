@@ -10,7 +10,37 @@ import {
 } from "@def.codes/meld-core";
 import { MELD_EXAMPLES } from "./meld-examples.js";
 
-//=========== LOAD MODEL
+const render_example = example => [
+  "article.example",
+  { id: example.name },
+  [
+    "div.description",
+    [
+      "header",
+      [
+        "h3.heading",
+        ["a.example-link", { href: `#${example.name}` }, example.label],
+        "breakdancex"
+      ],
+      ["p.comment", example.comment]
+    ],
+    [
+      "div.userland-code",
+      [
+        "code.userland-code-input",
+        { contenteditable: true, spellcheck: false },
+        example.userland_code
+      ],
+      ["div.userland-code-output"],
+      ["div.host-output"],
+      ["div.host-output-ports"]
+    ]
+  ],
+  [
+    "figure.representation",
+    ["div.Document", { "data-model-representation": example.name }]
+  ]
+];
 
 export function show_example(model_name) {
   if (!model_name) return;
@@ -19,37 +49,6 @@ export function show_example(model_name) {
     console.warn(`No such model: ${model_name}`);
     return;
   }
-
-  const render_example = example => [
-    "article.example",
-    { id: example.name },
-    [
-      "div.description",
-      [
-        "header",
-        [
-          "h3.heading",
-          ["a.example-link", { href: `#${example.name}` }, example.label]
-        ],
-        ["p.comment", example.comment]
-      ],
-      [
-        "div.userland-code",
-        [
-          "code.userland-code-input",
-          { contenteditable: true, spellcheck: false },
-          example.userland_code
-        ],
-        ["div.userland-code-output"],
-        ["div.host-output"],
-        ["div.host-output-ports"]
-      ]
-    ],
-    [
-      "figure.representation",
-      ["div.Document", { "data-model-representation": example.name }]
-    ]
-  ];
 
   renderOnce(render_example(model_spec), { root: "model" });
 

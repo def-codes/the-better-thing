@@ -58,7 +58,12 @@ const bundle = ([name, { standalone, split, dir, ...config } = {}]) => ({
     ...((config && config.output) || {})
   },
   // Avoid `ENOSPC` issue on Linux. https://github.com/rollup/rollup/issues/1669
-  watch: { include: "build/modules/**", chokidar: { usePolling: true } },
+
+  // UPDATE: This requires another package and no longer solves the issues,
+  // anyway.  I'm now working around this on Linux by bumping the system cap on
+  // the number of watchers.
+  //
+  //watch: { include: "build/modules/**", chokidar: { usePolling: true } },
   plugins: [
     (function() {
       return {

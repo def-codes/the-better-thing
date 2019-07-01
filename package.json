@@ -10,8 +10,9 @@
     "clean": "rm -rf build/ node_modules/@def.codes/",
     "build": "tsc --build",
     "bundle": "rollup -c",
+    "watch": "./watch.sh",
     "start": "node server",
-    "meld": "live-server --watch='index.*,script/*'"
+    "meld": "live-server --watch='index.*,node_modues/@def.codes/*.js'"
   },
   "repository": {
     "type": "git",
