@@ -12,9 +12,6 @@ const render_examples = (_, items: Iterable<MeldExample>) => [
   )
 ];
 
-export function main() {
-  console.log(`MELD_examples`, MELD_EXAMPLES);
+export function show_all_examples() {
   hdom.renderOnce(() => [render_examples, MELD_EXAMPLES], { root: "examples" });
 }
-
-main();

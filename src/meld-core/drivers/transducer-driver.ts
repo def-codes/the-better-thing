@@ -1,6 +1,5 @@
 import * as tx from "@thi.ng/transducers";
-import * as rs from "@thi.ng/rstream";
-import { register_driver } from "./system";
+import { register_driver } from "../system";
 
 register_driver("transducerDriver", ({ q }) => ({
   claims: q(

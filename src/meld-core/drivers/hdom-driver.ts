@@ -1,6 +1,7 @@
 import { updateDOM } from "@thi.ng/transducers-hdom";
-import { register_driver } from "./system";
-import { render } from "./value-view";
+import { register_driver } from "../system";
+import { render } from "../value-view";
+import rdf from "@def.codes/rdf-data-model";
 
 register_driver("hdomDriver", ({ q }) => ({
   claims: q(

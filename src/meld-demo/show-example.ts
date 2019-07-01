@@ -7,12 +7,11 @@ import { MELD_EXAMPLES } from "./meld-examples.js";
 
 //=========== LOAD MODEL
 
-function main() {
-  const requested_model = window.location.search.replace(/^\?/, "");
-  if (!requested_model) return;
-  const model_spec = MELD_EXAMPLES.find(_ => _.name === requested_model);
+export function show_example(model_name) {
+  if (!model_name) return;
+  const model_spec = MELD_EXAMPLES.find(_ => _.name === model_name);
   if (!model_spec) {
-    console.warn(`No such model: ${requested_model}`);
+    console.warn(`No such model: ${model_name}`);
     return;
   }
 
@@ -178,5 +177,3 @@ function main() {
   // Send initial USERLAND CODE now
   if (model_spec.userland_code) sink(model_spec.userland_code);
 }
-
-main();

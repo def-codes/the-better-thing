@@ -1,7 +1,8 @@
 // Monotonic driver for (rstream) Stream and Subscription.
 // Not sure if subscription and stream can be separated as such.
 import * as rs from "@thi.ng/rstream";
-import { register_driver } from "./system";
+import { register_driver } from "../system";
+import rdf from "@def.codes/rdf-data-model";
 
 register_driver("streamDriver", ({ q }) => ({
   claims: q(

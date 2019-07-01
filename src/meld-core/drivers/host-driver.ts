@@ -1,6 +1,7 @@
 // The host driver supports a vocabulary describing dataflow interop between the
 // model and its runtime context.
-import { register_driver } from "./system";
+import { register_driver } from "../system";
+import rdf from "@def.codes/rdf-data-model";
 
 register_driver("hostDriver", ({ q }) => ({
   claims: q(

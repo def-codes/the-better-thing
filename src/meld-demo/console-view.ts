@@ -19,7 +19,7 @@ const render_entries = (_: any, entries: Iterable<HijackedConsoleMessage>) => [
   tx.map(entry => [render_entry, entry], entries)
 ];
 
-function register_console() {
+export function register_console() {
   hijack_console();
 
   if (!console.source) {
@@ -43,5 +43,3 @@ function register_console() {
     )
   );
 }
-
-register_console();

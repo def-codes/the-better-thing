@@ -1,6 +1,5 @@
-import * as tx from "@thi.ng/transducers";
 import * as rs from "@thi.ng/rstream";
-import { register_driver } from "./system";
+import { register_driver } from "../system";
 
 // Wrapper for stream merge that supports dynamic setting of transform.
 // This makes the API much more amenable to use with the system.
@@ -22,9 +21,11 @@ const metamerge = id => {
   // Returning the same stream as the current one (which shouldn't happen),
   // will break because it will first unsubscribe it.
   const meta = rs.metaStream(
+    // @ts-ignore
     sub => (current === sub ? null : (current = sub)),
     `${id} metamerge`
   );
+  // @ts-ignore
   meta.next(make_merge());
 
   return Object.assign(meta, {

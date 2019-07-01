@@ -1,7 +1,7 @@
 // clearinghouse for rules under development
 import * as tx from "@thi.ng/transducers";
-import rdf from "./rdf";
-import { register_driver } from "./system";
+import rdf from "@def.codes/rdf-data-model";
+import { register_driver } from "../system";
 
 const n = rdf.namedNode;
 const v = rdf.variable;
