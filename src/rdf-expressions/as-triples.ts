@@ -1,13 +1,13 @@
 import rdf from "@def.codes/rdf-data-model";
 import { expecting_statement } from "./turtle-expand";
 
-const { namedNode: n, variable: v, literal: l, blankNode: b } = rdf;
+const { namedNode, variable, literal } = rdf;
 
 const as_term = value => {
   if (value.term) {
-    if (typeof value.term === "string") return n(value.term);
+    if (typeof value.term === "string") return namedNode(value.term);
     // To mint blank nodes in place of the variables, see `sub_blank_nodes`.
-    if ("minted" in value.term) return v(`v${value.term.minted}`);
+    if ("minted" in value.term) return variable(`v${value.term.minted}`);
     throw `Invalid term ${JSON.stringify(value)}`;
   }
   // If a literal is already an RDF-term, then take it as-is.  This is intended
@@ -18,7 +18,7 @@ const as_term = value => {
   if (value.literal)
     return typeof value.literal.termType === "string"
       ? value.literal
-      : l(value.literal);
+      : literal(value.literal);
 
   throw `Cannot convert to term: ${value}`;
 };

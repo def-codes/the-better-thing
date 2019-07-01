@@ -43,8 +43,8 @@ export function run_tests() {
       if (expander_error) console.log(`expander_error`, expander_error);
       console.log(`exprs`, inspect(exprs, { depth: null }));
       console.log(`expansion`, inspect(expansion, { depth: null }));
-      console.log(`expected_json`, expected_json);
-      console.log(`got_json`, got_json);
+      console.log(`expected_json\n`, expected_json);
+      console.log(`got_json\n`, got_json);
     }
   }
 }
