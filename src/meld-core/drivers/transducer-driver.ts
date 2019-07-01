@@ -52,7 +52,8 @@ export default {
           register: {
             subject,
             as_type: "Transducer",
-            get: () => tx.partition(spec.value.size, spec.value.step)
+            get: () =>
+              tx.partition(spec.value.size.literal, spec.value.step.literal)
           }
         })
       }
