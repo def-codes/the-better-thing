@@ -12,6 +12,30 @@ charge.theta(0.98),
 
 export const MELD_EXAMPLES: MeldExample[] = [
   {
+    name: "multiple-rules-bug",
+    label: "BUG with multiple there-exists rules",
+    comment: `Repro case for an apparent bug with construction of there-exists assertions`,
+    userland_code: `home.contains.more
+Alice(hasInterval(150))
+vv(viewOf.Alice, viewIn.more)
+
+Bob(
+  listensTo.Alice,
+  transformsWith(partitionsWith({size:5, step: 1})))
+home.contains.BobHome
+BobView(viewOf.Bob, viewIn.BobHome)
+
+// Carol shows as having the same spec as Bob (5, 1)
+// but works correctly (9, 3) if you comment Bob
+Carol(
+  listensTo.Alice,
+  transformsWith(partitionsWith({size:9, step: 3})))
+home.contains.CarolHome
+CarolView(viewOf.Carol, viewIn.CarolHome)
+`
+  },
+
+  {
     name: "there-exists",
     label: "there exists",
     comment: `Rules that assert the existence of a dynamic set of facts.  Right now this is implicitly tested by rules in the test driver.`,
@@ -338,6 +362,28 @@ Carol(
   transformsWith(mapsWith(batch => ({batch}))),
   hostOutput("Carol"))
  `
+  },
+
+  {
+    name: "partition-step",
+    label: "partitioning with size and step",
+    comment: `you can set the offset as well as the window size`,
+    userland_code: `home.contains.more
+Alice(hasInterval(150))
+vv(viewOf.Alice, viewIn.more)
+
+Bob(
+  listensTo.Alice,
+  transformsWith(partitionsWith({size:5, step: 1})))
+home.contains.BobHome
+BobView(viewOf.Bob, viewIn.BobHome)
+
+Carol(
+  listensTo.Alice,
+  transformsWith(partitionsWith({size:9, step: 3})))
+home.contains.CarolHome
+CarolView(viewOf.Carol, viewIn.CarolHome)
+`
   },
 
   {
