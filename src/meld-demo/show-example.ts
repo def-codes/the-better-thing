@@ -19,8 +19,7 @@ const render_example = example => [
       "header",
       [
         "h3.heading",
-        ["a.example-link", { href: `#${example.name}` }, example.label],
-        "breakdancex"
+        ["a.example-link", { href: `#${example.name}` }, example.label]
       ],
       ["p.comment", example.comment]
     ],

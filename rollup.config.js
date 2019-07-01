@@ -21,7 +21,8 @@ const modules = [
 // Unfortunately, rollup doesn't support wildcards for specifying externals.
 const things = (
   "rstream rstream-graph rstream-csp transducers paths hdom dcons " +
-  "iterators atom csp compose associative checks interceptors rstream-query"
+  "iterators atom csp compose associative checks interceptors rstream-query " +
+  "transducers-hdom"
 )
   .split(" ")
   .map(name => `@thi.ng/${name}`);

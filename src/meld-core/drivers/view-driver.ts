@@ -52,10 +52,10 @@ export default {
               )
             )
           );
-          console.log(`scanned1`, scanned1);
+          // console.log(`scanned1`, scanned1);
 
           const blah1 = as_triples(scanned1);
-          console.log(`blah1`, blah1);
+          // console.log(`blah1`, blah1);
 
           const [scanned2] = with_scanner(_ =>
             _.doodad2(
@@ -63,10 +63,10 @@ export default {
               _.transformsWith(_.hasRoot(container))
             )
           );
-          console.log(`scanned2`, scanned2);
+          // console.log(`scanned2`, scanned2);
 
           const blah2 = as_triples(scanned2);
-          console.log(`blah2`, blah2);
+          // console.log(`blah2`, blah2);
 
           return {
             assert: [
