@@ -1,0 +1,89 @@
+#+TITLE:RDF runtime literals
+
+One of MELD's core ideas is that of an information-rich runtime.  The system
+uses an RDF graph as a knowledge base of `, which
+may include any type of thing that can be referenced by the host.
+
+The distinction between value and reference types comes into play here.
+
+Values types:
+- use equality semantics
+- are interchangable
+- are portable
+- can be serializable
+- can be deserializable
+- are "stateless" (though they can represent state)
+
+Reference/instance types
+- use identity semantics
+- are unique
+- are tied to the host
+- are not portable
+- are not serializable
+- are not deserializable
+- may be stateful
+
+#+begin_quote
+Literals often represent values for which the host environment of an RDF
+Interface implementation has a corresponding native value, this value can be
+accessed by the =valueOf= method of the =Literal= interface.
+#+end_quote
+
+https://www.w3.org/TR/rdf-interfaces/#literals
+
+#+begin_quote
+This method provides access to a corresponding host environment specific native
+value, where one exists.
+#+end_quote
+
+* note on protocol extension
+
+Clojure-style protocol extension (such as is provided by defmulti) doesn't work
+that well in JavaScript because we don't have a unanimous way of making classes
+and class hierarchies.  We don't have a satisfactory way to produce a
+dispatching value.  Not every API uses classes or named prototypes.  JavaScript
+does not have an official notion of globally-distinct package names like Java
+does.  As a result, externally extending an API's protocol unambiguously would
+require a hard reference to the prototype.  Even this approach can fail, since
+clients in the same runtime could easily have imported different instances (or
+slightly different versions) of the same module.  (In my world, anyway.)
+
+Better to use RDF itself, which does have =type= built in, has standard semantics
+for subclassing, and supports multiple superclasses.
+
+Native objects will be supported out of the box.
+
+Beyond that, first pass will be to look for an outright JSON-LD (data)type indication.
+
+When that fails, you can consider an extensible protocol.
+
+You want to know the datatype... but is that the same as rdf:type?
+
+
+
+* there's a but...
+
+But can we really say that every single datatype is going to correspond to a
+single host interface.
+
+I.e. can we really say that deserialized values are interchangeable regardless
+of implementation
+
+i.e. can we really decouple the determination of datatype IRI from the selection
+of conversion functions?
+
+Well... if you have implementations which depart from the semantics of the value
+space such that they require their own special conversion functions, then don't
+they need to be identified as such?  and wouldn't you be back where you started,
+i.e. such values actually have a distinct datatype IRI?
+
+* how much can a hierarchy matter here?
+
+You can't use a converter for X to convert a Y just because Y is a
+specialization of X.
+
+this does not need to have anything to do with hierarchies
+
+there might be interesting /informational/ relationships among datatypes, but they
+will not help with this operation
+

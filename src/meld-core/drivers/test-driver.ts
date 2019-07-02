@@ -16,6 +16,7 @@ export default {
         // DISABLE: this creates too much output & blocks fact list
         when: q("?subject isa XSubscribable"),
         then: ({ subject }) => ({
+          // TODO: no
           assert: [[subject, n("hostOutput"), literal(subject.value)]]
         })
       },

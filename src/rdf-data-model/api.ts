@@ -14,6 +14,7 @@ interface TermBase extends IEquals<Term> {
 }
 
 export interface NamedNode extends TermBase {
+  readonly "@type": "rdf";
   readonly termType: "NamedNode";
   /** The IRI of the named node (example: “http://example.org/resource”). */
   readonly value: string;
@@ -42,6 +43,10 @@ export interface Literal extends TermBase {
 
   /** A `NamedNode` whose IRI represents the datatype of the literal. */
   readonly datatype: NamedNode;
+
+  /** A MELD extension for the corresponding host value when available.  Should
+   * be accessed through `valueOf` method. (PROVISIONAL)*/
+  runtimeValue?: any;
 }
 
 export interface Variable extends TermBase {
@@ -86,8 +91,9 @@ export interface DataFactory {
    * a new identifier for the blank node is generated for each call.  */
   blankNode: (value?: string) => BlankNode;
 
-  /** Returns a new instance of BlankNode. If the value parameter is undefined a
-   * new identifier for the blank node is generated for each call.  */
+  /** Returns a new instance of `Literal`. If `languageOrDatatype` is a
+   * `NamedNode`, then it is used for the value of `datatype`. Otherwise
+   * `languageOrDatatype` is used for the value of `language`.  */
   literal: (value: string, languageOrDatatype?: string | NamedNode) => Literal;
 
   /** Returns a new instance of `Variable`. */

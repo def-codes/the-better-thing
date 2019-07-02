@@ -204,7 +204,7 @@ export const TEST_CASES = [
       ],
       [{ term: "CarolView" }, { term: "viewOf" }, { term: "Carol" }],
       [{ term: "CarolView" }, { term: "viewIn" }, { term: "CarolHome" }],
-      [({ term: "home" }, { term: "contains" }, { term: "CarolHome" })]
+      [{ term: "home" }, { term: "contains" }, { term: "CarolHome" }]
     ]
   ]
 

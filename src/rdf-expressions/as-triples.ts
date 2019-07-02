@@ -18,7 +18,8 @@ const as_term = value => {
   if (value.literal)
     return typeof value.literal.termType === "string"
       ? value.literal
-      : literal(value.literal);
+      : // TODO: no
+        literal(value.literal);
 
   throw `Cannot convert to term: ${value}`;
 };

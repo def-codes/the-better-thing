@@ -25,7 +25,7 @@ export const render_triple = ({ render }, { value: [s, p, o] }) => [
   p.value,
   " ",
   o.termType === "Literal"
-    ? ["div.value-view", [render, { value: o.value }]]
+    ? ["div.value-view", [render, { value: o.valueOf() }]]
     : o.value
 ];
 

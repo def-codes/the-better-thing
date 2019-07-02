@@ -22,7 +22,7 @@ export default {
           register: {
             subject,
             as_type: "Transducer",
-            get: () => tx.map(fn.value)
+            get: () => tx.map(fn.valueOf())
           }
         })
       },
@@ -32,7 +32,7 @@ export default {
           register: {
             subject,
             as_type: "Transducer",
-            get: () => tx.filter(fn.value)
+            get: () => tx.filter(fn.valueOf())
           }
         })
       },
@@ -42,7 +42,7 @@ export default {
           register: {
             subject,
             as_type: "Transducer",
-            get: () => tx.partition(size.value)
+            get: () => tx.partition(size.valueOf())
           }
         })
       },
@@ -53,7 +53,10 @@ export default {
             subject,
             as_type: "Transducer",
             get: () =>
-              tx.partition(spec.value.size.literal, spec.value.step.literal)
+              tx.partition(
+                spec.valueOf().size.literal,
+                spec.valueOf().step.literal
+              )
           }
         })
       }

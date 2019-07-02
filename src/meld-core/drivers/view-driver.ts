@@ -9,7 +9,7 @@ const n = rdf.namedNode;
 const v = rdf.variable;
 // const ISA = n("isa");
 
-// @ts-ignore: yeah, it's not a string
+// TODO: no
 const RENDER_VALUE = rdf.literal(render_value, n("javascriptFunction"));
 const LISTENS_TO = n("listensTo");
 const TRANSFORMS_WITH = n("transformsWith");

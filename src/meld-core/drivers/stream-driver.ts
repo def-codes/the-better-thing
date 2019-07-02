@@ -27,7 +27,7 @@ export default {
         when: q("?stream hasSource ?source"),
         then({ stream, source }) {
           // This kind of inconsistency could also be checked via above ontology
-          if (typeof source.value !== "function")
+          if (typeof source.valueOf() !== "function")
             return {
               warning: {
                 message: "Expected stream `source` to be a function",
@@ -41,7 +41,7 @@ export default {
               // Here and below this seems it should be stream, but system doesn't
               // traverse subclasses when doing these lookups.
               as_type: "Subscribable",
-              get: () => rs.stream(source.value)
+              get: () => rs.stream(source.valueOf())
               // DEBUG: uncomment to log stream values
               // .subscribe(rs.trace("DEBUG stream"))
             }

@@ -500,11 +500,9 @@ node for some reason`,
 isa . Person
 
 // or for the literal form:
-// TBD, not supported yet!
 hasStrength(50)
 
 // you can also use them in place of where a node would go
-// TBD, not supported yet!
 space . hasForce ( x(50) )
 
 `

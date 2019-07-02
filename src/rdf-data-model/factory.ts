@@ -59,6 +59,13 @@ literal.prototype.equals = function literal_equals(other: rdf.Term) {
     this.datatype.equals(other.datatype)
   );
 };
+/** “This method provides access to a corresponding host environment specific
+ * native value, where one exists.” From the first attempt at an RDF interface
+ * spec: (https://www.w3.org/TR/rdf-interfaces/#literals) */
+literal.prototype.valueOf = function literal_valueOf(this: rdf.Literal) {
+  // TEMP.  how to do this?
+  return this.runtimeValue || this.value;
+};
 
 function quad_equals(other: rdf.Quad) {
   return (
