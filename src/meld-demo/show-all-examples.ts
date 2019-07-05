@@ -1,4 +1,3 @@
-import * as rs from "@thi.ng/rstream";
 import * as tx from "@thi.ng/transducers";
 import * as hdom from "@thi.ng/hdom";
 import { MELD_EXAMPLES } from "./meld-examples";
