@@ -9,7 +9,20 @@ interface MindMapNode {
 const render_mind_map = (_, items: Iterable<MindMapNode>) => [
   "ul",
   tx.map(
-    item => ["li", ["a", { id: item.id, href: `#${item.id}` }, item.label]],
+    item => [
+      "li",
+      ["a", { id: item.id, href: `#${item.id}` }, item.label],
+      [
+        "ul",
+        tx.map(
+          ([key, value]) =>
+            ["label", "id"].includes(key)
+              ? null
+              : ["li", ["span", key], " ", ["b", value]],
+          Object.entries(item)
+        )
+      ]
+    ],
     items
   )
 ];

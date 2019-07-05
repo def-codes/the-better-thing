@@ -10,6 +10,7 @@ const TEST_MODULES = [];
 /** Modules built in this project. */
 const modules = [
   ["meld-demo"],
+  ["function-testing"],
   ["console-stream"],
   ["expression-reader"],
   ["rdf-data-model"],

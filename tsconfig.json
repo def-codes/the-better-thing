@@ -3,6 +3,7 @@
   "files": [],
   "references": [
     {"path": "src/meld-demo" },
+    {"path": "src/function-testing" },
     {"path": "src/console-stream" },
     {"path": "src/expression-reader" },
     {"path": "src/rdf-data-model" },

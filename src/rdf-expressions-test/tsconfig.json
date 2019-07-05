@@ -8,6 +8,7 @@
     ],
 	},
   "references": [
+    { "path": "../function-testing" },
     { "path": "../expression-reader" },
     { "path": "../rdf-expressions" }
   ]

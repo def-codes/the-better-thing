@@ -10,6 +10,7 @@ const v = rdf.variable;
 // const ISA = n("isa");
 
 // TODO: no
+// @ts-ignore
 const RENDER_VALUE = rdf.literal(render_value, n("javascriptFunction"));
 const LISTENS_TO = n("listensTo");
 const TRANSFORMS_WITH = n("transformsWith");
