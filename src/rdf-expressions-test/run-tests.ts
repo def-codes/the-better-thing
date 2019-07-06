@@ -1,7 +1,8 @@
 import { with_scanner, serialize } from "@def.codes/expression-reader";
 import { expecting_statements } from "@def.codes/rdf-expressions";
-import { inspect } from "util";
-import { TEST_CASES } from "./test-cases";
+
+const inspect = (...args) => args.map(x => JSON.stringify(x)).join("\n");
+const TEST_CASES = [["nam", () => {}, 0]];
 
 export function run_tests() {
   for (const [name, fn, expect] of TEST_CASES) {

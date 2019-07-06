@@ -29,6 +29,20 @@ export default {
           }
         })
       },
+      // TRANSITIONAL
+      {
+        when: q("?subject mapsValuesWithResource ?node", "?node value ?fn"),
+        then: ({ subject, fn }) => {
+          const fun = fn.valueOf();
+          return {
+            register: {
+              subject,
+              as_type: "Transducer",
+              get: () => tx.map((values: any[]) => values.map(fun))
+            }
+          };
+        }
+      },
       {
         when: q("?subject filtersWith ?fn"),
         then: ({ subject, fn }) => ({

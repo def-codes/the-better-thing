@@ -1,6 +1,23 @@
 export default {
   "@graph": [
     {
+      id: "view-refinement",
+      label:
+        "You can describe aspects of the appearance of particular types of things.",
+      status: "TODO"
+    },
+    {
+      id: "view-refinement-examples",
+      label:
+        "Make examples illustrating the essentials of refining appearance by type.",
+      status: "IN-PROGRESS"
+    },
+    {
+      id: "implement-view-refinement",
+      label: "Make the view refinement examples work.",
+      status: "NEXT"
+    },
+    {
       id: "stream-metamerge-bug",
       label:
         "Fix a bug where metamerge is getting created on streams.  Apparently a no-op for intervals (because of ordering), so it's gone unnoticed",
@@ -103,10 +120,24 @@ export default {
       partOf: "function-testing"
     },
     {
+      id: "support-indirect-function-reference-in-map",
+      label:
+        "Allow mapping function to be specified as a term whose value is a function, rather than a literal",
+      comment: `I just created a special xform for my immediate purpose.  No polymorphism for now.`,
+      status: "DONE"
+    },
+    {
       id: "load-existing-tests",
       label: "load and run existing tests via drivers",
-      status: "NEXT",
+      status: "DONE",
       partOf: "function-testing"
+    },
+    {
+      id: "describe-test-result-representation",
+      label: "Describe test result representation",
+      status: "BLOCKED",
+      blockedBy: "view-refinement",
+      supports: "function-testing"
     },
     {
       id: "get-data-from-model",

@@ -1,4 +1,11 @@
-export const TEST_CASES = [
+import { test_case } from "@def.codes/function-testing";
+
+import { with_scanner } from "@def.codes/expression-reader";
+import { expecting_statements } from "@def.codes/rdf-expressions";
+
+const scan_statements = x => [...expecting_statements(with_scanner(x))];
+
+export const TEST_CASES = ([
   [
     "Simple triple",
     _ => _.Alice.knows.Bob,
@@ -179,7 +186,6 @@ export const TEST_CASES = [
       _.home.contains.CarolHome,
       _.CarolView(_.viewOf.Carol, _.viewIn.CarolHome)
     ],
-
     [
       [{ term: "Alice" }, { term: "hasInterval" }, { literal: 150 }],
       [{ term: "vv" }, { term: "viewOf" }, { term: "Alice" }],
@@ -202,12 +208,13 @@ export const TEST_CASES = [
         { term: "partitionsWith" },
         { literal: { size: { literal: 9 }, step: { literal: 3 } } }
       ],
+      // Sometimes this triple ends up at the end instead of here?
+      // Anyway, the function should have set semantics, as the order does not matter.
+      [{ term: "home" }, { term: "contains" }, { term: "CarolHome" }],
       [{ term: "CarolView" }, { term: "viewOf" }, { term: "Carol" }],
-      [{ term: "CarolView" }, { term: "viewIn" }, { term: "CarolHome" }],
-      [{ term: "home" }, { term: "contains" }, { term: "CarolHome" }]
+      [{ term: "CarolView" }, { term: "viewIn" }, { term: "CarolHome" }]
     ]
   ]
-
   /* No, we can't use this form for putting blank nodes in subject position
 	 * because the p-o list can be interpreted in object position as a list of
 	 * blank nodes.
@@ -232,4 +239,6 @@ export const TEST_CASES = [
     ]
   ]
 */
-];
+] as const).map(([name, args, output]) =>
+  test_case(scan_statements, [args], output, name)
+);

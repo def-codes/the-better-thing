@@ -12,6 +12,20 @@ charge.theta(0.98),
 
 export const MELD_EXAMPLES: MeldExample[] = [
   {
+    name: "function-testing",
+    label: "function testing",
+    comment: `Bootstrapping.  We write a lot of functions. And hand-written test cases.  Let's
+run them here and see the results.`,
+    userland_code: `Alice.moduleAt("./node_modules/@def.codes/rdf-expressions-test.js")
+Bob(listensTo.Alice, transformsWith(plucks("TEST_CASES")))
+Carol(listensTo.Bob, transformsWith(mapsValuesWithResource(RunTest)))
+home.contains.CarolHome
+vc(viewOf.Carol, viewIn.CarolHome)
+
+`
+  },
+
+  {
     name: "module",
     label: "ECMAScript modules",
     comment: `Loading JS modules is not the same as loading other resources.  For one thing,
