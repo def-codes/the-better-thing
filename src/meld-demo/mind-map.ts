@@ -1,6 +1,67 @@
 export default {
   "@graph": [
     {
+      id: "stream-metamerge-bug",
+      label:
+        "Fix a bug where metamerge is getting created on streams.  Apparently a no-op for intervals (because of ordering), so it's gone unnoticed",
+      status: "DONE"
+    },
+    {
+      id: "trace-rule-firing",
+      label:
+        "The system could trace which rules fired and with what.  #deathtoconsolelog",
+      status: "TODO"
+    },
+    {
+      id: "things-to-datafy",
+      label: "A list of things in JavaScript hosts that invite datafication",
+      value: ["Error", "Response", "Node"]
+    },
+    {
+      id: "merge-examples-and-mind-map",
+      status: "TODO",
+      label: "Convert mind map to JSON and merge with MELD examples."
+    },
+    {
+      id: "convert-examples-to-json",
+      status: "TODO",
+      label: "Convert MELD examples to JSON."
+    },
+    {
+      id: "http-dereference-driver",
+      status: "TODO",
+      label:
+        "A driver for providing the content of resources with HTTP/HTTPS IRI's."
+    },
+    {
+      id: "create-http-dereference-vocabulary",
+      status: "DONE",
+      label:
+        "create vocabulary for representing HTTP resources as stream sources.",
+      partOf: "http-dereference-driver"
+    },
+    {
+      id: "create-http-dereference-driver",
+      status: "",
+      label: "create driver for implementing HTTP vocabulary as stream source.",
+      partOf: "http-dereference-driver"
+    },
+    {
+      id: "javascript-modules",
+      comment: `What is the purpose of this for userland?`,
+      label: "A vocabulary for talking about JavaScript modules."
+    },
+    {
+      id: "create-javascript-modules-vocabulary",
+      label: "A vocabulary for talking about JavaScript modules.",
+      partOf: "javascript-modules"
+    },
+    {
+      id: "implement-javascript-modules-driver",
+      label: "Create a driver for loading JavaScript modules.",
+      partOf: "javascript-modules"
+    },
+    {
       id: "create-test-case-vocabulary",
       status: "DONE",
       label: "create a simple vocabulary for describing functional test cases",
@@ -34,7 +95,7 @@ export default {
     {
       id: "create-function-testing-driver",
       label: "create function testing driver",
-      status: "IN-PROGRESS",
+      status: "TODO",
       partOf: "function-testing"
     },
     {
@@ -42,6 +103,13 @@ export default {
       label: "support getting outside from model",
       status: "TODO",
       supports: "function-testing"
+    },
+    {
+      id: "pluck-as-action-and-description",
+      label: "Pluck as action and description",
+      comment:
+        "Picking out part of a represented value should capture the description of a pluck operation, which can be reified and turned into a transducer.",
+      status: "IDEA"
     },
     { id: "meld-mind-map", label: "mind map" },
     { id: "function-testing", label: "function testing" },

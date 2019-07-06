@@ -12,6 +12,17 @@ charge.theta(0.98),
 
 export const MELD_EXAMPLES: MeldExample[] = [
   {
+    name: "http",
+    label: "HTTP resources",
+    comment: `RDF terms are already (supposed to be) IRI's.  Getting the content at that address is called “dereferencing.”`,
+    userland_code: `// MELD terms are not yet true IRI's.
+Alice(dereferences("./dereference-example.json"))
+
+Bob.listensTo.Alice
+Bob.hostOutput("Bob")
+`
+  },
+  {
     name: "multiple-rules-bug",
     label: "BUG with multiple there-exists rules",
     comment: `Repro case for an apparent bug with construction of there-exists assertions`,
