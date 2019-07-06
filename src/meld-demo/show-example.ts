@@ -2,24 +2,19 @@ import * as tx from "@thi.ng/transducers";
 import * as rs from "@thi.ng/rstream";
 import { renderOnce } from "@thi.ng/hdom";
 import { updateDOM } from "@thi.ng/transducers-hdom";
-import {
-  render,
-  monotonic_world,
-  render_value,
-  render_triples
-} from "@def.codes/meld-core";
-import { MELD_EXAMPLES } from "./meld-examples.js";
+import { render, monotonic_world, render_triples } from "@def.codes/meld-core";
+import { MIND_MAP } from "./mind-map";
 
 const render_example = example => [
   "article.example",
-  { id: example.name },
+  { id: example.id },
   [
     "div.description",
     [
       "header",
       [
         "h3.heading",
-        ["a.example-link", { href: `#${example.name}` }, example.label]
+        ["a.example-link", { href: `#${example.id}` }, example.label]
       ],
       ["p.comment", example.comment]
     ],
@@ -37,15 +32,15 @@ const render_example = example => [
   ],
   [
     "figure.representation",
-    ["div.Document", { "data-model-representation": example.name }]
+    ["div.Document", { "data-model-representation": example.id }]
   ]
 ];
 
-export function show_example(model_name) {
-  if (!model_name) return;
-  const model_spec = MELD_EXAMPLES.find(_ => _.name === model_name);
+export function show_example(model_id) {
+  if (!model_id) return;
+  const model_spec = MIND_MAP["@graph"].find(_ => _.id === model_id);
   if (!model_spec) {
-    console.warn(`No such model: ${model_name}`);
+    console.warn(`No such model: ${model_id}`);
     return;
   }
 
@@ -53,7 +48,7 @@ export function show_example(model_name) {
 
   // Pull dom nodes from the rendered result.
   // The highest-level (probably empty) node available to the app.
-  const dom_root = document.getElementById(model_spec.name);
+  const dom_root = document.getElementById(model_spec.id);
   const representation_container = dom_root.querySelector(
     "[data-model-representation]"
   );
@@ -132,7 +127,7 @@ export function show_example(model_name) {
   // outside the scope of the model as such
 
   const { interpret, facts } = monotonic_world({
-    id: model_spec.name,
+    id: model_spec.id,
     dom_root: representation_container,
     ports
   });
