@@ -12,6 +12,14 @@ export default {
         // Anyway for the moment we're using literals since terms don't currently
         // use actual IRI's.
         when: q("?subject dereferences ?uri"),
+        // This cheats in so many ways:
+        //
+        // - anything with a callback should be a process
+        //
+        // - the promise resolves once but it's still a stream (you could poll
+        //   it but that would be a different thing)
+        //
+        // - it's a non-value but it's not registered
         then: ({ subject, uri }) => ({
           assert: [
             [

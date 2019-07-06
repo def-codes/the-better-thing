@@ -12,14 +12,27 @@ charge.theta(0.98),
 
 export const MELD_EXAMPLES: MeldExample[] = [
   {
+    name: "module",
+    label: "ECMAScript modules",
+    comment: `Loading JS modules is not the same as loading other resources.  For one thing,
+module code is executed on load.  For another, they usually export mechanisms
+rather than values.  So this is probably not good for userland.`,
+    userland_code: `// MELD terms are not yet true IRI's.
+// Relative paths shouldn't really be used.  This is just for local development.
+Alice.moduleAt("./node_modules/@def.codes/meld-demo.js")
+// Alice.hostOutput("Alice")
+Bob(listensTo.Alice, transformsWith(mapsWith(x => x.MELD_EXAMPLES)))
+Bob.hostOutput("Bob")
+
+`
+  },
+  {
     name: "http",
     label: "HTTP resources",
     comment: `RDF terms are already (supposed to be) IRI's.  Getting the content at that address is called “dereferencing.”`,
     userland_code: `// MELD terms are not yet true IRI's.
-Alice(dereferences("./dereference-example.json"))
-
-Bob.listensTo.Alice
-Bob.hostOutput("Bob")
+Alice.dereferences("./dereference-example.json")
+Alice.hostOutput("Alice")
 `
   },
   {

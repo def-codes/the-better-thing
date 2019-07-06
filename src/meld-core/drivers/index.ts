@@ -6,4 +6,5 @@ export { default as subscriptionDriver } from "./subscription-driver";
 export { default as hdomDriver } from "./hdom-driver";
 export { default as viewDriver } from "./view-driver";
 export { default as httpDereferenceDriver } from "./http-dereference-driver";
+export { default as moduleImportDriver } from "./module-import-driver";
 export { default as testDriver } from "./test-driver";

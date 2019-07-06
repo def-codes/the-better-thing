@@ -24,12 +24,13 @@ export default {
     },
     {
       id: "convert-examples-to-json",
-      status: "TODO",
+      status: "NOT-TODO",
+      comment: `But JSON doesn't allow line breaks in strings.  So there's no way I'm editing that manually.`,
       label: "Convert MELD examples to JSON."
     },
     {
       id: "http-dereference-driver",
-      status: "TODO",
+      status: "DONE",
       label:
         "A driver for providing the content of resources with HTTP/HTTPS IRI's."
     },
@@ -48,17 +49,20 @@ export default {
     },
     {
       id: "javascript-modules",
-      comment: `What is the purpose of this for userland?`,
+      comment: `This is just for local development, currently not intended for userland`,
       label: "A vocabulary for talking about JavaScript modules."
     },
     {
       id: "create-javascript-modules-vocabulary",
       label: "A vocabulary for talking about JavaScript modules.",
+      comment: `Basically punting.  Assuming needed semantics will arise.`,
+      status: "DONE",
       partOf: "javascript-modules"
     },
     {
-      id: "implement-javascript-modules-driver",
-      label: "Create a driver for loading JavaScript modules.",
+      id: "implement-javascript-module-import-driver",
+      label: "Create a driver for importing JavaScript modules.",
+      status: "DONE",
       partOf: "javascript-modules"
     },
     {
