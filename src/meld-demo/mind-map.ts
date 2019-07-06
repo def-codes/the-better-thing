@@ -1400,11 +1400,28 @@ range(20, 25)
       status: "DONE",
       label:
         "Add vocabulary and driver as needed.  Host input port will be a stream",
-      partOf: "host-input"
+      supports: "host-input"
+    },
+    {
+      id: "dynamic-polymorphic-render",
+      status: "TODO",
+      label: "Create a dynamic, (single-dispatch) polymorphic render apparatus"
+    },
+    {
+      id: "create-dynamic-polymorphic-render",
+      status: "IN-PROGRESS",
+      label: "Create a dynamic, (single-dispatch) polymorphic render apparatus",
+      supports: "dynamic-polymorphic-render"
+    },
+    {
+      id: "create-dynamic-polymorphic-render-driver",
+      status: "NEXT",
+      label: "Create driver for dynamic polymorphic render",
+      supports: "dynamic-polymorphic-render"
     },
     {
       id: "provide-mind-map-as-input",
-      status: "NEXT",
+      status: "TODO",
       label:
         "Model host should provide the mind map to the model as an input port",
       comment: "requires hostInput support"
@@ -1426,13 +1443,13 @@ range(20, 25)
       status: "DONE",
       label:
         "create vocabulary for representing HTTP resources as stream sources.",
-      partOf: "http-dereference-driver"
+      supports: "http-dereference-driver"
     },
     {
       id: "create-http-dereference-driver",
       status: "",
       label: "create driver for implementing HTTP vocabulary as stream source.",
-      partOf: "http-dereference-driver"
+      supports: "http-dereference-driver"
     },
     {
       id: "javascript-modules",
@@ -1444,50 +1461,50 @@ range(20, 25)
       label: "A vocabulary for talking about JavaScript modules.",
       comment: `Basically punting.  Assuming needed semantics will arise.`,
       status: "DONE",
-      partOf: "javascript-modules"
+      supports: "javascript-modules"
     },
     {
       id: "implement-javascript-module-import-driver",
       label: "Create a driver for importing JavaScript modules.",
       status: "DONE",
-      partOf: "javascript-modules"
+      supports: "javascript-modules"
     },
     {
       id: "create-test-case-vocabulary",
       status: "DONE",
       label: "create a simple vocabulary for describing functional test cases",
-      partOf: "function-testing"
+      supports: "function-testing"
     },
     {
       id: "create-test-case-format",
       label:
         "create test case format compatible with TypeScript and vocabulary",
       status: "DONE",
-      partOf: "function-testing"
+      supports: "function-testing"
     },
     {
       id: "convert-existing-tests",
       label: "convert existing tests to function test case format",
       status: "DONE",
-      partOf: "function-testing"
+      supports: "function-testing"
     },
     {
       id: "create-function-test-runner",
       label: "create runner for test case format",
       status: "DONE",
-      partOf: "function-testing"
+      supports: "function-testing"
     },
     {
       id: "create-function-testing-cli",
       label: "create function testing CLI",
       status: "DONE",
-      partOf: "function-testing"
+      supports: "function-testing"
     },
     {
       id: "create-function-testing-driver",
       label: "create function testing driver",
       status: "TODO",
-      partOf: "function-testing"
+      supports: "function-testing"
     },
     {
       id: "support-indirect-function-reference-in-map",
@@ -1500,7 +1517,7 @@ range(20, 25)
       id: "load-existing-tests",
       label: "load and run existing tests via drivers",
       status: "DONE",
-      partOf: "function-testing"
+      supports: "function-testing"
     },
     {
       id: "describe-test-result-representation",
