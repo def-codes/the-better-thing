@@ -49,15 +49,17 @@ export default {
   init: ({ q }) => ({
     claims: q(
       "Subscribable isa Class",
+      // We need a class that does not include Streams
+      "Listener subclassOf Subscribable",
       "listensTo isa Property",
       // In effect, we implement these with StreamMerge
       // StreamSync will have to be its own thing with its own descriptions
-      "listensTo domain Subscribable"
-      // "listensTo range Listener"
+      "listensTo domain Listener"
+      // "listensTo range Subscribable"
     ),
     rules: [
       {
-        when: q("?subject isa Subscribable"),
+        when: q("?subject isa Listener"),
         then: ({ subject }) => ({
           register: {
             subject,
