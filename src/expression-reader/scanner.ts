@@ -17,6 +17,9 @@ const EXPR = Symbol("expr");
 
 // Mostly short circuits to prevent proxies from blowing up inspection.
 const ALWAYS = {
+  // Hmm.  Set is actually masked by proxy, even though it's a built-in.  This
+  // could be good or bad.
+  Set,
   [Symbol.unscopables]: undefined, // checked when using `with` block
   [Symbol.iterator]: undefined,
   [Symbol.toPrimitive]: undefined,

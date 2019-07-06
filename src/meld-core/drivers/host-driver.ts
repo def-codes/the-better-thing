@@ -9,12 +9,20 @@ export default {
       "ModelHost isa Class",
       "InputPort subclassOf Port",
       "OutputPort subclassOf Port"
+      // See note in system.  This doesn't quite work because the target is a
+      // literal, not the subscribable resource.
+      // "implementsHostInput subpropertyOf implements"
     ),
     rules: [
       {
-        when: q("?ingress isa InputPort"),
-        then: ({ ingress }) => ({
-          // TBD
+        comment:
+          "host dataflow ingress.  Essentially a shorthand for listening to a system-provided stream.",
+        when: q(
+          "?subject hostInput ?name",
+          "?source implementsHostInput ?name"
+        ),
+        then: ({ subject, source }) => ({
+          assert: [[subject, rdf.namedNode("listensTo"), source]]
         })
       },
 

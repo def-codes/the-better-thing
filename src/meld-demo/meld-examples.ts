@@ -12,6 +12,205 @@ charge.theta(0.98),
 
 export const MELD_EXAMPLES: MeldExample[] = [
   {
+    name: "host-input",
+    label: "host input",
+    comment: `Input ports provide a way for outside parties to send messages to the model.`,
+    userland_code: `
+Alice.hostInput("test")
+vv(viewOf.Alice, viewIn.home)
+`
+  },
+
+  {
+    name: "term-view",
+    label: "Representation of (RDF) terms",
+    comment: `?`,
+    userland_code: `
+
+// term should indicate term type (named node, blank node) in metadata (attribute)
+
+// named nodes should link to their IRI (with caveats)
+// named nodes should use active prefixes when applicable (TBD)
+
+// variable nodes should appear with question marks (as placeholders)
+
+// blank nodes should appear as anonymous terms... (avoid showing node id)
+
+// literals should appear as values
+
+// triples (separate topic) should appear as s -> p -> o
+
+
+Alice.hasSource(sub => sub.next(John))
+vv(viewOf.Alice, viewIn.home)
+`
+  },
+
+  {
+    name: "set-view",
+    label: "set view",
+    comment: `?`,
+    userland_code: `
+
+
+// set should show item count
+// set should show some members
+// set should fit to container
+// set should indicate that it's a set even when it's empty
+// set should indicate that it's a set even when it has no room to show members
+// set should not show in excess of 50 members
+
+
+
+
+
+
+Alice.hasSource(sub => sub.next(new Set([
+"Harpo", "Groucho", "Zeppo", "Karl"
+])))
+vv(viewOf.Alice, viewIn.home)
+`
+  },
+
+  {
+    name: "dictionary-view",
+    label: "dictionary view",
+    comment: `?`,
+    userland_code: `
+
+
+// dictionary should show item count
+// dictionary should show some key-value pairs
+// dictionary should fit to container
+// dictionary key-value pairs should have arrow pointing from key to value
+// dictionary should not show in excess of 50 key-value pairs
+// dictionary should indicate that it's a dictionary even when it's empty
+// dictionary should indicate that it's a dictionary even when it has no room to show members
+
+
+
+
+
+
+Alice.hasSource(sub => sub.next({
+  friend: "foe",
+  up: "down",
+  left: "right",
+  top: "bottom",
+  sinister: "dexter",
+  maybe: "maybe not",
+  adult: "child",
+  happy: "sad"
+}))
+vv(viewOf.Alice, viewIn.home)
+`
+  },
+
+  {
+    name: "vector-view",
+    label: "vector view",
+    comment: `?`,
+    userland_code: `
+
+
+// vector should show item count
+// vector should fit to container
+// vector should not show in excess of 50 items
+// vector should indicate that it's a vector even when it's empty
+// vector should indicate that it's a vector even when it has no room to show members
+
+
+
+
+
+
+Alice.hasSource(sub => sub.next(["once", "twice", "three times", "a lady"]))
+vv(viewOf.Alice, viewIn.home)
+`
+  },
+
+  {
+    name: "special-view-2",
+    label: "special view 2",
+    comment: `?`,
+    userland_code: `
+
+isa.Circle
+isa.Square
+isa.Triangle
+isa.Star
+// or just funny unicode points
+
+Alice.hasSource(sub => [Circle, Square, Triangle, Star].forEach(value => sub.next(value)))
+vv(viewOf.Alice, viewIn.home)
+`
+  },
+
+  {
+    name: "special-view-1",
+    label: "special view 1",
+    comment: `?`,
+    userland_code: `
+
+// To select all of the roles:
+// pluck role
+// flatten
+// distinct
+// Is this a presentation matter?
+
+
+
+
+
+
+
+
+
+
+Alice.hasSource(sub => sub.next([
+  { name: "John", role: ["guitar", "vocals"], age: 20 },
+  { name: "Paul", role: ["bass", "guitar", "vocals"], age: 21 },
+  { name: "George", role: ["guitar", "vocals"], age: 22 },
+  { name: "Ringo", role: ["drums"], age: 19 },
+]))
+vv(viewOf.Alice, viewIn.home)
+`
+  },
+
+  {
+    name: "view-specialization",
+    label: "view specialization",
+    comment: `How do you make simple statements that specialize the appearance of a type of thing?`,
+    userland_code: `// Not about resources, though, about values, right?
+
+Alice.hasInterval(1000)
+Bob.listensTo.Alice
+Bob.transformsWith(mapsWith(x => ["details", {}, ["summary", {}, ["b", {}, "the state of Alice"]], ["p", {}, x, " ticks"]]))
+Carol.listensTo.Bob
+Carol.transformsWith(hasRoot.home)
+
+// The in-progress task is at the top, at the forefront, most prominent
+// A passing test shows JUST a green (success/okay) light and the name
+//  Details of a passing test are rendered but hidden
+// A failing test shows a red (failure/attention) indicator
+//    and the name
+
+//  if something is selected, then it has an indicator encompassing it
+// ?subject.isa.Selected => 
+
+
+// details (markup)
+// size (width, height)
+// translucency (opacity)
+// isolation (margins)
+// color (background)
+// floating (box-shadow)
+// orientation (transform)
+
+`
+  },
+
+  {
     name: "function-testing",
     label: "function testing",
     comment: `Bootstrapping.  We write a lot of functions. And hand-written test cases.  Let's

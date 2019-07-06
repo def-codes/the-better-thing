@@ -120,7 +120,8 @@ But I'm less sure about the specifics.
 [[https://www.w3.org/2005/04/fresnel-info/manual/#hs][Fresnel]], a "display vocabulary for RDF", addresses the problem this way:
 
 #+begin_quote
-Fresnel adheres to a strict separation between data selection and formatting. The Fresnel rendering process can be decomposed in three steps:
+Fresnel adheres to a strict separation between data selection and
+formatting. The Fresnel rendering process can be decomposed in three steps:
 
 1. Selection: the parts of the RDF graph to be displayed are selected and
    ordered using Fresnel lenses. The result of the selection step is an ordered
@@ -175,6 +176,14 @@ intents than a mere numbering.
 
 In other words, in space, we are motivated to decouple the composition of things
 from their placement.
+
+* one more contrast
+
+I would also note that while Fresnel attempts to be as fully agnostic of
+presentation environment as possible, MELD considers the browser its
+presentation layer and thus makes no such attempt.  MELD needs to support HTML,
+SVG, Canvas, and WebGL, but it does /not/ need to support XML, PDF, text, or any
+other non-web based presentation format.
 
 * and DOM containers
 

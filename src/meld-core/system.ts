@@ -1,6 +1,8 @@
 // support system for monotonic, rule-based drivers of resource implementations.
 import { EquivMap } from "@thi.ng/associative";
 import rdf from "@def.codes/rdf-data-model";
+import { NamedNode } from "@def.codes/rdf-data-model";
+import { IStream } from "@thi.ng/rstream";
 
 // =============== RDF helpers
 
@@ -37,13 +39,16 @@ const has_open_variables = triples =>
   triples.some(triple => triple.some(is_variable));
 
 // Helper (for drivers) to make RDF terms from clauses as written.
-const q = (...clauses) =>
+const q = (...clauses: string[]) =>
   clauses.map(clause =>
-    clause
-      .split(/\s+/)
-      .map(term =>
-        term[0] === "?" ? rdf.variable(term.slice(1)) : rdf.namedNode(term)
-      )
+    clause.split(/\s+/).map(term =>
+      term.startsWith("?")
+        ? rdf.variable(term.slice(1))
+        : // Clever but didn't end up getting used
+        term.startsWith('"') && term.endsWith('"')
+        ? rdf.literal(term.slice(1, -1))
+        : rdf.namedNode(term)
+    )
   );
 
 const rstream_variables = term =>
@@ -156,6 +161,13 @@ export const monotonic_system = ({ id, store, dom_root, ports }) => {
 
   const find = subject => registry.get(subject);
 
+  const register_object = (object, type: NamedNode) => {
+    const object_id = mint_blank();
+    registry.set(object_id, object);
+    store.add([object_id, AS, type]);
+    return object_id;
+  };
+
   const unstable_live_query = where => live_query(store, where);
 
   // The interface made available to drivers
@@ -170,12 +182,21 @@ export const monotonic_system = ({ id, store, dom_root, ports }) => {
   const system = {
     store,
     find,
-    register_input_port: () => {
-      /* TBD */
+    register_input_port: (name: string, stream: IStream<any>) => {
+      const impl = register_object(stream, rdf.namedNode("Subscribable"));
+      //  This is wack.  listensTo rule doesn't fire unless the source node
+      //  IMPLEMENTS the resource associated with the dataflow node.  But in
+      //  this case, they are the same thing.
+      store.add([impl, IMPLEMENTS, impl]);
+      store.add([
+        impl,
+        rdf.namedNode("implementsHostInput"),
+        rdf.literal(name)
+      ]);
     },
     register_output_port: (name, subject, source) => {
       const stream = system.find(source);
-      ports.add(name, stream);
+      ports.add_output(name, stream);
     },
     assert_all: facts => store.into(facts),
     query_all: where => sync_query(store, where),
@@ -186,9 +207,9 @@ export const monotonic_system = ({ id, store, dom_root, ports }) => {
     register(subject, type_name, get) {
       const type = rdf.namedNode(type_name);
       if (!registry.has([subject, type])) {
-        let value;
+        let object;
         try {
-          value = get();
+          object = get();
         } catch (error) {
           // Should also know driver/rule source here.
           console.error(
@@ -198,6 +219,8 @@ export const monotonic_system = ({ id, store, dom_root, ports }) => {
           return;
         }
 
+        register_object(object, type);
+
         // I won't judge you for using this.
         // if (type_name === "Subscribable") {
         //   value.subscribe(
@@ -206,17 +229,19 @@ export const monotonic_system = ({ id, store, dom_root, ports }) => {
         //     )
         //   );
         // }
-
-        const value_id = mint_blank();
-        //console.log(value, value_id, IMPLEMENTS, subject);
-
-        store.add([value_id, AS, type]);
-        registry.set(value_id, value);
-        registry.set([subject, type], value);
-        store.add([value_id, IMPLEMENTS, subject]);
+        registry.set([subject, type], object);
+        const object_id = register_object(object, type);
+        store.add([object_id, IMPLEMENTS, subject]);
       }
     }
   };
+
+  // Feels like this should be done in "world"
+  ports.input_added.subscribe({
+    next({ name, stream }) {
+      system.register_input_port(name, stream);
+    }
+  });
 
   if (dom_root) {
     const n = rdf.namedNode;

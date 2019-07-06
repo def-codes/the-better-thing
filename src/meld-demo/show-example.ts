@@ -80,7 +80,7 @@ export function show_example(model_name) {
   //================================== HOST DATAFLOW INTEROP
   // under construction
   const ports = (function() {
-    let registry: Record<
+    let container_registry: Record<
       string,
       { sub: rs.Subscription<any, any>; ele: Element }
     > = {};
@@ -94,17 +94,24 @@ export function show_example(model_name) {
       return ele;
     };
 
+    const input_added = rs.subscription();
+
     return {
       cleanup() {
-        for (const { sub, ele } of Object.values(registry)) {
+        for (const { sub, ele } of Object.values(container_registry)) {
           sub.unsubscribe();
           ele.parentNode.removeChild(ele);
         }
-        registry = {};
+        container_registry = {};
+        // Host inputs don't belong to you, so don't close them here.
       },
-      add(name, sub) {
+      input_added,
+      add_input(name: string, stream: rs.IStream<any>) {
+        input_added.next({ name, stream });
+      },
+      add_output(name, sub) {
         const ele = ensure_port_container(name);
-        registry[name] = {
+        container_registry[name] = {
           ele,
           sub: sub
             .transform(
@@ -129,6 +136,14 @@ export function show_example(model_name) {
     dom_root: representation_container,
     ports
   });
+
+  ports.add_input(
+    "test",
+    rs.fromIterable(
+      tx.cycle("red orange yellow green blue indigo violet".split(" ")),
+      500
+    )
+  );
 
   facts
     .transform(

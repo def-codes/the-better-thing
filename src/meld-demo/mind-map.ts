@@ -10,12 +10,12 @@ export default {
       id: "view-refinement-examples",
       label:
         "Make examples illustrating the essentials of refining appearance by type.",
-      status: "IN-PROGRESS"
+      status: "NEXT"
     },
     {
       id: "implement-view-refinement",
       label: "Make the view refinement examples work.",
-      status: "NEXT"
+      status: "TODO"
     },
     {
       id: "stream-metamerge-bug",
@@ -36,8 +36,46 @@ export default {
     },
     {
       id: "merge-examples-and-mind-map",
+      status: "NEXT",
+      comment:
+        "No need to convert to JSON.  Exporting as a module because line breaks.",
+      label: "Merge with MELD examples."
+    },
+    {
+      id: "merge-presentation-slides-and-mind-map",
       status: "TODO",
-      label: "Convert mind map to JSON and merge with MELD examples."
+      label:
+        "Convert topics from presentation sketch to JS nodes and merge with mind map.",
+      comment:
+        "No need to convert to JSON.  Exporting as a module because line breaks."
+    },
+    {
+      id: "index-display-from-mind-map",
+      status: "TODO",
+      label:
+        "The index page needs to be updated to deal with a heterogeneous set of items",
+      comment:
+        "will hold off on this I guess until I've processed it in a model a bit"
+    },
+    {
+      id: "host-input",
+      status: "TODO",
+      label:
+        "Model host should provide the mind map to the model as an input port"
+    },
+    {
+      id: "implement-host-input",
+      status: "DONE",
+      label:
+        "Add vocabulary and driver as needed.  Host input port will be a stream",
+      partOf: "host-input"
+    },
+    {
+      id: "provide-mind-map-as-input",
+      status: "TODO",
+      label:
+        "Model host should provide the mind map to the model as an input port",
+      comment: "requires hostInput support"
     },
     {
       id: "convert-examples-to-json",

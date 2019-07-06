@@ -100,7 +100,7 @@ export default {
         // (i.e. resource pair), but that is currently handled by the metamerge.
         //
         // Note that adding also subscribes.
-        then: ({ subject, source, stream, merge }, { find }) => {
+        then: ({ stream, merge }, { find }) => {
           find(merge).add(find(stream));
           return {};
         }
