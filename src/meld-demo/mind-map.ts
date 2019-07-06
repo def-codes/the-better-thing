@@ -103,10 +103,21 @@ export default {
       partOf: "function-testing"
     },
     {
+      id: "load-existing-tests",
+      label: "load and run existing tests via drivers",
+      status: "NEXT",
+      partOf: "function-testing"
+    },
+    {
       id: "get-data-from-model",
       label: "support getting outside from model",
       status: "TODO",
       supports: "function-testing"
+    },
+    {
+      id: "add-pluck-transducer",
+      label: "Add pluck transducer",
+      status: "DONE"
     },
     {
       id: "pluck-as-action-and-description",

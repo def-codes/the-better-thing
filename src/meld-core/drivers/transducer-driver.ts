@@ -8,12 +8,15 @@ export default {
       "MappingTransducer subclassOf Transducer",
       "FilteringTransducer subclassOf Transducer",
       "PartitioningTransducer subclassOf Transducer",
+      "PluckingTransducer subclassOf Transducer",
       "mapsWith domain MappingTransducer",
       "mapsWith range Function",
       "filtersWith domain FilteringTransducer",
       "filtersWith range Function",
       "partitionsBy domain FilteringTransducer",
-      "partitionsBy range integer"
+      "partitionsBy range integer",
+      "plucks domain PluckingTransducer",
+      "plucks range Literal" // s/b key (currently string/number)
     ),
     rules: [
       {
@@ -57,6 +60,16 @@ export default {
                 spec.valueOf().size.literal,
                 spec.valueOf().step.literal
               )
+          }
+        })
+      },
+      {
+        when: q("?subject plucks ?key"),
+        then: ({ subject, key }) => ({
+          register: {
+            subject,
+            as_type: "Transducer",
+            get: () => tx.pluck(key.valueOf())
           }
         })
       }

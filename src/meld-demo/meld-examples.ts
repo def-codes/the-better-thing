@@ -411,6 +411,28 @@ CarolView(viewOf.Carol, viewIn.CarolHome)
   },
 
   {
+    name: "plucking-transducer",
+    label: "plucking",
+    comment: `A plucking transformer extracts part of the incoming value by key`,
+    userland_code: `home.contains.more
+Alice(hasInterval(150))
+vv(viewOf.Alice, viewIn.more)
+
+Bob(
+  listensTo.Alice,
+  transformsWith(mapsWith(x => ({ name: \`Agent \${x}\`, double: x *2 }))))
+home.contains.BobHome
+BobView(viewOf.Bob, viewIn.BobHome)
+
+Carol(
+  listensTo.Bob,
+  transformsWith(plucks("name")))
+home.contains.CarolHome
+CarolView(viewOf.Carol, viewIn.CarolHome)
+`
+  },
+
+  {
     name: "sparql-where",
     label: "SPARQL WHERE",
     comment: `SPARQL queries support a WHERE clause for describing the subgraphs you're interested in.`,
