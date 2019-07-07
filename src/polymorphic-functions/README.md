@@ -14,7 +14,8 @@ that this package
 - maintains a registry of the (known) prototype hierarchy
 - supports type designation through IRI's (based on
   [JSON-LD](https://www.w3.org/TR/json-ld/))
-- offers to extend built-in prototypes with IRI's?
+- polymethods are monotonic.  You cannot retract implementations once they've
+  been added.
 
 ## Motivation
 

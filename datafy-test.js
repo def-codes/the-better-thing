@@ -10,3 +10,8 @@ const error = Error("something happened");
 built_ins.datafy_Error();
 
 log("error after", datafy(error));
+
+built_ins.datafy_Function();
+
+log("fun 1", datafy(() => {}));
+log("fun 2", datafy(a => `(${a})`));

@@ -6,7 +6,15 @@ function make_prototype_registry() {
 
   const ensure_registered = (prototype: object) => {
     if (!keys.has(prototype))
-      keys.set(prototype, Symbol(prototype.constructor.name));
+      keys.set(
+        prototype,
+        Symbol(
+          typeof prototype.constructor === "function"
+            ? prototype.constructor.name
+            : prototype["name"] || "(anonymous prototype)"
+        )
+      );
+
     return keys.get(prototype);
   };
 

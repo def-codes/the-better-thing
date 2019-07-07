@@ -13,13 +13,14 @@ type Deconstruct<T> = T extends { new (...args: any[]): infer W }
   ? UnboxPrimitive<W>
   : never;
 
-// monotonic.  you cannot retract implementations once they've been added
+type Proto<T> = Deconstruct<T> extends never ? T : Deconstruct<T>;
+
 export interface Polymethod<T, A extends any[]> {
   (...args: A): T;
-  // Doesn't use args A?
-  extend<C extends Function>(
-    type: C,
-    implementation: (first: Deconstruct<C>) => T
+  extend<P extends object>(
+    type: P,
+    implementation: (first: Proto<P>) => T,
+    ...rest: any[] // TS: Tricky to work “rest” of A back in here
   ): void;
   extend(type_iri: string, implementation: (...args: A) => T): void;
 }

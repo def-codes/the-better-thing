@@ -28,16 +28,24 @@ function concept() {
 const foo = polymethod();
 const bar = polymethod();
 
-foo.extend_by_prototype(Object, () => "Don't objectify me");
-foo.extend_by_prototype(Number, n => [[[[[[n]]]]]]);
-foo.extend_by_prototype(A, () => `AAA`);
-foo.extend_by_prototype(B, () => `BBBB`);
-foo.extend_by_prototype(RegExp, r => `don't test me ${r.source}`);
-foo.extend_by_iri("xsd:integer", n => `${n}^^int`);
-foo.extend_by_iri("xsd:naturalNumber", n => `${n}, naturally`);
-foo.extend_by_prototype(Error, e => ({ message: e.message, stack: e.stack }));
-foo.extend_by_prototype(Subscription, () => `I will subscribe`);
+foo.extend(Object, () => "Don't objectify me");
+foo.extend(Number, n => [[[[[[n]]]]]]);
+foo.extend(A, () => `AAA`);
+foo.extend(B, () => `BBBB`);
+foo.extend(RegExp, r => `don't test me ${r.source}`);
+foo.extend("xsd:integer", n => `${n}^^int`);
+foo.extend("xsd:naturalNumber", n => `${n}, naturally`);
+foo.extend(Error, e => ({ message: e.message, stack: e.stack }));
+foo.extend(Subscription, () => `I will subscribe`);
 //foo.extend_by_prototype(Stream, () => `Stream weaver`);
+
+const AD_HOC_TYPE ="test:AdHocPrototype";
+const ad_hoc_prototype = {greeting: "um, hi"};
+const typed_ad_hoc_prototype = {"@type": AD_HOC_TYPE};
+
+foo.extend(ad_hoc_prototype, () => `AD HOC`);
+foo.extend(typed_ad_hoc_prototype, () => `ad hoc by PROTOTYPE`);
+foo.extend(AD_HOC_TYPE, () => `ad hoc by @TYPE`);
 
 log("4", foo(4));
 log('"alpha"', foo("alpha"));
@@ -82,3 +90,5 @@ console.log(
     toString: () => "brazilians"
   })
 );
+log("ad hoc", foo(Object.create(ad_hoc_prototype)));
+log("typed ad hoc", foo(Object.create(typed_ad_hoc_prototype)));

@@ -41,7 +41,11 @@ export const polymethod = <T = any, A extends any[] = any[]>(): Polymethod<
       // IRI
       if (typeof thing === "string") multimethod.add(thing, fn);
       // Constructor
-      else multimethod.add(register_prototype(thing.prototype), fn);
+      else {
+        // If the value doesn't have a prototype, then we assume that it *is*
+        // the prototype.??
+        multimethod.add(register_prototype(thing.prototype || thing), fn);
+      }
     }
   });
 };
