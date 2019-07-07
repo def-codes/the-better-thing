@@ -1,7 +1,7 @@
 import { defmulti } from "@thi.ng/defmulti";
-import { by_type } from "./prototype_registry";
+import { polymethod } from "@def.codes/polymorphic-functions";
 
-export const nav_protocol = defmulti(by_type);
+export const nav_protocol = polymethod();
 
 export const nav = (coll, k, v) => {
   // Now what?

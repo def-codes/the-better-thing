@@ -10,6 +10,8 @@ const TEST_MODULES = [];
 /** Modules built in this project. */
 const modules = [
   ["meld-demo"],
+  ["polymorphic-functions"],
+  ["datafy-nav"],
   ["function-testing"],
   ["console-stream"],
   ["expression-reader"],

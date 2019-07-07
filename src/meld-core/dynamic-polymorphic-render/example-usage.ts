@@ -1,9 +1,13 @@
 // examples of API usage
 // working out “real” cases
-
+import * as tx from "@thi.ng/transducers";
 import { renderOnce } from "@thi.ng/hdom";
 import { DomTraitInterpreter, Trait, TraitQuery } from "./api";
 import { make_renderer } from "./make-renderer";
+
+const has_type = (...anyargs) => true;
+const sync_query = (store, query) => [];
+const store = {};
 
 export function some_context(
   queries: TraitQuery[],
@@ -49,10 +53,13 @@ export const EXAMPLE_QUERIES: TraitQuery[] = [
   // having a type maps to “has type” trait
   subject =>
     // how we get access to the store... another matter
-    sync_query(store, {
-      where: [subject, "a", "?type"]
-      // IDEA let type be a trait id. makes matching easier
-    }).map(({ type }) => [{ id: type }, { id: "rdf:type", type }])
+    // let type be a trait id as well. makes matching easier
+    [
+      ...tx.map(
+        ({ type }) => [{ id: type }, { id: "rdf:type", type }],
+        sync_query(store, { where: [subject, "a", "?type"] })
+      )
+    ]
 ];
 
 // examples of interpreters
@@ -67,21 +74,21 @@ export const EXAMPLE_INTERPRETERS: Record<
     // TODO: this would have a different SVG interpretation
     wrap: _ => [
       "div.bracketed",
-      ["span.bracket-before", ["span.text", left || "["]],
+      ["span.bracket-before", ["span.text", before || "["]],
       _,
-      ["span.bracket-after", ["span.text", right || "]"]]
+      ["span.bracket-after", ["span.text", after || "]"]]
     ]
   }),
 
   // Collection shows count.  But wouldn't it do that anyway?
   // maybe you want to assert that collection count is a labeling property
-  "rdf:Collection": {
+  "rdf:Collection": () => ({
     type: "contains",
     content: ({ render }) => [
       "span",
       [render, { context: "TODO: traverse into collection:count??" }]
     ]
-  },
+  }),
 
   // Use ol for ordered collection?
   // "rdf:OrderedCollection": () => ({type: "?"})

@@ -21,6 +21,40 @@ vv(viewOf.Alice, viewIn.home)
     },
 
     {
+      id: "shows",
+      label:
+        "a selection can say “shows” to specify a property that its representation should contain",
+      comment: `?`,
+      userland_code: `
+
+// but shouldn't representations show their properties by default anyway?
+
+Alice.hasSource(sub => sub.next({name: John, age: 38}))
+vv(viewOf.Alice, viewIn.home)
+`
+    },
+
+    {
+      id: "wraps",
+      label:
+        "The box representing a selection can be “wrapped” by a given template.",
+      comment: `?`,
+      userland_code: `
+
+SelectionIndicator.wraps.Selection
+//  or
+SelectionIndicator.wraps(a.Selection)
+
+SelectionIndicator = content => ["div.SelectionIndicator", content]
+
+wraps.inverseOf.wrappedBy
+
+Alice.hasSource(sub => sub.next({name: John, age: 38}))
+vv(viewOf.Alice, viewIn.home)
+`
+    },
+
+    {
       id: "term-view",
       label: "Representation of (RDF) terms",
       comment: `?`,
@@ -1408,8 +1442,30 @@ range(20, 25)
       label: "Create a dynamic, (single-dispatch) polymorphic render apparatus"
     },
     {
-      id: "create-dynamic-polymorphic-render",
+      id: "protocols",
+      status: "TODO",
+      label: "Protocol definition and extension mechanism using multimethods.",
+      supports: "datafy-nav"
+    },
+    {
+      id: "implement-defprotocol",
+      status: "NEXT",
+      label: "Implement basic defprotocol using @thi.ng multimethods",
+      supports: "protocols"
+    },
+    {
+      id: "datafy-nav",
+      status: "TODO",
+      label: "Implement basic defprotocol using @thi.ng multimethods"
+    },
+    {
+      id: "implement-datafy-nav",
       status: "IN-PROGRESS",
+      label: "Create basic datafy nav protocols (loosely) after Clojure"
+    },
+    {
+      id: "create-dynamic-polymorphic-render",
+      status: "NEXT",
       label: "Create a dynamic, (single-dispatch) polymorphic render apparatus",
       supports: "dynamic-polymorphic-render"
     },
