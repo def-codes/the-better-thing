@@ -1442,21 +1442,23 @@ range(20, 25)
       label: "Create a dynamic, (single-dispatch) polymorphic render apparatus"
     },
     {
-      id: "protocols",
-      status: "TODO",
-      label: "Protocol definition and extension mechanism using multimethods.",
+      id: "polymorphic-methods",
+      status: "DONE",
+      label:
+        "Dynamically-extensible polymorphic dispatch mechanism using multimethods.",
       supports: "datafy-nav"
     },
     {
-      id: "implement-defprotocol",
-      status: "NEXT",
+      id: "implement-polymorphic-methods",
+      status: "DONE",
       label: "Implement basic defprotocol using @thi.ng multimethods",
+      comment: `well, almost done.  still doesn't retrofit new multimethods with existing hierarchy`,
       supports: "protocols"
     },
     {
       id: "datafy-nav",
       status: "TODO",
-      label: "Implement basic defprotocol using @thi.ng multimethods"
+      label: "Extensible datafy and nav protocols using JSON-LD conventions."
     },
     {
       id: "implement-datafy-nav",

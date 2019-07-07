@@ -10,6 +10,9 @@ This package provides two functions: `datafy` and `nav`, based on the ideas
 behind [the (alpha) `datafy` package introduced in Clojure
 1.10](https://clojure.github.io/clojure/branch-master/clojure.datafy-api.html).
 
+These functions are `polymethod`'s that use the
+`@def.codes/polymorphic-functions` package to support dynamic extension.
+
 The main ideas (as I see them) are:
 - single protocol for inspection and traversal of (potentially remote) runtime
   objects

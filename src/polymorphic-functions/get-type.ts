@@ -11,11 +11,15 @@ export const UNDEFINED = Symbol("undefined");
   if a value has a "@type" property with a string value, use that.
   if a value has a "@type" property with multiple string values...
   this is dealt with in the dispatcher
+  Otherwise, look for a prototype
 */
 import { register_prototype } from "./prototype-registry";
 
 export const get_type_id = (x): symbol | string | string[] => {
+  // For these to be usable, you'd have to export them.
+  // could also use Symbol.for("rdf:nil") (expanded)
   if (x === null) return NULL;
+  // Extending to undefined is nonsense anyway
   if (x === undefined) return UNDEFINED;
 
   const rdf_type = x["@type"];
@@ -28,5 +32,9 @@ export const get_type_id = (x): symbol | string | string[] => {
     return rdf_type;
 
   const proto = Object.getPrototypeOf(x);
-  return register_prototype(proto) || typeof x;
+  if (proto) return register_prototype(proto);
+
+  // This would only happen for objects with null prototype, e.g. from
+  // Object.create(null).
+  return undefined;
 };

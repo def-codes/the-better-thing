@@ -1,26 +1,19 @@
-import { defmulti, DEFAULT } from "@thi.ng/defmulti";
-import { polymethod } from "@def.codes/polymorphic-functions";
+import { Datafied, DATAFY_METADATA, ORIGINAL } from "./api";
+import { datafy_polymethod } from "./internal/datafy-polymethod";
 
-const datafy_protocol = polymethod();
+export const datafy = <T>(thing: T): Datafied<T> => {
+  const datafied = datafy_polymethod(thing);
 
-// const DATAFY_OBJ = Symbol("datafy/obj");
+  // As per Clojure's implementation, if the datafied result is identical to the
+  // original, return it.
+  if (datafied === thing) return thing;
 
-const identity = <T>(x: T): T => x;
+  // If the result supports metadata, annotate the result.
+  // TODO: there's no point in this nesting, right?
+  // you assume the returned value doesn't have metadata?
+  // if not, this clobbers it anyway
+  if (thing != null && typeof thing === "object")
+    return Object.assign(thing, { [DATAFY_METADATA]: { [ORIGINAL]: thing } });
 
-// register_prototype.registered.subscribe({
-//   next([sym, parent]) {
-//     datafy_protocol.isa(sym, parent);
-//   }
-// });
-
-// datafy_protocol.extend_by_prototype(DEFAULT, identity);
-
-export const datafy = (x: any) => {
-  const result = datafy_protocol(x);
-  if (result === x) return x;
-  //if (result != null && typeof x === "object") result[DATAFY_OBJ] = x;
-  return result;
+  return datafied;
 };
-
-// export const extend_datafy = (classy: { prototype: any }, handler) =>
-//   datafy_protocol.add(register_prototype(classy.prototype), handler);
