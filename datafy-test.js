@@ -20,3 +20,9 @@ built_ins.datafy_Function();
 
 log("fun 1", datafy(() => {}));
 log("fun 2", datafy(a => `(${a})`));
+
+// New that `Date()` just returns a string.
+// http://es5.github.io/#x15.9
+log("date before", datafy(new Date()));
+built_ins.datafy_Date();
+log("date after", datafy(new Date()));
