@@ -1,5 +1,5 @@
 import { Datafied, DATAFY_METADATA, ORIGINAL } from "./api";
-import { datafy_polymethod } from "./internal/datafy-polymethod";
+import { datafy_polymethod } from "./internal/polymethods";
 
 export const datafy = <T>(thing: T): Datafied<T> => {
   const datafied = datafy_polymethod(thing);
