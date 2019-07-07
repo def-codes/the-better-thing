@@ -12,8 +12,10 @@ export const datafy = <T>(thing: T): Datafied<T> => {
   // TODO: there's no point in this nesting, right?
   // you assume the returned value doesn't have metadata?
   // if not, this clobbers it anyway
-  if (thing != null && typeof thing === "object")
-    return Object.assign(thing, { [DATAFY_METADATA]: { [ORIGINAL]: thing } });
+  if (datafied != null && typeof datafied === "object")
+    return Object.assign(datafied, {
+      [DATAFY_METADATA]: { [ORIGINAL]: thing }
+    });
 
   return datafied;
 };
