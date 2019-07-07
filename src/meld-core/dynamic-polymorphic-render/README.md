@@ -1,29 +1,67 @@
 # Towards a dynamic, composable, polymorphic approach to rendering things
 
-“hands-free”
+“hands-free” description of what things look like
+
+not entirely declarative.  can use power of host language (currently)
+
+based on
+[@thi.ng/hdom](https://github.com/thi-ng/umbrella/tree/master/packages/hdom)
+
+## STILL MISSING
+
+Working cases
+notion of grouping, e.g. X is a “labeling” property
+How do you determine which element to use at bottom?
+- seems no way to avoid conflict resoluton
+Accumulate context
+Where do traversals take place?  Example?
+How will datafy be used?
+
+Are queries and interpreters bound together? no and that's good
+But it seems we have a lot of "when/then"
+is that all mediated by traits?
+yes
+
+
 
 ## Goals
 
-talk about both values and resources?  or first convert values to
-pseudo-resources? (JSON-LD-like)
-
-open-world: independent, rule-based assertion about aspects of things'
+open-world: independent, rule-based assertion about aspects (traits) of things'
 appearance
 
 compositional: allow multiple rules to operate at the same time on the same
 things.  design vocabulary to avoid inherent conflict
 
-dynamic: operation takes the rule set as input
-
 polymorphic: use powerful query/selection and knowledge of ontology / hierarchy
 (where conflict resolution necessary)
 
+dynamic: operation takes the rule set as input (on each render)
 
-driven by vocabulary / semantics from domain of structure and appearance
+
+talk about both values and resources?  or first convert values to
+pseudo-resources? (JSON-LD-like)
+
 
 separate selection and rendering
 
-## Terms
+
+## Concepts
+
+“queries” can use arbitrary logic: spec-like predicate composition/conform,
+sequence fsm.  logic is opaque to this system.
+
+“traits” mediate between domains of appearance and structure, i.e. between
+abstract descriptors and concrete interpretations.  A trait can be basically
+anything.
+
+uniform: dynamic datafy unifies RDF graphs with data values
+
+composable template operations resemble function “advice” (as in Emacs Lisp)
+
+in principle, could support audio interpretation
+
+  
+## (Domain) Terms
 
 elision
 
