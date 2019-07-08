@@ -5,6 +5,7 @@
     {"path": "src/meld-demo" },
     {"path": "src/polymorphic-functions" },
     {"path": "src/datafy-nav" },
+    {"path": "src/datafy-node" },
     {"path": "src/function-testing" },
     {"path": "src/console-stream" },
     {"path": "src/expression-reader" },

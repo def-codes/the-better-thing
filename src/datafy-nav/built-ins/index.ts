@@ -1,5 +1,3 @@
-// Provide basic datafy implementations of some built-ins.
-// Possible this should go into a separate package.
 export * from "./date";
 export * from "./error";
 export * from "./function";

@@ -12,6 +12,7 @@ const modules = [
   ["meld-demo"],
   ["polymorphic-functions"],
   ["datafy-nav"],
+  ["datafy-node"],
   ["function-testing"],
   ["console-stream"],
   ["expression-reader"],
