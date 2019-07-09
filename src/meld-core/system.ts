@@ -156,8 +156,8 @@ const apply_drivers_to = (store, helpers, system) => {
 export const monotonic_system = ({ id, store, dom_root, ports }) => {
   const registry = new EquivMap();
 
-  // If you need this, Godspeed.
-  // window.system = { store, registry };
+  // For use in REPL.
+  window["system"] = { store, registry };
 
   const find = subject => registry.get(subject);
 

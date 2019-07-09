@@ -11,6 +11,7 @@ const TEST_MODULES = [];
 const modules = [
   ["meld-demo"],
   ["polymorphic-functions"],
+  ["polymorphic-hdom"],
   ["datafy-nav"],
   ["datafy-node"],
   ["function-testing"],

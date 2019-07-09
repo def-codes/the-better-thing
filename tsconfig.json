@@ -4,6 +4,7 @@
   "references": [
     {"path": "src/meld-demo" },
     {"path": "src/polymorphic-functions" },
+    {"path": "src/polymorphic-hdom" },
     {"path": "src/datafy-nav" },
     {"path": "src/datafy-node" },
     {"path": "src/function-testing" },
