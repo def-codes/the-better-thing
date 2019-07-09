@@ -28,9 +28,8 @@ export const term_to_object = (value: Term, use_native_types: boolean) => {
   /** 1) If *value* is an IRI or a blank node identifier, return a new JSON
    * object consisting of a single member `@id` whose value is set to
    * *value*. */
-  if (value.termType === "NamedNode" || value.termType === "BlankNode")
-    // Same question as below... should we just leave this as a term?
-    return { "@id": value.value };
+  if (value.termType === "NamedNode") return { "@id": value.value };
+  if (value.termType === "BlankNode") return { "@id": `_:${value.value}` };
 
   // RDF/JS includes these additional term types not applicable in the context
   // of this algorithm.

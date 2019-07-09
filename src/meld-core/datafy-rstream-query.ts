@@ -13,6 +13,9 @@ import { triples_to_object } from "./json-ld-helpers";
 // uniquely identify it.
 const NAV = Symbol.for("nav");
 
+// Cheap test for whether this is an RDF/JS term.
+const is_term = (value: any): value is Term => value && value.termType;
+
 // Collections ontology
 const co = "http://purl.org/co/";
 
@@ -25,10 +28,42 @@ const triples_about = (store: TripleStore, subject: Term) =>
   Array.from(store.indexS.get(subject) || [], index => store.triples[index]);
 
 const datafy_subject = (store: TripleStore, subject: Term) =>
-  triples_to_object(triples_about(store, subject));
+  navize_object(store, triples_to_object(triples_about(store, subject)));
 
 const navize_store = (store: TripleStore) =>
   Object.assign(store, { [NAV]: () => {} });
+
+// Retain store context when navigating into values.  Describes resource when
+// navigating into object-valued properties.
+//
+// TODO: This goes too far in retaining the store context.  Right now the
+// JSON-LD algorithm being used is treating everything as a multi-valued
+// property.  So you still need to be on the lookout for terms after traversing
+// into an array.  But at some point the results will become incorrect.
+// Moreover, this will mask oblique navigation based on other type identifiers.
+const navize_object = (store: TripleStore, object: object) =>
+  Object.assign(object, {
+    [NAV]: (_, _key: unknown, value: unknown) => {
+      if (value) {
+        // Jury is still out on JSON-LD or RDF/JS, but likely both.
+
+        // JSON-LD node
+        if (value["@id"])
+          return datafy_subject(
+            store,
+            value["@id"].startsWith("_:")
+              ? rdf.blankNode(value["@id"].slice(2))
+              : rdf.namedNode(value["@id"])
+          );
+
+        // RDF/JS term
+        if (is_term(value)) return datafy_subject(store, value);
+
+        if (typeof value === "object") return navize_object(store, value);
+      }
+      return value;
+    }
+  });
 
 // Navigate to the selected term.
 const navize_terms = (store: TripleStore, terms: Iterable<Term>) =>
@@ -53,9 +88,9 @@ const navize_triple = (store: TripleStore, triple: PseudoTriple) =>
 
 // The term's `value` property navigates to the term as a subject in the store.
 const navize_term = (store: TripleStore, term: Term) =>
-  // Dilemma.  You can't write metadata to term that is tied to this store,
-  // because the term could be used in more than one store.  But you can't clone
-  // it, either, because that would break reference identity.
+  // TODO: Dilemma.  You can't write metadata to term that is tied to this
+  // store, because the term could be used in more than one store.  But you
+  // can't clone it, either, because that would break reference identity.
   Object.assign(term /* or {...term} */, {
     [NAV]: (_coll: unknown, key: unknown, value: unknown) =>
       key === "value" && typeof value === "string"
