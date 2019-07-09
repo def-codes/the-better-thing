@@ -22,14 +22,15 @@ types `nfo:FileDataObject` and `nfo:Folder` are not ideal identifiers for
 invoking the protocol in the first place, since they are addressed identically
 and the requester may not know which type the thing is beforehand.  Also,
 UNIX-derivative filesystems overload the term “file” anyway, in that directories
-and other entities are also files.  Finally, notwithstanding that `nfo` may be a
-high-quality vocabulary, it lacks the kind of official status that would belong
-to something as universal as files (which indeed have their own protocol).
+and other entities are also called “files.”  Finally, notwithstanding that `nfo`
+may be a high-quality vocabulary, it lacks the kind of official status that
+would belong to something as universal as files (which indeed have their own
+protocol).
 
 The conclusion is that, given that the underlying polymethod mechanism is
 willing to take RDF as a first-class concept, it may be logical to consider
 `@id` as well as `@type` and support protocol-based dispatch to support
-lower-level datafication.
+lower-level extension points.
 
 ### Keys and context
 
@@ -42,7 +43,7 @@ is to use the fully-qualified IRI's as keys, with less-than-humane results:
 {
   "@type"
     : "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Folder"
-  "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#url
+  "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#url"
     : "file:///home/gavin/meld/examples"
 }
 ```
@@ -61,7 +62,7 @@ dictionaries.  The above example can be written as follows:
     "nie": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
     "url": { "@type": "@id", "@id": "nie:url" }
   },
-  "@type": "Folder"
+  "@type": "Folder",
   "url": "file:///home/gavin/meld/examples"
 }
 ```
@@ -71,8 +72,8 @@ indicates that the `url` property functions as an IRI for this resource (albeit
 locally).
 
 In conjunction with techniques for making `@context`'s easily available
-(e.g. through prototypes), this begins to approach the “zero edits” ideal to
-which JSON-LD's designer aspired.
+(e.g. through prototypes or even “blessed” prefixes), this begins to approach
+the “zero edits” ideal to which JSON-LD's designer aspired.
 
 The design tradeoff available here is to allow the use of selected JSON-LD
 constructs in datafied responses.  This would confer the advantages already
@@ -98,7 +99,7 @@ include or otherwise indicate a `@context`.
 The use of `@type` as a dispatch value opens the door to traversal using pure
 data.  Code-based mechanisms (including `eval`) wind up with access to
 host-bound objects that can't be represented as such.  In a way, that's the
-whole raison d'être for these protocols.  But in userspace, which will involve
+whole *raison d'être* for these protocols.  But in userspace, which will involve
 interfaces at a higher abstraction level than a REPL, datafy doesn't offer a
 story on how you would get the host object in the first place.
 
