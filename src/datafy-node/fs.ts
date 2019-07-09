@@ -1,3 +1,7 @@
+// Datafy/nav implementation for Node's File System API
+
+// There is nothing navigable from both Stats and Dirent.
+
 import { datafy, datafy_protocol, nav_protocol } from "@def.codes/datafy-nav";
 import * as fs from "fs";
 import { fileURLToPath, pathToFileURL } from "url";
@@ -6,84 +10,13 @@ import { join } from "path";
 // TEMP
 const NAV = Symbol.for("nav");
 
-/**
-   Datafy/nav implementation for Node's [File System
-   API](https://nodejs.org/api/fs.html)
-
-   Most terms used in this datafication are drawn from the Nepomuk File Ontology
-   (NFO), which “provides vocabulary to express information extracted from
-   various sources,” including “files, pieces of software and remote hosts.”
-   The [Nepomuk Annotation Ontology](http://oscaf.sourceforge.net/nao.html),
-   which describes user annotation of arbitrary computer resources, is also
-   referenced.  Both vocabularies are part of the [OSCAF “Shared Desktop
-   Ontolofies” project](http://oscaf.sourceforge.net/sdo.html).  Additional
-   notes on the status of the NFO vocabulary are at
-   https://lov.linkeddata.es/dataset/lov/vocabs/nfo
-
-   Related terms:
-
-   - `http://dbpedia.org/ontology/File`
-
-   - `https://schema.org/fileSize`, though it notes: “In the absence of a unit
-     (MB, KB etc.), KB will be assumed.”
-*/
-
-const nfo = "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#";
-const nao = "http://www.semanticdesktop.org/ontologies/2007/08/15/nao#";
-const nie = "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#";
-
-// Represent entry point into the file system.
-class FileSystem {
-  ["@type"] = `${nfo}Filesystem`;
-}
-// OR
-// Return a datafied, navigable filesystem entry point.
-const navigable_filesystem = (): object => {
-  // need "navize" metadata
-  return {
-    "@type": `${nfo}Filesystem`
-  };
-};
-
-// extend via metadata: check
-// closes over context: check
-// recursive: check
-const navize_directory = (path: string) => {
-  const contents = fs.readdirSync(path, { withFileTypes: true });
-  return {
-    // `nfo:fileUrl` is marked as deprecated
-    // (http://oscaf.sourceforge.net/nfo.html#nfo:fileUrl)
-    [`${nie}url`]: pathToFileURL(path),
-    [`${nie}hasPart`]: contents.map(item =>
-      Object.assign(datafy(item), {
-        [NAV]: (coll, k, v) => navize_directory(join(path, v))
-      })
-    )
-  };
-};
+const nfo = ""; //"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#";
+const nao = ""; //"http://www.semanticdesktop.org/ontologies/2007/08/15/nao#";
+const nie = ""; //"http://www.semanticdesktop.org/ontologies/2007/01/19/nie#";
 
 /**
-   Assign an RDF identifier to the type of file system object described by the
-   given `Stats` object.
-
-   Files are identifies as having the type `nfo:FileDataObject`.  NFO also
-   defines `LocalFileDataObject`.  Node's File System API is limited to local
-   files, and specifying this could be more appropriate in some instances.
-   However, this data is also intended to support communication about file
-   systems over the wire, in which the described item would become a
-   `RemoteDataObject` from the reader's point of view.  Therefore the more
-   general term is preferred.
-
-   See also:
-
-   - https://ieeexplore.ieee.org/document/6816297 “F2R: Publishing File Systems
-     as Linked Data”
-
-   - http://s11.no/2018/arcp.html
-
-   - https://www.youtube.com/watch?v=c52QhiXsmyI
-
-   - https://commons.apache.org/proper/commons-vfs/
+   Return an RDF identifier for type of file system object described by the
+   given `Stats` or `Dirent` object.
  */
 const determine_type = (thing: fs.Stats | fs.Dirent): string => {
   if (thing.isFile()) return `${nfo}FileDataObject`;
@@ -95,12 +28,64 @@ const determine_type = (thing: fs.Stats | fs.Dirent): string => {
   if (thing.isFIFO()) return "FIFO";
 };
 
+const datafy_stats = (stats: fs.Stats) => ({
+  "@type": determine_type(stats),
+  [`${nfo}fileSize`]: stats.size,
+  [`${nfo}fileCreated`]: stats.birthtime.toUTCString(),
+  [`${nao}lastModified`]: stats.birthtime.toUTCString(),
+  [`${nfo}fileLastAccessed`]: stats.atime.toUTCString()
+});
+
+const datafy_directory = (path: string) => {
+  const contents = fs.readdirSync(path, { withFileTypes: true });
+  return {
+    [`${nie}url`]: pathToFileURL(path).toString(),
+    [`${nie}hasPart`]: contents.map(item =>
+      Object.assign(datafy(item), {
+        [`${nie}url`]: pathToFileURL(join(path, item.name)).toString()
+      })
+    )
+  };
+};
+
+const datafy_file = (path: string) => {
+  const base = Object.assign(datafy_stats(fs.statSync(path)), {
+    [`${nie}url`]: pathToFileURL(path).toString()
+  });
+  const parent = fs.realpathSync(join(path, ".."));
+  if (parent) base[`${nfo}belongsToContainer`] = parent;
+
+  return base;
+};
+
 export const extend_nfo$Folder = {
   datafy() {
     datafy_protocol.extend(`${nfo}Folder`, rec => {
       const url = rec[`${nie}url`];
-      const path = fileURLToPath(url);
-      return;
+      return url ? datafy_directory(fileURLToPath(url)) : rec;
+    });
+  }
+};
+
+export const extend_nfo$FileDataObject = {
+  datafy() {
+    datafy_protocol.extend(`${nfo}FileDataObject`, rec => {
+      const url = rec[`${nie}url`];
+      return url ? datafy_file(fileURLToPath(url)) : rec;
+    });
+  },
+  nav() {
+    // We will interpret `value` as a relative path.
+    // We will ignore `key`.
+    //
+    // We will ignore coll?  Or, we will treat `coll` as someting that we expect
+    // to have a URI property.
+    nav_protocol.extend(`${nfo}FileDataObject`, (coll, key, value) => {
+      const url = coll[`${nie}url`];
+      return url ? datafy_file(fileURLToPath(url)) : rec;
+
+      //
+      // navigate
     });
   }
 };
@@ -123,29 +108,8 @@ export const extend_Dirent = {
   }
 };
 
-/**
-   Regarding the use of `nao:lastModified`, NFO defines `fileLastModified`, but
-   (informally) marks it as
-   [“deprecated”](http://oscaf.sourceforge.net/nfo.html#nfo:fileLastModified).
-   This is not the case for `fileCreated` (which has a corresponding
-   super-property `nfo:created`), nor `fileLastAccessed` (which has no
-   super-properties).
- */
 export const extend_Stats = {
   datafy() {
-    datafy_protocol.extend(fs.Stats, stats => ({
-      "@type": determine_type(stats),
-      [`${nfo}fileSize`]: stats.size,
-      [`${nfo}fileCreated`]: stats.birthtime.toUTCString(),
-      [`${nao}lastModified`]: stats.birthtime.toUTCString(),
-      [`${nfo}fileLastAccessed`]: stats.atime.toUTCString()
-    }));
-  },
-  nav() {
-    // @ts-ignore : matching wrong overload
-    nav_protocol.extend(fs.Stats, (obj, key, value) => {
-      // obj may be a datafied value
-      // what here?
-    });
+    datafy_protocol.extend(fs.Stats, datafy_stats);
   }
 };
