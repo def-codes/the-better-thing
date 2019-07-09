@@ -13,3 +13,7 @@ export * from "./rdf-hdom";
 export * from "./system";
 export * from "./value-view";
 export * from "./world";
+
+// TEMP
+export * from "./datafy-rstream-query";
+export * from "./json-ld-helpers";

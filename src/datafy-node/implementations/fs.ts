@@ -31,9 +31,9 @@ const datafy_dirent = (dirent: fs.Dirent) => ({
 const datafy_stats = (stats: fs.Stats) => ({
   "@type": determine_type(stats),
   [`${nfo}fileSize`]: stats.size,
-  [`${nfo}fileCreated`]: stats.birthtime.toUTCString(),
-  [`${nao}lastModified`]: stats.birthtime.toUTCString(),
-  [`${nfo}fileLastAccessed`]: stats.atime.toUTCString()
+  [`${nfo}fileCreated`]: stats.birthtime.toISOString(),
+  [`${nao}lastModified`]: stats.birthtime.toISOString(),
+  [`${nfo}fileLastAccessed`]: stats.atime.toISOString()
 });
 
 const datafy_filesystem_path = (path: string) => {

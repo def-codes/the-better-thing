@@ -26,7 +26,7 @@ const modules = [
 const things = (
   "rstream rstream-graph rstream-csp transducers paths hdom dcons " +
   "iterators atom csp compose associative checks interceptors rstream-query " +
-  "transducers-hdom"
+  "transducers-hdom defmulti"
 )
   .split(" ")
   .map(name => `@thi.ng/${name}`);

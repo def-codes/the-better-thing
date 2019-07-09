@@ -42,7 +42,7 @@ is to use the fully-qualified IRI's as keys, with less-than-humane results:
 ```json
 {
   "@type"
-    : "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Folder"
+    : "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Folder",
   "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#url"
     : "file:///home/gavin/meld/examples"
 }
