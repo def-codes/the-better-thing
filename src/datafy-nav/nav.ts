@@ -8,7 +8,9 @@ export const nav = (coll, k, v) => {
   // implementation (for Object and null) is to return `v`.
 
   // TEMP: mimic protocol extension via metadata.
-  if (v && v[NAV]) return v[NAV](coll, k, v);
+  if (coll && coll[NAV]) return coll[NAV](coll, k, v);
+  // I don't think this makes sense.
+  // if (v && v[NAV]) return v[NAV](coll, k, v);
 
   const result = nav_polymethod(coll, k, v);
   return result;

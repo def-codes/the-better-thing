@@ -1396,6 +1396,23 @@ range(20, 25)
       status: "TODO"
     },
     {
+      id: "regarding-collection-size",
+      comment: "I was looking for a term for collection size",
+      seeAlso: [
+        "http://www.essepuntato.it/lode/http://purl.org/co#d4e381",
+
+        "https://lov.linkeddata.es/dataset/lov/vocabs/coll",
+
+        "http://www.essepuntato.it/lode/http://purl.org/co",
+
+        "https://www.semanticscholar.org/paper/The-Collections-Ontology%3A-Creating-and-handling-in-Ciccarese-Peroni/178c76c504a2ea96c23947060537a5ac48e3c5ae",
+
+        "https://www.researchgate.net/publication/256803144_The_Collections_Ontology_Creating_and_handling_collections_in_OWL_2_DL_frameworks",
+
+        "http://semantic-web-journal.net/content/collections-ontology-creating-and-handling-collections-owl-2-dl-frameworks-0"
+      ]
+    },
+    {
       id: "things-to-datafy",
       label: "A list of things in JavaScript hosts that invite datafication",
       value: ["Error", "Response", "Node"]

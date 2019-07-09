@@ -4,69 +4,93 @@
 // the recommended interfaces for Datastore, etc.
 import { datafy_protocol, nav_protocol } from "@def.codes/datafy-nav";
 import { TripleStore } from "@thi.ng/rstream-query";
-import * as tx from "@thi.ng/transducers";
 import rdf from "@def.codes/rdf-data-model";
-import { Term } from "@def.codes/rdf-data-model";
+import { RDF, Term } from "@def.codes/rdf-data-model";
 import { triples_to_object } from "./json-ld-helpers";
+
+// TEMP: hack to mimic Clojure's “protocol extension by metadata”.  To make this
+// generic, I'd need to export this symbol with the protocol or otherwise
+// uniquely identify it.
+const NAV = Symbol.for("nav");
+
+// Collections ontology
+const co = "http://purl.org/co/";
+
+// Interestingly, `rstream` at this site redirects to rstream on Github.
+const TRIPLESTORE_IRI = "http://thi.ng/rstream-query/TripleStore";
 
 type PseudoTriple = [Term, Term, Term];
 
-const NAV = Symbol.for("nav");
+const triples_about = (store: TripleStore, subject: Term) =>
+  Array.from(store.indexS.get(subject) || [], index => store.triples[index]);
 
-const naive_datafy_resource = (subject_facts: PseudoTriple[]) =>
-  tx.reduce(
-    tx.groupByObj({
-      key: ([, p]) => p,
-      group: tx.reducer(
-        () => undefined,
-        (acc, [, , o]) => (acc === undefined ? [o] : [...acc, o])
-      )
-    }),
-    subject_facts
-  );
-// Map the raw triples for a subject into a multi-valued JS object.
+const datafy_subject = (store: TripleStore, subject: Term) =>
+  triples_to_object(triples_about(store, subject));
 
-// Assume all values are potentially multiple, hence wrapped in array.  We
-// *could* skip this for (OWL) functional properties, though that would
-// require a lot of lookup.
+const navize_store = (store: TripleStore) =>
+  Object.assign(store, { [NAV]: () => {} });
 
-// But.... does it matter that something *might* have multiple values, if it
-// *doesn't* have multiple values right now?  The way to deal with the
-// ambiguity of arrays versus lists is to use the `@list` keyword.  In other
-// words,
+// Navigate to the selected term.
+const navize_terms = (store: TripleStore, terms: Iterable<Term>) =>
+  // Assumes this is an ad-hoc collection that we can write metadata to.
+  // Doesn't include (or check for) other properties like collection size.
+  Object.assign(terms, {
+    [NAV]: (_, __, term: Term) => navize_term(store, term)
+  });
 
-const subject_to_object = (store: TripleStore, subject: Term) => {
-  const subject_indices = store.indexS.get(subject);
-  const subject_triples = [
-    ...tx.map(index => store.triples[index], subject_indices)
-  ];
-  return triples_to_object(subject_triples);
-};
+// Navigate to the selected triple.
+const navize_triples = (store: TripleStore) =>
+  // This array will always belong to this store, so writing metadata is okay.
+  Object.assign(store.triples, {
+    [NAV]: (_, __, triple: PseudoTriple) => navize_triple(store, triple)
+  });
 
-// Unconditionally treats `value` as a term identifying a subject in the store.
-const navize_store = (store: TripleStore) => (
-  _store: any,
-  _key: any,
-  value: unknown
-) => {};
+// Navigate to the selected term as a subject.
+const navize_triple = (store: TripleStore, triple: PseudoTriple) =>
+  Object.assign([...triple], {
+    [NAV]: (_, __, term: Term) => datafy_subject(store, term)
+  });
+
+// The term's `value` property navigates to the term as a subject in the store.
+const navize_term = (store: TripleStore, term: Term) =>
+  // Dilemma.  You can't write metadata to term that is tied to this store,
+  // because the term could be used in more than one store.  But you can't clone
+  // it, either, because that would break reference identity.
+  Object.assign(term /* or {...term} */, {
+    [NAV]: (_coll: unknown, key: unknown, value: unknown) =>
+      key === "value" && typeof value === "string"
+        ? datafy_subject(store, term)
+        : value
+  });
+
+const datafy_TripleStore = (store: TripleStore) => ({
+  "@type": TRIPLESTORE_IRI,
+  [`${co}size`]: store.triples.length,
+  [`${co}item`]: navize_triples(store),
+  [`${RDF}about`]: navize_terms(store, store.indexS.keys())
+});
+
+// In Clojure this default implementation is built-in at the top of the
+// hierarchy, so implementers can count on it as a fallback.
+const default_nav = (_coll, _k, v) => v;
 
 export const extend_TripleStore = {
   datafy() {
-    datafy_protocol.extend(TripleStore, store => {
-      // navize this to retain store in context.
-      return {
-        [NAV]: navize_store(store),
-        "@type": "@thi.ng/rstream-query/TripleStore",
-        "collection:size": store.triples.length
-      };
-    });
+    datafy_protocol.extend(TripleStore, datafy_TripleStore);
+    datafy_protocol.extend(TRIPLESTORE_IRI, datafy_TripleStore);
   },
+
+  // The child collections of the datafied store are themselves navized, and
+  // `nav` should not be called on the plain (non-datafied) object.  See note
+  // above.  This can be removed if the default implementation is built in,
+  // which I think it should be.
   nav() {
-    nav_protocol.extend(TripleStore, navize_store);
+    nav_protocol.extend(TripleStore, default_nav);
+    nav_protocol.extend(TRIPLESTORE_IRI, default_nav);
   }
 };
 
 // TESTING
 export const test = (store: TripleStore, id: string) => {
-  return subject_to_object(store, rdf.namedNode(id));
+  return datafy_subject(store, rdf.namedNode(id));
 };
