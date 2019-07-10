@@ -5,6 +5,7 @@ const { inspect } = require("util");
 
 apply_all_built_ins();
 
-for (const data of tx.take(5, navbot({ "@type": "Folder", url: "file:///" }))) {
-  console.log(inspect(data, { depth: 2 }));
+for (const path of tx.take(50, navbot({ "@type": "Folder", url: "file:///" }))) {
+  const [last] = path;
+  console.log("path length", path.count, inspect(last, { depth: 2 }));
 }

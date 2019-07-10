@@ -1,3 +1,24 @@
+// what does a queue look like?
+// also, what traits does it have that *processes* can represent?
+// indeed, we are talking  largely about static traits here
+// things that are true of snapshots
+// I mean, don't you want to assert the existence of resources?
+//
+// well, you can do that via ordinary rules
+// ∀ ?x ∃ ?y such that ?x.hasPart.?y and ?y.a.Frob
+//
+// I mean are you just doing HDOM or are you creating a thing?  well you've
+// created things, but the thing has to look like something at some point in
+// time.  that's what this is about.  it is re-evaluating the traits each time
+// at each point.  which seems redundant but should mean it can be dynamic.
+// note you can use linked data to traverse through resources that may not exist
+// in the knowledge base as such.  and what good is that?  it means that you can
+// display the fabricated results of datafy/nav against things that aren't (yet)
+// stored/claimed as facts.  In other words, this should let you view your
+// traversal.  And how do you want to view your traversal?  also, how do you
+// make the traversal happen if you can't interact?  You can make a navbot that
+// scans through the paths.  you know.  like boggle.
+
 
 // a selected thing (is wrapped in / has) a selection indicator
 SelectionIndicator.wraps(a.Selected)

@@ -9,29 +9,30 @@
 // just want it to be a node traversal.
 
 // requires datafy nav in project references, but this may not live here
+import * as tx from "@thi.ng/transducers";
 import { datafy, nav } from "@def.codes/datafy-nav";
 import { depth_first_search } from "./depth-first-search";
 import { as_key_values } from "./as-key-values";
 
 export const navbot = function*(thing: unknown) {
-  // where do you set this?  also would this be on reference identity?
-  // const visited = new Set();
+  // BUT we never add to this.  How would we compare?
+  const visited = new Set();
   let coll = datafy(thing);
 
-  const dfs = depth_first_search<[any, any]>(
-    as_key_values(coll),
-    ([last]) => last && as_key_values(last),
-    ([last]) => last && typeof last === "object" // consider all objects to be collections
+  const with_self_keys = (coll: unknown) =>
+    tx.map(([k, v]) => [coll, k, v] as const, as_key_values(coll));
+
+  yield* depth_first_search<readonly [any, any, any]>(
+    with_self_keys(coll),
+    ([[coll, key, value]]) => {
+      const naved = nav(coll, key, value);
+      return with_self_keys(naved);
+
+      // SHOULD skip when no navigation occured.  This depends on this
+      // implementation guaranteeing that it doesn't mutate the value, e.g. by
+      // adding metadata to it, which fs currently does.
+      // return naved === value ? [] : with_self_keys(naved);
+    },
+    state => !visited.has(state) // but see above
   );
-
-  for (const path of dfs) {
-    const [last] = path;
-    const [key, value] = last;
-    const next = nav(coll, key, value);
-    const moved = coll !== next;
-    coll = next;
-
-    if (moved) yield { path, coll, key, value };
-    else yield { still: key };
-  }
 };

@@ -5,6 +5,8 @@ import * as fs from "fs";
 import { fileURLToPath, pathToFileURL } from "url";
 import { join, isAbsolute } from "path";
 
+const NAV = Symbol.for("nav");
+
 const nfo = ""; //"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#";
 const nao = ""; //"http://www.semanticdesktop.org/ontologies/2007/08/15/nao#";
 const nie = ""; //"http://www.semanticdesktop.org/ontologies/2007/01/19/nie#";
@@ -43,15 +45,19 @@ const datafy_filesystem_path = (path: string) => {
     [`${nie}url`]: pathToFileURL(path).toString(),
   });
   const parent = fs.realpathSync(join(path, ".."));
-  if (parent)
+  // unchanged path means this is root
+  if (parent && parent !== path)
     datafied[`${nfo}belongsToContainer`] = pathToFileURL(parent).toString();
 
   if (stats.isDirectory()) {
     const contents = fs.readdirSync(path, { withFileTypes: true });
-    datafied[`${nie}hasPart`] = contents.map(entry =>
-      Object.assign(datafy_dirent(entry), {
-        [`${nie}url`]: pathToFileURL(join(path, entry.name)).toString(),
-      })
+    datafied[`${nie}hasPart`] = Object.assign(
+      contents.map(entry =>
+        Object.assign(datafy_dirent(entry), {
+          [`${nie}url`]: pathToFileURL(join(path, entry.name)).toString(),
+        })
+      ),
+      { [NAV]: nav_from_directory_entries(path) }
     );
   }
 
@@ -66,20 +72,24 @@ const contextual_path = (resource: unknown) => {
     return fileURLToPath(url);
 };
 
+/** Create navigation context for an array of datafied `Dirent` objects. */
+const nav_from_directory_entries = (path: string) => (
+  _coll: object[],
+  _key: number,
+  value: object
+) => datafy_filesystem_path(join(path, value[`${nfo}fileName`]));
+
 /**
    Implements `nav` protocol for records describing filesystem resources.
-
-   Unconditionally interprets `value` as a file system path.  If absolute,
-   navigates to that path.  Otherwise, if the collection indicates its own path,
-   navigates to `value` relative to that path.
+   
+   Currently, the only navigable point directly from here is the parent
+   container.  Child locations are inside of objects inside of the "has part"
+   array, which is navized by `datafy_filesystem_path`.
  */
-const nav_filesystem_resource = (coll: unknown, _key: any, value: unknown) => {
-  if (typeof value === "string") {
-    if (isAbsolute(value)) return datafy_filesystem_path(value);
+const nav_filesystem_resource = (coll: unknown, key: any, value: unknown) => {
+  if (key === `${nfo}belongsToContainer` && typeof value === "string")
+    datafy_filesystem_path(fileURLToPath(value));
 
-    const base_path = contextual_path(coll);
-    if (base_path) return datafy_filesystem_path(join(base_path, value));
-  }
   return value;
 };
 

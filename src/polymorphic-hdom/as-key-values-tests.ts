@@ -3,7 +3,7 @@ import { as_key_values } from "./as-key-values";
 
 const wrapped = arg => [...as_key_values(arg)];
 
-export const test_cases: /*readonly*/ [string, any, [any, any][]][] = [
+export const test_cases: readonly [string, any, [any, any][]][] = [
   [
     "Array",
     [38, 4, 999, "once upon a time"],
