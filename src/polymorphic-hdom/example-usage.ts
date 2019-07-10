@@ -50,7 +50,6 @@ export const EXAMPLE_QUERIES: TraitQuery[] = [
       after: "}"
     },
 
-  // having a type maps to “has type” trait
   subject =>
     // how we get access to the store... another matter
     // let type be a trait id as well. makes matching easier

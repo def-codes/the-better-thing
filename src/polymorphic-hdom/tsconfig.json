@@ -1,5 +1,8 @@
 {
   "extends": "../tsconfig-composite",
   "references": [
+    { "path": "../function-testing" },
+    { "path": "../polymorphic-functions" },
+    { "path": "../datafy-nav" }
   ]
 }
