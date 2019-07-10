@@ -1,17 +1,33 @@
 // Define mechanism for defining type-based multimethods
 import { Polymethod } from "./api";
 import { defmulti } from "@thi.ng/defmulti";
-import { get_type_id, NULL } from "./get-type";
+import { get_prototype_id, get_type_iri } from "./get-type";
 import { register_prototype } from "./prototype-registry";
 import { polymethod_registry } from "./polymethod-registry";
+
+export const NULL = Symbol("null");
+export const UNDEFINED = Symbol("undefined");
 
 export const polymethod = <T = any, A extends any[] = any[]>(): Polymethod<
   T,
   A
 > => {
+  // Get a single, distinct value representing an object's type.
+  /*
+  Rules:
+  check for null and undefined, which have special identifiers
+  if a value has a "@type" property with a string value, use that.
+  if a value has a "@type" property with multiple string values...
+  this is dealt with in the dispatcher
+  Otherwise, look for a prototype
+*/
+
   // note defmulti does not use variadic args.  should fix upstream
   const multimethod = defmulti((first: A[0] /*, ...rest: any[]*/) => {
-    const type = get_type_id(first);
+    if (first === null) return NULL;
+    if (first === undefined) return UNDEFINED;
+
+    let type: string | string[] | symbol = get_type_iri(first);
 
     // Multiple declared (IRI) types.
     if (Array.isArray(type)) {
@@ -27,8 +43,12 @@ export const polymethod = <T = any, A extends any[] = any[]>(): Polymethod<
         console.log(`Multiple implementations!!`, JSON.stringify(available));
 
       if (available.length) return available[0];
-      return undefined;
+    } else if (type) {
+      // Ignore type IRI's if there are no implementations.
+      if (!multimethod.impls().has(type)) type = null;
     }
+
+    if (!type) type = get_prototype_id(first);
 
     return type;
   });
@@ -37,7 +57,6 @@ export const polymethod = <T = any, A extends any[] = any[]>(): Polymethod<
   polymethod_registry.add(multimethod);
 
   return Object.assign(multimethod, {
-    id,
     extend(thing: null | string | Function, fn) {
       if (thing === null) multimethod.add(NULL, fn);
       // IRI
