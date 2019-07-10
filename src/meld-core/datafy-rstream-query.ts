@@ -42,6 +42,9 @@ const navize_store = (store: TripleStore) =>
 // into an array.  But at some point the results will become incorrect.
 // Moreover, this will mask oblique navigation based on other type identifiers.
 const navize_object = (store: TripleStore, object: object) =>
+  // TODO: mutates object.  This is safe for the newly-minted instances coming
+  // from `datafy_subject`, but not for the recursive calls that come from
+  // below.
   Object.assign(object, {
     [NAV]: (_, _key: unknown, value: unknown) => {
       if (value) {
@@ -59,6 +62,7 @@ const navize_object = (store: TripleStore, object: object) =>
         // RDF/JS term
         if (is_term(value)) return datafy_subject(store, value);
 
+        // See note above.
         if (typeof value === "object") return navize_object(store, value);
       }
       return value;
@@ -76,6 +80,7 @@ const navize_terms = (store: TripleStore, terms: Iterable<Term>) =>
 // Navigate to the selected triple.
 const navize_triples = (store: TripleStore) =>
   // This array will always belong to this store, so writing metadata is okay.
+  // In fact could do this conditionally (return same object if NAV present).
   Object.assign(store.triples, {
     [NAV]: (_, __, triple: PseudoTriple) => navize_triple(store, triple)
   });
@@ -105,24 +110,15 @@ const datafy_TripleStore = (store: TripleStore) => ({
   [`${RDF}about`]: navize_terms(store, store.indexS.keys())
 });
 
-// In Clojure this default implementation is built-in at the top of the
-// hierarchy, so implementers can count on it as a fallback.
-const default_nav = (_coll, _k, v) => v;
-
 export const extend_TripleStore = {
   datafy() {
     datafy_protocol.extend(TripleStore, datafy_TripleStore);
     datafy_protocol.extend(TRIPLESTORE_IRI, datafy_TripleStore);
-  },
-
-  // The child collections of the datafied store are themselves navized, and
-  // `nav` should not be called on the plain (non-datafied) object.  See note
-  // above.  This can be removed if the default implementation is built in,
-  // which I think it should be.
-  nav() {
-    nav_protocol.extend(TripleStore, default_nav);
-    nav_protocol.extend(TRIPLESTORE_IRI, default_nav);
   }
+  // `nav` falls back to default implementation (which returns unmodified
+  // value).  The child collections of the datafied store are themselves
+  // navized, and `nav` cannot be meaningfully called on the plain
+  // (non-datafied) object.
 };
 
 // TESTING

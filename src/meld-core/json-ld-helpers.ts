@@ -1,6 +1,7 @@
 import rdf from "@def.codes/rdf-data-model";
 import {
   Term,
+  XSD,
   STRING_TYPE_IRI,
   LANGUAGE_STRING_TYPE_IRI
 } from "@def.codes/rdf-data-model";
@@ -10,11 +11,10 @@ type PseudoTriple = [Term, Term, Term];
 // Should be `rdf:type`.  Using this for now.
 const RDF$TYPE = rdf.namedNode("isa");
 
-const xsd = "http://www.w3.org/2001/XMLSchema#";
 const XSD$STRING = rdf.namedNode(STRING_TYPE_IRI);
-const XSD$INTEGER = rdf.namedNode(`${xsd}integer`);
-const XSD$DOUBLE = rdf.namedNode(`${xsd}double`);
-const XSD$BOOLEAN = rdf.namedNode(`${xsd}boolean`);
+const XSD$INTEGER = rdf.namedNode(`${XSD}integer`);
+const XSD$DOUBLE = rdf.namedNode(`${XSD}double`);
+const XSD$BOOLEAN = rdf.namedNode(`${XSD}boolean`);
 const LANGUAGE_TAGGED_STRING = rdf.namedNode(LANGUAGE_STRING_TYPE_IRI);
 
 /* Implementation of [“§10.5 RDF to Object
