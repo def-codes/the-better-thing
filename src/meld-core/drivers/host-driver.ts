@@ -22,8 +22,8 @@ export default {
           "?source implementsHostInput ?name"
         ),
         then: ({ subject, source }) => ({
-          assert: [[subject, rdf.namedNode("listensTo"), source]]
-        })
+          assert: [[subject, rdf.namedNode("listensTo"), source]],
+        }),
       },
 
       {
@@ -35,9 +35,9 @@ export default {
           "?source as Subscribable"
         ),
         then: ({ name, subject, source }) => ({
-          register_output_port: { subject, source, name: name.value }
-        })
-      }
-    ]
-  })
+          register_output_port: { subject, source, name: name.value },
+        }),
+      },
+    ],
+  }),
 };

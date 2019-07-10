@@ -17,8 +17,8 @@ export default {
         when: q("?subject isa XSubscribable"),
         then: ({ subject }) => ({
           // TODO: no
-          assert: [[subject, n("hostOutput"), literal(subject.value)]]
-        })
+          assert: [[subject, n("hostOutput"), literal(subject.value)]],
+        }),
       },
       {
         comment: "Create a view in the main container for all dataflow nodes.",
@@ -28,9 +28,9 @@ export default {
           assert: [
             [n("home"), n("contains"), v("container")],
             [v("view"), n("viewOf"), subject],
-            [v("view"), n("viewIn"), v("container")]
-          ]
-        })
+            [v("view"), n("viewIn"), v("container")],
+          ],
+        }),
       },
 
       // Hack to support multiple containers.  I think this would even support
@@ -48,9 +48,9 @@ export default {
             subject: child,
             as_type: "Container",
             get: () =>
-              find(container).appendChild(document.createElement("div"))
-          }
-        })
+              find(container).appendChild(document.createElement("div")),
+          },
+        }),
       },
       {
         when: q("?subject isa AllFacts"),
@@ -66,10 +66,10 @@ export default {
                   // HACK: @type is just a signal to value view
                   Object.assign(results, { "@type": "triples" })
                 )
-              )
-          }
-        })
-      }
-    ]
-  })
+              ),
+          },
+        }),
+      },
+    ],
+  }),
 };

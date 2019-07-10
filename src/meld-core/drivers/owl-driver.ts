@@ -23,7 +23,7 @@ export default {
       {
         name: "PropertyDomainRule",
         when: q("?property domain ?type", "?resource ?property ?any"),
-        then: ({ resource, type }) => ({ assert: [[resource, ISA, type]] })
+        then: ({ resource, type }) => ({ assert: [[resource, ISA, type]] }),
       },
       {
         name: "PropertyRangeRule",
@@ -31,43 +31,43 @@ export default {
         then: ({ value, type }) =>
           // Only object-valued terms should appear in subject position.
           // TODO: How would you say this in userland?
-          is_node(value) ? { assert: [[value, ISA, type]] } : {}
+          is_node(value) ? { assert: [[value, ISA, type]] } : {},
       },
       {
         name: "SubclassRule",
         when: q("?s subclassOf ?c", "?x isa ?s"),
-        then: ({ x, c }) => ({ assert: [[x, ISA, c]] })
+        then: ({ x, c }) => ({ assert: [[x, ISA, c]] }),
       },
       {
         name: "SubpropertyRule",
         when: q("?sub subpropertyOf ?super", "?x ?sub ?y"),
         // `super` is a reserved word
-        then: ({ x, super: S, y }) => ({ assert: [[x, S, y]] })
+        then: ({ x, super: S, y }) => ({ assert: [[x, S, y]] }),
       },
       {
         name: "SymmetricPropertyRule",
         when: q("?p isa SymmetricProperty", "?x ?p ?y"),
-        then: ({ y, p, x }) => ({ assert: [[y, p, x]] })
+        then: ({ y, p, x }) => ({ assert: [[y, p, x]] }),
       },
       {
         name: "InversePropertyRule1",
         when: q("?forward inverseOf ?backward", "?x ?forward ?y"),
         then: ({ y, backward, x }) => ({
-          assert: [[y, backward, x]]
-        })
+          assert: [[y, backward, x]],
+        }),
       },
       {
         name: "InversePropertyRule2",
         when: q("?forward inverseOf ?backward", "?y ?backward ?x"),
         then: ({ x, forward, y }) => ({
-          assert: [[x, forward, y]]
-        })
+          assert: [[x, forward, y]],
+        }),
       },
       {
         name: "TransitivePropertyRule",
         when: q("?p isa TransitiveProperty", "?x ?p ?y", "?y ?p ?z"),
-        then: ({ x, p, z }) => ({ assert: [[x, p, z]] })
-      }
-    ]
-  })
+        then: ({ x, p, z }) => ({ assert: [[x, p, z]] }),
+      },
+    ],
+  }),
 };

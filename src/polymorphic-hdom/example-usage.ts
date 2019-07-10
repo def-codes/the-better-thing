@@ -26,7 +26,7 @@ export const EXAMPLE_TRAITS: Trait[] = [
   { id: "glowing" }, // probably could do with just `isa` & .Glowing class
   { id: "disc" },
   { id: "porthole" },
-  { id: "scalable / fit to container" }
+  { id: "scalable / fit to container" },
 ];
 
 // examples of trait queries
@@ -47,7 +47,7 @@ export const EXAMPLE_QUERIES: TraitQuery[] = [
     has_type(subject, "dt:Vector") && {
       id: "is bracketed",
       before: "{",
-      after: "}"
+      after: "}",
     },
 
   subject =>
@@ -57,8 +57,8 @@ export const EXAMPLE_QUERIES: TraitQuery[] = [
       ...tx.map(
         ({ type }) => [{ id: type }, { id: "rdf:type", type }],
         sync_query(store, { where: [subject, "a", "?type"] })
-      )
-    ]
+      ),
+    ],
 ];
 
 // examples of interpreters
@@ -75,8 +75,8 @@ export const EXAMPLE_INTERPRETERS: Record<
       "div.bracketed",
       ["span.bracket-before", ["span.text", before || "["]],
       _,
-      ["span.bracket-after", ["span.text", after || "]"]]
-    ]
+      ["span.bracket-after", ["span.text", after || "]"]],
+    ],
   }),
 
   // Collection shows count.  But wouldn't it do that anyway?
@@ -85,8 +85,8 @@ export const EXAMPLE_INTERPRETERS: Record<
     type: "contains",
     content: ({ render }) => [
       "span",
-      [render, { context: "TODO: traverse into collection:count??" }]
-    ]
+      [render, { context: "TODO: traverse into collection:count??" }],
+    ],
   }),
 
   // Use ol for ordered collection?
@@ -102,8 +102,8 @@ export const EXAMPLE_INTERPRETERS: Record<
   // at some keypath
   "has halo": () => ({
     type: "is-wrapped-by",
-    wrap: _ => ["div.halo", _, "a bunch of affordances for meta things"]
-  })
+    wrap: _ => ["div.halo", _, "a bunch of affordances for meta things"],
+  }),
 };
 
 export const EXAMPLE_INTERPRETERS_0: DomTraitInterpreter[] = [
@@ -132,9 +132,9 @@ export const EXAMPLE_INTERPRETERS_0: DomTraitInterpreter[] = [
         // BUT... anyway what if the template is already rendering label? which
         // is likely.
         ["summary", "TBD..... recur with label (“lens”)"],
-        ["div.details", template]
-      ]
-    }
+        ["div.details", template],
+      ],
+    },
   ],
 
   // general visibility?  this would have to be in a specific context.  but for
@@ -150,8 +150,8 @@ export const EXAMPLE_INTERPRETERS_0: DomTraitInterpreter[] = [
       content: ({ show } /*, thing*/) => [
         "div.Property",
         { "data-predicate": predicate.value, etc: "etc" },
-        [show, object]
-      ]
-    }
-  ]
+        [show, object],
+      ],
+    },
+  ],
 ];

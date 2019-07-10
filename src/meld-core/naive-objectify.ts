@@ -23,7 +23,7 @@ const naive_datafy_resource = (subject_facts: PseudoTriple[]) =>
       group: tx.reducer(
         () => undefined,
         (acc, [, , o]) => (acc === undefined ? [o] : [...acc, o])
-      )
+      ),
     }),
     subject_facts
   );

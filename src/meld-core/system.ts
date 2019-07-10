@@ -59,7 +59,7 @@ const sync_query = (store, where) => {
   let results;
   const query = store
     .addQueryFromSpec({
-      q: [{ where: where.map(_ => _.map(rstream_variables)) }]
+      q: [{ where: where.map(_ => _.map(rstream_variables)) }],
     })
     .subscribe({ next: result_set => (results = result_set) });
   // TODO: Currently, unsubscribing any query makes it impossible to add others,
@@ -71,7 +71,7 @@ const sync_query = (store, where) => {
 
 const live_query = (store, where) =>
   store.addQueryFromSpec({
-    q: [{ where: where.map(_ => _.map(rstream_variables)) }]
+    q: [{ where: where.map(_ => _.map(rstream_variables)) }],
   });
 
 const drivers = [];
@@ -96,7 +96,7 @@ const HANDLERS = {
   },
   warning({ message, context }) {
     console.warn(message, context);
-  }
+  },
 };
 
 const process_effect_definition = (type, def, system) => {
@@ -137,7 +137,7 @@ const apply_drivers_to = (store, helpers, system) => {
         live_query(store, when || when_all).subscribe({
           next: make_consequent_handler(then, helpers, system, !!when_all),
           // TODO: formally indicate source
-          error: error => console.error("problem appying rule: ", when, error)
+          error: error => console.error("problem appying rule: ", when, error),
         })
       );
   }
@@ -177,7 +177,7 @@ export const monotonic_system = ({ id, store, dom_root, ports }) => {
   const driver_helpers = {
     store,
     find,
-    unstable_live_query
+    unstable_live_query,
   };
   const system = {
     store,
@@ -191,7 +191,7 @@ export const monotonic_system = ({ id, store, dom_root, ports }) => {
       store.add([
         impl,
         rdf.namedNode("implementsHostInput"),
-        rdf.literal(name)
+        rdf.literal(name),
       ]);
     },
     register_output_port: (name, subject, source) => {
@@ -233,14 +233,14 @@ export const monotonic_system = ({ id, store, dom_root, ports }) => {
         const object_id = register_object(object, type);
         store.add([object_id, IMPLEMENTS, subject]);
       }
-    }
+    },
   };
 
   // Feels like this should be done in "world"
   ports.input_added.subscribe({
     next({ name, stream }) {
       system.register_input_port(name, stream);
-    }
+    },
   });
 
   if (dom_root) {

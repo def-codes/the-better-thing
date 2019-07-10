@@ -43,11 +43,11 @@ export default {
                   },
                   error => sub.error(error)
                 );
-              })
-            ]
-          ]
-        })
-      }
-    ]
-  })
+              }),
+            ],
+          ],
+        }),
+      },
+    ],
+  }),
 };

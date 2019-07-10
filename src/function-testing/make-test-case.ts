@@ -10,5 +10,5 @@ export const test_case = <A extends any[], O>(
   ...(label ? { label } : {}),
   test$function: fn,
   test$arguments: args,
-  test$expect: output
+  test$expect: output,
 });

@@ -9,13 +9,13 @@ export const TEST_CASES = ([
   [
     "Simple triple",
     _ => _.Alice.knows.Bob,
-    [[{ term: "Alice" }, { term: "knows" }, { term: "Bob" }]]
+    [[{ term: "Alice" }, { term: "knows" }, { term: "Bob" }]],
   ],
 
   [
     "Standalone blank node",
     _ => _.a.Poet,
-    [[{ term: { minted: 0 } }, { term: "a" }, { term: "Poet" }]]
+    [[{ term: { minted: 0 } }, { term: "a" }, { term: "Poet" }]],
   ],
 
   ["Invalid: sequence too long", _ => _.Alice.knows.Bob.Barker, undefined],
@@ -25,8 +25,8 @@ export const TEST_CASES = ([
     _ => [_.Alice.knows.Bob, _.Alice.knows.Carol],
     [
       [{ term: "Alice" }, { term: "knows" }, { term: "Bob" }],
-      [{ term: "Alice" }, { term: "knows" }, { term: "Carol" }]
-    ]
+      [{ term: "Alice" }, { term: "knows" }, { term: "Carol" }],
+    ],
   ],
 
   [
@@ -34,8 +34,8 @@ export const TEST_CASES = ([
     _ => [_.a.Prince, _.a.Pauper],
     [
       [{ term: { minted: 0 } }, { term: "a" }, { term: "Prince" }],
-      [{ term: { minted: 1 } }, { term: "a" }, { term: "Pauper" }]
-    ]
+      [{ term: { minted: 1 } }, { term: "a" }, { term: "Pauper" }],
+    ],
   ],
 
   [
@@ -43,8 +43,8 @@ export const TEST_CASES = ([
     _ => _.Alice.knows(_.Bob, _.Carol),
     [
       [{ term: "Alice" }, { term: "knows" }, { term: "Bob" }],
-      [{ term: "Alice" }, { term: "knows" }, { term: "Carol" }]
-    ]
+      [{ term: "Alice" }, { term: "knows" }, { term: "Carol" }],
+    ],
   ],
 
   [
@@ -52,20 +52,20 @@ export const TEST_CASES = ([
     _ => _.Alice(_.likes.Bob, _.loves.Carol),
     [
       [{ term: "Alice" }, { term: "likes" }, { term: "Bob" }],
-      [{ term: "Alice" }, { term: "loves" }, { term: "Carol" }]
-    ]
+      [{ term: "Alice" }, { term: "loves" }, { term: "Carol" }],
+    ],
   ],
 
   [
     "Literal object value: number",
     _ => _.Alice.age(95),
-    [[{ term: "Alice" }, { term: "age" }, { literal: 95 }]]
+    [[{ term: "Alice" }, { term: "age" }, { literal: 95 }]],
   ],
 
   [
     "Literal object value: string",
     _ => _.Alice.alias("Persephone"),
-    [[{ term: "Alice" }, { term: "alias" }, { literal: "Persephone" }]]
+    [[{ term: "Alice" }, { term: "alias" }, { literal: "Persephone" }]],
   ],
 
   [
@@ -80,11 +80,11 @@ export const TEST_CASES = ([
             { literal: "George" },
             { literal: "Richard" },
             { literal: "John" },
-            { literal: "Paul" }
-          ]
-        }
-      ]
-    ]
+            { literal: "Paul" },
+          ],
+        },
+      ],
+    ],
   ],
 
   [
@@ -99,11 +99,11 @@ export const TEST_CASES = ([
             [{ term: "George" }],
             [{ term: "Richard" }],
             [{ term: "John" }],
-            [{ term: "Paul" }]
-          ]
-        }
-      ]
-    ]
+            [{ term: "Paul" }],
+          ],
+        },
+      ],
+    ],
   ],
 
   [
@@ -111,8 +111,8 @@ export const TEST_CASES = ([
     _ => _.Alice.alias("Ali", "Alicia"),
     [
       [{ term: "Alice" }, { term: "alias" }, { literal: "Ali" }],
-      [{ term: "Alice" }, { term: "alias" }, { literal: "Alicia" }]
-    ]
+      [{ term: "Alice" }, { term: "alias" }, { literal: "Alicia" }],
+    ],
   ],
 
   [
@@ -120,8 +120,8 @@ export const TEST_CASES = ([
     _ => _.Alice(_.likes(_.Bob, _.Dave)),
     [
       [{ term: "Alice" }, { term: "likes" }, { term: "Bob" }],
-      [{ term: "Alice" }, { term: "likes" }, { term: "Dave" }]
-    ]
+      [{ term: "Alice" }, { term: "likes" }, { term: "Dave" }],
+    ],
   ],
 
   [
@@ -130,8 +130,8 @@ export const TEST_CASES = ([
     [
       [{ term: "Alice" }, { term: "likes" }, { term: "Bob" }],
       [{ term: "Alice" }, { term: "likes" }, { term: "Dave" }],
-      [{ term: "Alice" }, { term: "loves" }, { term: "Carol" }]
-    ]
+      [{ term: "Alice" }, { term: "loves" }, { term: "Carol" }],
+    ],
   ],
 
   [
@@ -141,8 +141,8 @@ export const TEST_CASES = ([
       [{ term: "Alice" }, { term: "likes" }, { term: "Bob" }],
       [{ term: "Alice" }, { term: "likes" }, { term: { minted: 0 } }],
       [{ term: { minted: 0 } }, { term: "a" }, { term: "Scientist" }],
-      [{ term: "Alice" }, { term: "loves" }, { term: "Carol" }]
-    ]
+      [{ term: "Alice" }, { term: "loves" }, { term: "Carol" }],
+    ],
   ],
 
   [
@@ -153,8 +153,8 @@ export const TEST_CASES = ([
       [{ term: { minted: 0 } }, { term: "a" }, { term: "Poet" }],
       [{ term: "Alice" }, { term: "likes" }, { term: { minted: 1 } }],
       [{ term: { minted: 1 } }, { term: "a" }, { term: "Preacher" }],
-      [{ term: "Alice" }, { term: "loves" }, { term: "Carol" }]
-    ]
+      [{ term: "Alice" }, { term: "loves" }, { term: "Carol" }],
+    ],
   ],
 
   [
@@ -164,8 +164,8 @@ export const TEST_CASES = ([
       [{ term: "Alice" }, { term: "likes" }, { term: { minted: 0 } }],
       [{ term: { minted: 0 } }, { term: "a" }, { term: "Poet" }],
       [{ term: { minted: 0 } }, { term: "a" }, { term: "Preacher" }],
-      [{ term: "Alice" }, { term: "loves" }, { term: "Carol" }]
-    ]
+      [{ term: "Alice" }, { term: "loves" }, { term: "Carol" }],
+    ],
   ],
 
   [
@@ -184,7 +184,7 @@ export const TEST_CASES = ([
         _.transformsWith(_.partitionsWith({ size: 9, step: 3 }))
       ),
       _.home.contains.CarolHome,
-      _.CarolView(_.viewOf.Carol, _.viewIn.CarolHome)
+      _.CarolView(_.viewOf.Carol, _.viewIn.CarolHome),
     ],
     [
       [{ term: "Alice" }, { term: "hasInterval" }, { literal: 150 }],
@@ -196,7 +196,7 @@ export const TEST_CASES = ([
       [
         { term: { minted: 0 } },
         { term: "partitionsWith" },
-        { literal: { size: { literal: 5 }, step: { literal: 1 } } }
+        { literal: { size: { literal: 5 }, step: { literal: 1 } } },
       ],
       [{ term: "home" }, { term: "contains" }, { term: "BobHome" }],
       [{ term: "BobView" }, { term: "viewOf" }, { term: "Bob" }],
@@ -206,15 +206,15 @@ export const TEST_CASES = ([
       [
         { term: { minted: 1 } },
         { term: "partitionsWith" },
-        { literal: { size: { literal: 9 }, step: { literal: 3 } } }
+        { literal: { size: { literal: 9 }, step: { literal: 3 } } },
       ],
       // Sometimes this triple ends up at the end instead of here?
       // Anyway, the function should have set semantics, as the order does not matter.
       [{ term: "home" }, { term: "contains" }, { term: "CarolHome" }],
       [{ term: "CarolView" }, { term: "viewOf" }, { term: "Carol" }],
-      [{ term: "CarolView" }, { term: "viewIn" }, { term: "CarolHome" }]
-    ]
-  ]
+      [{ term: "CarolView" }, { term: "viewIn" }, { term: "CarolHome" }],
+    ],
+  ],
   /* No, we can't use this form for putting blank nodes in subject position
 	 * because the p-o list can be interpreted in object position as a list of
 	 * blank nodes.

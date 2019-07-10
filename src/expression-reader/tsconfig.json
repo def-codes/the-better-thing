@@ -1,6 +1,4 @@
 {
   "extends": "../tsconfig-composite",
-  "references": [
-    { "path": "../function-testing" },
-  ]
+  "references": [{ "path": "../function-testing" }]
 }

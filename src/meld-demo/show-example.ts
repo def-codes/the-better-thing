@@ -14,26 +14,26 @@ const render_example = example => [
       "header",
       [
         "h3.heading",
-        ["a.example-link", { href: `#${example.id}` }, example.label]
+        ["a.example-link", { href: `#${example.id}` }, example.label],
       ],
-      ["p.comment", example.comment]
+      ["p.comment", example.comment],
     ],
     [
       "div.userland-code",
       [
         "code.userland-code-input",
         { contenteditable: true, spellcheck: false },
-        example.userland_code
+        example.userland_code,
       ],
       ["div.userland-code-output"],
       ["div.host-output"],
-      ["div.host-output-ports"]
-    ]
+      ["div.host-output-ports"],
+    ],
   ],
   [
     "figure.representation",
-    ["div.Document", { "data-model-representation": example.id }]
-  ]
+    ["div.Document", { "data-model-representation": example.id }],
+  ],
 ];
 
 export function show_example(model_id) {
@@ -65,7 +65,7 @@ export function show_example(model_id) {
     { type: "error"; source: string; error }
   >();
   const catchall = source => ({
-    error: error => messages.next({ type: "error", source, error })
+    error: error => messages.next({ type: "error", source, error }),
   });
   // do something with messages
   messages
@@ -113,13 +113,13 @@ export function show_example(model_id) {
               tx.map(value => [
                 "article.port-output",
                 ["h3", name],
-                ["div.value-view", [render, { value }]]
+                ["div.value-view", [render, { value }]],
               ]),
               updateDOM({ root: ele, ctx: { render } })
             )
-            .subscribe(catchall(`host output port display for “${name}”`))
+            .subscribe(catchall(`host output port display for “${name}”`)),
         };
-      }
+      },
     };
   })();
 
@@ -129,7 +129,7 @@ export function show_example(model_id) {
   const { interpret, facts } = monotonic_world({
     id: model_spec.id,
     dom_root: representation_container,
-    ports
+    ports,
   });
 
   ports.add_input(
@@ -155,7 +155,7 @@ export function show_example(model_id) {
           { "data-when": result.when },
           result.error,
           " line ",
-          result.error.lineNumber
+          result.error.lineNumber,
         ]
       : ["result.okay"];
 

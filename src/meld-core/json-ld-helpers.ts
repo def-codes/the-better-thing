@@ -3,7 +3,7 @@ import {
   Term,
   XSD,
   STRING_TYPE_IRI,
-  LANGUAGE_STRING_TYPE_IRI
+  LANGUAGE_STRING_TYPE_IRI,
 } from "@def.codes/rdf-data-model";
 
 type PseudoTriple = [Term, Term, Term];

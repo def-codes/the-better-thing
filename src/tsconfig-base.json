@@ -6,11 +6,7 @@
     "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
     "inlineSourceMap": true,
-    "lib": [
-      "ES2015",
-      "ES2016",
-      "ES2017"
-    ],
+    "lib": ["ES2015", "ES2016", "ES2017"],
     "module": "esNext",
     "moduleResolution": "node",
     "noEmitHelpers": true,
@@ -19,7 +15,7 @@
     "noImplicitAny": false,
     "outDir": "../build/modules",
     "paths": {
-      "@def.codes/*": [ "*" ]
+      "@def.codes/*": ["*"]
     },
     "rootDir": ".",
     "skipLibCheck": true,

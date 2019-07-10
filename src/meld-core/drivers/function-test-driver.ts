@@ -15,8 +15,8 @@ export default {
         "test$output range Literal"
       ),
       // @ts-ignore I KNOW, I know
-      [rdf.namedNode("RunTest"), rdf.namedNode("value"), rdf.literal(run_test)]
+      [rdf.namedNode("RunTest"), rdf.namedNode("value"), rdf.literal(run_test)],
     ],
-    rules: []
-  })
+    rules: [],
+  }),
 };

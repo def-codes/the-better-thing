@@ -17,7 +17,7 @@ export const extend_Date = {
       "date:hours": date.getUTCHours(),
       "date:minutes": date.getUTCMinutes(),
       "date:seconds": date.getUTCSeconds(),
-      "date:milliseconds": date.getUTCMilliseconds()
+      "date:milliseconds": date.getUTCMilliseconds(),
     }));
-  }
+  },
 };

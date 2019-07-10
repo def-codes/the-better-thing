@@ -17,7 +17,7 @@ export const MIND_MAP = {
       userland_code: `
 Alice.hostInput("test")
 vv(viewOf.Alice, viewIn.home)
-`
+`,
     },
 
     {
@@ -31,7 +31,7 @@ vv(viewOf.Alice, viewIn.home)
 
 Alice.hasSource(sub => sub.next({name: John, age: 38}))
 vv(viewOf.Alice, viewIn.home)
-`
+`,
     },
 
     {
@@ -51,7 +51,7 @@ wraps.inverseOf.wrappedBy
 
 Alice.hasSource(sub => sub.next({name: John, age: 38}))
 vv(viewOf.Alice, viewIn.home)
-`
+`,
     },
 
     {
@@ -76,7 +76,7 @@ vv(viewOf.Alice, viewIn.home)
 
 Alice.hasSource(sub => sub.next(John))
 vv(viewOf.Alice, viewIn.home)
-`
+`,
     },
 
     {
@@ -102,7 +102,7 @@ Alice.hasSource(sub => sub.next(new Set([
 "Harpo", "Groucho", "Zeppo", "Karl"
 ])))
 vv(viewOf.Alice, viewIn.home)
-`
+`,
     },
 
     {
@@ -136,7 +136,7 @@ Alice.hasSource(sub => sub.next({
   happy: "sad"
 }))
 vv(viewOf.Alice, viewIn.home)
-`
+`,
     },
 
     {
@@ -159,7 +159,7 @@ vv(viewOf.Alice, viewIn.home)
 
 Alice.hasSource(sub => sub.next(["once", "twice", "three times", "a lady"]))
 vv(viewOf.Alice, viewIn.home)
-`
+`,
     },
 
     {
@@ -176,7 +176,7 @@ isa.Star
 
 Alice.hasSource(sub => [Circle, Square, Triangle, Star].forEach(value => sub.next(value)))
 vv(viewOf.Alice, viewIn.home)
-`
+`,
     },
 
     {
@@ -207,7 +207,7 @@ Alice.hasSource(sub => sub.next([
   { id: "Ringo", role: ["drums"], age: 19 },
 ]))
 vv(viewOf.Alice, viewIn.home)
-`
+`,
     },
 
     {
@@ -240,7 +240,7 @@ Carol.transformsWith(hasRoot.home)
 // floating (box-shadow)
 // orientation (transform)
 
-`
+`,
     },
 
     {
@@ -254,7 +254,7 @@ Carol(listensTo.Bob, transformsWith(mapsValuesWithResource(RunTest)))
 home.contains.CarolHome
 vc(viewOf.Carol, viewIn.CarolHome)
 
-`
+`,
     },
 
     {
@@ -270,7 +270,7 @@ Alice.moduleAt("./node_modules/@def.codes/meld-demo.js")
 Bob(listensTo.Alice, transformsWith(mapsWith(x => x.MELD_EXAMPLES)))
 Bob.hostOutput("Bob")
 
-`
+`,
     },
     {
       id: "http",
@@ -279,7 +279,7 @@ Bob.hostOutput("Bob")
       userland_code: `// MELD terms are not yet true IRI's.
 Alice.dereferences("./dereference-example.json")
 Alice.hostOutput("Alice")
-`
+`,
     },
     {
       id: "multiple-rules-bug",
@@ -302,7 +302,7 @@ Carol(
   transformsWith(partitionsWith({size:9, step: 3})))
 home.contains.CarolHome
 CarolView(viewOf.Carol, viewIn.CarolHome)
-`
+`,
     },
 
     {
@@ -314,7 +314,7 @@ Alice.hasInterval(100)
 Bob(listensTo(Alice))
 v.viewOf.Bob
 // there exists
-`
+`,
     },
 
     {
@@ -339,7 +339,7 @@ Bob(listensTo.Alice, transformsWith(partitionsBy(5)))
 // This expands something very close to the above
 v(viewOf.Bob, viewIn.home)
 
-`
+`,
     },
 
     {
@@ -363,7 +363,7 @@ foo(
 
 //ListenerForv.hostOutput("lv")
 
-`
+`,
     },
     {
       id: "subgraph-view",
@@ -372,7 +372,7 @@ foo(
       userland_code: `Alice . hostOutput("Alice")
 Alice . isa . AllFacts
 
-`
+`,
     },
 
     {
@@ -391,7 +391,7 @@ Bob(listensTo.Alice, transformsWith(hasRoot.home))
 // X.contains.Y
 // P.isa.Circle
 // Q.isa.Square
-`
+`,
     },
 
     {
@@ -416,7 +416,7 @@ Joan(
 Bob(
   listensTo.Carol,
   transformsWith(hasRoot.home))
-`
+`,
     },
 
     {
@@ -429,7 +429,7 @@ Alice . hostOutput("Alice")
 // Uncomment to add a port for bob
 // Bob(hasInterval(250), hostOutput("Robert"))
 
-`
+`,
     },
 
     {
@@ -455,7 +455,7 @@ someone_else. listensTo.stream
 someone_else. transformsWith(partitionsBy(2))
 someone_else. hostOutput("both")
 
-`
+`,
     },
 
     // Which of these examples should come first?
@@ -480,7 +480,7 @@ someone_else(
   listensTo.stream, 
   transformsWith(partitionsBy(2)),
   hostOutput("both"))
-`
+`,
     },
 
     {
@@ -489,7 +489,7 @@ someone_else(
       comment: `A ticker is a stream that counts over a specified time interval.`,
       userland_code: `Alice . hasInterval(1000)
 Bob . hasInterval(250)
-`
+`,
     },
 
     {
@@ -503,7 +503,7 @@ Carol(hasInterval(200), hostOutput("Carol"))
 Alice . listensTo . Carol
 //Alice . listensTo . Joan
 
-`
+`,
     },
 
     {
@@ -515,7 +515,7 @@ Alice(hasInterval(200), hostOutput("Alice"))
 Bob(listensTo . Alice, hostOutput("Bob"))
 Carol(listensTo . Bob, hostOutput("Carol"))
 
-`
+`,
     },
 
     {
@@ -531,7 +531,7 @@ Alice.hasInterval(200)
 Bob . listensTo . Alice
 Carol . listensTo . Alice
 
-`
+`,
     },
 
     {
@@ -552,7 +552,7 @@ Joan.hasInterval(500)
 // Uncomment to see Alice merging Carol & Joan's output
 //Alice . listensTo . Joan
 
-`
+`,
     },
 
     {
@@ -564,7 +564,7 @@ Alice . listensTo . Bob
 Bob . listensTo . Carol
 Carol . hasInterval(10)
 
-`
+`,
     },
 
     {
@@ -579,7 +579,7 @@ Alice . hasInterval(250)
 Bob.listensTo.Alice
 Bob.transformsWith(mapsWith(x => x * 2)))
 
-`
+`,
     },
 
     {
@@ -596,7 +596,7 @@ Bob . listensTo . Alice
 Bob . transformsWith . mapper
 mapper . mapsWith(x => x * 2)
 
-`
+`,
     },
 
     {
@@ -612,7 +612,7 @@ Bob . listensTo . Alice
 Bob . transformsWith . odd
 odd . filtersWith(x => x % 2 == 1)
 
-`
+`,
     },
 
     {
@@ -632,7 +632,7 @@ Carol(
   listensTo.Bob,
   transformsWith(mapsWith(batch => ({batch}))),
   hostOutput("Carol"))
- `
+ `,
     },
 
     {
@@ -654,7 +654,7 @@ Carol(
   transformsWith(partitionsWith({size:9, step: 3})))
 home.contains.CarolHome
 CarolView(viewOf.Carol, viewIn.CarolHome)
-`
+`,
     },
 
     {
@@ -676,7 +676,7 @@ Carol(
   transformsWith(plucks("name")))
 home.contains.CarolHome
 CarolView(viewOf.Carol, viewIn.CarolHome)
-`
+`,
     },
 
     {
@@ -703,7 +703,7 @@ WHERE(Alice.knows.$someone, Carol.knows.$someone)
 WHERE(Alice.knows.$someone, Bob.knows.$someone)
 // results []
 
-`
+`,
     },
 
     {
@@ -722,7 +722,7 @@ SELECT($someone)
 SELECT($someone, $anyone)
 .WHERE($someone.knows.$anyone)
 
-`
+`,
     },
 
     {
@@ -742,7 +742,7 @@ WHERE($someone.knows.$anyone)
   $anyone.shouldVisit.$someone
 )
 
-`
+`,
     },
 
     {
@@ -758,7 +758,7 @@ Carol . knows . Bob
 WHERE($someone.isa.Person)
 .DESCRIBE($someone)
 
-`
+`,
     },
 
     {
@@ -779,7 +779,7 @@ c . hasObject . $knowee
 t2 . isa . Traversal
 t2 . startsFrom .x
 
-`
+`,
     },
 
     {
@@ -798,7 +798,7 @@ hasStrength(50)
 // you can also use them in place of where a node would go
 space . hasForce ( x(50) )
 
-`
+`,
     },
 
     {
@@ -809,7 +809,7 @@ space . hasForce ( x(50) )
 Bob . listensTo . Carol
 Carol . listensTo . Alice
 
-`
+`,
     },
 
     {
@@ -826,7 +826,7 @@ Bob.weight(175)
 Frank . projectOver . x
 foob . isa . Container
 
-`
+`,
     },
 
     {
@@ -845,7 +845,7 @@ blue .isa.Container
 brown .isa.Container
 blue.contains.x
 
-`
+`,
     },
 
     {
@@ -860,7 +860,7 @@ x . tallies . ViewFacts
 Bob.age(30)
 Bob.weight(175)
 
-`
+`,
     },
 
     {
@@ -882,7 +882,7 @@ space.hasBodies(query($subject.$predicate.$object))
 ticker . isa . RAF
 space.hasTicks.ticker
 
-`
+`,
     },
     {
       id: "forcefield-verbose",
@@ -905,7 +905,7 @@ clause1 . hasObject . $y
 
 //query(Alice.knows.$person)
 
-`
+`,
     },
 
     {
@@ -914,7 +914,7 @@ clause1 . hasObject . $y
       comment: `testing reified representations`,
       userland_code: `Alice . knows . Bob
 
-`
+`,
     },
 
     {
@@ -932,7 +932,7 @@ cclause1 . hasSubject . $x
 cclause1 . hasPredicate . likes
 cclause1 . hasObject . $y
 
-`
+`,
     },
 
     {
@@ -954,7 +954,7 @@ query1 . hasClause . clause1
 query1 . hasClause . clause2
 Alice.listensTo.query1
 Alice.hostOutput("Alice")
-`
+`,
     },
 
     {
@@ -973,7 +973,7 @@ vv.viewIn.more
 v.viewOf.s
 v.viewIn.thing
 home.contains.thing
-`
+`,
     },
 
     {
@@ -1000,14 +1000,14 @@ v(viewOf.s, viewIn.thing)
 s(listensTo.Bob,
   hostOutput("S"),
   transformsWith(mapsWith(layers => ({layers}))))
-`
+`,
     },
 
     {
       id: "space",
       label: "space driver",
       comment: `testing reified space`,
-      userland_code: `s . isa . Space`
+      userland_code: `s . isa . Space`,
     },
 
     {
@@ -1017,7 +1017,7 @@ s(listensTo.Bob,
       userland_code: `//forall(t, isa.Selected)
 //forall(subgraph(forceCollide, subclassOf), isa.Selected)
 
-`
+`,
     },
     // TODO: interpreter macros
     {
@@ -1034,7 +1034,7 @@ sc.distance(500)
 forall(subgraph(forceCollide, subclassOf), isa.Selected)
 
 ${SPACE_COMMON}
-`
+`,
     },
 
     {
@@ -1046,7 +1046,7 @@ sc.isa.forceLink
 space.hasForce.sc
 
 ${SPACE_COMMON}
-`
+`,
     },
 
     {
@@ -1060,7 +1060,7 @@ foo.connects.linksTo
 space.hasForce.foo
 
 ${SPACE_COMMON}
-`
+`,
     },
 
     {
@@ -1070,7 +1070,7 @@ ${SPACE_COMMON}
       userland_code: `teaches.domain.Teacher
 Alice.teaches.Bob
 // so Alice is a Teacher
-`
+`,
     },
 
     {
@@ -1080,7 +1080,7 @@ Alice.teaches.Bob
       userland_code: `teaches.range.Student
 Alice.teaches.Bob
 // so Bob is a Student
-`
+`,
     },
 
     {
@@ -1092,7 +1092,7 @@ wasDefeatedBy.inverseOf.defeated
 
 Bob.respects.Alice
 respects.inverseOf.isRespectedBy
-`
+`,
     },
 
     {
@@ -1101,7 +1101,7 @@ respects.inverseOf.isRespectedBy
       comment: `A symmetric property is one that is always mutually true of its subject and object.  That is, it always applies in both directions`,
       userland_code: `Alice.isMarriedTo.Carol
 isMarriedTo.isa.SymmetricProperty
-`
+`,
     },
 
     {
@@ -1111,7 +1111,7 @@ isMarriedTo.isa.SymmetricProperty
       userland_code: `Alice.isTheBossOf.Bob
 Bob.isTheBossOf.Carol
 isTheBossOf.isa.TransitiveProperty
-`
+`,
     },
 
     {
@@ -1120,7 +1120,7 @@ isTheBossOf.isa.TransitiveProperty
       comment: `Subclass relationships let you refine and specialize types.`,
       userland_code: `Bob.isa.Square
 Square.subclassOf.Shape
-`
+`,
     },
 
     {
@@ -1131,7 +1131,7 @@ Square.subclassOf.Shape
       userland_code: `wrote.subpropertyOf.created
 Fitzgerald.wrote.TheGreatGatsby
 // Fitzgerald created TheGreatGatsby
-`
+`,
     },
 
     {
@@ -1153,7 +1153,7 @@ foo.id(_ => _.id)
 foo.connects.linksTo
 space.hasForce.foo
 ${SPACE_COMMON}
-`
+`,
     },
     {
       id: "mesh-macro",
@@ -1168,7 +1168,7 @@ foo.connects.linksTo
 space.hasForce.foo
 
 ${SPACE_COMMON}
-`
+`,
     },
     {
       id: "code-in-world",
@@ -1179,7 +1179,7 @@ Bob.likes.Alice
 
 ${SPACE_COMMON}
 
-`
+`,
     },
     {
       id: "boggle",
@@ -1188,7 +1188,7 @@ ${SPACE_COMMON}
       userland_code: `// board = boggle_grid(10, 10)
 // set of search?
 // etc
-`
+`,
       /*
     async get_store() {
       const boggle_graph = random_board(BOARD_SIZE);
@@ -1301,7 +1301,7 @@ ${SPACE_COMMON}
 // trie match/scan "hello"
 // trie match/scan "world"
 // trie node looks like render_trie_node
-`
+`,
     },
     {
       id: "graph2",
@@ -1317,7 +1317,7 @@ a . linksTo . c
 b . linksTo . d
 
 ${SPACE_COMMON}
-`
+`,
     },
     {
       id: "graph3",
@@ -1327,7 +1327,7 @@ ${SPACE_COMMON}
 
 ${SPACE_COMMON}
 
-`
+`,
     },
 
     {
@@ -1338,7 +1338,7 @@ ${SPACE_COMMON}
 
 ${SPACE_COMMON}
 
-`
+`,
     },
     {
       id: "cycle-1",
@@ -1348,7 +1348,7 @@ ${SPACE_COMMON}
 
 ${SPACE_COMMON}
 
-`
+`,
     },
     {
       id: "graph4",
@@ -1356,7 +1356,7 @@ ${SPACE_COMMON}
       comment: `turn a sequence into a loop in a graph`,
       userland_code: `a = range(10)
 b = cycle(a)
-`
+`,
     },
     {
       id: "graph5",
@@ -1364,36 +1364,36 @@ b = cycle(a)
       comment: `union of two independent generated sequences`,
       userland_code: `cycle(range(10))
 range(20, 25)
-`
+`,
     },
     {
       id: "view-refinement",
       label:
         "You can describe aspects of the appearance of particular types of things.",
-      status: "TODO"
+      status: "TODO",
     },
     {
       id: "view-refinement-examples",
       label:
         "Make examples illustrating the essentials of refining appearance by type.",
-      status: "TODO"
+      status: "TODO",
     },
     {
       id: "implement-view-refinement",
       label: "Make the view refinement examples work.",
-      status: "TODO"
+      status: "TODO",
     },
     {
       id: "stream-metamerge-bug",
       label:
         "Fix a bug where metamerge is getting created on streams.  Apparently a no-op for intervals (because of ordering), so it's gone unnoticed",
-      status: "DONE"
+      status: "DONE",
     },
     {
       id: "trace-rule-firing",
       label:
         "The system could trace which rules fired and with what.  #deathtoconsolelog",
-      status: "TODO"
+      status: "TODO",
     },
     {
       id: "regarding-collection-size",
@@ -1409,20 +1409,20 @@ range(20, 25)
 
         "https://www.researchgate.net/publication/256803144_The_Collections_Ontology_Creating_and_handling_collections_in_OWL_2_DL_frameworks",
 
-        "http://semantic-web-journal.net/content/collections-ontology-creating-and-handling-collections-owl-2-dl-frameworks-0"
-      ]
+        "http://semantic-web-journal.net/content/collections-ontology-creating-and-handling-collections-owl-2-dl-frameworks-0",
+      ],
     },
     {
       id: "things-to-datafy",
       label: "A list of things in JavaScript hosts that invite datafication",
-      value: ["Error", "Response", "Node"]
+      value: ["Error", "Response", "Node"],
     },
     {
       id: "merge-examples-and-mind-map",
       status: "DONE",
       comment:
         "No need to convert to JSON.  Exporting as a module because line breaks.",
-      label: "Merge with MELD examples."
+      label: "Merge with MELD examples.",
     },
     {
       id: "merge-presentation-slides-and-mind-map",
@@ -1430,7 +1430,7 @@ range(20, 25)
       label:
         "Convert topics from presentation sketch to JS nodes and merge with mind map.",
       comment:
-        "No need to convert to JSON.  Exporting as a module because line breaks."
+        "No need to convert to JSON.  Exporting as a module because line breaks.",
     },
     {
       id: "index-display-from-mind-map",
@@ -1438,190 +1438,190 @@ range(20, 25)
       label:
         "The index page needs to be updated to deal with a heterogeneous set of items",
       comment:
-        "will hold off on this I guess until I've processed it in a model a bit"
+        "will hold off on this I guess until I've processed it in a model a bit",
     },
     {
       id: "host-input",
       status: "TODO",
       label:
-        "Model host should provide the mind map to the model as an input port"
+        "Model host should provide the mind map to the model as an input port",
     },
     {
       id: "implement-host-input",
       status: "DONE",
       label:
         "Add vocabulary and driver as needed.  Host input port will be a stream",
-      supports: "host-input"
+      supports: "host-input",
     },
     {
       id: "dynamic-polymorphic-render",
       status: "TODO",
-      label: "Create a dynamic, (single-dispatch) polymorphic render apparatus"
+      label: "Create a dynamic, (single-dispatch) polymorphic render apparatus",
     },
     {
       id: "polymorphic-methods",
       status: "DONE",
       label:
         "Dynamically-extensible polymorphic dispatch mechanism using multimethods.",
-      supports: "datafy-nav"
+      supports: "datafy-nav",
     },
     {
       id: "implement-polymorphic-methods",
       status: "DONE",
       label: "Implement basic defprotocol using @thi.ng multimethods",
       comment: `well, almost done.  still doesn't retrofit new multimethods with existing hierarchy`,
-      supports: "protocols"
+      supports: "protocols",
     },
     {
       id: "datafy-nav",
       status: "TODO",
-      label: "Extensible datafy and nav protocols using JSON-LD conventions."
+      label: "Extensible datafy and nav protocols using JSON-LD conventions.",
     },
     {
       id: "implement-datafy-nav",
       status: "IN-PROGRESS",
-      label: "Create basic datafy nav protocols (loosely) after Clojure"
+      label: "Create basic datafy nav protocols (loosely) after Clojure",
     },
     {
       id: "create-dynamic-polymorphic-render",
       status: "NEXT",
       label: "Create a dynamic, (single-dispatch) polymorphic render apparatus",
-      supports: "dynamic-polymorphic-render"
+      supports: "dynamic-polymorphic-render",
     },
     {
       id: "create-dynamic-polymorphic-render-driver",
       status: "NEXT",
       label: "Create driver for dynamic polymorphic render",
-      supports: "dynamic-polymorphic-render"
+      supports: "dynamic-polymorphic-render",
     },
     {
       id: "provide-mind-map-as-input",
       status: "TODO",
       label:
         "Model host should provide the mind map to the model as an input port",
-      comment: "requires hostInput support"
+      comment: "requires hostInput support",
     },
     {
       id: "convert-examples-to-json",
       status: "NOT-TODO",
       comment: `But JSON doesn't allow line breaks in strings.  So there's no way I'm editing that manually.`,
-      label: "Convert MELD examples to JSON."
+      label: "Convert MELD examples to JSON.",
     },
     {
       id: "http-dereference-driver",
       status: "DONE",
       label:
-        "A driver for providing the content of resources with HTTP/HTTPS IRI's."
+        "A driver for providing the content of resources with HTTP/HTTPS IRI's.",
     },
     {
       id: "create-http-dereference-vocabulary",
       status: "DONE",
       label:
         "create vocabulary for representing HTTP resources as stream sources.",
-      supports: "http-dereference-driver"
+      supports: "http-dereference-driver",
     },
     {
       id: "create-http-dereference-driver",
       status: "",
       label: "create driver for implementing HTTP vocabulary as stream source.",
-      supports: "http-dereference-driver"
+      supports: "http-dereference-driver",
     },
     {
       id: "javascript-modules",
       comment: `This is just for local development, currently not intended for userland`,
-      label: "A vocabulary for talking about JavaScript modules."
+      label: "A vocabulary for talking about JavaScript modules.",
     },
     {
       id: "create-javascript-modules-vocabulary",
       label: "A vocabulary for talking about JavaScript modules.",
       comment: `Basically punting.  Assuming needed semantics will arise.`,
       status: "DONE",
-      supports: "javascript-modules"
+      supports: "javascript-modules",
     },
     {
       id: "implement-javascript-module-import-driver",
       label: "Create a driver for importing JavaScript modules.",
       status: "DONE",
-      supports: "javascript-modules"
+      supports: "javascript-modules",
     },
     {
       id: "create-test-case-vocabulary",
       status: "DONE",
       label: "create a simple vocabulary for describing functional test cases",
-      supports: "function-testing"
+      supports: "function-testing",
     },
     {
       id: "create-test-case-format",
       label:
         "create test case format compatible with TypeScript and vocabulary",
       status: "DONE",
-      supports: "function-testing"
+      supports: "function-testing",
     },
     {
       id: "convert-existing-tests",
       label: "convert existing tests to function test case format",
       status: "DONE",
-      supports: "function-testing"
+      supports: "function-testing",
     },
     {
       id: "create-function-test-runner",
       label: "create runner for test case format",
       status: "DONE",
-      supports: "function-testing"
+      supports: "function-testing",
     },
     {
       id: "create-function-testing-cli",
       label: "create function testing CLI",
       status: "DONE",
-      supports: "function-testing"
+      supports: "function-testing",
     },
     {
       id: "create-function-testing-driver",
       label: "create function testing driver",
       status: "TODO",
-      supports: "function-testing"
+      supports: "function-testing",
     },
     {
       id: "support-indirect-function-reference-in-map",
       label:
         "Allow mapping function to be specified as a term whose value is a function, rather than a literal",
       comment: `I just created a special xform for my immediate purpose.  No polymorphism for now.`,
-      status: "DONE"
+      status: "DONE",
     },
     {
       id: "load-existing-tests",
       label: "load and run existing tests via drivers",
       status: "DONE",
-      supports: "function-testing"
+      supports: "function-testing",
     },
     {
       id: "describe-test-result-representation",
       label: "Describe test result representation",
       status: "BLOCKED",
       blockedBy: "view-refinement",
-      supports: "function-testing"
+      supports: "function-testing",
     },
     {
       id: "get-data-from-model",
       label: "support getting outside from model",
       status: "TODO",
-      supports: "function-testing"
+      supports: "function-testing",
     },
     {
       id: "add-pluck-transducer",
       label: "Add pluck transducer",
-      status: "DONE"
+      status: "DONE",
     },
     {
       id: "pluck-as-action-and-description",
       label: "Pluck as action and description",
       comment:
         "Picking out part of a represented value should capture the description of a pluck operation, which can be reified and turned into a transducer.",
-      status: "IDEA"
+      status: "IDEA",
     },
     { id: "meld-mind-map", label: "mind map" },
     { id: "function-testing", label: "function testing" },
     { id: "create-meld-mind-map", label: "DONE create meld mind map" },
-    { id: "https://www.w3.org/TR/json-ld/", label: "JSON-LD" }
-  ]
+    { id: "https://www.w3.org/TR/json-ld/", label: "JSON-LD" },
+  ],
 };

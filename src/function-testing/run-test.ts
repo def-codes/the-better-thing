@@ -22,7 +22,7 @@ export const run_test = <A extends [], O>(
       test$case,
       test$got: got,
       test$passed: equal,
-      test$diff
+      test$diff,
     };
   } catch (test$error) {
     return { test$case, test$error, test$passed: false };

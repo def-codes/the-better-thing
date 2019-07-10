@@ -8,7 +8,7 @@ const render_undefined = _ => ["span", { "data-type": "undefined" }, "⊥"];
 const render_primitive = (_, { value }) => [
   "span",
   { "data-type": typeof value },
-  value.toString()
+  value.toString(),
 ];
 
 const render_array = ({ render }, { value: array, path }) => [
@@ -17,8 +17,8 @@ const render_array = ({ render }, { value: array, path }) => [
   Array.from(array, (value, index) => [
     "li",
     { "data-type": "array-item" },
-    [render, { value, path: [...path, index] }]
-  ])
+    [render, { value, path: [...path, index] }],
+  ]),
 ];
 
 const render_iterable = ({ render }, { type, value: iterable, path }) => [
@@ -28,8 +28,8 @@ const render_iterable = ({ render }, { type, value: iterable, path }) => [
   Array.from(iterable, (value, number) => [
     "li",
     { "data-type": "iterable-item" },
-    [render, { value, path: [...path, number] }]
-  ])
+    [render, { value, path: [...path, number] }],
+  ]),
 ];
 
 const render_object = ({ render }, { value: object, path }) => [
@@ -43,9 +43,9 @@ const render_object = ({ render }, { value: object, path }) => [
     [
       "div",
       { "data-type": "object-value" },
-      [render, { value, path: [...path, key] }]
-    ]
-  ])
+      [render, { value, path: [...path, key] }],
+    ],
+  ]),
 ];
 
 // SPECIAL CASE, I just need to see these props, and object view doesn't show
@@ -58,10 +58,10 @@ const render_error = (_, { value, path }) => [
       message: value.message,
       fileName: value.fileName,
       lineNumber: value.lineNumber,
-      stack: value.stack
+      stack: value.stack,
     },
-    path
-  }
+    path,
+  },
 ];
 
 // Dispatcher
@@ -83,7 +83,7 @@ export const render = (_, { value, path = [] }) => {
   if (Array.isArray(value.layers))
     return [
       "div.layers",
-      tx.map(layer => ["div.layer", [render, { value: layer }]], value.layers)
+      tx.map(layer => ["div.layer", [render, { value: layer }]], value.layers),
     ];
 
   if (value["@type"] === "triples") return [render_triples, { value }];

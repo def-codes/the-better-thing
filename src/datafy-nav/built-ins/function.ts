@@ -10,7 +10,7 @@ export const extend_Function = {
       "skos:label": fn.name,
       // What would be the IRI for these?
       "javascript:function:arity": fn.length,
-      "javascript:function:source": fn.toString()
+      "javascript:function:source": fn.toString(),
     }));
-  }
+  },
 };

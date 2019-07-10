@@ -27,7 +27,7 @@ const ALWAYS = {
   //[inspect && inspect.custom]: undefined,
   toJSON: () => `{"crazy":"proxy"}`, // mostly to smoke out who's asking
   toString: () => `unsupported`,
-  inspect: undefined // for node only
+  inspect: undefined, // for node only
 };
 
 // General mapper over plain JS objects
@@ -57,7 +57,7 @@ const sanitize = x =>
               (acc, [k, v]) => Object.assign(acc, { [k]: sanitize(v) }),
               {}
             )
-          : v
+          : v,
       };
 
     const { args, assign } = context;
@@ -106,7 +106,7 @@ const make_scanner = collector => {
 
         for (const scope of scopes) if (key in scope) return scope[key];
         return recur_with({ term: key });
-      }
+      },
     });
   };
 

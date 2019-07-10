@@ -6,7 +6,7 @@ export const extend_Error = {
       "@context": "http://meld/javascript/error",
       "error:name": e.name,
       "error:message": e.message,
-      "error:stack": e.stack
+      "error:stack": e.stack,
     }));
-  }
+  },
 };

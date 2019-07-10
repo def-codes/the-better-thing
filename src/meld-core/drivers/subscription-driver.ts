@@ -40,7 +40,7 @@ const metamerge = id => {
         meta.next(make_merge({ src: [...current.sources.keys()], xform }));
 
       current_xform = xform;
-    }
+    },
   });
 };
 
@@ -64,9 +64,9 @@ export default {
           register: {
             subject,
             as_type: "Subscribable",
-            get: () => metamerge(subject.value)
-          }
-        })
+            get: () => metamerge(subject.value),
+          },
+        }),
       },
       {
         when: q(
@@ -82,7 +82,7 @@ export default {
           find(metamerge).set_transform(find(transducer));
           // SIDE EFFECTING!!! TODO
           return {};
-        }
+        },
       },
       {
         comment:
@@ -103,8 +103,8 @@ export default {
         then: ({ stream, merge }, { find }) => {
           find(merge).add(find(stream));
           return {};
-        }
-      }
-    ]
-  })
+        },
+      },
+    ],
+  }),
 };

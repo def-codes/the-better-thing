@@ -55,7 +55,7 @@ const sd = <T>(
 export const CONVERTERS: Converter<any>[] = [
   sd(`${meld}javascriptFunction`, isFunction, expr => eval(expr)),
   sd(`${xsd}number`, isNumber, s => parseFloat(s)),
-  sd(RDF.STRING_TYPE_IRI, isString, s => s)
+  sd(RDF.STRING_TYPE_IRI, isString, s => s),
 ];
 
 const find_serializer = (value: any) =>

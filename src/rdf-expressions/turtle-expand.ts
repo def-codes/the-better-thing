@@ -75,7 +75,7 @@ export function* expecting_statement(expr) {
 
       // Subject + predicate-object list
       const po_facts = scan_as_list(expecting_predicate_object, args, {
-        subject
+        subject,
       });
       if (!("error" in po_facts)) {
         yield* po_facts;
@@ -106,7 +106,7 @@ export function* expecting_statement(expr) {
   if (predicate.term && object.args) {
     const o_list_facts = scan_as_list(expecting_object, object.args, {
       subject,
-      predicate
+      predicate,
     });
     if (!("error" in o_list_facts)) {
       yield* o_list_facts;
@@ -148,7 +148,7 @@ const expecting_predicate_object: ScannerFunction = function*(
     // Predicate + object list
     const o_list_facts = scan_as_list(expecting_object, object.args, {
       subject,
-      predicate
+      predicate,
     });
     if (!("error" in o_list_facts)) {
       yield* o_list_facts;
@@ -186,7 +186,7 @@ const expecting_object: ScannerFunction = function*(
   if (expr.length === 2) {
     // Object list.  New context because not connected to containing expr.
     const object_facts = scan_as(expecting_predicate_object, expr, {
-      subject: mint()
+      subject: mint(),
     });
     if (!("error" in object_facts)) {
       // In addition to the collected facts, yield a fact (for *this* position)

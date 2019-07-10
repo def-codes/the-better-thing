@@ -67,6 +67,6 @@ export const polymethod = <T = any, A extends any[] = any[]>(): Polymethod<
         // the prototype.
         multimethod.add(register_prototype(thing.prototype || thing), fn);
       }
-    }
+    },
   });
 };

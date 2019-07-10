@@ -25,7 +25,7 @@ const determine_type = (thing: fs.Stats | fs.Dirent): string => {
 
 const datafy_dirent = (dirent: fs.Dirent) => ({
   "@type": determine_type(dirent),
-  [`${nfo}fileName`]: dirent.name
+  [`${nfo}fileName`]: dirent.name,
 });
 
 const datafy_stats = (stats: fs.Stats) => ({
@@ -33,14 +33,14 @@ const datafy_stats = (stats: fs.Stats) => ({
   [`${nfo}fileSize`]: stats.size,
   [`${nfo}fileCreated`]: stats.birthtime.toISOString(),
   [`${nao}lastModified`]: stats.birthtime.toISOString(),
-  [`${nfo}fileLastAccessed`]: stats.atime.toISOString()
+  [`${nfo}fileLastAccessed`]: stats.atime.toISOString(),
 });
 
 const datafy_filesystem_path = (path: string) => {
   const stats = fs.statSync(path);
 
   const datafied: object = Object.assign(datafy_stats(stats), {
-    [`${nie}url`]: pathToFileURL(path).toString()
+    [`${nie}url`]: pathToFileURL(path).toString(),
   });
   const parent = fs.realpathSync(join(path, ".."));
   if (parent)
@@ -50,7 +50,7 @@ const datafy_filesystem_path = (path: string) => {
     const contents = fs.readdirSync(path, { withFileTypes: true });
     datafied[`${nie}hasPart`] = contents.map(entry =>
       Object.assign(datafy_dirent(entry), {
-        [`${nie}url`]: pathToFileURL(join(path, entry.name)).toString()
+        [`${nie}url`]: pathToFileURL(join(path, entry.name)).toString(),
       })
     );
   }
@@ -95,7 +95,7 @@ const extend_fs_iri = (type: string) => ({
   },
   nav() {
     nav_protocol.extend(type, nav_filesystem_resource);
-  }
+  },
 });
 
 export const extend_nfo$Folder = extend_fs_iri(`${nfo}Folder`);
@@ -106,11 +106,11 @@ export const extend_nfo$FileDataObject = extend_fs_iri(`${nfo}FileDataObject`);
 export const extend_Dirent = {
   datafy() {
     datafy_protocol.extend(fs.Dirent, datafy_dirent);
-  }
+  },
 };
 
 export const extend_Stats = {
   datafy() {
     datafy_protocol.extend(fs.Stats, datafy_stats);
-  }
+  },
 };

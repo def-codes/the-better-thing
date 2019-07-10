@@ -31,8 +31,8 @@ export default {
             return {
               warning: {
                 message: "Expected stream `source` to be a function",
-                context: { source }
-              }
+                context: { source },
+              },
             };
 
           return {
@@ -41,12 +41,12 @@ export default {
               // Here and below this seems it should be stream, but system doesn't
               // traverse subclasses when doing these lookups.
               as_type: "Subscribable",
-              get: () => rs.stream(source.valueOf())
+              get: () => rs.stream(source.valueOf()),
               // DEBUG: uncomment to log stream values
               // .subscribe(rs.trace("DEBUG stream"))
-            }
+            },
           };
-        }
+        },
       },
       {
         when: q("?timer hasInterval ?ms"),
@@ -54,9 +54,9 @@ export default {
           register: {
             subject: timer,
             as_type: "Subscribable",
-            get: () => rs.fromInterval(ms.value)
-          }
-        })
+            get: () => rs.fromInterval(ms.value),
+          },
+        }),
       },
       {
         when: q("?timer isa RAF"),
@@ -64,10 +64,10 @@ export default {
           register: {
             subject: timer,
             as_type: "Subscribable",
-            get: () => rs.fromRAF()
-          }
-        })
-      }
-    ]
-  })
+            get: () => rs.fromRAF(),
+          },
+        }),
+      },
+    ],
+  }),
 };

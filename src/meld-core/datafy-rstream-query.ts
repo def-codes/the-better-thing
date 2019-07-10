@@ -66,7 +66,7 @@ const navize_object = (store: TripleStore, object: object) =>
         if (typeof value === "object") return navize_object(store, value);
       }
       return value;
-    }
+    },
   });
 
 // Navigate to the selected term.
@@ -74,7 +74,7 @@ const navize_terms = (store: TripleStore, terms: Iterable<Term>) =>
   // Assumes this is an ad-hoc collection that we can write metadata to.
   // Doesn't include (or check for) other properties like collection size.
   Object.assign(terms, {
-    [NAV]: (_, __, term: Term) => navize_term(store, term)
+    [NAV]: (_, __, term: Term) => navize_term(store, term),
   });
 
 // Navigate to the selected triple.
@@ -82,13 +82,13 @@ const navize_triples = (store: TripleStore) =>
   // This array will always belong to this store, so writing metadata is okay.
   // In fact could do this conditionally (return same object if NAV present).
   Object.assign(store.triples, {
-    [NAV]: (_, __, triple: PseudoTriple) => navize_triple(store, triple)
+    [NAV]: (_, __, triple: PseudoTriple) => navize_triple(store, triple),
   });
 
 // Navigate to the selected term as a subject.
 const navize_triple = (store: TripleStore, triple: PseudoTriple) =>
   Object.assign([...triple], {
-    [NAV]: (_, __, term: Term) => datafy_subject(store, term)
+    [NAV]: (_, __, term: Term) => datafy_subject(store, term),
   });
 
 // The term's `value` property navigates to the term as a subject in the store.
@@ -100,21 +100,21 @@ const navize_term = (store: TripleStore, term: Term) =>
     [NAV]: (_coll: unknown, key: unknown, value: unknown) =>
       key === "value" && typeof value === "string"
         ? datafy_subject(store, term)
-        : value
+        : value,
   });
 
 const datafy_TripleStore = (store: TripleStore) => ({
   "@type": TRIPLESTORE_IRI,
   [`${co}size`]: store.triples.length,
   [`${co}item`]: navize_triples(store),
-  [`${RDF}about`]: navize_terms(store, store.indexS.keys())
+  [`${RDF}about`]: navize_terms(store, store.indexS.keys()),
 });
 
 export const extend_TripleStore = {
   datafy() {
     datafy_protocol.extend(TripleStore, datafy_TripleStore);
     datafy_protocol.extend(TRIPLESTORE_IRI, datafy_TripleStore);
-  }
+  },
   // `nav` falls back to default implementation (which returns unmodified
   // value).  The child collections of the datafied store are themselves
   // navized, and `nav` cannot be meaningfully called on the plain

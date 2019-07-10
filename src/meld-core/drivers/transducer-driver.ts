@@ -25,9 +25,9 @@ export default {
           register: {
             subject,
             as_type: "Transducer",
-            get: () => tx.map(fn.valueOf())
-          }
-        })
+            get: () => tx.map(fn.valueOf()),
+          },
+        }),
       },
       // TRANSITIONAL
       {
@@ -38,10 +38,10 @@ export default {
             register: {
               subject,
               as_type: "Transducer",
-              get: () => tx.map((values: any[]) => values.map(fun))
-            }
+              get: () => tx.map((values: any[]) => values.map(fun)),
+            },
           };
-        }
+        },
       },
       {
         when: q("?subject filtersWith ?fn"),
@@ -49,9 +49,9 @@ export default {
           register: {
             subject,
             as_type: "Transducer",
-            get: () => tx.filter(fn.valueOf())
-          }
-        })
+            get: () => tx.filter(fn.valueOf()),
+          },
+        }),
       },
       {
         when: q("?subject partitionsBy ?size"),
@@ -59,9 +59,9 @@ export default {
           register: {
             subject,
             as_type: "Transducer",
-            get: () => tx.partition(size.valueOf())
-          }
-        })
+            get: () => tx.partition(size.valueOf()),
+          },
+        }),
       },
       {
         when: q("?subject partitionsWith ?spec"),
@@ -73,9 +73,9 @@ export default {
               tx.partition(
                 spec.valueOf().size.literal,
                 spec.valueOf().step.literal
-              )
-          }
-        })
+              ),
+          },
+        }),
       },
       {
         when: q("?subject plucks ?key"),
@@ -83,10 +83,10 @@ export default {
           register: {
             subject,
             as_type: "Transducer",
-            get: () => tx.pluck(key.valueOf())
-          }
-        })
-      }
-    ]
-  })
+            get: () => tx.pluck(key.valueOf()),
+          },
+        }),
+      },
+    ],
+  }),
 };

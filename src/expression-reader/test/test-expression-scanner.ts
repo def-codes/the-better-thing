@@ -8,7 +8,7 @@ function test_scanner() {
   const ex = _ => [
     _.Alice.knows.Bob,
     _.Bob.loves.Alice(_.bearbags),
-    _.Carol.alias("Foo", "Bar")
+    _.Carol.alias("Foo", "Bar"),
   ];
   const normalized = with_scanner(ex);
   //console.log(`normalized`, inspect(normalized, { depth: 5 }));

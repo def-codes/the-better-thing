@@ -87,7 +87,7 @@ export function to_literal(value: any): Literal | { error } {
     try {
       const lexical = convert(value);
       return Object.assign(rdf.literal(lexical, rdf.namedNode(datatype_iri)), {
-        runtimeValue: value
+        runtimeValue: value,
       });
     } catch (error) {
       return { error };

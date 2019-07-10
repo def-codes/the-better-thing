@@ -68,6 +68,6 @@ export const make_identity_factory = (): FactoryWithNormalize => {
         normalize(object),
         normalize(graph)
       ),
-    normalize
+    normalize,
   };
 };

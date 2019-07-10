@@ -18,7 +18,7 @@ export const render_triple = ({ render }, { value: [s, p, o] }) => [
   {
     "data-subject": as_string(s.value),
     "data-property": as_string(p.value),
-    "data-object": as_string(o.value)
+    "data-object": as_string(o.value),
   },
   s.value,
   " ",
@@ -26,7 +26,7 @@ export const render_triple = ({ render }, { value: [s, p, o] }) => [
   " ",
   o.termType === "Literal"
     ? ["div.value-view", [render, { value: o.valueOf() }]]
-    : o.value
+    : o.value,
 ];
 
 export const render_triples = (
@@ -44,11 +44,11 @@ export const render_triples = (
       {
         value: Array.isArray(triple)
           ? triple
-          : [triple.subject, triple.predicate, triple.object]
-      }
+          : [triple.subject, triple.predicate, triple.object],
+      },
     ],
     triples
-  )
+  ),
 ];
 
 const all_values_for = (store: rq.TripleStore, subject, property) =>
@@ -88,8 +88,8 @@ const render_resource_nodes = (
             ...tx.map(
               type => type.value,
               all_values_for(store, resource, TYPE) || []
-            )
-          ].join("  ")
+            ),
+          ].join("  "),
         },
         [
           "div.resource-content",
@@ -102,13 +102,13 @@ const render_resource_nodes = (
                   { "data-property": p.value },
                   p.value,
                   " ",
-                  o.value && o.value.toString()
+                  o.value && o.value.toString(),
                 ],
                 literal_props.get(resource)
-              )
-        ]
+              ),
+        ],
       ],
       resources
-    )
+    ),
   ];
 };

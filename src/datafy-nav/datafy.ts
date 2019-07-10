@@ -14,7 +14,7 @@ export const datafy = <T>(thing: T): Datafied<T> => {
   // if not, this clobbers it anyway
   if (datafied != null && typeof datafied === "object")
     return Object.assign(datafied, {
-      [DATAFY_METADATA]: { [ORIGINAL]: thing }
+      [DATAFY_METADATA]: { [ORIGINAL]: thing },
     });
 
   return datafied;

@@ -104,7 +104,7 @@ export const dataFactory: rdf.DataFactory = {
   variable: value => new variable(value),
   defaultGraph: () => new defaultGraph(),
   triple: (s, p, o) => new triple(s, p, o),
-  quad: (s, p, o, g) => new quad(s, p, o, g)
+  quad: (s, p, o, g) => new quad(s, p, o, g),
 };
 
 /////////// toString extensions

@@ -3,7 +3,7 @@ import {
   DomAssertion,
   Trait,
   TraitQuery,
-  LiteralTemplate
+  LiteralTemplate,
 } from "./api";
 import * as tx from "@thi.ng/transducers";
 
@@ -33,7 +33,7 @@ const assertions_from = (
       tx.flatten()
     ),
     traits
-  )
+  ),
 ];
 
 const template_from = (assertions: DomAssertion[]) => {
@@ -74,7 +74,7 @@ const compute_all_traits = (
   ...tx.iterator(
     tx.comp(tx.map(query => query(thing, context)), truthy, tx.flatten()),
     queries
-  )
+  ),
 ];
 
 /** Create an HDOM render function using the given rules and interpreters. */

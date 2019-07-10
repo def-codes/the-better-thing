@@ -7,7 +7,7 @@ import {
   CONSOLE_METHODS,
   ConsoleSource,
   ConsoleStream,
-  PreservedConsole
+  PreservedConsole,
 } from "./api";
 
 export function hijack_console() {

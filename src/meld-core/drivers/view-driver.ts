@@ -25,7 +25,7 @@ export default {
         // "viewOf range Resource"
         // "contains domain Container",
         // "contains range Content"
-      )
+      ),
       // TODO: s/b rdf:value, and should be able to dereference.  i.e. a ref to
       //   this should work in place of the literal (polymorphically)
       //[n("Render"), n("value"), RENDER_VALUE]
@@ -76,12 +76,12 @@ export default {
               [mapper, n("mapsWith"), RENDER_VALUE],
               [listener2, LISTENS_TO, listener],
               [listener2, TRANSFORMS_WITH, xform],
-              [xform, n("hasRoot"), container]
+              [xform, n("hasRoot"), container],
               //...blah
-            ]
+            ],
           };
-        }
-      }
-    ]
-  })
+        },
+      },
+    ],
+  }),
 };

@@ -1,6 +1,4 @@
 {
   "extends": "../tsconfig-composite",
-  "references": [
-    { "path": "../datafy-nav" },
-  ]
+  "references": [{ "path": "../datafy-nav" }]
 }

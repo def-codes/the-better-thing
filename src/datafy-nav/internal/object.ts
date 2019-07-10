@@ -13,5 +13,5 @@ export const extend_Object = {
     // Same as Clojure's default implementation for Object.
     // https://github.com/clojure/clojure/blob/b70db9639f9acddcabf7f760ea4bb050d6bfaa16/src/clj/clojure/core/protocols.clj
     nav_protocol.extend(Object, (obj, key, value) => value);
-  }
+  },
 };
