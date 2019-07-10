@@ -25,7 +25,17 @@ const render_mind_map = (_, items: Iterable<MindMapNode>) => [
           ([key, value]) =>
             ["label", "id"].includes(key)
               ? null
-              : ["li", ["span", key], " ", ["b", value]],
+              : [
+                  "li",
+                  ["span", key],
+                  " ",
+                  [
+                    "b",
+                    Array.isArray(value)
+                      ? ["ul", tx.map(v => ["li", v], value)]
+                      : value
+                  ]
+                ],
           Object.entries(item)
         )
       ]

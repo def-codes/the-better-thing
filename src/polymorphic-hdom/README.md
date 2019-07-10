@@ -54,7 +54,8 @@ sequence fsm.  logic is opaque to this system.
 abstract descriptors and concrete interpretations.  A trait can be basically
 anything.
 
-uniform: dynamic datafy unifies RDF graphs with data values
+uniform: dynamic datafy unifies traversal of RDF graphs, host values and
+interfaces, etc (but emphasis on namespaced properties and datatyped values)
 
 composable template operations resemble function “advice” (as in Emacs Lisp)
 

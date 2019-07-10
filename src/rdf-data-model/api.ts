@@ -1,7 +1,8 @@
 // Documentation here is mostly taken from http://rdf.js.org/data-model-spec/
 
 export const RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-export const STRING_TYPE_IRI = "http://www.w3.org/2001/XMLSchema#string";
+export const XSD = "http://www.w3.org/2001/XMLSchema#";
+export const STRING_TYPE_IRI = `${XSD}string`;
 export const LANGUAGE_STRING_TYPE_IRI = `${RDF}langString`;
 
 interface IEquals<T> {
