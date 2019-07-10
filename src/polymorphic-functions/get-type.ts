@@ -16,10 +16,10 @@ export const UNDEFINED = Symbol("undefined");
 import { register_prototype } from "./prototype-registry";
 
 export const get_type_id = (x): symbol | string | string[] => {
-  // For these to be usable, you'd have to export them.
   // could also use Symbol.for("rdf:nil") (expanded)
   if (x === null) return NULL;
   // Extending to undefined is nonsense anyway
+  // Though... we could use undefined as a default signal
   if (x === undefined) return UNDEFINED;
 
   const rdf_type = x["@type"];

@@ -1,7 +1,7 @@
 // Define mechanism for defining type-based multimethods
 import { Polymethod } from "./api";
 import { defmulti } from "@thi.ng/defmulti";
-import { get_type_id } from "./get-type";
+import { get_type_id, NULL } from "./get-type";
 import { register_prototype } from "./prototype-registry";
 import { polymethod_registry } from "./polymethod-registry";
 
@@ -37,13 +37,15 @@ export const polymethod = <T = any, A extends any[] = any[]>(): Polymethod<
   polymethod_registry.add(multimethod);
 
   return Object.assign(multimethod, {
-    extend(thing: string | Function, fn) {
+    id,
+    extend(thing: null | string | Function, fn) {
+      if (thing === null) multimethod.add(NULL, fn);
       // IRI
-      if (typeof thing === "string") multimethod.add(thing, fn);
+      else if (typeof thing === "string") multimethod.add(thing, fn);
       // Constructor
       else {
         // If the value doesn't have a prototype, then we assume that it *is*
-        // the prototype.??
+        // the prototype.
         multimethod.add(register_prototype(thing.prototype || thing), fn);
       }
     }
