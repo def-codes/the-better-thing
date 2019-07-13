@@ -91,8 +91,9 @@ const HANDLERS = {
   register_output_port({ name, subject, source }, system) {
     system.register_output_port(name, subject, source);
   },
-  register({ subject, as_type, get }, system) {
-    system.register(subject, as_type, get);
+  // TODO: this key should be `using`.  change call sites
+  register({ subject, as_type, get: using }, system) {
+    system.register(subject, as_type, using);
   },
   warning({ message, context }) {
     console.warn(message, context);
@@ -204,12 +205,12 @@ export const monotonic_system = ({ id, store, dom_root, ports }) => {
     // A single resource can be “implemented” once for each type.  This allows
     // drivers to disambiguate the role for which they are querying
     // implementations.
-    register(subject, type_name, get) {
+    register(subject, type_name, using) {
       const type = rdf.namedNode(type_name);
       if (!registry.has([subject, type])) {
         let object;
         try {
-          object = get();
+          object = using();
         } catch (error) {
           // Should also know driver/rule source here.
           console.error(

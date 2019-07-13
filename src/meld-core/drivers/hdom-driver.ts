@@ -26,7 +26,7 @@ export default {
             // as_type: "HdomTransducer",
             as_type: "Transducer",
             // HACK: on what basis is this the context??
-            get: () => updateDOM({ root: find(element), ctx: { render } }),
+            using: () => updateDOM({ root: find(element), ctx: { render } }),
           },
         }),
       },

@@ -64,7 +64,7 @@ export default {
           register: {
             subject,
             as_type: "Subscribable",
-            get: () => metamerge(subject.value),
+            using: () => metamerge(subject.value),
           },
         }),
       },

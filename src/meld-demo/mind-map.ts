@@ -1479,12 +1479,12 @@ range(20, 25)
     },
     {
       id: "implement-datafy-nav",
-      status: "IN-PROGRESS",
+      status: "DONE",
       label: "Create basic datafy nav protocols (loosely) after Clojure",
     },
     {
       id: "create-dynamic-polymorphic-render",
-      status: "NEXT",
+      status: "IN-PROGRESS",
       label: "Create a dynamic, (single-dispatch) polymorphic render apparatus",
       supports: "dynamic-polymorphic-render",
     },

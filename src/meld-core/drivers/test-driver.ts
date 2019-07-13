@@ -47,7 +47,7 @@ export default {
           register: {
             subject: child,
             as_type: "Container",
-            get: () =>
+            using: () =>
               find(container).appendChild(document.createElement("div")),
           },
         }),
@@ -58,7 +58,7 @@ export default {
           register: {
             subject,
             as_type: "Subscribable",
-            get: () =>
+            using: () =>
               query(q("?subject ?predicate ?object")).transform(
                 tx.map(results =>
                   // MUTATING!

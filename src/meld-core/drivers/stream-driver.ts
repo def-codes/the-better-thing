@@ -41,7 +41,7 @@ export default {
               // Here and below this seems it should be stream, but system doesn't
               // traverse subclasses when doing these lookups.
               as_type: "Subscribable",
-              get: () => rs.stream(source.valueOf()),
+              using: () => rs.stream(source.valueOf()),
               // DEBUG: uncomment to log stream values
               // .subscribe(rs.trace("DEBUG stream"))
             },
@@ -54,7 +54,7 @@ export default {
           register: {
             subject: timer,
             as_type: "Subscribable",
-            get: () => rs.fromInterval(ms.value),
+            using: () => rs.fromInterval(ms.value),
           },
         }),
       },
@@ -64,7 +64,7 @@ export default {
           register: {
             subject: timer,
             as_type: "Subscribable",
-            get: () => rs.fromRAF(),
+            using: () => rs.fromRAF(),
           },
         }),
       },

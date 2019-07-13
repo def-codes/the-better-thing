@@ -2,6 +2,7 @@
   "extends": "../tsconfig-composite",
   "references": [
     { "path": "../function-testing" },
+    { "path": "../rdf-data-model" },
     { "path": "../polymorphic-functions" },
     { "path": "../datafy-nav" }
   ]

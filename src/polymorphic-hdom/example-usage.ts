@@ -51,7 +51,9 @@ export const EXAMPLE_QUERIES: TraitQuery[] = [
     },
 
   subject =>
-    // how we get access to the store... another matter
+    // query can close over store at source... but userland?
+    // if things are automatically datafied, you avoid this problem
+    // because the value will already have type
     // let type be a trait id as well. makes matching easier
     [
       ...tx.map(
@@ -116,6 +118,9 @@ export const EXAMPLE_INTERPRETERS_0: DomTraitInterpreter[] = [
 
   // when rendering a property that is a literal
   // include its value as a data attribute
+
+  // This happens automatically via type rule
+  // ["div", { class: "Container nfo$Folder" }]
 
   // Collapsed
   // could include in the trait something about what to keep
