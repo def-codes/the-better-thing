@@ -1,3 +1,5 @@
+// Is “tell” replacing “trait”?
+//
 // examples of API usage
 // working out “real” cases
 import * as tx from "@thi.ng/transducers";
@@ -107,6 +109,35 @@ export const EXAMPLE_INTERPRETERS: Record<
     wrap: _ => ["div.halo", _, "a bunch of affordances for meta things"],
   }),
 };
+
+// How can you tell it's a DOMAIN?
+
+// How can you tell it's an `rdf:Term` look like?
+
+// How can you tell it's a NAVIGABLE SPACE?
+
+// What does an Indicator
+
+// How can you tell it's an Indicator?
+// deep. if you can tell anything, then it's indicated something
+// a tell is a kind of indicator
+
+// How can you tell it's an Affordance?
+// even better question.
+
+// A triple in a context is a claim.
+
+// How can you tell  it's Triple?
+
+// is a tell just a type?
+// thing has tell
+// thing => tr
+
+// How can you tell it's Quad?
+
+// How can you tell it's TripleStore?
+
+// How can you tell it's QuadStore?
 
 export const EXAMPLE_INTERPRETERS_0: DomTraitInterpreter[] = [
   // when rendering the label of a thing with test:passed = true

@@ -211,8 +211,11 @@ only one container.  So some of that complexity (the bubbling, the querying) is
 not needed for an immediate implementation.
 
 Another follow-on task from there is to accumulate a graph as you traverse.
-This of course will be you can also have a nav process read ahead, to show what
-paths you might go from wherever you are.
+This of course will be a good case for named graphs, since you don't want to
+claim the things you're traversing to be truths in your own context.
+
+You can also have a nav process read ahead, to show what paths you might go from
+wherever you are.
 
 Going to a term as it is used in your model, to the home vocabulary of that
 term, should feel like a big change.  In effect, the owner of that domain could
@@ -226,6 +229,8 @@ unanswered questions.
 
 For example, what happens when the user navigates?  How is the link associated
 with a key-value pair of a context collection, as is necessary for the protocol?
+
+
 
 Because a namespace can also be an object, you can represent another domain,
 i.e. have a singleton representation of "that domain" locally.
@@ -255,3 +260,29 @@ Triple
 Quad
 TripleStore
 QuadStore
+
+The render datafies, the user navs
+
+But happens when you nav?
+
+A term is put into a public dataflow.
+
+Anyone can listen to it.  For the moment.
+
+"tell" is a protocol
+
+It's a vast space, is the thing.  There are worlds.  We represent domains as
+things.  Domains are what they sound like.  Domains are expected to have a
+single representation per MELD instance.
+
+There is no meaning imputed to the proximity of domains' representations.  For
+example, when two domains appear to overlap, that does NOT imply that their
+concept spaces overlap.
+
+the  tell  & show protocols
+
+The "tell" protocol maps queries to traits.  Though that is just common graph
+transformation.
+
+I'll tell you what this is like.  It's just datafy nav.  Whatever you can make
+or find.
