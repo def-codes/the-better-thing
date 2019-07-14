@@ -12,7 +12,7 @@
     "test-format": "prettier --list-different 'src/**/*.{ts,json}'",
     "build": "tsc --build",
     "bundle": "rollup -c",
-    "watch": "./watch.sh",
+    "watch": "bash -c './watch.sh'",
     "start": "node server",
     "meld": "live-server --watch='index.*,node_modules/@def.codes/*.js'"
   },
