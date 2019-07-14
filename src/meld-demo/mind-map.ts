@@ -9,14 +9,223 @@ charge.theta(0.98),
 `;
 
 export const MIND_MAP = {
-  skos: "http://skos....",
   "@context": {
     rdf: "http://w3....rdf/syntax",
+    skos: "http://skos....",
     id: "{type: @id}", // redundant?
+    ex: "http://example.com",
     label: "rdf:label",
     comment: "skos:comment",
+    task: "ex:task",
+    seeAlso: "rdf:seeAlso",
   },
   "@graph": [
+    {
+      id: "bastille-day-punch-list",
+      label: "Bastille day punch list",
+    },
+    {
+      id: "ReificationPunchList",
+      comment: `Clearinghouse for items needing refication.  But see #ZeroEdits.  We need to
+meet existing resource descriptions where they are.  So this may be equivalent
+to a #DataficationSpree.`,
+    },
+    {
+      id: "Naming",
+      comment: [
+        `The other hard thing.`,
+        `but deeper, hashtag and at.  How should we leverage those sigils, and how does
+this relate to naming conventions?
+
+
+ (which effectively *is* true of
+URL's and email addresses).
+
+
+`,
+      ],
+    },
+    {
+      id: "isCaseSensitive",
+      subtitle: `in which I make arguments for and against case-sensitivity`,
+      comment: `All of the portable reference formats have been effectively case-insensitive.
+URL's, email addresses, and now hashtags and @'s.
+  
+? hashtags are case-insensitive? (or does the app normalize them)
+? at's are case-insensitive? (or does the app normalize them)
+
+Those pieces of text would be more difficult to use if you had to match the
+capitalization of each letter exactly.  Yet, as with phone numbers, we seldom
+type them directly.  Rather, we normally summon them from our history of prior
+activity, which remains a strong indicator of imminent interest.
+
+
+RDF terms are case-sensitive.  This is a feature of RDF.  It is a bug of
+programming-by-character sequence that we should consider this difference for
+even a moment, in favor of case-insensitivity.
+
+(case of hashtags and at's undetermined)
+
+
+`,
+      seeAlso:
+        "https://blog.apastyle.org/apastyle/2015/02/how-to-cite-a-hashtag-in-apa-style.html",
+    },
+    {
+      id: "DatafyJSONLD",
+      comment: ``,
+    },
+    {
+      id: "ReifyMindMap",
+      comment: `Really means support graph traversal of JSON-LD-like objects.  They are already
+datafied as such, but they cannot traverse “upward” without a graph context.
+This is the same point as about `,
+      status: "TODO",
+    },
+    {
+      id: "Programming",
+      comment: `You're already doing it.  Texting and emailing are nothing but processes of
+discrete symbolic operations.  To say nothing of other programming habits.`,
+    },
+    {
+      id: "MachineInterface",
+      comment: `Should precede the HumanInterface`,
+    },
+    {
+      id: "ZeroEdits",
+      comment: `
+Descriptions of/Datafied Things already exist in various forms (markdown, html,
+json-ld, javascript modules, triples, userland code, triples in javascript
+form, JSDoc comments, which include metadata and markdown).  Rather than
+reformulating those things, why not just datafy them?
+
+JSON-LD espouses the notion of “zero edits”, a design principle that favors what
+might also be called “hands free” protocols, in that a handshake with the
+extendee need not occur.
+
+A “zero-edits” approach to linked-datafication requires support for remote
+protocol extension.
+
+Host reflection makes both kinds of extension (hard or soft reference) possible.
+
+
+`,
+    },
+    {
+      id: "replace-mind-map-display-with-polymorphic-render",
+      label: "Replace mind map display with polymorphic render",
+      comment: `This does *not* require you to bring the JSON into a graph: you should be able
+to traverse it as-is.  Is that right?  Not so sure.  If you're given the whole
+thing, then you can use JSON-LD algorithm to make triples out of it.  But if you
+descend into it (as in a navigation context), won't you lose the context needed
+to follow node references?  What do you mean by “follow node references”?  If
+you emit links for terms, then *navigating* to those things happens out-of-band.
+But following them down for the sake of showing more details.`,
+      status: "IN-PROGRESS",
+      partOf: "bastille-day-punch-list",
+    },
+    {
+      id: "make-markdown-showable",
+      label: "make markdown showable",
+      comment: `Use the @thi.ng/hiccup-markdown`,
+      status: "TODO",
+      partOf: "bastille-day-punch-list",
+    },
+    {
+      id: "ReifyExpressions",
+      partOf: "reification-spree",
+    },
+    {
+      id: "Expression",
+      comment: `A structured form.`,
+    },
+    {
+      id: "reification",
+      label: "reification",
+      comment: `To “reify” is to “make real”.  To make a real computing envirionment, we must
+reify all the things.`,
+    },
+    {
+      id: "Hashtags",
+      comment: `Hashtags are a way of writing identifiers.
+
+In HTML, hashtags are used for local names.  \`#plan\` refers to the element in the 
+current document with \`"id"="plan"\`.
+
+Twitter notwithstanding, no W3 specification attributes global meaning to hashtags.
+
+
+## #Hashtag re #ZeroEdits
+
+It matters that people already use these conventions.
+
+
+
+## Sigils - punctuation syntax
+
+Aside from the fact that it's already in common usage, it's also arguably
+easier to hashtagize something than to .
+
+Because a sigil is more ergonomical to type than an enclosing
+symbol-pair.
+
+That said, it doesn't *need* to be syntically convenient as long as it's
+structurally clear.  We can't *type* our way out of this.
+
+Another conside
+
+In any event, we will use something more like \`hashtag(Alice)\` as a macro 
+command because it doesn't require special knowledge of the symbol
+and is backward-compatible with with how people already pronounce those 
+expressions.
+
+
+## Impedance mismatch: RDF vs # and @
+
+In practice, many RDF vocabularies use hashtags to demark the local part of 
+individual terms.
+
+A resource name is a global identifier, but for convenience we can use the local
+part independently when in the context of that namespace.
+
+A contruct that you could call a “hashtag” is thus a shorthand for a 
+globally-unambiguous thing, and this connection is made by way of
+an officially-recommended syntax.
+
+Resources can be anything: a concept, a collection of things, a person.
+But people are distinguished as a class, and a second sigil is reserved 
+for their identifiers: \`@\`.
+
+
+
+`,
+    },
+    {
+      id: "Process",
+      comment: `What would Process protocol look like?  How can you *tell* it's a process?
+By sending it a message that only a process would understand.
+`,
+    },
+    {
+      id: "Actor",
+      comment: `Actor is a metaphor that's been used as a primitive for process modeling [Hewitt].`,
+    },
+    {
+      id: "Wiki",
+      comment: `Wiki has introduced some now-well-understood semantics into the mainstream
+conception of knowledge representation.
+
+Everybody gets a wiki.  MELD is a traveling wiki.  YOUR traveling wiki.  It's an
+immutable data structure.  It cannot destroy itself.  Only the user can destroy
+it.
+
+So yes, adopting the semantics of a wiki, would be well-suited to a default MELD
+interface, since the underlying data is a collection of interlinked articles.
+`,
+    },
+    {
+      status: "TODO",
+    },
     {
       id: "navigation",
       "@type": "topic",
@@ -821,7 +1030,31 @@ t2 . startsFrom .x
 
 `,
     },
+    {
+      id: "Compositionality",
+      comment: `A word that Stu Halloway said publicly.`,
+    },
+    {
+      id: `OpenWorld`,
+      seeAlso: "Compositionality",
+      comment: `Compositional algebras avoid inherent conflict.
 
+For example, \`comment\` is more #compositional than \`description\`.
+
+I still have the habit of reaching for \`description\` as the property where I define a thing in words.
+
+But RDF convention favors \`rdf:comment\` even for what you may consider
+“definitive” statements.
+
+We interpret “comment” as having a point of view.
+
+“Description” implies a single, canonical writ.
+
+Blessings do cost.
+
+Preferring “comment” over “description” is an example of open-world design.
+`,
+    },
     {
       id: "blank-nodes",
       label: "blank nodes",
@@ -1524,13 +1757,13 @@ range(20, 25)
     },
     {
       id: "create-dynamic-polymorphic-render",
-      status: "IN-PROGRESS",
+      status: "TODO",
       label: "Create a dynamic, (single-dispatch) polymorphic render apparatus",
       supports: "dynamic-polymorphic-render",
     },
     {
       id: "create-dynamic-polymorphic-render-driver",
-      status: "NEXT",
+      status: "TODO",
       label: "Create driver for dynamic polymorphic render",
       supports: "dynamic-polymorphic-render",
     },
