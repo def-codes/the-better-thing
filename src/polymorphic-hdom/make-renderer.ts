@@ -21,7 +21,7 @@ const truthy = tx.filter(is_truthy);
 const assertions_from = (
   thing: any,
   traits: Trait[],
-  interpreters: Record<string, DomTraitInterpreter[]>
+  interpreters: Record<string, DomTraitInterpreter | DomTraitInterpreter[]>
 ): DomAssertion[] => [
   ...tx.iterator(
     tx.comp(
@@ -80,7 +80,7 @@ const compute_all_traits = (
 /** Create an HDOM render function using the given rules and interpreters. */
 export function make_renderer(
   queries: TraitQuery[],
-  interpreters: Record<string, DomTraitInterpreter[]>
+  interpreters: Record<string, DomTraitInterpreter | DomTraitInterpreter[]>
 ) {
   // TODO:push context during navigation, so you need to trap it.  Also pass it
   // to fn's
