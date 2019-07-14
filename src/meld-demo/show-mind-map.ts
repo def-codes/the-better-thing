@@ -9,37 +9,42 @@ interface MindMapNode {
 const render_mind_map = (_, items: Iterable<MindMapNode>) => [
   "ul",
   tx.map(
-    item => [
-      "li",
-      [
-        "a",
-        {
-          id: item.id,
-          href: item.userland_code ? `/model.html?${item.id}` : `#${item.id}`,
-        },
-        item.label,
-      ],
-      [
-        "ul",
-        tx.map(
-          ([key, value]) =>
-            ["label", "id"].includes(key)
-              ? null
-              : [
-                  "li",
-                  ["span", key],
-                  " ",
-                  [
-                    "b",
-                    Array.isArray(value)
-                      ? ["ul", tx.map(v => ["li", v], value)]
-                      : value,
-                  ],
-                ],
-          Object.entries(item)
-        ),
-      ],
-    ],
+    item =>
+      !item
+        ? null
+        : [
+            "li",
+            [
+              "a",
+              {
+                id: item.id,
+                href: item.userland_code
+                  ? `/model.html?${item.id}`
+                  : `#${item.id}`,
+              },
+              item.label,
+            ],
+            [
+              "ul",
+              tx.map(
+                ([key, value]) =>
+                  ["label", "id"].includes(key)
+                    ? null
+                    : [
+                        "li",
+                        ["span", key],
+                        " ",
+                        [
+                          "b",
+                          Array.isArray(value)
+                            ? ["ul", tx.map(v => ["li", v], value)]
+                            : value,
+                        ],
+                      ],
+                Object.entries(item)
+              ),
+            ],
+          ],
     items
   ),
 ];
