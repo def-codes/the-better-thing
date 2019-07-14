@@ -14,6 +14,7 @@ export default {
             subject,
             as_type: "Navigable",
             using: () =>
+              // No, actually, this should be done by host and sent in.
               rs.fromEvent(window, "onhashchange").transform(tx.map(datafy)),
             // This should be applied unconditionally, and not here.  To make
             // this work with multiple contexts, you need a way to identify the

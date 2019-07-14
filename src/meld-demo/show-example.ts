@@ -140,6 +140,9 @@ export function show_example(model_id) {
     )
   );
 
+  // DATAFY EVENT!
+  ports.add_input("visits", rs.fromEvent(window, "onhashchange"));
+
   facts
     .transform(
       // HACK: see
