@@ -5,7 +5,10 @@
 type Falsy = false | null | undefined;
 
 // not to be confused with canvas RenderingContext...
-export interface RenderContext extends ReadonlyArray<any> {}
+export interface RenderContext extends ReadonlyArray<any> {
+  // It's a component... a macroexpandable term.
+  show: unknown;
+}
 
 /** A possibly-parameterized descriptor of an abstract quality of a thing. */
 export interface Trait {
@@ -26,7 +29,7 @@ export interface TraitQuery {
 
 export interface LiteralTemplate extends Array<any> {}
 export interface TemplateFunction {
-  (value: any): Template;
+  (value: any, context: RenderContext): Template;
 }
 
 export type Template = LiteralTemplate | TemplateFunction;

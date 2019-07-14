@@ -37,32 +37,34 @@ const assertions_from = (
 ];
 
 const template_from = (assertions: DomAssertion[]) => {
-  let template: LiteralTemplate = [];
-  const classes = new Set<string>();
-  for (const assertion of assertions) {
-    // destructively apply assertion
-    switch (assertion.type) {
-      case "contains":
-        template.push(assertion.content);
-        break;
-      case "has-class":
-        classes.add(assertion.class);
-        break;
-      case "is-wrapped-by":
-        template = assertion.wrap(template);
-        break;
-      case "has-content-before":
-      case "has-content-after":
-        throw "Not supported";
-      default:
-      // do assert_unreachable
-      // return ((type: never) => {
-      //   throw `Unknown assertion ${type}`;
-      // })(assertion.type);
+  return (_context, subject) => {
+    let template: LiteralTemplate = [];
+    const classes = new Set<string>();
+    for (const assertion of assertions) {
+      // destructively apply assertion
+      switch (assertion.type) {
+        case "contains":
+          template.push([assertion.content, subject]);
+          break;
+        case "has-class":
+          classes.add(assertion.class);
+          break;
+        case "is-wrapped-by":
+          template = assertion.wrap(template);
+          break;
+        case "has-content-before":
+        case "has-content-after":
+          throw "Not supported";
+        default:
+        // do assert_unreachable
+        // return ((type: never) => {
+        //   throw `Unknown assertion ${type}`;
+        // })(assertion.type);
+      }
     }
-  }
-  // TODO: what element to use tho
-  return ["div", { class: [...classes].join(" ") }, template];
+    // TODO: what element to use tho
+    return ["div", { class: [...classes].join(" ") }, template];
+  };
 };
 
 /** Return the traits imputed to a thing by a set of rules. */
@@ -86,15 +88,13 @@ export function make_renderer(
   // to fn's
   const context = [];
 
-  return ({ render }, thing) => {
-    // ^ but that's this?!
-
+  return function show(_context, thing: unknown) {
     // should have a new context here...
     // what is the context for?
     // key path that's been traversed...
 
     const traits = compute_all_traits(queries, context, thing);
     const dom_assertions = assertions_from(thing, traits, interpreters);
-    return template_from(dom_assertions);
+    return [template_from(dom_assertions), thing];
   };
 }
