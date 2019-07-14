@@ -22,9 +22,6 @@ in the graph/model.
 What user agents do when the anchor link does not exist, is undefined as far as
 I know.  It seems to me that navigating should visibly create another context.
 
-A value is of no consequence.  Because there would be no representative of that
-resource to bear its id.
-
 Once we know that a `Carol` exists, we can make statements about whoever `Carol`
 may be, with no ambiguity about whom we mean.
 
@@ -45,11 +42,10 @@ But regardless of the term, note the difference with calling them "Truths."
 “Assertions” beg for a challenge, and “propositions” are dubious beasts.
 
 "Facts" approaches the presumption of authority, although I think it's fair to
-say that "facts" are officially undecidable by default.
+say that "facts" are now officially undecidable by default.
 
-Isn't that what our scare quotes mean?
-
-Anyway, I tend to use the word "claims" for this class of things.
+Anyway, I tend to use the word "claims" for this class of things.  It's almost a
+short as “facts” and conveys the propositional nature without scare quotes.
 
 ## Values
 
@@ -59,7 +55,25 @@ I would say that values have “no strings attached,” but I would rather make 
 positive assertion, as I don't believe that the value of values depends on
 negation.
 
+I would say that a value is "of no consequence", since they do not themselves
+trigger any kind of dispatch (indeed, they have no strings attached).
+
 Representations of values can be navigable, by containing links to other things.
+Values can thus serve indirectly as (the locus of) inflection points in a
+sequence (of navigation).
+
+## Identifiable - Identity
+
+Resources are Identifiable.  Indeed, we cannot talk about a resource without
+first identifying it.
+
+Values are not Identifiable, though they are Comparable.
+
+Identify is seen as in Clojure: a succession of immutable states over time.
+
+## Comparison
+
+All comparison is value-based comparison.
 
 ## Claims and values are mutually recursive
 
@@ -70,7 +84,7 @@ Claims can include values, and values can refer to claims.
 The difference between “claims” and “values” is that truth cannot be imputed to
 values *per se*, i.e. they have no truth value.
 
-## Claim extends value with predicate?
+## Claims extend values with predicates
 
 Interpreters must recognize a value versus a claim.
 
@@ -79,14 +93,30 @@ How can we *tell* it's a claim?
 Claims are also values, and they cannot change the semantics of what values say
 is true about their subjects.
 
-## Representations can linger long after the death of your main process
+## Representations can linger long after the death of its main process
+
+## Things-in-themslves - the inherent authority of supertypes
+
+Semantics-driven transformations made at higher abstration layers must not
+obscure the value-nature of the underlying supertypes.  How is that possible?
+By constraining the algebra of trait-exhibiting transforms to a set of
+conflict-free operations.  That is, a family of terms where contradiction is
+impossible to state.
 
 ## Domains as challenge arbiters (i.e. authorities)
 
-How much say?  How must of that territory can you claim?  Well, you must always
-be able to look at things at a lower level of abstraction.  In which case other
-domains may have stronger precedence.  There must be a way of weighting this,
-too.
+Instances almost always reside in a different domain than their types.
+
+How much of a thing's representation can the owner of those domains claim?
+
+You must always be able to look at things at a lower level of abstraction
+(preservation of semantics of supertypes).  In which case other domains may have
+stronger precedence.  There must be a way of weighting this, too.
+
+Yet, in *your* domains (including all local, ad hoc namespaces), you must have
+some precedence.
+
+Similarities to CSS (stylesheets < inline < user agent)
 
 ## Planar forcefield arbitration scheme
 
@@ -125,25 +155,6 @@ property, as the simulation can only have one ticker.  The simulation is
 stateful.
 
 We must interpret them as the properties of the bodies representing the things.
-
-## Things-in-themslves - the inherent authority of supertypes
-
-Semantics-driven transformations made at higher abstration layers must not
-obscure the value-nature of the underlying supertypes.  How is that possible?
-By constraining the algebra of trait-exhibiting transforms to a set of
-conflict-free operations.  That is, a family of terms where contradiction is
-impossible to state.
-
-## The impossibility of impossibility
-
-Now, this technique makes no guaranteed invariant.  Even in the absence of
-contradiction, we cannot for example, make a rule asserting that all things
-shall be visible.  We *can* say, "For all Things, that Thing has a
-Representation," and find words to express the proposal that the representation
-should be ever faithful.  But invisible in that claim would be its author's
-ignorance of the existence of a viewport, where duly-represented things can
-become occluded for reasons quite alien to the rule's upholders (including their
-representatives), which of force know nothing of their outer context.
 
 ## Representation over reference
 
@@ -260,6 +271,19 @@ The only precedence relationship is also a predicate
 - is it in your domain or not?
 - i.e. in what namespace are you claiming this?
 
+
+## The further impossibility of impossibility
+
+Even “conflict-free” composition does not create guaranteed invariants.
+
+Even in the absence of contradiction, we cannot for example, make a rule
+asserting that all things shall be visible.  We *can* say, "For all Things, that
+Thing has a Representation," and find words to express the proposal that the
+representation should be ever faithful.  But invisible in that claim would be
+its author's ignorance of the existence of a viewport, where duly-represented
+things can become occluded for reasons quite alien to the rule's upholders
+(including their representatives), which of force know nothing of their outer
+context.
 
 ## Polymorphism
 
