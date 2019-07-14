@@ -438,3 +438,129 @@ Content that already exists there,
 ## Domain to reify: simulation frames
 
 
+
+
+
+
+## Bootstrapping - discovery - claims - interpreters
+  
+  What do you need to bootstrap the system?
+  
+Claims.
+
+- The system won't do anything without claims.
+- The system is just a claim interpreter.
+- It's actor model.  Some actors are interpreters.
+  
+  How do the actors get there in the first place, though?
+By way of a description, which was given to an actor driver.
+
+And how did the actor driver get there in the first place?
+By way of a driver loader.
+
+And where did the driver loader come from?
+The driver loader is the system.  QED
+
+And who gave the actor driver the description?
+The claim store.
+
+And where did this claim come from?
+You would have to check its provenance.
+
+And what if it has no provenance?
+Then it is asserted by the model.
+
+And how did the model come into possession of the claim?
+The host fed the claim to the system.
+
+And where did the host get the claim?
+A graph was loaded during bootstrap.
+
+And where did the model come from?
+Whatever discovery determined.
+
+And how did discovery know where to look?
+Yes, that is the question now
+
+What was discovery looking for?
+Ingresses.
+
+## Initiative
+
+- Q: Why was discovery looking for something?
+- A: Discovery's job is to locate resources to engage with, assuming they may
+  have something to say.
+
+We begin in a nullary position with respect to action.
+
+We deploy interpreters to incoming signals.
+
+The interpreters may spur us to action.
+
+## Process vocabulary
+
+We can't do anything without processes.
+
+Yet we have no shared, formal vocabulary for describing processes.
+
+I don't want MELD to have a “built-in” process model.
+
+Yet I'm not opposed to a *de facto* (core?) abstraction and implementation.  I
+guess if it's recognized in core then it's “built-in”.
+
+What are the main existing process/coordination models?
+- CSP (blocking queue mechanism)
+- Actor (extend CSP to include consideration of message semantics??
+  Interceptors/event bus)
+- PetriNet (token-state transition model)
+- pi Calculus (?? model)
+- Linda tuplespaces
+- BIP ontology surveys some of these and others
+
+For a simple vocabulary that can describe useful processes (not dataflows,
+but as simple as `listensTo`), what terms would we need?
+
+We would need something like `respondsTo`.  But the range would not be about
+identifying the sender, it would be about describing the type of message to
+match and how to formulate the response.
+
+What can happen in the formulation of the response?  Nothing, the response must
+be a pure function.  It can at most return a description of something that
+should happen.
+
+Can we consider HDOM templates basically a macro-language for defining
+side-effects?  Or is it just a message type (hiccup/hdom)?  HDOM does
+specifically support interpretation of JSON-based Expressions.
+
+## Polymorphism - QUESTION about interpretation “as”
+
+About the “as” part of interpret expressions...  Is it atomic?  Is it part of an
+options map?  Can you specify/request interpretations it in a way that allows
+matching on broader context (not “as X”).
+
+Describe these contexts for me, and I'll answer that.
+
+## Interpretation as content-type negotiation - example - frame simulations
+
+We can interpret frame simulations as sequences, but a frame simulation is not a
+process.  It requires a process, to be iterated.  That is, we can interpret a
+frame simulation as a process *indirectly*, because of a polymorphism that
+resembles a content-type negotiation: we can accept a Process, and the server
+has an iterable and a thing for Processifying iterables.
+
+## Processifiable
+
+Revisiting this protocol in light of “everything is interpret-as”, or even more
+broadly.
+
+## Channels are Processifiable
+
+We say that a thing can be “interpreted as a Process” if some registered
+mechanism matches its description.
+
+We already have this for (pseudo-)RDF resources, by way of driver rules.
+
+So `DriverRule subclassOf Interpreter`?
+
+They must be considered Processes, because they are enqueued invocation targets.
+

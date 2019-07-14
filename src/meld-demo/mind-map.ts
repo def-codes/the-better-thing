@@ -81,6 +81,7 @@ even a moment, in favor of case-insensitivity.
 datafied as such, but they cannot traverse “upward” without a graph context.
 This is the same point as about `,
       status: "TODO",
+      partOf: "reification-spree",
     },
     {
       id: "Programming",
@@ -99,16 +100,17 @@ json-ld, javascript modules, triples, userland code, triples in javascript
 form, JSDoc comments, which include metadata and markdown).  Rather than
 reformulating those things, why not just datafy them?
 
+Then content-editable HTML is another way of writing linked data.  (Well, you
+need a way to hyperlink.  But one thing at a time.)
+
 JSON-LD espouses the notion of “zero edits”, a design principle that favors what
-might also be called “hands free” protocols, in that a handshake with the
+might also be called “hands free” protocols, where a direct handshake with the
 extendee need not occur.
 
 A “zero-edits” approach to linked-datafication requires support for remote
 protocol extension.
 
 Host reflection makes both kinds of extension (hard or soft reference) possible.
-
-
 `,
     },
     {
@@ -130,6 +132,14 @@ But following them down for the sake of showing more details.`,
       comment: `Use the @thi.ng/hiccup-markdown`,
       status: "TODO",
       partOf: "bastille-day-punch-list",
+    },
+    {
+      id: "ReifyDrivers",
+      partOf: "reification-spree",
+    },
+    {
+      id: "ReifyDriverRules",
+      partOf: "reification-spree",
     },
     {
       id: "ReifyExpressions",
@@ -200,6 +210,51 @@ for their identifiers: \`@\`.
 
 `,
     },
+    {
+      id: "Interpreter",
+      comment: `
+- Q: Where do interpreters come from?
+- A: Descriptions, reified by interpreter driver.
+
+- Q: Is an interpreter a process?
+- A: possibly
+
+- Q: Can an interpreter *not* be a process?
+- A: possibly... interpretation rules *may* be expressible as pure functions
+
+- Q: Is it necessary to distinguish interpreter as a process subclass?
+- A: not that I can see
+
+- Q: Do all process (coordination) models use some kind of message passing?
+- A: It seems to me
+
+- Q: Is datafy an interpretation?
+- A: No, datafy is a implicit prerequisite for interpretation.
+
+- Q: Does an interpreter live in the context of a single named graph?
+- A: for now, yes
+
+- Q: What is an interpreter interpreting?
+- A: A claim space.
+
+- Q: Can you not interpret a value space?
+- A: Not as such, though you can create claims that reference them.
+
+- Q: Isn't representation an interpretation of a value?
+- A: Not exactly.  A representation is an interpretation of claims about a value.
+
+- Q: Values are transparent.  How can claims about them be in dispute?
+- A: Are resources not transparent?
+
+
+
+`,
+    },
+    {
+      id: "Processify",
+      comment: "To interpret as a process",
+    },
+
     {
       id: "Process",
       comment: `What would Process protocol look like?  How can you *tell* it's a process?
@@ -1860,6 +1915,17 @@ range(20, 25)
         "Allow mapping function to be specified as a term whose value is a function, rather than a literal",
       comment: `I just created a special xform for my immediate purpose.  No polymorphism for now.`,
       status: "DONE",
+    },
+    {
+      id: "SeeLevel",
+      label: "see-level",
+      comment: `A name for the membrane that divides userspace from the invisible things.`,
+    },
+    {
+      id: "ProtocolPolymorphism",
+      comment: `To implement a protocol is to participate in polymorphism.  The mechanism
+for polymorphism will be first-class if necessary, and should afford the
+same power to all comers (from abover or below see level).`,
     },
     {
       id: "load-existing-tests",
