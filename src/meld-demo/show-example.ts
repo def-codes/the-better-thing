@@ -38,6 +38,7 @@ const render_example = example => [
 
 export function show_example(model_id) {
   if (!model_id) return;
+  // @ts-ignore
   const model_spec = MIND_MAP["@graph"].find(_ => _.id === model_id);
   if (!model_spec) {
     console.warn(`No such model: ${model_id}`);
@@ -48,6 +49,7 @@ export function show_example(model_id) {
 
   // Pull dom nodes from the rendered result.
   // The highest-level (probably empty) node available to the app.
+  // @ts-ignore
   const dom_root = document.getElementById(model_spec.id);
   const representation_container = dom_root.querySelector(
     "[data-model-representation]"
@@ -127,6 +129,7 @@ export function show_example(model_id) {
   // outside the scope of the model as such
 
   const { interpret, facts } = monotonic_world({
+    // @ts-ignore
     id: model_spec.id,
     dom_root: representation_container,
     ports,
@@ -192,5 +195,6 @@ export function show_example(model_id) {
     .subscribe(catchall("userland-code-processor"));
 
   // Send initial USERLAND CODE now
+  // @ts-ignore
   if (model_spec.userland_code) sink(model_spec.userland_code);
 }

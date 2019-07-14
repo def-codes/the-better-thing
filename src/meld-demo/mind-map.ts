@@ -20,6 +20,7 @@ export const MIND_MAP = {
     seeAlso: "rdf:seeAlso",
   },
   "@graph": [
+    "I'm just a string",
     {
       id: "bastille-day-punch-list",
       label: "Bastille day punch list",

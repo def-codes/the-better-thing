@@ -10,11 +10,15 @@
     "clean": "rm -rf build/ node_modules/@def.codes/",
     "format": "prettier --write 'src/**/*.{ts,json}'",
     "test-format": "prettier --list-different 'src/**/*.{ts,json}'",
-    "build": "tsc --build",
+    "build": "npm run build:script && npm run build:style",
+    "build:script": "tsc --build",
+    "prebuild:style": "bash -c \"mkdir -p build/style\"",
+    "xbuild:style": "stylus --out build/style style",
+    "build:style": "stylus --out build/style style",
     "bundle": "rollup -c",
     "watch": "bash -c './watch.sh'",
     "start": "node server",
-    "meld": "live-server --watch='index.*,node_modules/@def.codes/*.js'"
+    "meld": "live-server --watch=\"*.html,build/style,node_modules/@def.codes\""
   },
   "repository": {
     "type": "git",
@@ -42,9 +46,9 @@
   },
   "devDependencies": {
     "live-server": "1.2.1",
-    "parcel-bundler": "1.12.3",
     "prettier": "1.18.2",
     "rollup": "1.16.3",
+    "stylus": "0.54.5",
     "typescript": "3.5.2"
   },
   "prettier": {

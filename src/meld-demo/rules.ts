@@ -10,16 +10,25 @@ interface RuleSet {
 
 export const RULES: RuleSet = {
   queries: [
+    // This is an implicit type, being OWL's uberclass.
     () => ({ id: "Thing" }),
     // Except that we don't want to do this sort of thing, we want to go by
     // datafiable, namespaced keys.
-    value =>
-      value &&
-      typeof value[Symbol.iterator] === "function" && { id: "Iterable" },
+    thing =>
+      thing &&
+      // Special exception for string to avoid infinite recursion... :/
+      typeof thing !== "string" &&
+      typeof thing[Symbol.iterator] === "function" && { id: "Iterable" },
+    // Again, we can extend prototypes to assign type
+    thing => thing && typeof thing === "string" && { id: "Quoted" },
   ],
   interpreters: {
+    Quoted: () => ({ type: "is-wrapped-by", wrap: _ => ["q", _] }),
+
     Thing: () => [
-      { type: "is-wrapped-by", wrap: _ => ["div", {}, "Hey I'm a thing", _] },
+      // Would normally be implicit by having type map to class.  But for thing,
+      // maybe won't reify each case.
+      { type: "has-class", class: "Thing" },
     ],
     Iterable: () => [
       {
@@ -27,16 +36,10 @@ export const RULES: RuleSet = {
         content: ({ show }, thing) => [
           "p",
           "I'm an iterable",
-          "I mean just look at my things:",
-          // " typeof show ",
-          // typeof show,
-          // " typeof thing ",
-          // typeof thing,
-          // " Array.isArray(thing) ",
-          // Array.isArray(thing),
-          // " JSON.stringify(thing) ",
-          // JSON.stringify(thing),
-          tx.map(item => [show, item], thing),
+          ["p", "I contain these parts:"],
+          // The context here is as a contained item.  It is not the preferred
+          // place to fully show a resource.
+          ["ul", {}, tx.map(item => ["li", [show, item]], thing)],
         ],
       },
     ],
