@@ -47,6 +47,7 @@ interface RuleSet {
 //
 export const RULES: RuleSet = {
   queries: [
+    thing => thing && typeof thing === "object" && { id: "Dictionary" },
     // This is an implicit type, being OWL's uberclass.
     () => ({ id: "Thing" }),
     // Except that we don't want to do this sort of thing, we want to go by
@@ -64,15 +65,34 @@ export const RULES: RuleSet = {
   // navigation/operation (like keys/values/entries), that can be afforded as data.
   // Representations of those subpaths are bound to their contexts.
 
+  // This depends on a proxy being used for the context.
   interpreters: {
+    Dictionary: [
+      () => [
+        {
+          type: "contains",
+          content: () => ({ Entries }, dict) => [
+            "div.Entries",
+            {},
+            [Entries, dict],
+            JSON.stringify(dict),
+          ],
+        },
+      ],
+    ],
+
     // All types translate to class. Should be issued once for each type
     "rdf:type": [({ type }) => [{ type: "has-class", class: type }]],
 
-    // HERE we really want to say that there is a term (an element) which can
-    // itself fulfill that.  But what if another element preferred another
-    // element?  Can we just special case it?  According to some special
-    // classification of HTML elements as being more or less specific?  That I
-    // would have to make up.  A simple rubric would resolve most cases.
+    // HERE we really want to say that there is a term (a bottom element) which
+    // can itself fulfill that.
+    //
+    // But what if another rule preferred another element?  Can we just special
+    // case it?  According to some special classification of HTML elements as
+    // being more or less specific?  That I would have to make up.  A simple
+    // rubric would resolve most cases (e.g. div and span are 0 points,
+    // everything else is 1 and up).  (For svg, `g` is the zero-point
+    // container.)
     Quoted: () => ({ type: "is-wrapped-by", wrap: _ => ["q", _] }),
 
     // -- What if I just want to see what keys are in the bags?
@@ -170,29 +190,17 @@ export const RULES: RuleSet = {
           // So how do we say here
           //
           // JUST INDICATE TYPE
+          // And by type we mean
+          // What we represent here has nothing to do with something we know right now.
           ["ul", {}, tx.map(item => ["li", [show, item]], thing)],
         ],
       },
       {
         type: "contains",
         content: ({ show }, thing) => [
-          "p",
-          "I'm an iterable",
+          "div",
+          "I'm also an iterable",
           ["p", "I contain these parts:"],
-          // The context here is as a contained item.  It is not the preferred
-          // place to fully show a resource.  The “charter” afforded here by the
-          // caller is expected to be a diminishing resource, or else the
-          // descent would never terminate.
-          //
-          // So how do we say here
-          //
-          // JUST INDICATE TYPE
-          // And by type we mean
-          // What we represent here has nothing to do with something we know right now.
-          //
-          //
-          //
-          ["ul", {}, tx.map(item => ["li", [show, item]], thing)],
         ],
       },
     ],

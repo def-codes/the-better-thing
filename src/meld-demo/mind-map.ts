@@ -20,7 +20,7 @@ export const MIND_MAP = {
     seeAlso: "rdf:seeAlso",
   },
   "@graph": [
-    "I'm just a string",
+    // "I'm just a string",
     {
       id: "IAmA",
       comment: `Regarding the “I am a” idiom that it's tempting to use when making
@@ -72,8 +72,12 @@ URL's, email addresses, and now hashtags and @'s.
 Those pieces of text would be more difficult to use if you had to match the
 capitalization of each letter exactly.  Yet, as with phone numbers, we seldom
 type them directly.  Rather, we normally summon them from our history of prior
-activity, which remains a strong indicator of imminent interest.
+activity (which remains a strong indicator of imminent interest), and these
+repositories have preserved the spelling of such terms as first provided (and
+possibly verified).
 
+“Case-sensitive” means that lookups and other associations will fail if they
+diverge from the canon even so far as the miscapitalization of a Zed.
 
 RDF terms are case-sensitive.  This is a feature of RDF.  It is a bug of
 programming-by-character sequence that we should consider this difference for
