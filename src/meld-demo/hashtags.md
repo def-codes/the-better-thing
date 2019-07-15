@@ -564,3 +564,25 @@ So `DriverRule subclassOf Interpreter`?
 
 They must be considered Processes, because they are enqueued invocation targets.
 
+
+
+## Context access
+
+The intent is that protocols (in a blessed or otherwise default namespace) can
+be referenced by presumption of a term in a callback context.
+
+```
+({show, Keys}, subject) => [show, Keys(subject)]
+```
+
+We are interpreting the term as a protocol.
+
+Undefined terms are largely ignored.
+
+Determine whether the target implements the protocol.
+
+If not, do nothing.
+
+If so, dereference the protocol from the global registry using the
+now-available local name.
+

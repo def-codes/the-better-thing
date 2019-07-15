@@ -5,6 +5,7 @@ import {
   TraitQuery,
   LiteralTemplate,
 } from "./api";
+import { datafy } from "@def.codes/datafy-nav";
 import * as tx from "@thi.ng/transducers";
 
 /*
@@ -93,7 +94,8 @@ export function make_renderer(
     // what is the context for?
     // key path that's been traversed...
 
-    const traits = compute_all_traits(queries, context, thing);
+    const datafied = datafy(thing);
+    const traits = compute_all_traits(queries, context, datafied);
     const dom_assertions = assertions_from(thing, traits, interpreters);
     return [template_from(dom_assertions), thing];
   };
