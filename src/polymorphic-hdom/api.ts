@@ -36,20 +36,25 @@ export type Template = LiteralTemplate | TemplateFunction;
 
 // Mostly general to templates.  Certainly for HTML & SVG, but, except for
 // “has-class” could apply to any hdom implementation.
-interface DomAssert<T extends string> {
+export interface DomAssert<T extends string> {
   type: T;
 }
 
 // For DOM elements only (not HDOM components)
-interface AssertHasClass extends DomAssert<"has-class"> {
+export interface AssertHasClass extends DomAssert<"has-class"> {
   class: string;
 }
 
-interface AssertContains extends DomAssert<"contains"> {
+// For DOM elements only (not HDOM components)
+export interface AssertHasElement extends DomAssert<"has-element"> {
+  tag: string;
+}
+
+export interface AssertContains extends DomAssert<"contains"> {
   content: Template;
 }
 
-interface AssertIsWrappedBy extends DomAssert<"is-wrapped-by"> {
+export interface AssertIsWrappedBy extends DomAssert<"is-wrapped-by"> {
   wrap: (template: Template) => LiteralTemplate;
 }
 
@@ -67,13 +72,20 @@ interface AssertHasContentAfter extends DomAssert<"has-content-after"> {
 
 export type DomAssertion =
   | AssertHasClass
+  | AssertHasElement
   | AssertContains
-  | AssertIsWrappedBy
-  | AssertHasContentBefore
-  | AssertHasContentAfter;
+  | AssertIsWrappedBy;
+//  | AssertHasContentBefore
+//  | AssertHasContentAfter;
+
+type DomInterpretation = DomAssertion | DomAssertion[] | Falsy;
+
+export interface DomTraitInterpreterFunction {
+  (trait: Trait): DomInterpretation;
+}
 
 // TODO: does this need to return/know what implementation (HTML/SVG)?
 // TODO: does this need to return/know what trait it interprets?
-export interface DomTraitInterpreter {
-  (trait: Trait): DomAssertion | DomAssertion[] | Falsy;
-}
+export type DomTraitInterpreter =
+  | DomInterpretation
+  | DomTraitInterpreterFunction;

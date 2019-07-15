@@ -39,7 +39,8 @@ const assertions_from = (
 
 const template_from = (assertions: DomAssertion[]) => {
   return (_context, subject) => {
-    let template: LiteralTemplate = [];
+    let tag: string,
+      template: LiteralTemplate = [];
     const classes = new Set<string>();
     for (const assertion of assertions) {
       // destructively apply assertion
@@ -47,15 +48,19 @@ const template_from = (assertions: DomAssertion[]) => {
         case "contains":
           template.push([assertion.content, subject]);
           break;
+        case "has-element":
+          if (tag === undefined) tag = assertion.tag;
+          else console.log(`Cohabitating definitions for`, tag);
+          break;
         case "has-class":
           classes.add(assertion.class);
           break;
         case "is-wrapped-by":
           template = assertion.wrap(template);
           break;
-        case "has-content-before":
-        case "has-content-after":
-          throw "Not supported";
+        // case "has-content-before":
+        // case "has-content-after":
+        //   throw "Not supported";
         default:
         // do assert_unreachable
         // return ((type: never) => {
@@ -63,8 +68,7 @@ const template_from = (assertions: DomAssertion[]) => {
         // })(assertion.type);
       }
     }
-    // TODO: what element to use tho
-    return ["div", { class: [...classes].join(" ") }, template];
+    return [tag || "div", { class: [...classes].join(" ") }, template];
   };
 };
 
@@ -81,22 +85,17 @@ const compute_all_traits = (
 ];
 
 /** Create an HDOM render function using the given rules and interpreters. */
-export function make_renderer(
+// Context is consistent throughout render
+export const make_renderer = (
   queries: TraitQuery[],
   interpreters: Record<string, DomTraitInterpreter | DomTraitInterpreter[]>
-) {
-  // TODO:push context during navigation, so you need to trap it.  Also pass it
-  // to fn's
-  const context = [];
-
-  return function show(_context, thing: unknown) {
-    // should have a new context here...
-    // what is the context for?
-    // key path that's been traversed...
-
-    const datafied = datafy(thing);
-    const traits = compute_all_traits(queries, context, datafied);
-    const dom_assertions = assertions_from(thing, traits, interpreters);
-    return [template_from(dom_assertions), thing];
-  };
-}
+) => (context, thing: unknown) => [
+  template_from(
+    assertions_from(
+      thing,
+      compute_all_traits(queries, context, datafy(thing)),
+      interpreters
+    )
+  ),
+  thing,
+];

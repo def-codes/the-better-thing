@@ -444,7 +444,7 @@ Content that already exists there,
 
 ## Bootstrapping - discovery - claims - interpreters
   
-  What do you need to bootstrap the system?
+What do you need to bootstrap the system?
   
 Claims.
 
@@ -452,38 +452,40 @@ Claims.
 - The system is just a claim interpreter.
 - It's actor model.  Some actors are interpreters.
   
-  How do the actors get there in the first place, though?
-By way of a description, which was given to an actor driver.
+- Q: How do the actors get there in the first place, though?
+- A: By way of a description, which was given to an actor driver.
 
-And how did the actor driver get there in the first place?
-By way of a driver loader.
+- Q: And how did the actor driver get there in the first place?
+- A: By way of a driver loader.
 
-And where did the driver loader come from?
-The driver loader is the system.  QED
+- Q: And where did the driver loader come from?
+- A: The driver loader is the system.  QED
 
-And who gave the actor driver the description?
-The claim store.
+### Another line of questioning
 
-And where did this claim come from?
-You would have to check its provenance.
+- Q: And who gave the actor driver the description?
+- A: The claim store.
 
-And what if it has no provenance?
-Then it is asserted by the model.
+- Q: And where did this claim come from?
+- A: You would have to check its provenance.
 
-And how did the model come into possession of the claim?
-The host fed the claim to the system.
+- Q: And what if it has no provenance?
+- A: Then it is asserted by the model.
 
-And where did the host get the claim?
-A graph was loaded during bootstrap.
+- Q: And how did the model come into possession of the claim?
+- A: The host fed the claim to the system.
 
-And where did the model come from?
-Whatever discovery determined.
+- Q: And where did the host get the claim?
+- A: A graph was loaded during bootstrap.
 
-And how did discovery know where to look?
-Yes, that is the question now
+- Q: And where did the model come from?
+- A: Whatever discovery determined.
 
-What was discovery looking for?
-Ingresses.
+- Q: And how did discovery know where to look?
+- A: Yes, that is the question now
+
+- Q: What was discovery looking for?
+- A: Ingresses.
 
 ## Initiative
 
@@ -586,3 +588,59 @@ If not, do nothing.
 If so, dereference the protocol from the global registry using the
 now-available local name.
 
+
+
+## Render is still a synchronous, terminating function
+
+In contained contexts, for example, we may show a lower-fidelity view of a
+resource than we ourselves enjoyed.  The “charter” afforded here by the caller
+to its child is expected to be a diminishing resource, or else the descent would
+never terminate.
+
+## Bottom-out operation
+
+We need to bottom out on an element, and yes, there may be conflicts.
+
+Multiple assertions of the same value do not conflict.
+
+Handling of unequal values is necessarily domain-specific.
+
+For HTML, we could classify elements as being more or less specific.  (**making
+stuff up**).  A simple rubric would resolve most cases (e.g. `div` and `span`
+are 0 points, everything else is 1 and up).  (For svg, `g` is the zero-point
+container.)
+
+## Viewpoints
+
+- subject viewpoint :: subject + predicateList/JSON-LD object/Describe/Dispatch
+- community viewpoint :: N-Triples/JSON-LD @graph/Construct/Announce
+
+## We are processing claims. All day.
+
+Basics:
+
+We identify something called *models*.
+
+A Model is syntactically expressed as an RDF triple store.
+
+A Model is a community of claims, made in unison.
+
+New claims enter the community generally unbidden.
+
+But we accept them all as true.
+
+## *De facto* protocols
+
+- Keys
+- Values
+- Entries
+
+Mostly implemented already, but not QUITE uniformly.
+
+
+## Discoverability of protocol implementations
+
+- Are protocols reified?
+- Are implementations?
+- If not, how are they discovered?
+- We must determine how each item best fulfills each protocol
