@@ -22,6 +22,15 @@ export const MIND_MAP = {
   "@graph": [
     "I'm just a string",
     {
+      id: "IAmA",
+      comment: `Regarding the “I am a” idiom that it's tempting to use when making
+self-documenting representations,
+
+- How do you visually contextualize the ‘I’ reference?
+- How can you tell when something is a namespace?
+`,
+    },
+    {
       id: "bastille-day-punch-list",
       label: "Bastille day punch list",
     },
@@ -30,6 +39,11 @@ export const MIND_MAP = {
       comment: `Clearinghouse for items needing refication.  But see #ZeroEdits.  We need to
 meet existing resource descriptions where they are.  So this may be equivalent
 to a #DataficationSpree.`,
+    },
+    {
+      id: "Namespace",
+      comment: `It's tempting to take “namespace literally” and say that its representative
+should have space-like qualities.`,
     },
     {
       id: "Naming",
@@ -260,6 +274,10 @@ for their identifiers: \`@\`.
       id: "Process",
       comment: `What would Process protocol look like?  How can you *tell* it's a process?
 By sending it a message that only a process would understand.
+
+Many claims cannot be processed statically.
+
+Processes participate in the interpretation of claims.
 `,
     },
     {
@@ -269,14 +287,46 @@ By sending it a message that only a process would understand.
     {
       id: "Wiki",
       comment: `Wiki has introduced some now-well-understood semantics into the mainstream
-conception of knowledge representation.
+conception of knowledge representation:
+
+- linking to [things] with brackets (maybe people know this?)
+
+- having links to undefined terms return affordances with an embedded “create”
+  intent (“The article for ‘Boysenberry’ does not yet.  Describe ‘Boysenberry’”)
 
 Everybody gets a wiki.  MELD is a traveling wiki.  YOUR traveling wiki.  It's an
-immutable data structure.  It cannot destroy itself.  Only the user can destroy
-it.
+immutable data structure.  It cannot destroy itself.  It is destroyed only as the 
+user's files are destroyed.
 
 So yes, adopting the semantics of a wiki, would be well-suited to a default MELD
 interface, since the underlying data is a collection of interlinked articles.
+
+## Persistent documents leave a trail
+
+You are proud of your personal, public wiki.  You've probably left copies with other people.
+
+Those copies are beyond your control now.
+
+The story for you exerting leverage over distributed claims is that a conformant
+system will give deference to rules that are verified as coming from the
+relevant domain (as relates to the term being interpreted), whenever an 
+unavoidable, unmitigable conflict should arise in the course of
+
+*representing* X
+
+or more generally
+
+*interpreting X by application of any protocol*
+
+Yet, the copies that exist, exist, and may have been signed by you as authentic.
+
+Later statements have greater weight.
+
+We also prefer statements that note their provenance 
+as derivative of the earlier statement
+with a comment about the reason for the change
+
+
 `,
     },
     {
