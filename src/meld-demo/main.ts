@@ -6,11 +6,14 @@ import { MIND_MAP } from "./mind-map";
 import { RULES } from "./rules";
 import { make_renderer } from "@def.codes/polymorphic-hdom";
 
+// Cool, how do protocols get registered?
+const protocol_registry = {};
+
 const NO_OP = () => null;
 
 const fun_proxy = (target: object) => {
   const method = (...args) => {
-    console.log(`I was invoked with`, ...args);
+    // console.log(`I was invoked with`, ...args);
   };
   return new Proxy(method, {
     // Per below, we can think of this as a protocol implementation test
@@ -22,40 +25,35 @@ const fun_proxy = (target: object) => {
     get(target, protocol, receiver) {
       // Lower-level test - use instanceof (avail in proxy)?
       // using in (`has`) as proxy for procol implementation
+      //
+      // Regardless, it should return something late-binding.
+      // Doesn't have to be evaluated now.
       if (protocol in target) return Reflect.get(target, protocol, receiver);
 
-      // Unless I had a global protocol registry, I couldn't say from
-      // `protocol`whether or not it represented a protocol, or have a way to
-      // determine whether I implement it.
+      // If key is the local name of a registered protocol,
+      if (protocol in protocol_registry) {
+        console.log(`MATCH protocol`, protocol);
 
-      // How could you specify a fallback behavior here?
-      // console.log(`target does not implement protocol`, target, protocol);
+        // then invoke that protocol on this object
+        // if the target has no implementations, no-op
+        return (...args) => protocol_registry[protocol](target, ...args);
+      }
+
       return NO_OP;
-
-      // But that's not how it really works.
-      //
-      // First, our polymorphic dispatch doesn't actually tell you what it was
-      // triggered by, and doesn't require that protocol extenders advertise
-      // their extension of the protocol in a queryable way.
-      //
-      // Second, they don't know their names.
-
-      // return `and what if I knew how to interpret ‘${String(
-      //   protocol
-      // )}’, what could you do for me?`;
     },
   });
 };
 
 export function main() {
   register_console();
+  const ctx = fun_proxy(make_renderer(RULES.queries, RULES.interpreters));
+  // @ts-ignore
 
-  const show = make_renderer(RULES.queries, RULES.interpreters);
+  const { show } = ctx;
+  // @ts-ignore
+  protocol_registry.show = show;
 
-  hdom.renderOnce(() => [show, MIND_MAP["@graph"]], {
-    root: "mind-map",
-    ctx: fun_proxy({ show }),
-  });
+  hdom.renderOnce(() => [show, MIND_MAP["@graph"]], { root: "mind-map", ctx });
 
   // what's the (top-level) subject?
   // the system, or a model?

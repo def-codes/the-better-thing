@@ -98,7 +98,8 @@ export const make_renderer = (
   interpreters: Record<string, DomTraitInterpreter | DomTraitInterpreter[]>
 ) => (context, thing: unknown) => {
   const datafied = datafy(thing);
-  // console.log(`datafied`, datafied);
+  // @ts-ignore
+  console.orig.log(`datafied`, datafied);
 
   return [
     template_from(
