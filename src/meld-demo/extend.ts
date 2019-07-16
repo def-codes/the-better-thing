@@ -1,14 +1,12 @@
 import { datafy_protocol } from "@def.codes/datafy-nav";
 
-console.log(`line 3`);
-
 datafy_protocol.extend("@imaginary", imaginary => {
   console.log("My beloved", imaginary);
 });
 
-// Hypothetical -- reify primitives
+// Reify primitives
 
-const PRIM_CTX = {
+const PRIMITIVE = {
   "@context": {
     rdf: "http://rdf..syntax",
     xsd: "http://xml schema",
@@ -16,34 +14,13 @@ const PRIM_CTX = {
   },
 };
 
-// Hunch you'll want these back
-
-// datafy_protocol.extend(Boolean, thing => ({
-//   ...PRIM_CTX,
-//   "@type": "xsd:boolean",
-//   thing,
-// }));
-
-// datafy_protocol.extend(Number, thing => ({
-//   ...PRIM_CTX,
-//   "@type": "xsd:double",
-//   thing,
-// }));
-
-// datafy_protocol.extend(String, value => ({
-//   ...PRIM_CTX,
-//   "@type": "xsd:string",
-//   value,
-// }));
-
-// const prim = (P, t) =>
-// 	datafy_protocol.extend(P, value => ({ ...PRIM_CTX, "@type": t, value }));
-
-for (const [t, P] of Object.entries({
+for (const [type, Protocol] of Object.entries({
   "xsd:boolean": Boolean,
   "xsd:double": Number,
   "xsd:string": String,
 }))
-  datafy_protocol.extend(P, value => ({ ...PRIM_CTX, "@type": t, value }));
+  datafy_protocol.extend(Protocol, value =>
+    Object.create({ "@type": type, value }, PRIMITIVE)
+  );
 
 export const hello = "world";

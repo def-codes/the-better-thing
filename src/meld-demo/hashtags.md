@@ -644,3 +644,73 @@ Mostly implemented already, but not QUITE uniformly.
 - Are implementations?
 - If not, how are they discovered?
 - We must determine how each item best fulfills each protocol
+
+
+## Typify protocol
+
+Not exactly like classify, but to provide a prototype via instance.
+
+But in a concrete world, all instances are prototypes.
+
+There would be no need for such a protocol unless templates could speak for
+instances.  Then an instance may demand the right to more direct representation.
+
+## Fish browsing
+
+The element is a given.  That's how interpreters are cherry-picked.
+
+Does that mean that something doesn't get shown at all unless there's an element
+matching one of its effective types?
+
+Yes, but, all elemental things have elements.
+
+What would be the effects?
+
+The effect of saying that things would not have an overarching default element,
+and that unless the rules specified one (which they can't because they are
+conjunctive and mutually ignorant), would have the effect of driving things
+towards the physical types.  Towards claims that they have such and such traits.
+
+A *tell* is a trustworthy claim that didn't need to be made.
+
+
+
+In a DOM environment, the elements are those of documents.
+
+Luckily, everything the system knows about has been turned into data
+(“datafied”).  And data has a few fundamental elements.  Fewer, indeed, than
+documents.
+
+As with browsers themselves, a MELD system can have its local preferences
+asserted in the usual way.
+
+But some semi-official defaults may exist in the form of built-in mappings.
+
+## But how do you start from element?
+
+first you don't want it
+now it's first-class, with children
+
+A poem about element.  I wanted to be agnostic about it because I didn't see a
+non-conflicting way of asserting it, such that we could replace the default
+behavior.
+
+But you must say, about what node are these assertions true?
+
+Most of them supposedly have semantics.
+
+Moreover, they mean things in the domain of documents and applications.
+
+Or let's say documents and spaces.
+
+So the natural pairing between HTML element names and semantics that map (more
+or less) to some term naming its Class.
+
+A class to which anything may belong.
+
+There is nothing stopping you from making any claim about this class, nor from
+asserting that any of “your” terms, terms from your domain, belong to that
+class, are instances of it, and even extend it.
+
+Keep that in mind when setting up terms for territorial fights over treatment of
+element.

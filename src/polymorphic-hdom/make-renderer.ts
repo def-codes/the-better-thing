@@ -39,14 +39,21 @@ const assertions_from = (
 
 const template_from = (assertions: DomAssertion[]) => {
   return (_context, subject) => {
+    const attributes = Object.create(null);
+    const classes = (attributes.classes = new Set<string>());
     let tag: string,
       template: LiteralTemplate = [];
-    const classes = new Set<string>();
+    // const classes = new Set<string>();
     for (const assertion of assertions) {
       // destructively apply assertion
       switch (assertion.type) {
         case "contains":
           template.push([assertion.content, subject]);
+          break;
+        case "attribute-includes":
+          attributes[assertion.key] = attributes[assertion.key]
+            ? assertion.value + " " + attributes[assertion.key]
+            : assertion.value;
           break;
         case "has-element":
           if (tag === undefined) tag = assertion.tag;
@@ -89,13 +96,18 @@ const compute_all_traits = (
 export const make_renderer = (
   queries: TraitQuery[],
   interpreters: Record<string, DomTraitInterpreter | DomTraitInterpreter[]>
-) => (context, thing: unknown) => [
-  template_from(
-    assertions_from(
-      thing,
-      compute_all_traits(queries, context, datafy(thing)),
-      interpreters
-    )
-  ),
-  thing,
-];
+) => (context, thing: unknown) => {
+  const datafied = datafy(thing);
+  // console.log(`datafied`, datafied);
+
+  return [
+    template_from(
+      assertions_from(
+        thing,
+        compute_all_traits(queries, context, datafied),
+        interpreters
+      )
+    ),
+    thing,
+  ];
+};

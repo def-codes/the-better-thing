@@ -41,6 +41,14 @@ export interface DomAssert<T extends string> {
 }
 
 // For DOM elements only (not HDOM components)
+export interface AssertAttributeIncludes
+  extends DomAssert<"attribute-includes"> {
+  key: string;
+  value: string;
+}
+
+// For DOM elements only (not HDOM components)
+// In effect a shorthand for attribute-includes key=class value=?
 export interface AssertHasClass extends DomAssert<"has-class"> {
   class: string;
 }
@@ -72,6 +80,7 @@ interface AssertHasContentAfter extends DomAssert<"has-content-after"> {
 
 export type DomAssertion =
   | AssertHasClass
+  | AssertAttributeIncludes
   | AssertHasElement
   | AssertContains
   | AssertIsWrappedBy;
