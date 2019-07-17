@@ -1,7 +1,5 @@
 import { register_console } from "./console-view";
 import * as hdom from "@thi.ng/hdom";
-// import { show_example } from "./show-example";
-// import { show_mind_map } from "./show-mind-map";
 import { MIND_MAP } from "./mind-map";
 import { RULES } from "./rules";
 import { make_renderer } from "@def.codes/polymorphic-hdom";
@@ -16,18 +14,22 @@ const fun_proxy = (target: object) => {
     // console.log(`I was invoked with`, ...args);
   };
   return new Proxy(method, {
+    apply(target, args) {
+      console.log(`APPLIED to args`, args);
+    },
     // Per below, we can think of this as a protocol implementation test
-    has: (target, key) => {
+    has: (target, protocol) => {
       return true;
+      //      return [target, "implements", protocol];
+      // Does target implement protocol?
     },
     // Fires when a callback tries to access a member of the provided context,
     // including destructuring.
+    //
+    // Should return something late-binding.  Doesn't have to be evaluated now.
     get(target, protocol, receiver) {
-      // Lower-level test - use instanceof (avail in proxy)?
-      // using in (`has`) as proxy for procol implementation
-      //
-      // Regardless, it should return something late-binding.
-      // Doesn't have to be evaluated now.
+      // If the object happens to have a member by this name already.
+      // This is for built-in's, currently just "show" (but this could be in any eval context)
       if (protocol in target) return Reflect.get(target, protocol, receiver);
 
       // If key is the local name of a registered protocol,
@@ -54,24 +56,6 @@ export function main() {
   protocol_registry.show = show;
 
   hdom.renderOnce(() => [show, MIND_MAP["@graph"]], { root: "mind-map", ctx });
-
-  // what's the (top-level) subject?
-  // the system, or a model?
-  //
-  // if the top-level topic is handled by giving it to the system
-  // then "system" as the top-level topic necessitates reflection
-  // meaning we must reify the System
-  //
-  // A reification spree
-  //
-  //
-  // Here, we interpret the window location
-  //
-  // We must reify Interpreter.
-  //
-  //     meld:Interpreter a owl:Class
-  //
-  //
 }
 
 main();

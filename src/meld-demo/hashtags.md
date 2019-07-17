@@ -93,7 +93,80 @@ How can we *tell* it's a claim?
 Claims are also values, and they cannot change the semantics of what values say
 is true about their subjects.
 
+## Claims and interpretation are symbiotic
+
+Anything (in MELD, anyway) can be represented as a value, including claims.
+
+Values as such are limited to value semantics.
+
+There is no sense in “interpreting” a value.  You can interpret a statement.
+
+MELD of course is based on statement-oriented interpretation.
+
+There is no such thing as a “command”.
+
+The implied imperative in MELD is to reify the assertions of the model.  “What
+would it look and sound like if these things were true?”
+
+It won't always be possible to simulate a model's assertions.
+
+But you can see what's in it, since it's a value.  You can see what things have
+implementations.  You *could* know which rules that they had come from, and in
+turn which named graph (when such are).
+
+What sort of statement would cause a one-time computation to occur?
+
+And when would such a thing be preferable to a reactive expression?
+
+And how would the computation get connected to a representation?
+
+And how would those things remain unaffected by later assertions?
+
+And how do you represent the expression?
+
+Do you give it a name?
+
+Still, what urges its evaluation?
+
+Clicks on links could reify their targets, as noted elsewhere.
+
+(With claims pre-made, though, or made parametrically?)
+
+Also give me one example of a computation like this that you'd want to see?
+
+Increment.  That's an easy one.  It's available wherever numbers are sold.
+
+There's all kinds of “things that you can do” with something, even with a value.
+Suggestions can pair the value with operations where it would fit.  A UI could
+preemptively make and show some of those results, if it could preview them
+putatively without claiming their existence.  That's what p-h does.
+
+How would you see that monotonically?  As if the suggestions on the result had
+produced links to content that you would compute dynamically.  That a link
+describing a function application affords you a way to reify it.
+
+It doesn't have to be a single computation.  It can be a multi-step process.
+It's just that the process can die.  For streams, that's being done.
+
+Note also.
+
+Elements contain attribute dictionaries.
+
+Could you match on attributes of elements?  Well, you can do that in CSS.
+
+But reifying attributes isn't our mission.  Attributes are invisible by design.
+And we have DOM inspector for that level.  Still, if you datafy the thing (the
+dom tree), you can see the attributes for what they are (a dictionary).
+
+
+
+
+
+
+
 ## Representations can linger long after the death of its main process
+
+See “processes die”
 
 ## Things-in-themslves - the inherent authority of supertypes
 
@@ -714,3 +787,523 @@ class, are instances of it, and even extend it.
 
 Keep that in mind when setting up terms for territorial fights over treatment of
 element.
+
+
+## bootstrap - chicken and egg
+
+- what's the (top-level) subject?
+- the system, or a model?
+
+- if the top-level topic is handled by giving it to the system
+- then "system" as the top-level topic necessitates reflection
+- meaning we must reify the System
+
+## how late binding
+
+If "templates" or let's say “s-expressions” get late-binding protocol references
+from the context
+
+(and when do they)
+(and what is their execution context)
+
+and claims define those protocols
+
+(because how else does something become true)
+(and the protocol extension is a composable claim)
+(so why wouldn't you want to reify it as knowledge)
+
+Anyway, don't these two things together (late-binding template expressions and
+implementations as part of a monotonic knowledge store) mean that all template
+evaluation is itself a stream, synchronizing the aggregated claims with what I
+can only assume is what we've been calling the recognized interpreters.  That
+is, the things we recognize as interpreters.  If all template evaluation must
+consider any change anywhere to be a possible upstream.  Execution context.  I'm
+dying to get a grasp of the execution context.
+
+And it seems to me that streams must be first-class in any definition of
+process.
+
+Describe a process without streams, by which I mean asynchronous streams.
+Perdurant stream.  Streams over time.
+
+The store does not reify time as such.
+
+Frequency
+
+Hertz
+
+Names reify Notions.
+
+Chapter II: Results
+
+Execution model seems to be the question.
+
+Evaluation model.
+
+Interpretation model.
+
+How do you understand what's taking place?
+
+And when, and why?
+
+Start with the unrolled sequence.
+
+The unrolled sequence is monotonic.
+
+The value proposition of diffing arises only when we've admitted a large share
+of redundant evaluations.
+
+## Small multiples
+
+Are more primitive.  Because we know that they are monotonic.
+
+Small multiples help reify Time.
+
+## immutable representations
+
+Immutable representations can also be useful.
+
+And immutable is how we should treat values.
+
+Maybe in a document context we can edit content, but those deltas are also
+(let's say) published as a stream.  The fact that the input could be fed by any
+iterable, and the fact that we don't have processes without them... then it's
+fair to say that asynchronous streams introduce asynchrony to a dataflow.  But
+the dataflow would have some way of being operated through no power of its own.
+
+I mean, the use of a process presumes a processor, and a processor must be a
+process.  They are perdurants.  They know the notion of time.  The
+non-determinism.  That they will interleave in some way, but that interleaving
+is not prescribed by the program, nor guaranteed by the interpreter.
+
+I want the appearance of these things to arise from their properties.  From an
+ascription of traits to those properties, by way of a claimed interpretation.
+
+## navigation as augmentation
+
+And those things must be navigable.
+
+To navigate, in a monotonically-increasing view of the dom (whether or not
+necessary)
+
+means only to append, to add, to augment.
+
+Why should you ever obliterate.
+
+But you reify these things as you explore them.
+
+Right?
+
+I mean, if navigation of the thing is monotonic
+- new things (and their representations)
+  do not clobber older ones
+- you accrete a representation of a larger thing
+  
+  
+I think my main objection to the idea of claiming datafied objects during
+navigation is the fact that I don't have namespaces.  You must be able to keep
+claims constructed in that way in a separable, “quoted” place, at least for the
+sake of its provenance.  Marking each triple claimed in that way would be too
+inconvenient.  But at the moment, let's say I have no objection to the rest of
+the model sharing a space with a remembrance of things navigated.
+
+Execution model.
+
+Monotonic
+
+.
+
+Stream
+
+Process
+
+Subscription
+
+Earlier I was getting at the idea that you could “deflate” a dataflow
+description by substituting its stream inputs with synchronous sources.
+
+This suggests that such a description is more like inert matter than it is like
+a process.
+
+So what combines with a dataflow description to make it not inert?  A stream.
+
+We still need drivers.
+
+But if there are streams, you should see them.
+
+I mean, yeah, like, render all the things.
+
+Like, make the rules of this render as particular as they need to be.
+
+But capture the things that are there.
+
+This is the discovery protocol.
+
+At least, “discovery” sounds like it should be a protocol, and I do think it
+precedes visibility.
+
+Is it an execution model?  An execution context?
+
+If it doesn't change the execution model, then it's an instance of whatever
+thing the model supports.
+
+From a userland point of view, I still just want to say truths.
+
+Monotonic rendering as more "productive".  It produces more.
+
+And what the transducer does.  Turning it into one.  That becomes a thing you
+look for.  It applies a reduction.
+
+Transducers can be classified wrt delta cardinality
+
+- N:1   o-o-o-[ ]-o
+- 1:1     o-o-[ ]-o-o
+- 1:N       o-[ ]-o-o-o
+- N:N     ?-?-[ ]-?-?
+
+I don't know mathematical names for these classes, but they can be understood
+intuitively as shortening, lengthening, length-perserving, and variable.
+
+HDOM transducer is a lengthening.
+
+What happens to one-time representations after they've been made?
+
+Well, we weren't making any one-time representations.
+
+So about this execution model.
+
+I'm not doing renderOnce as a thing.
+
+I could, but it would have to be in a different execution context.  Not in a
+dataflow.
+
+The idea is that it would produce something tangible.  So.  Let's say, you don't
+get to make claims exactly, but you can produce artifacts from an artifactory.
+And those things can be treated as resources.  I mean, actual DOM elements.
+Like, XML-serializable things.  They have a datatype.
+
+The idea I'm getting at there is to “mint” renderings and let them alone for
+life.  I've been assuming that representations need processes, but that's only
+because they represent possibly growing things.  But we have no similar way of
+dealing with inert matter.  You can emit dom nodes "for free".
+
+That is, let's consider it a separate question, as to whether or not
+representations require processes.  Let's just say that you still can't make
+claims from a dataflow.  BUT that "side effects" like creating dom elements from
+templates is okay.  You can also make them resources, tag them with provenance.
+
+I mean, how much rendering do you expect to do?  These things can be recognized
+as immutable (by way of necessary protocols), and in general leave it alone.  I
+don't see why it couldn't move around.  From one place to another in the
+document, from one container to another, I mean.  The claims don't try to
+account for the rest of the world.  They just describe the provenance of the
+little piece of currency.  It's a scrap.  It's a value.
+
+(*move around.  This could be the case for elements in space as well, if we
+allow statements about the things' positions.)
+
+Well sort of.  It's a runtime object.  The DOM has all sorts of strings attached
+that we do not want to tangle with.
+
+The system just stores a reference to the element, assigns it a blank node ID,
+and says a word about its type.
+
+^ That's a weak set right?
+
+So what kind of execution model would allow you to describe a way whereby a
+sequence (of links I hope!) creates a set of independent things.  At any rate,
+that is how we would show the growth in a sequence.  I guess what I'm getting at
+is that we need execution semantics for something that can
+- compute a tree once, *and be finished*
+- keep the tree out of the “reforesting” places
+- leave other trees computed thus alone
+- register the tree with the system as an exotic
+  - blank node with type DomElement
+  - has value of an HTML snapshot of the node at that time
+    - with XML datatype
+- not create a permanent ?
+- still support update-in-place transducer
+
+Remember, we can do datafy nav of the dom itself.  So we can use the dom itself
+to represent the dom itself.
+
+## small multiples 
+
+when you project a representation over a sequence
+what changes each time
+and why
+
+## some things that believe it or not I still want to be true
+
+Things should be represented just because.
+
+I need to make this kind of rule in userland.
+
+That makes the things feel real in your mind.
+
+That makes them *seem* to have the properties they have.
+
+That's opinionated.  What is essential.
+
+I know that I want to see what's there.
+
+But I know there's too much there to show.
+
+We begin with these rules.
+
+And we'll learn as we grow.
+
+A model is subjective.  A model has a point of view.
+
+A model consists of claims.
+
+A model is interpreted in context.
+
+Is a model a proces?
+Is a model an actor?
+Can a model take care of itself?
+Will it be too much hassle?
+
+An interpreter watches the claims being made in a knowledge base 
+and responds
+
+No.  “and” not allowed in job description.
+
+Interpretation entails
+- monitoring of the claims being made in a knowledge base
+- that is conversant with a set of subscribers
+- who want notification when their pattern has matched
+- although.  yeah, it's a callback any way you slice it.  dealing with that is
+  further down the line
+
+Interpretation entails
+- creating something
+- from something else
+- in a context
+
+I'm asking why polymorphic-hdom has this two-phase thing.
+
+Why couldn't the queries just yield the interpreted thing?
+
+Well, they are functions.
+
+The reason for the middle phase (let's call it the O(1) seam)
+
+The render function is recursive.  It needs a synchronous, subject-oriented
+dispatcher that can be given an arbitrary value (and automatically gets the same
+evaluation context (from which the recursive function came)).
+
+None of that means that global rules couldn't apply there.
+
+How much of this is driven by the idea that render is a hotspot?
+
+Also, about those standalone snippets.  They can be sources, right?
+
+And they don't need to be in the document.
+
+Even the use-once render function must (at least potentially) be recursive in
+that way.
+
+## purview is subjective
+
+Purview is subjective.  When traveling by datafy nav (as render should be
+doing), how could you take context into account, without shared query space?
+
+(And a shared form to query.  But that's more accidental.)
+
+Another way to ask this: Why should fewer facts be available during the
+representation of an invisible thing, than are available to an onlooker?
+
+ergo, prefer global dispatch.
+
+The second point, that we don't have a uniform query mechanism for values and
+for resources (claims).
+
+If we call render again, it *means* something.  It indicates that we're
+rendering a different value, this is a different thing.  The slideshow trick
+(`updateDOM`) is a way of representing a thing-in-time.
+
+## artifacts and facts
+
+Does all this impetus come from dataflow?  I mean, all these calls?
+
+It comes from interpretations.
+
+Interpreters are first-class in computing.
+
+Interpretations produce artifacts.
+
+Can interpretations produce facts?
+
+This is a difficult question.
+
+
+## one-time renders
+
+For an ephemeral render, it makes no difference whether the protocols whereby it
+took place are static or dynamic: it's not going to be rendered again.  Those
+ties are severed.
+
+Now, if you're not using hdom, where does this thing take place?
+
+You're using hdom for the computed templates.  But for a "monotonic"
+(non-replacing) system, the point is to avoid unnecessary diffing.  Can you do
+that and still use HDOM?  Well there are signals you can send.  For example, if
+a subtree has the attribute `__diff__:false` or something like that, we can
+leave it alone for effectively free.  But in that case, we're still... in a
+diffing cycle.  No, I really want like a new, not-spoken-for
+container-at-the-end.
+
+The rendering tool has been `updateDOM`, which is not well-suited to this.
+
+But the goal I've decided is to describe MELD's execution model.  I couldn't
+have a notion of processes without that.
+
+## inert things - embodiment - dom as “free” raw material
+
+I like the notion of "inert" things.  Now, you would need a process to “embody”
+them, even if their value isn't going to change.
+
+Hmm, perhaps.  But that doesn't need to exist all the time.  Only when the thing
+is being embodied.  We can consider existing dom elements to be “raw materials”.
+(Though even to behave like raw materials takes some work.)
+
+We could also assume that if some DOM weren't spoken for, or that say it didn't
+have some claims as to its content, then the user could update it in place or
+otherwise take the thing apart with no harm.  It would need to be embodied for
+that.
+
+## execution model
+
+The model is the unit of execution.
+
+It's not that we want the system to say, "you shall see all things"
+
+We want a system where we can say, "show me all the things"
+
+When do we want subjective dispatch?
+
+And how do we define the showing of a thing?
+
+And what do users need to know about the execution model?
+
+Is it a thing, and if so, how do we represent it?
+
+But really: how are interpretations brought into contact with claims?
+
+And is that just an instance of a more general (and not
+claim/knowledge-oriented) process model?
+
+When do we want to create a more contained context, where we can make claims
+that have more limited scope.
+
+Underneath, it's just streams.  Streams that feed handlers that return
+instructions that the system carries out.  One advantage of an interceptor bus
+is that, although you need a RAF or something to run it, you can also pull the
+plug at any time.
+
+But the system is not a process model we want to emulate for userland.  It's
+stateful and managing all kinds of references internally.
+
+A model can't quite animate itself.  It has to be brought into contact with some
+kind of mechanism just to accept its own claims.  And at that point we mean, the
+system implementing the model.
+
+But... a whole new system per model?
+
+The system is just a fancy triple store, but we also need a specially-designated
+global registry, right?  I mean, shouldn't the object registry be in one place?
+Maybe not.
+
+## closures have invisible, unretrievable context
+
+Callbacks (even those used by userland things such as rules) are always
+contextualized, and that context is not reified in Javascript.  We can't tell
+what, if anything, a function closed over, unless we made it from a description
+that could be used to reproduce the closed-over things.
+
+## drivers are interpreters?
+
+Drivers just recognize certain patterns in the claim store (though really they
+depend on the system for even that).  And then they take some action.
+
+Now, the presumption is that much of what we now do in drivers will be doable in
+userland.  The current way of registering drivers makes this coupling seem
+inherent.
+
+Interpreters bind descriptions with resources.  But individual bindings are not
+subjective.  They can register more than one subject-resource association, and
+they can also match on complex criteria where the subject is not central.
+Drivers really have no point of view.  I'm thinking drivers aren't really a
+thing.  Or that they're nothing more than driver callbacks, and only
+artificially belong to groups (until we have named graphs).
+
+## processes die
+
+Short-lived processes are a thing.  It's possible for you to have a process to
+represent something, and then it dies, and the fact is still represented by the
+associated resources.  New processes that are spawned are represented by new
+resources.  Processes can have state.
+
+This makes it seem possible to have another degree of "non-monotonic" dataflow
+represented by a monotonic description.
+
+One reason I am so squeamish about using the lifecycles of dataflow objects is
+that I can't see them.  So letting them be dead and gone only makes matters
+worse.
+
+### example of a short-lived process please
+
+You want to see some computation that was performed.  Yes, reifying computation
+itself.  That just because something was computed, that we have created
+something.  Several things, as we need to represent the input and the output and
+a description of the process they went through.
+
+How do we get these?  And how do we avoid getting them when we want to, you
+know, just do a computation?
+
+Well, is it a process when you make a computation?
+
+A single, synchronous, transactional thing, can be computed without spawning a
+new process.
+
+But what happens to it?  Is it just detritus?  A side effect?  Console log?
+Where does it go?
+
+And how do you make the decision to compute it in the first place?  And how do
+you keep them from cluttering up the world?  How do you know when you should be
+looking at it?
+
+### example of a short-lived process please
+
+
+
+
+## polymorphism
+
+of functions
+in the situation
+of reifying a thing
+
+Is there a difference between a function saying that it “knows how to reify”
+something of type X, and what we're saying now?  Yes, we don't assert that a
+rule either is or isn't about any certain subject or doing any certain thing.
+
+When we talk about protocols, then, we're talking about something different than
+interpretation.
+
+protocols !== interpretation
+
+Okay.  But how would we do something like protocol negotiation, where things are
+chained together based on available resources?  We kind of already do that in
+the form of queries.
+
+```js
+        when: q(
+          "?subject hasRoot ?container",
+          "?element implements ?container",
+          "?element as Container"
+        ),
+```
+
+The difference with content negotiation is that all matches apply.

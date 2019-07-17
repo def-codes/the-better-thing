@@ -7,7 +7,6 @@ import { IStream } from "@thi.ng/rstream";
 // =============== RDF helpers
 
 const AS = rdf.namedNode("as"); // for runtime only
-const VALUE = rdf.namedNode("value"); // s/b rdf:value
 const IMPLEMENTS = rdf.namedNode("implements"); // s/b meld:
 
 const mint_blank = () => rdf.blankNode();
@@ -91,8 +90,7 @@ const HANDLERS = {
   register_output_port({ name, subject, source }, system) {
     system.register_output_port(name, subject, source);
   },
-  // TODO: this key should be `using`.  change call sites
-  register({ subject, as_type, get: using }, system) {
+  register({ subject, as_type, using }, system) {
     system.register(subject, as_type, using);
   },
   warning({ message, context }) {
@@ -162,7 +160,7 @@ export const monotonic_system = ({ id, store, dom_root, ports }) => {
 
   const find = subject => registry.get(subject);
 
-  const register_object = (object, type: NamedNode) => {
+  const register_exotic = (object, type: NamedNode) => {
     const object_id = mint_blank();
     registry.set(object_id, object);
     store.add([object_id, AS, type]);
@@ -184,7 +182,7 @@ export const monotonic_system = ({ id, store, dom_root, ports }) => {
     store,
     find,
     register_input_port: (name: string, stream: IStream<any>) => {
-      const impl = register_object(stream, rdf.namedNode("Subscribable"));
+      const impl = register_exotic(stream, rdf.namedNode("Subscribable"));
       //  This is wack.  listensTo rule doesn't fire unless the source node
       //  IMPLEMENTS the resource associated with the dataflow node.  But in
       //  this case, they are the same thing.
@@ -220,7 +218,7 @@ export const monotonic_system = ({ id, store, dom_root, ports }) => {
           return;
         }
 
-        register_object(object, type);
+        register_exotic(object, type);
 
         // I won't judge you for using this.
         // if (type_name === "Subscribable") {
@@ -231,7 +229,7 @@ export const monotonic_system = ({ id, store, dom_root, ports }) => {
         //   );
         // }
         registry.set([subject, type], object);
-        const object_id = register_object(object, type);
+        const object_id = register_exotic(object, type);
         store.add([object_id, IMPLEMENTS, subject]);
       }
     },
