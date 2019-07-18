@@ -6,6 +6,7 @@
     <link href="/index.css" rel="stylesheet" />
     <link href="/console.css" rel="stylesheet" />
     <link href="/build/style/elements.css" rel="stylesheet" />
+    <link href="/build/style/classes.css" rel="stylesheet" />
     <!-- <link href="/build/style/layers.css" rel="stylesheet" /> -->
     <!-- <link href="/build/style/value-view.css" rel="stylesheet" /> -->
     <link href="/build/style/fonts.css" rel="stylesheet" />
@@ -30,21 +31,30 @@ label, .Label {
   </head>
   <body>
     <main>
+			<h1 class="Claim">
+				<b class="plain">(CLAIM)</b>
+				This is worth looking at
+			</h1>
 			<section class="examples">
-				<h1>(CLAIM) This is worth looking at</h1>
-				
 				<article>
-					<p>I am an article.  Also known as a thing.  The (HTML5) spec defines
-					`article` as basically “anything that could be synciated.”  (Here's
-					the <a
+					<h2>what's an article?</h2>
+					<p>At the risk of a circular definition, an article is any fabriated
+					thing.  The (HTML5) spec defines the `article` tag as being suitable
+					for basically “anything that could be syndicated.”  (Here's the <a
 					href="https://www.w3.org/TR/2011/WD-html5-20110525/sections.html#the-article-element">actual
-					definition</a>.) <a
-					href="https://www.etymonline.com/word/syndicate#etymonline_v_22533">Syndicate</a>.
-					To judge together.</p>
+					definition</a>.) Etymonline has “<a
+					href="https://www.etymonline.com/word/syndicate#etymonline_v_22533">syndicate</a>”
+					as, To judge together.</p>
+
+				</article>
+				<article>
+					<details>
+						<summary>I am an article.</summary>
 
 					<p>I am a <a href="#Number">Number</a>].</p>
 					<p><label>The number 5.</label></p>
-				</article>
+				</details>
+			</article>
 				<article>
 					<h2>darkening or lightening</h2>
 					<p>Things may contribute light or consume light.</p>
@@ -60,8 +70,9 @@ label, .Label {
 				<article>
 					<p>I am a [String].</p>
 					<p><label>The text: <q>Once upon a time</q></label></p>
-				</article>
-				<article>
+				</article> 
+				<!-- These are classes in addition to article. -->
+				<article class="Vector">
 					<p>I am a [Vector].</p>
 					<details>
 						<summary>I consist of these items:</summary>

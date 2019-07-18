@@ -221,3 +221,30 @@ I'd ____ for the river?
 Father if Jesus exists
 Then how come he never lives here?
 
+## Sections collapse to title
+
+It seems to me that some things could *always* be collapsible.  Like the content
+of a section, after we've seen the title of it.  We wouldn't write a special way
+just to support the later hiding of details.  We should be able to say, sections
+collapse to their title.
+
+### Or more generally, things collapse to label
+
+But then again, we could say that about anything that has a label.  But do we
+have to say it for each one all the time???  Or can we just say it for the ones
+where it's needed.  I.e. that's in the requisite *state*.
+
+These are userland rules, understand.
+
+Anyway, we're prepared to make every single thing collapsible.
+
+It's an indicator and an affordance.
+
+## what the world needs now
+
+Something to come in and fulfill these other expectations.
+
+Like, if you can move articles around, then you can move articles around.  But
+in a document context, we just don't have a cheap way to do that---I don't
+think.
+

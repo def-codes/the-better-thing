@@ -1,17 +1,23 @@
-*
-  transition 0.3s
-  --body-background blue
-  --main-background rgba(white)
+// Stylus <3 CSS variables.  Kind of.
 
-  --label-hue 0deg
-  --label-saturation 100%
-  --label-lumunosity 100%
-  // --label-alpha 1
-  --indicator-color #FAA
+// ========================= MIXINS
+
+Thing()
+  --type 'Thing'
+  // background-color s('hsla(var(--hue), var(--saturation), var(--luminosity), var(--alpha))')
+  &::before
+    content '(' var(--type) ') '
+
+Indicator
+  font-size 100%
+  // This will never show because below
+  --type 'Indicator'
 
 Affordance()
-  border 1px solid red
+  Indicator()
+  --type 'Affordance'
   cursor pointer
+  border 1em solid green
   // Was curious... no such thing in Gecko.
   // &:active
   //   background #F00
@@ -19,20 +25,67 @@ Affordance()
   &:hover
     background var(--indicator-color)
 
-// Links are the holiest thing.  Let's make them interesting.
+Navigable()
+  Affordance
+
+Paragraph()
+  --type '¶'
+
+Collection()
+  --type 'Collection'
+
+List
+  Collection
+  // Type won't be seen because requires subtype.  But still
+  --type 'List'
+
+OrderedList()
+  List
+  --type 'OrderedList'
+
+Vector()
+  OrderedList
+  --type 'Vector'
+
+UnorderedList()
+  Collection
+  --type 'UnorderedList'
+  border-bottom 1em solid orange
+
+// =====================  ELEMENTS: GENERAL
+
+// Global defaults
+*
+  Thing()
+  transition 0.3s
+  --body-background blue
+  // --main-background rgba(white)
+
+  --label-hue 0deg
+  --label-saturation 100%
+  --label-lumunosity 100%
+  // --label-alpha 1
+  --indicator-color #FAA
+
+// ================================ ELEMENTS: SPECIAL
+
+p
+  Paragraph()
+
+// Links are the holiest thing.
 a
-  Affordance()
-  display inline-block
-  background gray
-  padding 1em
-  border-radius 2em
+  Navigable()
 
 ul
+  UnorderedList()
+
 ol
-  display inline-block
+  OrderedList()
 
 // How can you tell it's space?
-body, .Space
+body
+.Space
+  Space()
   margin 4rem
   background var(--body-background)
 
@@ -45,22 +98,6 @@ main
   margin var(--main-margin)
   background var(--main-background)
 
-*
-  --article-margin 4em
-
-// unit of portability
-// unit of context
-// unit of provenance
-//
-// It may be all those things, but does it afford moving?
-// Does it afford etc?
-article
-  // border 2em solid rgba(black, 0.2)
-  margin var(--article-margin)
-  background rgba(black, 0.1)
-  box-shadow 0 0 2em -0.5em
-  margin 1em
-
 // STATEFUL : might be in collapsed state
 details
   border 1em solid rgba(red, 0.1)
@@ -71,6 +108,23 @@ summary
   Affordance()
 
 aside
-  background yellow //  rgba(yellow, 1)
+  border 1em solid yellow
   float right
   // width 50%
+
+// unit of portability
+// unit of context
+// unit of provenance
+//
+// It may be all those things, but does it afford moving?
+// Does it afford etc?
+article
+  --article-margin 4em
+  // border 2em solid rgba(black, 0.2)
+  margin var(--article-margin)
+  background rgba(black, 0.1)
+  box-shadow 0 0 2em -0.5em
+  margin 1em
+
+section
+  margin-top 1em

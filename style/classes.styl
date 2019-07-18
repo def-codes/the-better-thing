@@ -1,0 +1,19 @@
+*
+  --context-recursion 90%
+
+.Vector
+  border 1em solid yellow
+
+for i in 1..9
+  .Luminosity{i}
+    --luminosity i * 10%
+
+.Claim
+  border 1em solid red
+  > .plain
+    display none
+
+// Recursive rule: embedded context always shrinks font size by recursion
+// factor.
+.Context
+  font-size var(--context-recursion)
