@@ -1,34 +1,76 @@
 *
   transition 0.3s
+  --body-background blue
+  --main-background rgba(white)
+
+  --label-hue 0deg
+  --label-saturation 100%
+  --label-lumunosity 100%
+  // --label-alpha 1
+  --indicator-color #FAA
+
+Affordance()
+  border 1px solid red
+  cursor pointer
+  // Was curious... no such thing in Gecko.
+  // &:active
+  //   background #F00
+
+  &:hover
+    background var(--indicator-color)
+
+// Links are the holiest thing.  Let's make them interesting.
+a
+  Affordance()
+  display inline-block
+  background gray
+  padding 1em
+  border-radius 2em
+
+ul
+ol
+  display inline-block
+
+// How can you tell it's space?
+body, .Space
+  margin 4rem
+  background var(--body-background)
+
+// How can you tell it's a label?
+// label, .Label
+//   background-color hsla(255 * var(--label-hue), 255 * var(--label-saturation), 255 * var(--label-luminosity), var(--label-alpha))
+
+main
+  --main-background white
+  margin var(--main-margin)
+  background var(--main-background)
+
+*
+  --article-margin 4em
 
 // unit of portability
 // unit of context
 // unit of provenance
+//
+// It may be all those things, but does it afford moving?
+// Does it afford etc?
 article
   // border 2em solid rgba(black, 0.2)
+  margin var(--article-margin)
   background rgba(black, 0.1)
   box-shadow 0 0 2em -0.5em
   margin 1em
 
 // STATEFUL : might be in collapsed state
 details
-  border 1em solid red
-	
+  border 1em solid rgba(red, 0.1)
+
 // AFFORDANCE
 // STATEFUL : might be in collapsed state
 summary
-  cursor pointer
-  // Was curious... no such thing in Gecko.
-  // &:active
-  //   background #F00
-	
-  &:hover
-    background #FAA
+  Affordance()
 
 aside
+  background yellow //  rgba(yellow, 1)
   float right
-  width 50%
-  
-
-// CSS rules let you say, when this thing is this way then it should look this
-// way, including state selectors (:hover, :active, etc)
+  // width 50%

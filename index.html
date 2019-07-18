@@ -6,18 +6,39 @@
     <link href="/index.css" rel="stylesheet" />
     <link href="/console.css" rel="stylesheet" />
     <link href="/build/style/elements.css" rel="stylesheet" />
-    <link href="/build/style/layers.css" rel="stylesheet" />
-    <link href="/build/style/value-view.css" rel="stylesheet" />
+    <!-- <link href="/build/style/layers.css" rel="stylesheet" /> -->
+    <!-- <link href="/build/style/value-view.css" rel="stylesheet" /> -->
     <link href="/build/style/fonts.css" rel="stylesheet" />
+		<!-- Stylus won't compile for some reason. -->
+		<style>
+label, .Label {
+  --label-hue: 0deg;
+  --label-saturation: 50%;
+  --label-luminosity: 50%;
+  --label-alpha: 0.5;
+			
+  background-color: white;
+  background-color:
+    hsla(
+      var(--label-hue),
+      var(--label-saturation),
+      var(--label-luminosity),
+      var(--label-alpha));
+}
+
+		</style>
   </head>
   <body>
     <main>
 			<section class="examples">
-				<h1>examples, redux</h1>
+				<h1>(CLAIM) This is worth looking at</h1>
 				
 				<article>
 					<p>I am an article.  Also known as a thing.  The (HTML5) spec defines
-					`article` (IIRC) as “anything that could be synciated.”  <a
+					`article` as basically “anything that could be synciated.”  (Here's
+					the <a
+					href="https://www.w3.org/TR/2011/WD-html5-20110525/sections.html#the-article-element">actual
+					definition</a>.) <a
 					href="https://www.etymonline.com/word/syndicate#etymonline_v_22533">Syndicate</a>.
 					To judge together.</p>
 
@@ -33,7 +54,7 @@
 					<p>Low luminosity, especially with high alpha, consumes light.</p>
 					<p>Low alpha values compose better than high alpha values.</p>
 					<p>Order matters less when several colors can be seen, though the
-					composition may be muddy.</p>
+					composition may become muddy.</p>
 					
 				</article>
 				<article>

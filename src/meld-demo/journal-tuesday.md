@@ -198,4 +198,26 @@ Note that
 
 For “free” UI (or what should be free):
 - put userland affordances on all ratios
+  
+CSS rules let you say, when this thing is this way then it should look this way,
+including state selectors (:hover, :active, etc).  This never contravenes the
+rules.  If you can make rules contingent on (monotonically-matched) state
+values, then models can make non-contradictory statements about open sets of
+states, cumulatively.
+
+Like, the force simulation would say that in frame X your positions were such.
+And you can travel through time by sliding the parent class.
+
+I mean, yeah, the things have to roll off the bottom at some point, but.  You
+buffer fifty or a million or whatever.  There's a cost model there, too.
+
+IN all this time
+the river flows
+endlessly
+to the sea
+
+If I had my way
+I'd ____ for the river?
+Father if Jesus exists
+Then how come he never lives here?
 
