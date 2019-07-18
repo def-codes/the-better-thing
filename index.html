@@ -5,257 +5,246 @@
     <meta charset="utf-8" />
     <link href="/index.css" rel="stylesheet" />
     <link href="/console.css" rel="stylesheet" />
+    <link href="/build/style/elements.css" rel="stylesheet" />
     <link href="/build/style/layers.css" rel="stylesheet" />
     <link href="/build/style/value-view.css" rel="stylesheet" />
     <link href="/build/style/fonts.css" rel="stylesheet" />
   </head>
   <body>
     <main>
-      <section>
-        <section id="mind-map"></section>
-      </section>
-      <section>
-        <section id="examples"></section>
-      </section>
-      <section id="examples">
-      </section>
-      <section>
-        <h2><i>not</i> covered today</h2>
-        <section>
-          <h3>non-monotonicity</h3>
-          <p>a difficult problem</p>
-          <p>examples recreate the world</p>
-          <p>time is monotonic.  if it weren't...</p>
-        </section>
-        <section>
-          <h3>direct manipulation</h3>
-          <p>because non-monotonicity</p>
-        </section>
-        <section>
-          <h3>negation</h3>
-          <p>like non-monotonicity, logical negation dramatically complicates
-          the system.</p>
-          <p>focus first on what you <i>can</i> do</p>
-        </section>
-        <section>
-          <h3>other caveats</h3>
-          <p>the particulars are secondary</p>
-          <p>this is about a set of ideas</p>
-          <p>deep dives later in the year</p>
-        </section>
-      </section>
-      <section>
-        <h2>the big ideas</h2>
-        <section>
-          <h3>bicycles for the mind</h3>
-          <p>computers as “fantasy amplifiers” (Alan Kay) or “bicycles for the
-          mind” (Steve Jobs?)</p>
-        </section>
-        <section>
-          <h3>userspace</h3>
-          <p>where people have power</p>
-        </section>
-        <section>
-          <h3>description</h3>
-        </section>
-        <section>
-          <h3>the semantic web</h3>
-          <p>was always a good idea but lacked tools for people to make it
-          real</p>
-        </section>
-        <section>
-          <h3>information > mechanism</h3>
-          <p>semantics, meaning, knowledge</p>
-          <p>AK: the system knows something about itself and what it's doing</p>
-        </section>
-        <section>
-          <h3>visibility</h3>
-        </section>
-        <section>
-          <h3>provenance</h3>
-        </section>
-        <section>
-          <h3>rules</h3>
-          <p>people understand rules</p>
-          <p>rules are declarative, more to the point</p>
-        </section>
-        <section>
-          <h3>monotonic growth</h3>
-        </section>
-        <section>
-          <h3>play</h3>
-          http://nautil.us/issue/73/play/why-it-pays-to-play-around
-          https://news.ycombinator.com/item?id=20131672
-        </section>
-        <section>
-          <h3>close-enough answers</h3>
-          approximate answers are good enough in many cases
-        </section>
-        <section>
-          <h3>visibility-by-default</h3>
-          death to console.log
-          <blockquote>
-            <p>
-              Another example. Most programs today manipulate abstract data
-              structures and opaque objects, not pictures. How can we visualize
-              the state of these programs?
-            </p>
-            <p>
-              Again, wrong question. A better attitude is to assert that we have
-              to be able to understand the state of our programs. We can then
-              ask: <i>How do we design data structures that can be
-              visualized?</i> Can we invent data structures that are
-              <i>intended</i> to be visualized? <mark>How do we move towards a
-              culture where only visually-understandable data is considered
-              sound?</mark> Where opaque data is regarded in the same way that
-              "goto" is today?
-            </p>
-            <p>
-              Bret Victor, <a href="http://worrydream.com/LearnableProgramming/#end">
-                “Learnable Programming”
-              </a>
-            </p>
-          </blockquote>
-          <p>how do you know if the problem is with the thing you're interested
-          in, or with your means of seeing it.</p>
-        </section>
-        <section>
-          <h3>open world assumption</h3>
-          <p>design, including system design, information design, interaction
-          design, and even graphic design, proceeds by making claims</p>
-          <p>ontologies can find contradictions in claims (and also help us say
-          more with less)</p>
-          <p>contrast this with the closed-world thinking that dominates</p>
-        </section>
-        <section>
-          <h3>dynamic thinking <i>versus</i> static thinking</h3>
-          userspace versus kernelspace
-          spec versus type systems.  TypeScript is dead.  Long live TypeScript!
-        </section>
-        <section>
-          <h3>intermediate abstraction</h3>
-          <p>we build everything out of atoms, and they're the wrong atoms</p>
-          <p>we use the same low-level tools for everything.  most tools should
-          be ad-hoc, created <i>in situ</i></p>
-          <p>see Odersky</p>
-        </section>
-        <section>
-          <h3>heterogeneity</h3>
-          <p>a.k.a. “diversity”. make form secondary in order to intermix
-          domains</p>
-        </section>
-        <section>
-          <h3>reification</h3>
-          <p>making things real</p>
-          <p>if it matters, it should be a thing, like everything else</p>
-          <p>so we can talk about it, pass it around, etc</p>
-        </section>
-        <section>
-          <h3>green and yellow code</h3>
-          <p>from raganwald, IIRC</p>
-          <p>green code is userland code</p>
-          <p>yellow code is kernel code (system and drivers)</p>
-        </section>
-      </section>
-      <section>
-        <h2>ideas here</h2>
-        <section>
-          <h3>space is the place</h3>
-          <p>screens are cages, we won't miss them</p>
-          <p>we need to think about computing in space <i>now</i></p>
-        </section>
-        <section>
-          <h3>forcefield as default layout</h3>
-          <p>we put things into space</p>
-        </section>
-        <section>
-          <h3>interop</h3>
-          <p>look at all of the wonderful things people have built</p>
-          <p>there's practically no way to put them together</p>
-          <p>the system that lets you put things together <i>dynamically</i>
-          will become the lingua franca</p>
-        </section>
-        <section>
-          <h3>userland homoiconicity</h3>
-          <p>work at once on model and its representation</p>
-        </section>
-        <section>
-          <h3>rdf as bytecode</h3>
-          <p>See this for example.
-          https://m00natic.github.io/lisp/manual-jit.html
-          https://news.ycombinator.com/item?id=20191406
-          looks interesting (on my reading list), but still no mention of RDF
-          </p>
-        </section>
-        <section>
-          <h3>death to console log</h3>
-          <p>visible, dynamic... but deserves mention</p>
-          <p>actually... we can intercept console log and do a “good thing” with
-          it.  someone has to work on drivers and interop, after all, so why not
-          make things less painful?</p>
-        </section>
-        <section>
-          <h3>multi-dialect</h3>
-          <p>turtle, lisp, and javascript</p>
-          <p>macros</p>
-        </section>
-        <section>
-          <h3>“forgotten” ideas</h3>
-          <p>as per Armstrong --- or Sussman.  We've moved on to wildly complex
-          things but never really mastered the older things (reasoners, expert
-          systems) </p>
-        </section>
-        <section>
-          <h3>don't make stuff up... unless you really have to</h3>
-          <p>find the existing problem/concept space</p>
-          <p>unlocks resources, vocabulary, more things fall into place</p>
-        </section>
-        <section>
-          <h3>cut the machine loose</h3>
-          <p>RDF as compilation source and target</p>
-          <p>there is no reason to use lower-level languages</p>
-        </section>
-      </section>
-      <section>
-        <h2>future</h2>
-        <section>
-          <h3>reintroduce namespaces</h3>
-          <ul>
-            <li>can still write "bare" terms by defaulting certain imports</li>
-            <li>or you can use prefix approach (CURIE's) </li>
-          </ul>
-        </section>
-      </section>
-      <section>
-        <h2>examples</h2>
-        <section>
-          <h3>playing with file system</h3>
-          <p>force-directed layout for files</p>
-          <p>cluster by some quality</p>
-          <p>display with relative size --- or any other metric you can compute</p> 
-        </section>
-        <section>
-          <h3>boggle example outline</h3>
-          <pre>
-            - the board
-            - the board is just a graph
-            - the word list
-            - the word list is used to construct a trie
-            - the trie
-            - a trie is a special kind of tree
-            - a prefix tree
-            - prefix matches (or non matches)
-            - the search
-            - stateful
-            - the rules
-            - rules are used to prune the search space
-            - the display
-            - the solutions
-          </pre>
-        </section>
-      </section>
-    </main>
-    <script src="./configure-require.js"></script>
-    <script data-main="@def.codes/meld-demo" src="/node_modules/requirejs/require.js"></script>
-  </body>
-</html>
+			<section class="examples">
+				<h1>examples, redux</h1>
+				
+				<article>
+					<p>I am an article.  Also known as a thing.  The (HTML5) spec defines
+					`article` (IIRC) as “anything that could be synciated.”  <a
+					href="https://www.etymonline.com/word/syndicate#etymonline_v_22533">Syndicate</a>.
+					To judge together.</p>
+
+					<p>I am a <a href="#Number">Number</a>].</p>
+					<p><label>The number 5.</label></p>
+				</article>
+				<article>
+					<h2>darkening or lightening</h2>
+					<p>Things may contribute light or consume light.</p>
+					<p>We cannot talk about a “lack of light.”</p>
+					<p>The extremes map directly to black and white.</p>
+					<p>You may blend in by using a low value (0.1 or 0.2) for alpha.</p>
+					<p>Low luminosity, especially with high alpha, consumes light.</p>
+					<p>Low alpha values compose better than high alpha values.</p>
+					<p>Order matters less when several colors can be seen, though the
+					composition may be muddy.</p>
+					
+				</article>
+				<article>
+					<p>I am a [String].</p>
+					<p><label>The text: <q>Once upon a time</q></label></p>
+				</article>
+				<article>
+					<p>I am a [Vector].</p>
+					<details>
+						<summary>I consist of these items:</summary>
+						<ol>
+							<li>8</li>
+							<li>6</li>
+							<li>7</li>
+							<li>5</li>
+							<li>3</li>
+							<li>0</li>
+							<li>9</li>
+						</ol>
+					</details>
+				</article>
+				<article>
+					<p>I am a list.</p>
+					<ul>
+						<li>Whenever you <code>type</code>, you <span class="Sequence">
+						<code>i</code>
+						<code>t</code>
+						<code>e</code>
+						<code>r</code>
+						<code>a</code>
+						<code>t</code>
+						<code>e</code>
+						<code> </code>
+						<code>a</code>
+						<code> </code>
+						<code>s</code>
+						<code>e</code>
+						<code>q</code>
+						<code>u</code>
+						<code>e</code>
+						<code>n</code>
+						<code>c</code>
+						<code>e</code>
+					</span>
+						.</li>
+						<li>Whenever you make an outline, you generate a tree.</li>
+						<li>Whenever you are with people, you navigate graphs.</li>
+						<li>Whenever you make a rule, you write a function.</li>
+					</ul>
+				</article>
+				<aside>
+					<p>An `aside` is something that interrupts your flow.</p>
+					<p>When it has that momentary effect in drama, you recover
+					quickly.</p>
+					<p>What should we do, as a society, with interruptors of flow?
+					Q.E.D.</p>
+				</aside>
+				<aside topic="dude, text is one-dimensional">
+					<p>If you're looking at the source code, these asides may appear at a
+					different point in the flow.  No particular reason.  The
+					one-dimensional structure of a sequence demanded it go somewhere.</p>
+					<p>Sure, text looks two-dimensional when broken into lines and
+					paragraphs.  That's a planar interpretation of a linear sequence.</p>
+				</aside>
+				<article>
+					<p>I am a [Set].</p>
+					<ul>
+						<!-- What are these links doing? -->
+						<!-- Do they link to the parent set, which I take it is anonymous? -->
+						<!--  -->
+						<li>I am <code>frog</code>.  I am a member of [a Set] </li>
+						<li>I am <code>log</code>.  I am a member of [a Set]</li>
+						<li>I am <code>dog</code>.  I am a member of [a Set]</li>
+						<!-- There's your nav k/v (plus Turtle/N3) -->
+						<!--
+								When you click a link, it creates a new representation.  Which
+								may itself include some other links.  But it's affixed to the
+								place where you clicked it.  Cause that was a local event there.
+						-->
+					</ul>
+				</article>
+				<article>
+					<p>I am a note</p>
+
+				</article> <section> <heading> <h2>DOM elements are real</h2> <h3>How
+				can headings be useful to you?  Shall we use it for preamble?</h3>
+				</heading> <p>About DOM elements one thing is sure: they are real.  They
+				are as real as anything in the world of computing, in that people's time
+				is devoted to them.  Moreover, most people are, right now, in possession
+				of ready tools for their discovery and inspection!  Not to mention
+				intervention!  I'm talking about the developer tools of course, which
+				have been built-in to common browsers for years.  I mean, that's two
+				levels deep.  How did we get here, and how do we get more of that sweet,
+				sweet meta-action?</p> <p></p> <p>So, while all elements are portable,
+				consider the `article` element as a special agent of portability.
+				Article indicates a disposition, an embedded intent to be shared, to be
+				picked up and moved around.  Indeed, what other kind of thing is there?
+				Yet most elements we would not expect to survive out of context.
+				Article represents a (more or less) standalone thing, that you may carry
+				anywhere and leave anywhere.</p> <p>Some things are labeled</p>
+				<details> <summary>This is a summary</summary> <p>Some things have
+				details.  You can use the `details` and `summary` elements together to
+				easily hide extended content.</p> <p>Note that details/summary are
+				stateful.</p> </details> <p>Traits have indicators, so do elements.
+				(indicate :syndicate).  Declarative rules style them.  Never forget
+				that.  Many professionals learn and use CSS without need for imperative
+				languages.</p> <p>The ideal is a combinatorial, or compositional system,
+				where semantics from multiple domains can be overlaid on an otherwise
+				immutable thing without conflict or (too much) loss.  (Indeed, what is
+				the fundamental quantity in this industry that is not preserved?  I.e. a
+				little of which is lost each time?  Yes, time.)</p> </section>
+				</section> <section> <section id="mind-map"></section> </section>
+				<section> <section id="examples"></section> </section> <section
+				id="examples"> </section> <section> <h2><i>not</i> covered today</h2>
+				<section> <h3>non-monotonicity</h3> <p>a difficult problem</p>
+				<p>examples recreate the world</p> <p>time is monotonic.  if it
+				weren't...</p> </section> <section> <h3>direct manipulation</h3>
+				<p>because non-monotonicity</p> </section> <section> <h3>negation</h3>
+				<p>like non-monotonicity, logical negation dramatically complicates the
+				system.</p> <p>focus first on what you <i>can</i> do</p> </section>
+				<section> <h3>other caveats</h3> <p>the particulars are secondary</p>
+				<p>this is about a set of ideas</p> <p>deep dives later in the year</p>
+				</section> </section> <section> <h2>the big ideas</h2> <section>
+				<h3>bicycles for the mind</h3> <p>computers as “fantasy amplifiers”
+				(Alan Kay) or “bicycles for the mind” (Steve Jobs?)</p> </section>
+				<section> <h3>userspace</h3> <p>where people have power</p> </section>
+				<section> <h3>description</h3> </section> <section> <h3>the semantic
+				web</h3> <p>was always a good idea but lacked tools for people to make
+				it real</p> </section> <section> <h3>information > mechanism</h3>
+				<p>semantics, meaning, knowledge</p> <p>AK: the system knows something
+				about itself and what it's doing</p> </section> <section>
+				<h3>visibility</h3> </section> <section> <h3>provenance</h3> </section>
+				<section> <h3>rules</h3> <p>people understand rules</p> <p>rules are
+				declarative, more to the point</p> </section> <section> <h3>monotonic
+				growth</h3> </section> <section> <h3>play</h3>
+				http://nautil.us/issue/73/play/why-it-pays-to-play-around
+				https://news.ycombinator.com/item?id=20131672 </section> <section>
+				<h3>close-enough answers</h3> approximate answers are good enough in
+				many cases </section> <section> <h3>visibility-by-default</h3> death to
+				console.log <blockquote> <p> Another example. Most programs today
+				manipulate abstract data structures and opaque objects, not
+				pictures. How can we visualize the state of these programs?  </p> <p>
+				Again, wrong question. A better attitude is to assert that we have to be
+				able to understand the state of our programs. We can then ask: <i>How do
+				we design data structures that can be visualized?</i> Can we invent data
+				structures that are <i>intended</i> to be visualized? <mark>How do we
+				move towards a culture where only visually-understandable data is
+				considered sound?</mark> Where opaque data is regarded in the same way
+				that "goto" is today?  </p> <p> Bret Victor, <a
+				href="http://worrydream.com/LearnableProgramming/#end"> “Learnable
+				Programming” </a> </p> </blockquote> <p>how do you know if the problem
+				is with the thing you're interested in, or with your means of seeing
+				it.</p> </section> <section> <h3>open world assumption</h3> <p>design,
+				including system design, information design, interaction design, and
+				even graphic design, proceeds by making claims</p> <p>ontologies can
+				find contradictions in claims (and also help us say more with less)</p>
+				<p>contrast this with the closed-world thinking that dominates</p>
+				</section> <section> <h3>dynamic thinking <i>versus</i> static
+				thinking</h3> userspace versus kernelspace spec versus type systems.
+				TypeScript is dead.  Long live TypeScript!  </section> <section>
+				<h3>intermediate abstraction</h3> <p>we build everything out of atoms,
+				and they're the wrong atoms</p> <p>we use the same low-level tools for
+				everything.  most tools should be ad-hoc, created <i>in situ</i></p>
+				<p>see Odersky</p> </section> <section> <h3>heterogeneity</h3>
+				<p>a.k.a. “diversity”. make form secondary in order to intermix
+				domains</p> </section> <section> <h3>reification</h3> <p>making things
+				real</p> <p>if it matters, it should be a thing, like everything
+				else</p> <p>so we can talk about it, pass it around, etc</p> </section>
+				<section> <h3>green and yellow code</h3> <p>from raganwald, IIRC</p>
+				<p>green code is userland code</p> <p>yellow code is kernel code (system
+				and drivers)</p> </section> </section> <section> <h2>ideas here</h2>
+				<section> <h3>space is the place</h3> <p>screens are cages, we won't
+				miss them</p> <p>we need to think about computing in space
+				<i>now</i></p> </section> <section> <h3>forcefield as default
+				layout</h3> <p>we put things into space</p> </section> <section>
+				<h3>interop</h3> <p>look at all of the wonderful things people have
+				built</p> <p>there's practically no way to put them together</p> <p>the
+				system that lets you put things together <i>dynamically</i> will become
+				the lingua franca</p> </section> <section> <h3>userland
+				homoiconicity</h3> <p>work at once on model and its representation</p>
+				</section> <section> <h3>rdf as bytecode</h3> <p>See this for example.
+				https://m00natic.github.io/lisp/manual-jit.html
+				https://news.ycombinator.com/item?id=20191406 looks interesting (on my
+				reading list), but still no mention of RDF </p> </section> <section>
+				<h3>death to console log</h3> <p>visible, dynamic... but deserves
+				mention</p> <p>actually... we can intercept console log and do a “good
+				thing” with it.  someone has to work on drivers and interop, after all,
+				so why not make things less painful?</p> </section> <section>
+				<h3>multi-dialect</h3> <p>turtle, lisp, and javascript</p> <p>macros</p>
+				</section> <section> <h3>“forgotten” ideas</h3> <p>as per Armstrong ---
+				or Sussman.  We've moved on to wildly complex things but never really
+				mastered the older things (reasoners, expert systems) </p> </section>
+				<section> <h3>don't make stuff up... unless you really have to</h3>
+				<p>find the existing problem/concept space</p> <p>unlocks resources,
+				vocabulary, more things fall into place</p> </section> <section> <h3>cut
+				the machine loose</h3> <p>RDF as compilation source and target</p>
+				<p>there is no reason to use lower-level languages</p> </section>
+				</section> <section> <h2>future</h2> <section> <h3>reintroduce
+				namespaces</h3> <ul> <li>can still write "bare" terms by defaulting
+				certain imports</li> <li>or you can use prefix approach (CURIE's) </li>
+				</ul> </section> </section> <section> <h2>examples</h2> <section>
+				<h3>playing with file system</h3> <p>force-directed layout for files</p>
+				<p>cluster by some quality</p> <p>display with relative size --- or any
+				other metric you can compute</p> </section> <section> <h3>boggle example
+				outline</h3> <pre> - the board - the board is just a graph - the word
+				list - the word list is used to construct a trie - the trie - a trie is
+				a special kind of tree - a prefix tree - prefix matches (or non matches)
+				- the search - stateful - the rules - rules are used to prune the search
+				space - the display - the solutions </pre> </section> </section> </main>
+				<aside>Don't put block-level elements inside `summary`.  It hides the
+				label.</aside> <aside>You will have a built-in markdown parser.  Use
+				it.</aside> <script src="./configure-require.js"></script> <script
+				data-main="@def.codes/meld-demo"
+				src="/node_modules/requirejs/require.js"></script> </body> </html>

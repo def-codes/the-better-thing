@@ -1,0 +1,34 @@
+*
+  transition 0.3s
+
+// unit of portability
+// unit of context
+// unit of provenance
+article
+  // border 2em solid rgba(black, 0.2)
+  background rgba(black, 0.1)
+  box-shadow 0 0 2em -0.5em
+  margin 1em
+
+// STATEFUL : might be in collapsed state
+details
+  border 1em solid red
+	
+// AFFORDANCE
+// STATEFUL : might be in collapsed state
+summary
+  cursor pointer
+  // Was curious... no such thing in Gecko.
+  // &:active
+  //   background #F00
+	
+  &:hover
+    background #FAA
+
+aside
+  float right
+  width 50%
+  
+
+// CSS rules let you say, when this thing is this way then it should look this
+// way, including state selectors (:hover, :active, etc)
