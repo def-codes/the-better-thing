@@ -4,8 +4,7 @@
 
 Thing()
   --type 'Thing'
-  // --prefix var(--type
-  // background-color s('hsla(var(--hue), var(--saturation), var(--luminosity), var(--alpha))')
+  background-color s('hsla(var(--hue), var(--saturation), var(--luminosity), var(--alpha))')
   &::before
     content var(--prefix)
 
@@ -104,14 +103,14 @@ UnorderedList()
 
   padding 1em
   //background-color rgba(white, 0.01)
-  border 1px solid red
+  border 1px solid rgba(black, 0.5)
 
   --prefix var(--type)
 
   --hue 0deg
   --saturation 100%
-  --lumunosity 100%
-  --alpha 0%
+  --luminosity 100%
+  --alpha 20%
 
   --label-hue 0deg
   --label-saturation 100%
