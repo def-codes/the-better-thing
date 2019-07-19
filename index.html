@@ -36,6 +36,85 @@ label, .Label {
 				This is worth looking at
 			</h1>
 			<section class="examples">
+				<h2>toybox dump</h2>
+				
+				<section draggable="true">
+					<p>This section shows off the building blocks of HTML.</p>
+					<aside>These need global identifiers and should be represented by
+					terms.</aside>
+					<p>These descriptions are written as “articles” to emphasize that they
+					should be portable.  That is, they should not defer (anything
+					essential) to their immediate context.</p>
+					<p>Each article should serve as an RDF description.</p>
+					<p>We use built-in semantics when they have some application.  The
+					marks of these semantics can be represented in any way, though MELD
+					includes defaults in its reference implementation (this).</p>
+				</section>
+
+				<article contenteditable>
+					<h2>Output</h2>
+					
+					<p>These elements are related to computed content.  They are suitable
+					for the reification of values resulting from a
+					computation.<aside>which is to say, pretty much anything that you'll
+					see in a MELD environment.</aside></p>
+					
+					<blockquote>
+						The HTML Output element (&lt;output&gt;) is a container element into
+						which a site or app can inject the results of a calculation or the
+						outcome of a user action.
+					</blockquote>
+					cite, etc
+					https://developer.mozilla.org/en-US/docs/Web/HTML/Element/output
+					
+					<p>Should have provenance associated (but not via cite?).</p>
+					
+					<output contenteditable="false" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'This girl is on fire')">
+						The result of the operation is 42.
+					</output>
+				</article>
+
+				<div class="Box"></div>
+				
+				<article id="html:output">
+					<h2>Sample</h2>
+					
+					<p>Related to #Output</p>
+
+					<p>samp <q>represents sample (or quoted) output from a computer
+					program</q></p>
+				
+					<samp>
+						[
+						"things",
+						"and",
+						"stuff"
+						]
+					</samp>
+					
+					<p>There is also `var`</p>
+					<blockquote>
+						The HTML Variable element (&lt;var&gt;) represents the name of a
+						variable in a mathematical expression or a programming context. It's
+						typically presented using an italicized version of the current
+						typeface, although that behavior is browser-dependent.
+					</blockquote>
+					<p>While RDF proper does not include variables (that I know of),
+					SPARQL and related notations make variables first-class terms for most
+					purposes.  RDF variables should use this tag.</p>
+
+				</article>
+
+				<article>
+					<h1>So I talk about a meter.</h1>
+				</article>
+				
+				<meter>
+					I am a <a
+					href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meter">meter</a>.
+					I allow “phrasing content”
+				</meter>
+				
 				<article>
 					<h2>what's an article?</h2>
 					<p>At the risk of a circular definition, an article is any fabriated
@@ -45,8 +124,203 @@ label, .Label {
 					definition</a>.) Etymonline has “<a
 					href="https://www.etymonline.com/word/syndicate#etymonline_v_22533">syndicate</a>”
 					as, To judge together.</p>
+				</article>
+
+				<div class="Porthole">
+					I'm a porthole.  Don't mind me.
+				</div>
+				
+				<article>
+					<h2>terms</h2>
+					<p>A <i>term</i> </p>
+				</article>
+				
+				<figure>
+					I am a figure.  I should have a representation in some other form
+					(than the narrative).  Like, a Space should go in a figure.
+					<svg>
+						<circle cx="50" cy="50" r="20" fill="red" />
+						<circle cx="76" cy="82" r="20" fill="red" />
+						<circle cx="46" cy="96" r="20" fill="red" />
+					</svg>
+					<figcaption>This is a label for the figure, perhaps a comment on the
+					figure.  Whose point of view is here?</figcaption>
+				</figure>
+
+				<article>
+					The mark element
+					https://developer.mozilla.org/en-US/docs/Web/HTML/Element/mark <p>Mark
+					is a good one.  It's pretty generic but unlike `span` entails
+					visibility. </p>
+				</article>
+
+				<article>
+					<h2>Navigation</h2>
+					<p>Yeah HTML has a *nav* element.</p>
+					
+					https://developer.mozilla.org/en-US/docs/Web/HTML/Element/nav
+					
+					<p>This is a no-brainer for datafy nav.  The interesting thing will
+					be, supporting the navigation in-place.  So you create a
+					representation of the thing linked to.  And you provide link to its
+					siblings.  The details (links) is collapsible by way of the (summary)
+					label.</p>
+					<nav>
+						<dl>
+							<div class="KeyValuePair">
+								<dt>foaf:name</dt>
+								<dd>John Wayne</dd>
+							</div>
+							<div class="KeyValuePair">
+								<dt>describedBy</dt>
+								<dd>
+									<aside>How to represent this here?</aside>
+									The Life and Death of John Wayne
+								</dd>
+							</div>
+						</dl>
+					</nav>
+				</article>
+
+				<p>I am a paragraph.  I am not portable because I mention that I'm
+				followed by a blockquote and citation.</p>
+
+				<article>
+					<h2>Quotation and Citation</h2>
+					<p>The cite element indicates the Provenance of something.</p>
+					
+					<blockquote>The HTML Citation element (&lt;cite&gt;) is used to
+					describe a reference to a cited creative work, and must include the
+					title of that work. The reference may be in an abbreviated form
+					according to context-appropriate conventions related to citation
+					metadata</blockquote>
+
+					<cite>From <a
+					href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/cite">“&lt;cite&gt;:
+					The Citation element,”</a> on MDN</cite>
 
 				</article>
+				
+				<time>I am a time.  I am supposed to tell you a time</time>
+
+				<article>
+				</article>
+
+				<article>
+					<code>html:data</code>
+					<label>an <a href="#html:Element">HTML element</a></label>
+					<!-- comment -->
+					<p>The `data` element “links a given content with a machine-readable
+					translation” (<a
+					href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/data">MDN</a>)</p>
+					<p>Its *value* property (attribute) contains the machine-readable
+					version of the content.</p>
+					<aside>RDFa?</aside>
+					<p>Here is a data element</p>
+					<data value="Tribe">A Tribe Called Quest</data>
+				</article>
+
+				<article>
+					<code>html:dfn</code>
+					<!-- label of type -->
+					<label>an <a href="#html:Element">HTML element</a></label>
+					
+					<p>A <dfn>cat</dfn> is an animal that sleeps in the ethernet.</p>
+					
+					<blockquote>
+						The HTML Definition element (&lt;dfn&gt;) is used to indicate the
+						term being defined within the context of a definition phrase or
+						sentence. The &lt;p&gt; element, the &lt;dt&gt;/&lt;dd&gt; pairing,
+						or the &lt;section&gt; element which is the nearest ancestor of the
+						&lt;dfn&gt; is considered to be the definition of the term.
+					</blockquote>
+					<cite>
+						<a
+						href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dfn">
+						“&lt;dfn&gt;: The Definition element”</a>
+					</cite>
+				</article>
+				
+				<dl>
+					<div class="KeyValuePair">
+						<dt>The Description List element</dt>
+						<dd>
+							This is about the dl tag, which contains the other types (dt and dd).
+						</dd>
+					</div>
+					<div class="KeyValuePair">
+						<dt>The Description Term element</dt>
+						<dd>
+							the term being defined in a definition list
+						</dd>
+					</div>
+					<div class="KeyValuePair">
+						<dt>
+							dd
+						</dt>
+						<dd>
+							a “description details” element
+							https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dd
+							<p>Suppose a dd had a `data` element with a serialized structured
+							value.  And some representation (a figure?).  Then you could use
+							definition list in a “semantic” way for arbitrary keyed maps.
+							</p>
+						</dd>
+					</div>
+				</dl>
+
+				<article>
+					<code>html:datalist</code>
+					<label>an <a href="#html:Element">HTML element</a></label>
+					<aside>Could reify `datalist` and `option` with pseudo-elements?</aside>
+					
+					<datalist>
+						<option value="empty" />
+						<option value="full" />
+					</datalist>
+					
+				</article>
+
+				<article>
+					<code>html:datalist</code>
+					<label>an <a href="#html:Element">HTML element</a></label>
+				</article>
+				
+				<pre>
+					I am a “preformatted” region.  Kind of like a teletype region.
+				</pre>
+				
+				<table>
+					<thead>
+						<!-- Some elements have no place to label themselves: they give all
+						     to their children.  These elements are harder to annotate,
+						     supposing that you don't want to violate the schema. -->
+						<tr>
+							<th>This is a table heading</th>
+							<th>This is another table heading</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>1</td>
+							<td>2</td>
+						</tr>
+						<tr>
+							<td>44.99</td>
+							<td>34.78</td>
+						</tr>
+						<tr>
+							<td>44.99</td>
+							<td>34.78</td>
+						</tr>
+					</tbody>
+					<tfoot>
+						<tr>
+							<td>a cell in the footer</td>
+							<td>another cell in the footer</td>
+						</tr>
+					</tfoot>
+				</table>
 				<article>
 					<details>
 						<summary>I am an article.</summary>
@@ -88,7 +362,8 @@ label, .Label {
 					</details>
 				</article>
 				<article>
-					<p>I am a list.</p>
+					<p>I am a list.  I mean, I <i>myself</i> am a paragraph.  Well,
+					not... anyway.</p>
 					<ul>
 						<li>Whenever you <code>type</code>, you <span class="Sequence">
 						<code>i</code>

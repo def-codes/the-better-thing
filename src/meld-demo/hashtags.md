@@ -1307,3 +1307,356 @@ the form of queries.
 ```
 
 The difference with content negotiation is that all matches apply.
+
+## Negative assertions considered harmful
+
+The HTML “schema” says that the `<caption>` element, “if used is *always* the
+first child of a `<table>`.” (in MDN's words)
+
+https://www.w3.org/TR/html50/tabular-data.html#the-caption-element
+
+Who is served by this rule?  Why can't we put a `<caption>` wherever we want?
+Let it be treated as any other block-level element (as I'm sure it would,
+anyway).
+
+I understand (sort of) why you can't put arbitrary content between table rows.
+
+The other one is `<dl>`.  It's semantically fit for dictionaries, but can you
+group the key-value pairs?
+
+It looks like they are relaxing that rule:
+https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dd
+
+
+## Combinations, permutations
+
+And other set operations.
+
+What do they look like?
+
+- How can you tell it's an Intersection?
+- How can you tell it's a Union?
+- How can you tell it's a Combination?
+- How can you tell it's a Permutation?
+
+## symbiotic navigation and rendering
+
+I have this crazy idea.
+
+Every time I've worked just with the DOM, there's one thing I always want to do,
+and that's match patterns and say things about other things that they should
+have.
+
+I can't shake this idea of a rule set that uses CSS selectors as its conditions
+(though could use other kinds of search to get at element representations
+indirectly)
+
+and as its consequent, operations basically like what traits do.
+
+These rules would be realized by way of dom listeners.  Those information
+streams that light up when you create something.
+
+Activity as luminosity
+
+Cost model for power
+
+I have wondered what kind of execution context could allow you to sustain a
+process that would treat its productions as monotonic by default: immutable,
+one-time productions after which the summoned thing is *done*.  That instance of
+a rule firing occurred.  That costs you something.  How much does it cost to
+subscribe to events?  Maybe depends on their typical volume, in practice.  But
+we're interested in the cost of the response to a message, not the receipt of
+it.  Receiving messages is free.
+
+Anyway, now I am seeing a kind of self-sustaining rule, or maybe pair of types
+of rule, where we finally listen to the dom as a first-class reporter of facts.
+
+One objection that people may have had to the use of dom listeners, maybe the
+first API implementation was bad, or maybe people correctly view the DOM object
+as a dangerous entanglement.
+
+On the “dangerous entanglement” front, (in-place) datafy-nav allows us to treat
+the DOM more like a remote.
+
+## draggability
+
+What should be draggable?
+
+Whatever unit is movable when you try to move it.
+
+This should have a hover/gaze indication.
+
+What kind of shift happens when you quote a passage?
+
+Different provenance, different authority.
+
+Also, we can *make* something draggable by asserting it.
+
+Macroexpansion in traits: affect two things in the same way, even when you don't
+know what they are.
+
+## indicating provenance
+
+What shifts?
+
+What do you impute to the authorial context?
+
+That the author stands by whatever is there.
+
+Or, that the author can put whatever is there in the appropriate context on
+demand.
+
+But the visual signs of authorial context cannot vanish.
+
+Well, everybody wants to not vanish.  To grant an entire channel to one class
+would be to create a world where everything, and therefore nothing, has the
+identifying property---the “tell” of a trait, told in features.
+
+I mean, what are the channels we have?
+
+- boundary
+- focus
+
+Boundary is binary: you're either in or out.  You can blur the 
+
+How is attention manifested?  Persistent trails.
+
+What happens when you nav?  I mean, you don't have to change the whole world's
+context, but could you contribute to a fund to push the rest of the world down a
+little when you've navigated to a new context.  It “is” a new world, in that the
+default subject has changed, and this new tenant of our attention may have
+another outlook.
+
+Okay but bro.
+
+Back to execution.
+
+I like the idea
+
+of tapping the change streams in the dom
+
+to feed into selector-matchable things for rule operations
+
+can general consequents be written in terms of our “conflict-free” operations?
+
+supposing that you can use a form of macroexpansion
+
+Show me such a consequent.
+
+Much the same as now, a function that maps a record describing an instance of a
+certain identified property (why the single dispatch here?).
+
+For the selector
+
+```
+.Draggable > header
+```
+
+Assert that there exist the following template applied to the context node.
+
+But really, just transform the referenced thing in any way.  Pitch and catch.
+
+If a thing is draggable, then its header is responsible for maintaining an
+affordance to that feature, since the body of the thing may represent a
+different space, or be otherwise not-directly-affordable.
+
+As a convention --- not a rule
+
+Things grow in some ways more readily than others.  Head, body, foot.
+
+That navigation should push the entire context down.  That would have to be
+asserted globally, right?
+
+Another nice thing about this, you automatically have a css selector targeting
+the same set of elements that you match.
+
+That can all be relative to a parent container, although, if nested you'd have
+to take care to keep direct relations partitioned.  To limit the extent of the
+dom listening to all descendants, that is, except for a child container which
+itself operates in this way.
+
+So you've matched a
+
+```
+.Draggable > header
+```
+
+What do you say in a production way?
+
+You could assert data flows, which you would need in order to implement traits
+marked by perdurants.
+
+And those dataflows would never die?
+
+Okay.  No one said that they would never die.  They all very much can die.
+
+So was that always the objection to the notion of assertion from the
+dataflow---because it would cause an explosion of processes.  But you can lay
+some of them to rest.  You still have descriptions of them.  They still have
+records of their provenance and their disposition.
+
+How would you use the stream of dom changes to drive a view of the affected
+areas?  Knowing that doing so would only trigger more changes.
+
+Yes, that's kind of the idea.  But yes it does sound like the extension must
+occur in the very areas being monitored to match certain patterns.
+
+So for one thing, we can assume monotonicity for the moment.  So we reserve some
+way to represent deletions and “changes”, but we don't need that now.
+
+Only insertions and new attributes.
+
+Also, just don't match new things.
+
+But mostly what good would be the stream of dom changes as input?  None, so much
+as to dumbly trigger a set of matchers against the context for which browsers
+already have optimized paths.  In principle, if you had defined style rules for
+a given selector, and then relied upon those selectors at the same rate at which
+dom changes occur in a certain child node.  When those selectors match, then you
+can say something about that thing.  
+
+(You mean claim, assert into the store?)
+
+The thing you say about the thing, is that in the identified context
+
+(and from a select matched element's point of view?)
+
+it shall have
+
+it shall have parts in its region
+
+but who cares
+
+this must be a special case of a larger context
+
+the more general case where you
+
+hold a truth to be at all evident
+
+let it be
+
+it shall be done
+
+what drives interpretation?
+
+what drives these little stories to blow all their tokens on listeners?
+
+So, we've described the flow of a *trampolining* computation.  Pitch and catch.
+
+Would the trampolining be mediated by the system?
+
+And if not, then how does.... whatever only the system does.
+
+You need a rich set of built-in semantics, that's why you're doing this.  It's
+all opinion-driven but still essential in my opinion.
+
+## Reifying section links
+
+Back to hashtags, they are an appropriate representation of a thing.
+
+An identified thing can very well appear so by default, with its id.
+
+This is exactly the kind of rule that you would make^^
+
+Yes, you can fake it with pseudo-elements, but it's not compositional.  Only one
+party gets to control the pseudo-element, and the content ranges only over
+string.  Now, for id it so happens that's a feature.  And I see nothing wrong
+with one easy-to-suppress default---or you could add further CSS-based
+composability by creating definitions assembled from custom properties.  Which I
+think as encouraging good behavior.  (It's also easy to *override* the default,
+just uncivil.)
+
+Anyway, this deals with the more general case.
+
+So.
+
+Let's suppose that you put out a template saying that any thing with an id
+should have the following content added (or interpolated?)
+
+--- basically a declarative extension to css.  like getflow
+
+But you have processes and dataflow.
+
+Remember, these rules are _subjective_: they match only a single selector and
+they don't report specifically any other nodes involved in the match
+
+## Xpath ftw
+
+But why selectors?  Because... yeah you can use XPath.  Then you can make
+multiple conditions, I mean, lots of stuff.  I mean, it would be interesting
+just to see like everything else shut down and just look at the effect of a
+single semantic on whatever raw material is left.
+
+XPath is closer to SPARQL in power than CSS selectors and still built into the
+browser.
+
+There's nothing *wrong* with using CSS selectors.  They're trivially convertible
+to XPath but also supported directly, even beyond CSS, for example in the query
+selector functions.
+
+But there's no need to limit yourself to the CSS subset.  XPath queries (which
+also support variable injection IIRC) can match at oblique and even forking
+paths, and could give traversals a kind of "ray" to point around the document.
+
+There is a single context node during XPath evaluation, but the result set is
+not in itself subjective.
+
+I want to make a rule that draggable things can stay draggable.
+
+We could adopt the convention that this is done some way by a heading.
+
+So I want to say that some affordance will remain available as a handle to move
+the whole body.
+
+I want to be able to say that all draggable things have a "header"
+
+Because I want to be able to say something about its header.
+
+Am I asserting that a draggable thing contains at least one header?
+
+Or am I just asserting “my own” header, where I am from some domain.
+
+This is similar to a variable match in SPARQL.
+
+I also want to be able to see a projection of an outline of the document in some
+part of the document itself that is out of bounds for the many watchmen
+reporting on various parts of the document.  I don't want to trigger them with
+any little old thing.  You got me?
+
+(How best to form such an outline is another interesting question)
+
+
+
+
+
+
+These things can live in the document.  They can traverse the document looking
+for each other.
+
+But really... how, what?
+
+I'm not really into cellular automata.
+
+So we make some such rules.
+
+That match things already in the container?
+
+Not necessarily.  We may seed the volley by interpreting a model.
+
+Why don't we think of interpreting a model as a synchronous, one-time
+calculation?
+
+It must be possible for a model to serve transparently as a stream transformer.
+
+Yes, ports and all.
+
+What is the cost of this model?  Per firing.
+
+Could we really count such?  And wouldn't *that* cost?
+
+## Cost model --- A little TTL
+
+But when does this decrementing get done?
+
+I mean, what makes the message die a little?
+
