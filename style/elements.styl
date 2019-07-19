@@ -8,15 +8,18 @@ Thing()
   &::before
     content var(--prefix)
 
-Indicator
+Indicator()
   font-size 100%
   // This will never show because below
   --type 'Indicator'
 
+Indicated()
+  --luminosity 50%
+
 Affordance()
   Indicator()
   --type 'Affordance'
-  cursor pointer
+  cursor hand
   border 1em solid rgba(green, 0.2)
   box-shadow 0 0 2em -0.5em
   // Was curious... no such thing in Gecko.
@@ -30,6 +33,7 @@ Tag()
   Indicator()
 
 Navigable()
+  cursor pointer
   Affordance()
   --type 'Navigable'
 	
@@ -56,12 +60,14 @@ Lens()
 
 Porthole()
   Lens()
+  Navigable()
   --type 'Porthole'
   box-shadow inset 0 0 2em -0.5em
   width 20rem
   height 20rem
   border-radius 50%
   overflow hidden
+  background #AAA
 
 Paragraph()
   --type '¶'
@@ -208,12 +214,18 @@ UnorderedList()
 
 [class]:not([class=""])
   --type attr(class)
+
+&:hover
+  Indicated()
 	
 // ==================================== ELEMENTS: singletons
 
 // How can you tell it's space?
 Space()
   background-color var(--space-background)
+
+html
+  background none
 
 body
 .Space
