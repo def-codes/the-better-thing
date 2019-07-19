@@ -1660,3 +1660,11 @@ But when does this decrementing get done?
 
 I mean, what makes the message die a little?
 
+## element interactivity
+
+with rules... you can make elements interactive.  Like, a this next to a that.
+leads to a such and such, or just some other types obtaining
+
+put a checkbox next to each element with a certain property (e.g. touched, has
+it been touched at any point).  One-way properties like that are okay.
+

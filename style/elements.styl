@@ -14,7 +14,7 @@ Indicator()
   --type 'Indicator'
 
 Indicated()
-  --luminosity 50%
+  --luminosity 100%
 
 Affordance()
   Indicator()
@@ -57,12 +57,12 @@ Draggable()
 Lens()
   --type 'Lens'
   // something
+  box-shadow inset 0 0 2em -0.5em
 
 Porthole()
   Lens()
   Navigable()
   --type 'Porthole'
-  box-shadow inset 0 0 2em -0.5em
   width 20rem
   height 20rem
   border-radius 50%
@@ -114,8 +114,8 @@ UnorderedList()
   --prefix var(--type)
 
   --hue 0deg
-  --saturation 100%
-  --luminosity 100%
+  --saturation 0%
+  --luminosity 50%
   --alpha 20%
 
   --label-hue 0deg
@@ -133,10 +133,11 @@ UnorderedList()
 // MESO-GENERAL
 
 [id]:not([id=""])
-  --type '#' attr(id)
+  --prefix '#' attr(id)
   Tag()
   &::before
     font-size 200%
+    background white
 		
   // I would ALSO LIKE TO ASSERT that this thing has a link pointing back to
   // itself.
@@ -288,8 +289,10 @@ section
 // unit of provenance
 // should have a citation nearby 
 blockquote
+  Lens() // not exactly, but out-of-context
   Quotation()
   margin-left 4em
+  --alpha 0.6
 
 cite
   Citation()

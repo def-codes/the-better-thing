@@ -44,7 +44,7 @@ label, .Label {
 			<p>there's a toybox dump</p>
 		</main>
 				
-				<section draggable="true">
+				<section draggable="true" id="html-toybox">
 					<p>This section shows off the building blocks of HTML.</p>
 					<aside>These need global identifiers and should be represented by
 					terms.</aside>
@@ -82,7 +82,7 @@ label, .Label {
 
 				<div class="Box"></div>
 				
-				<article id="html:output">
+				<article id="html-output">
 					<h2>Sample</h2>
 					
 					<p>Related to #Output</p>
@@ -113,13 +113,14 @@ label, .Label {
 
 				<article>
 					<h1>So I talk about a meter.</h1>
+					<meter value="0.5">
+						
+						I am a <a
+						href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meter">meter</a>.
+						I allow “phrasing content”
+					</meter>
+
 				</article>
-				
-				<meter>
-					I am a <a
-					href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meter">meter</a>.
-					I allow “phrasing content”
-				</meter>
 				
 				<article>
 					<h2>what's an article?</h2>
@@ -440,7 +441,7 @@ label, .Label {
 				intervention!  I'm talking about the developer tools of course, which
 				have been built-in to common browsers for years.  I mean, that's two
 				levels deep.  How did we get here, and how do we get more of that sweet,
-				sweet meta-action?</p> <p></p> <p>So, while all elements are portable,
+				sweet meta-action?</p>  <p>So, while all elements are portable,
 				consider the `article` element as a special agent of portability.
 				Article indicates a disposition, an embedded intent to be shared, to be
 				picked up and moved around.  Indeed, what other kind of thing is there?
