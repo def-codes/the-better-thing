@@ -4,12 +4,12 @@
     <title>the better thing</title>
     <meta charset="utf-8" />
     <link href="/index.css" rel="stylesheet" />
-    <!-- <link href="/console.css" rel="stylesheet" /> -->
+    <link href="/console.css" rel="stylesheet" />
     <link href="/build/style/globals.css" rel="stylesheet" />
     <link href="/build/style/elements.css" rel="stylesheet" />
-    <link href="/build/style/classes.css" rel="stylesheet" />
+    <!-- <link href="/build/style/classes.css" rel="stylesheet" /> -->
     <!-- <link href="/build/style/layers.css" rel="stylesheet" /> -->
-    <!-- <link href="/build/style/value-view.css" rel="stylesheet" /> -->
+    <link href="/build/style/value-view.css" rel="stylesheet" />
     <link href="/build/style/fonts.css" rel="stylesheet" />
 		<!-- Stylus won't compile for some reason. -->
 		<style>
@@ -46,12 +46,13 @@
 			<p>How I would do this, if I were doing this now:</p>
 			
 			<ol>
-				<li>restore custom console</li>
-				<li>modify console to call datafy</li>
+				<li><s>restore custom console</s></li>
+				<li>modify console to call datafy (because it's a f'n repl) </li>
 				<li>datafy Event</li>
-				<li>and subtype if necessary</li>
-				<li>listen for event</li>
-				<li>log event</li>
+				<li>and DragEvent?</li>
+				<li>listen for dragstart events (log) </li>
+				<li>listen for dragover events (log) </li>
+				<li>listen for dragend events (log) </li>
 			</ol>
 			
 			<p></p>
@@ -65,11 +66,11 @@
 				</ul>
 			</section>
 
-			<script>
-				require(['@th.ing/transducers'], (tx) => {
+			<!-- <script> -->
+			<!-- 	require(['@th.ing/transducers'], (tx) => { -->
 				
-				})
-			</script>
+			<!-- 	}) -->
+			<!-- </script> -->
 
 			<article>
 				<p>Use case.  Tear off a link, boom, you've made a layer.  A layer where

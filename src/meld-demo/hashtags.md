@@ -1786,3 +1786,9 @@ The searches themselves are a thing, once they cross some threshold.
 What's better, a thing that exists and people can find, or a thing people want
 and nobody has?
 
+## REPL
+
+You need to have a REPL.
+
+And your console should produce things.
+
