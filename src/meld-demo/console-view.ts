@@ -34,8 +34,13 @@ export function register_console() {
       // channels.  Note by flatteing here, we lose grouping of multiple args.
       tx.pluck<HijackedConsoleMessage, HijackedConsoleMessage["args"]>("args"),
       tx.mapcat(args => args),
-      tx.map(thing => [
+      tx.multiplexObj({
+        key: tx.scan(tx.count()),
+        thing: tx.noop(),
+      }),
+      tx.map(({ key, thing }) => [
         "output",
+        { key },
         ["p", "thing"],
         [render_value, thing],
         ["p", "datafied"],
@@ -43,7 +48,7 @@ export function register_console() {
       ]),
       // Not exactly monotonic
       tx.slidingWindow(10),
-      tx.map(blah => ["div", {}, blah]),
+      tx.map(blah => ["div.layers", {}, blah.reverse()]),
       updateDOM({ root: container, ctx: { render }, span: false })
     )
   );
