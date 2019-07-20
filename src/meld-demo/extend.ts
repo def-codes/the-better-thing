@@ -6,11 +6,14 @@ datafy_protocol.extend("@imaginary", imaginary => {
 
 // Reify primitives
 
-const PRIMITIVE = {
+const PRIMITIVE: PropertyDescriptorMap = {
   "@context": {
-    rdf: "http://rdf..syntax",
-    xsd: "http://xml schema",
-    value: "rdf:value",
+    enumerable: true,
+    value: {
+      rdf: "http://rdf..syntax",
+      xsd: "http://xml/schema",
+      value: "rdf:value",
+    },
   },
 };
 
@@ -27,9 +30,9 @@ const EVENT_PROTOTYPE = { "@type": "browser:Event" };
 
 datafy_protocol.extend(Event, event =>
   Object.create(EVENT_PROTOTYPE, {
-    bubbles: { value: event.bubbles },
-    cancelable: { value: event.cancelable },
-    composed: { value: event.composed },
+    bubbles: { enumerable: true, value: event.bubbles },
+    cancelable: { enumerable: true, value: event.cancelable },
+    composed: { enumerable: true, value: event.composed },
   })
 );
 

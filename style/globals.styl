@@ -1,17 +1,20 @@
 @import types
 
-*:not(div):not(span)
-  Thing()
+*
+  // If Thing is really the top class, just put rules here vs repeating a Thing
+  // mixin for every element.
+  --type 'Thing'
+	
   transition 0.3s
-
   padding 1em
-  //background-color rgba(white, 0.01)
   border 1px solid rgba(black, 0.5)
   &::before
     opacity 0.5
-
-// Variables only
-*
+	
+  background-color s('hsla(var(--hue), var(--saturation), var(--luminosity), var(--alpha))')
+  &::before
+    content var(--prefix) '\00a0'
+  
   --prefix var(--type)
   --space-background #222
 

@@ -1,10 +1,6 @@
 // Declarations only: zero emit
 
-Thing()
-  --type 'Thing'
-  background-color s('hsla(var(--hue), var(--saturation), var(--luminosity), var(--alpha))')
-  &::before
-    content var(--prefix) ' '
+// `Thing` is an implicit superclass.  See `globals`
 
 // How can you tell it's space?
 Space()
@@ -125,6 +121,10 @@ Porthole()
 
 Paragraph()
   --type '¶'
+
+Output()
+  --type 'Output'
+  border 1em solid gray !important
 
 Aside()
   --type 'Aside'

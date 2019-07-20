@@ -1,4 +1,5 @@
 //// first sketch
+// Um yeah see protocols
 import { Literal } from "./api";
 import rdf from "./index";
 
