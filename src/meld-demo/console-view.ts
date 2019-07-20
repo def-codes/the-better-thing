@@ -34,6 +34,8 @@ export function register_console() {
       // channels.  Note by flatteing here, we lose grouping of multiple args.
       tx.pluck<HijackedConsoleMessage, HijackedConsoleMessage["args"]>("args"),
       tx.mapcat(args => args),
+      // The monotonic key prevents in-place updates on these items, supports
+      // “moving layers” effect
       tx.multiplexObj({
         key: tx.scan(tx.count()),
         thing: tx.noop(),
@@ -41,13 +43,10 @@ export function register_console() {
       tx.map(({ key, thing }) => [
         "output",
         { key },
-        ["p", "thing"],
-        [render_value, thing],
-        ["p", "datafied"],
         [render_value, datafy(thing)],
       ]),
       // Not exactly monotonic
-      tx.slidingWindow(10),
+      tx.slidingWindow(20),
       tx.map(blah => ["div.layers", {}, blah.reverse()]),
       updateDOM({ root: container, ctx: { render }, span: false })
     )

@@ -3,7 +3,21 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
   // console.log(`tx`, tx);
   //  make a global listener for blah
   //
-  document.body.addEventListener("dragstart", function(event) {
+  //
+
+  // Make streams from all events
+  //
+  // Flow those streams into datafications
+
+  const DRAG_EVENT_NAMES = [
+    "drag",
+    "drop",
+    ..."end enter exit leave over start".split(" ").map(name => `drag${name}`),
+  ];
+
+  const log = function(event) {
     console.log(event);
-  });
+  };
+  for (const name of DRAG_EVENT_NAMES)
+    document.body.addEventListener(name, log);
 });

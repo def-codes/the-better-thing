@@ -22,7 +22,7 @@
   for $n in 2..100
     //selector = '[data-layer="%s"]' % $n
     selector = ':nth-child(%s)' % $n
-    {selector}
+    > {selector}
       transform translate3d(0, 0, $n * -1em)
       filter blur($n * 1px)
   
