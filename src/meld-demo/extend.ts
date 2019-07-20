@@ -23,4 +23,14 @@ for (const [type, Protocol] of Object.entries({
     Object.create({ "@type": type, value }, PRIMITIVE)
   );
 
+const EVENT_PROTOTYPE = { "@type": "browser:Event" };
+
+datafy_protocol.extend(Event, event =>
+  Object.create(EVENT_PROTOTYPE, {
+    bubbles: { value: event.bubbles },
+    cancelable: { value: event.cancelable },
+    composed: { value: event.composed },
+  })
+);
+
 export const hello = "world";

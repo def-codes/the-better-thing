@@ -42,13 +42,36 @@ Tag()
 Hashtag()
   Tag()
 
+Container()
+  // container
+
+DomContainer()
+  Container()
+
+// > Content is palpable when it's neither empty or hidden; it is content that
+// > is rendered and is substantive. Elements whose model is flow content or
+// > phrasing content should have at least one node which is palpable. [MDN]
+PalpableContent()
+  // 
+
+PhrasingContext()
+  DomContainer()
+  // container for phrasing elements
+
 PhrasingContent()
   // phrasing content
 
 FlowContent()
   // flow content
 
+Stricken()
+  --type 'Stricken'
 
+Inserted()
+  --type 'Inserted'
+
+Deleted()
+  --type 'Deleted'
 
 Navigable()
   cursor pointer

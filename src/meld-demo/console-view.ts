@@ -3,13 +3,11 @@ import * as tx from "@thi.ng/transducers";
 import * as rs from "@thi.ng/rstream";
 import { updateDOM } from "@thi.ng/transducers-hdom";
 import { render, render_value } from "@def.codes/meld-core";
-import {
-  hijack_console,
-  HijackedConsoleMessage,
-} from "@def.codes/console-stream";
+import { hijack_console } from "@def.codes/console-stream";
 import { datafy } from "@def.codes/datafy-nav";
 
 // This is monotonic.  This should be append only.
+// You mean it shouldn't window?
 
 // The listener to this does not dispatch anything else.
 
@@ -37,11 +35,16 @@ export function register_console() {
     },
     tx.comp(
       tx.slidingWindow(10),
-      tx.map(entries => [
-        "output",
-        tx.map(value => [render_value, { value: value["args"] }], entries),
-      ]),
-      // tx.map(datafy),
+      tx.mapcat(entries => entries),
+      // `method` is log/warn etc.  We could indicate that or split it to
+      // another channel.  By flatteing here, we lose grouping of multiple args.
+      tx.pluck("args"),
+      // @ts-ignore
+      tx.mapcat(args => args),
+      // tx.sideEffect(coo => console.orig.log("ARG", coo)),
+      //tx.map(datafy),
+      tx.sideEffect(coo => console.orig.log("dAATA", coo)),
+      tx.map(thing => ["output", {}, [render_value, thing]]),
       updateDOM({ root: container, ctx: { render }, span: false })
     )
   );
