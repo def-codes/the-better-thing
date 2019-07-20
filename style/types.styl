@@ -6,6 +6,11 @@ Thing()
   &::before
     content var(--prefix) ' '
 
+// How can you tell it's space?
+Space()
+  --type 'Space'
+  background-color var(--space-background)
+
 Indicator()
   font-size 100%
   // This will never show because below
@@ -31,6 +36,18 @@ Affordance()
 
 Tag()
   Indicator()
+
+// huh?
+Hashtag()
+  Tag()
+
+PhrasingContent()
+  // phrasing content
+
+FlowContent()
+  // flow content
+
+
 
 Navigable()
   cursor pointer
@@ -109,3 +126,6 @@ UnorderedList()
   Collection()
   --type 'UnorderedList'
   border-bottom 1em solid orange
+
+Item()
+  --type 'Item'

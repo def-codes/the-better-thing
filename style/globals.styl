@@ -1,11 +1,8 @@
 @import types
 
-*
+*:not(div):not(span)
   Thing()
   transition 0.3s
-  --space-background #222
-  
-  // --main-background rgba(white)
 
   padding 1em
   //background-color rgba(white, 0.01)
@@ -13,7 +10,10 @@
   &::before
     opacity 0.5
 
+// Variables only
+*
   --prefix var(--type)
+  --space-background #222
 
   --hue 0deg
   --saturation 0%

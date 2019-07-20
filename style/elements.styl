@@ -93,9 +93,11 @@
 	
 // ==================================== ELEMENTS: singletons
 
-// How can you tell it's space?
-Space()
-  background-color var(--space-background)
+// Discourage elements with no semantics
+div
+  border 1em solid rgba(red, .5)
+span
+  border 0.2em dashed rgba(red, .5)
 
 html
   background none
@@ -122,6 +124,9 @@ ul
 
 ol
   OrderedList()
+
+li
+  Item()
 
 // How can you tell it's a label?
 // label, .Label
@@ -161,9 +166,6 @@ section
 header
   --type 'Header'
 
-li
-  --type 'Item'
-
 // unit of provenance
 // should have a citation nearby 
 blockquote
@@ -174,5 +176,10 @@ blockquote
 
 cite
   Citation()
+	
+p code
+  display default
+code
+  display block
 
 // ============================ POST rules

@@ -33,15 +33,15 @@ const render_iterable = ({ render }, { type, value: iterable, path }) => [
 ];
 
 const render_object = ({ render }, { value: object, path }) => [
-  "div",
+  "dl.Dictionary",
   { "data-type": "object-properties" },
   Array.from(Object.entries(object), ([key, value]) => [
-    "div",
+    "div.KeyValuePair",
     { "data-type": "key-value", "data-property": key },
-    ["span", { "data-type": "object-key" }, key],
+    ["dt.Term", { "data-type": "object-key" }, key],
     " ",
     [
-      "div",
+      "dd.Definition",
       { "data-type": "object-value" },
       [render, { value, path: [...path, key] }],
     ],
@@ -101,4 +101,4 @@ export const render = (_, { value, path = [] }) => {
 // Wraps value in format needed for `render`, and wrap result in class needed
 // for stylesheets.  Referencing `render` directly rather than from context
 // because this may be called before hdom... wait.
-export const render_value = value => ["div.value-view", [render, { value }]];
+export const render_value = (_, value) => [render, { value }];

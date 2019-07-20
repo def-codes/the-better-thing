@@ -7,17 +7,13 @@ import {
   hijack_console,
   HijackedConsoleMessage,
 } from "@def.codes/console-stream";
+import { datafy } from "@def.codes/datafy-nav";
 
-const render_entry = (_: any, { method, args }: HijackedConsoleMessage) => [
-  "div.console-entry",
-  { "data-method": method },
-  tx.map(render_value, args),
-];
+// This is monotonic.  This should be append only.
 
-const render_entries = (_: any, entries: Iterable<HijackedConsoleMessage>) => [
-  "div.console",
-  tx.map(entry => [render_entry, entry], entries),
-];
+// The listener to this does not dispatch anything else.
+
+// Suppose that if we give it no tokens, it cannot.
 
 export function register_console() {
   hijack_console();
@@ -28,6 +24,9 @@ export function register_console() {
   }
 
   const container = document.body.appendChild(document.createElement("div"));
+  container.classList.add("console");
+  container.classList.add("value-view");
+  container.classList.add("Lens");
 
   rs.stream(console.source).subscribe(
     {
@@ -38,8 +37,9 @@ export function register_console() {
     },
     tx.comp(
       tx.slidingWindow(10),
-      tx.map(entries => [render_entries, entries]),
-      updateDOM({ root: container, ctx: { render } })
+      tx.map(entries => [render_value, entries]),
+      // tx.map(datafy),
+      updateDOM({ root: container, ctx: { render }, span: false })
     )
   );
 }
