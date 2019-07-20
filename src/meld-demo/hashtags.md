@@ -1668,3 +1668,121 @@ leads to a such and such, or just some other types obtaining
 put a checkbox next to each element with a certain property (e.g. touched, has
 it been touched at any point).  One-way properties like that are okay.
 
+Even if you had rules that would cause an infinite overflow, there's nothing
+saying that it has to execute *eagerly* and *greedily*.  I think what I mean is
+*synchronously*.
+
+It could be not-eager if you required user interaction to advance (e.g. to give
+it a token).
+
+Each touch, each tap, each click, gets one token.
+
+You just need a way to automate the tapping---or to tap into a credit.
+
+It could be non-greedy if it could be satisfied with less than an exhaustive
+(recursive) application of the rule.
+
+And it would *have* to be asynchronous.  It's pull based, and so would work well
+with a cost model.
+
+## push versus cost
+
+For pull-based sequences, a cost model can be applied simply by decrementing TTL
+before every pull (and stopping, on the honor system I guess, when you're dead
+broke).
+
+Streams are push-based sequences.  You don't decide when you get called.  We
+take the view of the stream consumer, that streams are exotic, coming from the
+runtime, below see level for even the javascript code.  So while we could charge
+ourselves something for receiving these events, it seems better to consider
+these callbacks “free” until they need to pull something.
+
+
+
+
+
+
+## containment -- opinion
+
+We've talked about various techniques for composition.
+
+^ Linear thinking
+
+We've also talked about how the boundary of composability CSS is extended by the
+use of certain custom property constructions.
+
+We've also talked about the order-agnostic, application of template assertions
+in matching locations (applications which themselves create new matching
+opportunities).  One motivator of these rules is to support the polymorphic
+assertion of (representational) traits about multi-class entities.
+
+(sometimes with context, or rescourse to context)
+
+One of the outcomes of all this is to “cram” more attributes into a single
+entity: A thing has multiple types.  Some of those types may be related by
+subclass, superclass, or oblique relationships.
+
+Meanwhile, the elements used in the representation may have their own semantics.
+
+Consider these element templates:
+
+    .Thing.Container.OrderedList.Vector
+
+*versus*
+
+    .Thing
+      .Container
+        .OrderedList
+          .Vector
+
+(That's what I like about Stylus.)
+
+The first asserts a single element with four classes.  An elelement is not
+specified.  Order does not matter.
+
+The second asserts four nested containers each with a different class.  Elements
+are not specified.  Order matters.
+
+Either of these might be the consequent of a rule.  The elements could be filled
+in with default (`div`), or they could be matched against arbitrary elements to
+an existing subtree of the matched context.  But it seems to me that couldn't be
+the end of the story.  Could you talk about those things, the created elements,
+from a process?  I mean, those particular things?
+
+In cases where particular types lead to particular opportunities (with the thing
+“as” that type).  “As a number, you can do this with this,” “As a value, you can
+do this,” “As a thing, you can do this.”
+
+You could break that out on demand, though.  There would be no need for that in
+every single element.
+
+Aside: In the above example, `OrderedList` is the second-to-last class, and it
+is the type associated with the `ul` element.  The `ul` should directly contain
+its items, but this uses another general container to represent a special
+subclass of ordered list.
+
+
+
+## Emacs integration
+
+I mean... wouldn't it be nice?  I could just pick up the syntax tree every so
+often, JSONify it, and send it to the browser over a socket.  Or to node over
+IPC.
+
+And with XWidgets, you can run the browser right in Emacs!
+
+## Discovery
+
+Toybox dump, but automatic?
+
+## Don't publish
+
+Viruses don't have canonical versions.
+
+If everyone is looking for a thing that doesn't exist as such, it now exists.
+
+The searches themselves are a thing, once they cross some threshold.
+
+What's better, a thing that exists and people can find, or a thing people want
+and nobody has?
+

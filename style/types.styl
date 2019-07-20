@@ -1,0 +1,108 @@
+// Declarations only: zero emit
+
+Thing()
+  --type 'Thing'
+  background-color s('hsla(var(--hue), var(--saturation), var(--luminosity), var(--alpha))')
+  &::before
+    content var(--prefix) ' '
+
+Indicator()
+  font-size 100%
+  // This will never show because below
+  --type 'Indicator'
+
+Indicated()
+  // --saturation 100%
+  --luminosity 100%
+  --alpha 66%
+
+Affordance()
+  Indicator()
+  --type 'Affordance'
+  cursor hand
+  border 1em solid rgba(green, 0.2)
+  box-shadow 0 0 2em -0.5em
+  // Was curious... no such thing in Gecko.
+  // &:active
+  //   background #F00
+
+  &:hover
+    background var(--indicator-color)
+
+Tag()
+  Indicator()
+
+Navigable()
+  cursor pointer
+  Affordance()
+  --type 'Navigable'
+	
+Section()
+  --type 'Section'
+	
+Header()
+  --type 'Header'
+
+Quotation
+  --type 'Quotation'
+
+Citation()
+  --type 'Citation'
+
+Draggable()
+  header
+    Affordance()
+  // indicate draggability how
+
+Lens()
+  --type 'Lens'
+  // something
+  box-shadow inset 0 0 2em -0.5em
+
+Porthole()
+  // ORDER! Navigable is Affordance which is Indicator, which has box-shadow.
+  // box-shadow does allow multiple values, though we don't have a way (that I
+  // know of) to combine them.
+  // 
+  // If CSS vars could refer to themselves (whatever value they would be
+  // overriding), then you could compose them non-destructively, again, allowing
+  // for arbitrary ordering.
+  // 
+  // 
+  // for this particular effect it may
+  Navigable()
+  Lens()
+  --type 'Porthole'
+  width 20rem
+  height 20rem
+  border-radius 50%
+  overflow hidden
+  background #AAA
+
+Paragraph()
+  --type '¶'
+
+Aside()
+  --type 'Aside'
+
+Collection()
+  --type 'Collection'
+
+List
+  Collection()
+  Sequence()
+  // Type won't be seen because requires subtype.  But still
+  --type 'List'
+
+OrderedList()
+  List()
+  --type 'OrderedList'
+
+Vector()
+  OrderedList
+  --type 'Vector'
+
+UnorderedList()
+  Collection()
+  --type 'UnorderedList'
+  border-bottom 1em solid orange

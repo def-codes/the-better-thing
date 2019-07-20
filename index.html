@@ -4,7 +4,8 @@
     <title>the better thing</title>
     <meta charset="utf-8" />
     <link href="/index.css" rel="stylesheet" />
-    <link href="/console.css" rel="stylesheet" />
+    <!-- <link href="/console.css" rel="stylesheet" /> -->
+    <link href="/build/style/globals.css" rel="stylesheet" />
     <link href="/build/style/elements.css" rel="stylesheet" />
     <link href="/build/style/classes.css" rel="stylesheet" />
     <!-- <link href="/build/style/layers.css" rel="stylesheet" /> -->
@@ -12,713 +13,90 @@
     <link href="/build/style/fonts.css" rel="stylesheet" />
 		<!-- Stylus won't compile for some reason. -->
 		<style>
-label, .Label {
-  --label-hue: 0deg;
-  --label-saturation: 50%;
-  --label-luminosity: 50%;
-  --label-alpha: 0.5;
+			label, .Label {
+			--label-hue: 0deg;
+			--label-saturation: 50%;
+			--label-luminosity: 50%;
+			--label-alpha: 0.5;
 			
-  background-color: white;
-  background-color:
-    hsla(
+			background-color: white;
+			background-color:
+			hsla(
       var(--label-hue),
       var(--label-saturation),
       var(--label-luminosity),
       var(--label-alpha));
-}
+			}
 
 		</style>
   </head>
   <body>
 		<header>
-			<p>As a document, I should tell you something about myself.  Do I hold
-			together?  More or less.</p>
+			<p>This document explores the portability of things in web documents.</p>
 		</header>
 		
     <main>
 			<h1 class="Claim">
 				<b class="plain">(CLAIM)</b>
-				This is worth looking at
+				It's PORTABLE: you can move it
 			</h1>
-			<p>What's your main thing?</p>
-			<p>there's a toybox dump</p>
-		</main>
-		
-		<section draggable="true" id="html-toybox">
-			<p>This section shows off the building blocks of HTML.</p>
-			<aside>These need global identifiers and should be represented by
-			terms.</aside>
-			<p>These descriptions are written as “articles” to emphasize that they
-			should be portable.  That is, they should not defer (anything
-			essential) to their immediate context.</p>
-			<p>Each article should serve as an RDF description.</p>
-			<p>We use built-in semantics when they have some application.  The
-			marks of these semantics can be represented in any way, though MELD
-			includes defaults in its reference implementation (this).</p>
-		</section>
+			<p>I am making stuff portable.</p>
+			<p>What I mean is, draggable.</p>
 
-		<article contenteditable>
-			<h2>Output</h2>
+			<p>How I would do this, if I were doing this now:</p>
 			
-			<p>These elements are related to computed content.  They are suitable
-			for the reification of values resulting from a
-			computation.<aside>which is to say, pretty much anything that you'll
-			see in a MELD environment.</aside></p>
+			<ol>
+				<li>restore custom console</li>
+				<li>modify console to call datafy</li>
+				<li>datafy Event</li>
+				<li>and subtype if necessary</li>
+				<li>listen for event</li>
+				<li>log event</li>
+			</ol>
 			
-			<blockquote>
-				The HTML Output element (&lt;output&gt;) is a container element into
-				which a site or app can inject the results of a calculation or the
-				outcome of a user action.
-			</blockquote>
-			cite, etc
-			https://developer.mozilla.org/en-US/docs/Web/HTML/Element/output
-			
-			<p>Should have provenance associated (but not via cite?).</p>
-			
-			<output contenteditable="false" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'This girl is on fire')">
-				The result of the operation is 42.
-			</output>
-		</article>
+			<p></p>
 
-		<div class="Box"></div>
-		
-		<article id="html-output">
-			<h2>Sample</h2>
 			
-			<p>Related to #Output</p>
+			<section>
+				<p>For dragging between places, you need at least two places.</p>
+				<ul>
+					<li>place 1</li>
+					<li>place 2</li>
+				</ul>
+			</section>
 
-			<p>samp <q>represents sample (or quoted) output from a computer
-			program</q></p>
-			
-			<samp>
-				[
-				"things",
-				"and",
-				"stuff"
-				]
-			</samp>
-			
-			<p>There is also `var`</p>
-			<blockquote>
-				The HTML Variable element (&lt;var&gt;) represents the name of a
-				variable in a mathematical expression or a programming context. It's
-				typically presented using an italicized version of the current
-				typeface, although that behavior is browser-dependent.
-			</blockquote>
-			<p>While RDF proper does not include variables (that I know of),
-			SPARQL and related notations make variables first-class terms for most
-			purposes.  RDF variables should use this tag.</p>
-
-		</article>
-
-		<article>
-			<h1>So I talk about a meter.</h1>
-			<meter value="0.5">
+			<script>
+				require(['@th.ing/transducers'], (tx) => {
 				
-				I am a <a
-				href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meter">meter</a>.
-				I allow “phrasing content”
-			</meter>
+				})
+			</script>
 
-		</article>
-		
-		<article>
-			<h2>what's an article?</h2>
-			<p>At the risk of a circular definition, an article is any fabriated
-			thing.  The (HTML5) spec defines the `article` tag as being suitable
-			for basically “anything that could be syndicated.”  (Here's the <a
-			href="https://www.w3.org/TR/2011/WD-html5-20110525/sections.html#the-article-element">actual
-			definition</a>.) Etymonline has “<a
-			href="https://www.etymonline.com/word/syndicate#etymonline_v_22533">syndicate</a>”
-			as, To judge together.</p>
-		</article>
-
-		<div class="Porthole">
-			I'm a porthole.  Don't mind me.
-		</div>
-		
-		<article>
-			<h2>terms</h2>
-			<p>A <i>term</i> </p>
-		</article>
-		
-		<figure>
-			I am a figure.  I should have a representation in some other form
-			(than the narrative).  Like, a Space should go in a figure.
-			<svg>
-				<circle cx="50" cy="50" r="20" fill="red" />
-				<circle cx="76" cy="82" r="20" fill="red" />
-				<circle cx="46" cy="96" r="20" fill="red" />
-			</svg>
-			<figcaption>This is a label for the figure, perhaps a comment on the
-			figure.  Whose point of view is here?</figcaption>
-		</figure>
-
-		<article>
-			The mark element
-			https://developer.mozilla.org/en-US/docs/Web/HTML/Element/mark <p>Mark
-			is a good one.  It's pretty generic but unlike `span` entails
-			visibility. </p>
-		</article>
-
-		<article>
-			<h2>Navigation</h2>
-			<p>Yeah HTML has a *nav* element.</p>
+			<article>
+				<p>Use case.  Tear off a link, boom, you've made a layer.  A layer where
+				the selected link now has the mic, the point of view.  <aside>I mean,
+				there might be more particular things to do with any given term.  You may
+				need to drop it on a “dead zone” to reliably make a layer.  The drop zone
+				should be located where that is the most obvious thing to do.  In the dead
+				zone generally targets are dormant and unresponsive to the dragged thing.
+				But yeah.  That alone.</aside></p>
+			</article>
 			
-			https://developer.mozilla.org/en-US/docs/Web/HTML/Element/nav
-			
-			<p>This is a no-brainer for datafy nav.  The interesting thing will
-			be, supporting the navigation in-place.  So you create a
-			representation of the thing linked to.  And you provide link to its
-			siblings.  The details (links) is collapsible by way of the (summary)
-			label.</p>
-			<nav>
-				<dl>
-					<div class="KeyValuePair">
-						<dt>foaf:name</dt>
-						<dd>John Wayne</dd>
-					</div>
-					<div class="KeyValuePair">
-						<dt>describedBy</dt>
-						<dd>
-							<aside>How to represent this here?</aside>
-							The Life and Death of John Wayne
-						</dd>
-					</div>
-				</dl>
-			</nav>
-		</article>
+		</main>
 
-		<p>I am a paragraph.  I am not portable because I mention that I'm
-		followed by a blockquote and citation.</p>
-
-		<article>
-			<h2>Quotation and Citation</h2>
-			<p>The cite element indicates the Provenance of something.</p>
-			
-			<blockquote>The HTML Citation element (&lt;cite&gt;) is used to
-			describe a reference to a cited creative work, and must include the
-			title of that work. The reference may be in an abbreviated form
-			according to context-appropriate conventions related to citation
-			metadata</blockquote>
-
-			<cite>From <a
-			href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/cite">“&lt;cite&gt;:
-			The Citation element,”</a> on MDN</cite>
-
+		<hr />
+		<p>below is heap</p>
+		<p>hr can effect all following items</p>
+		<p>like a partition, but without real grouping</p>
+		
+		<article id="repl">
+			i dunno, make a repl?  I mean besides userland.
+  		<aside>
+				<p>But you *have* the console</p>
+				<p>Socrates, you'll never understand today's computer systems.</p>
+			</aside>
 		</article>
 		
-		<time>I am a time.  I am supposed to tell you a time</time>
-
-		<article>
-		</article>
-
-		<article>
-			<code>html:data</code>
-			<label>an <a href="#html:Element">HTML element</a></label>
-			<!-- comment -->
-			<p>The `data` element “links a given content with a machine-readable
-			translation” (<a
-			href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/data">MDN</a>)</p>
-			<p>Its *value* property (attribute) contains the machine-readable
-			version of the content.</p>
-			<aside>RDFa?</aside>
-			<p>Here is a data element</p>
-			<data value="Tribe">A Tribe Called Quest</data>
-		</article>
-
-		<article>
-			<code>html:dfn</code>
-			<!-- label of type -->
-			<label>an <a href="#html:Element">HTML element</a></label>
-			
-			<p>A <dfn>cat</dfn> is an animal that sleeps in the ethernet.</p>
-			
-			<blockquote>
-				The HTML Definition element (&lt;dfn&gt;) is used to indicate the
-				term being defined within the context of a definition phrase or
-				sentence. The &lt;p&gt; element, the &lt;dt&gt;/&lt;dd&gt; pairing,
-				or the &lt;section&gt; element which is the nearest ancestor of the
-				&lt;dfn&gt; is considered to be the definition of the term.
-			</blockquote>
-			<cite>
-				<a
-						href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dfn">
-				“&lt;dfn&gt;: The Definition element”</a>
-			</cite>
-		</article>
-		
-		<dl>
-			<div class="KeyValuePair">
-				<dt>The Description List element</dt>
-				<dd>
-					This is about the dl tag, which contains the other types (dt and dd).
-				</dd>
-			</div>
-			<div class="KeyValuePair">
-				<dt>The Description Term element</dt>
-				<dd>
-					the term being defined in a definition list
-				</dd>
-			</div>
-			<div class="KeyValuePair">
-				<dt>
-					dd
-				</dt>
-				<dd>
-					a “description details” element
-					https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dd
-					<p>Suppose a dd had a `data` element with a serialized structured
-					value.  And some representation (a figure?).  Then you could use
-					definition list in a “semantic” way for arbitrary keyed maps.
-					</p>
-				</dd>
-			</div>
-		</dl>
-
-		<article>
-			<code>html:datalist</code>
-			<label>an <a href="#html:Element">HTML element</a></label>
-			<aside>Could reify `datalist` and `option` with pseudo-elements?</aside>
-			
-			<datalist>
-				<option value="empty" />
-				<option value="full" />
-			</datalist>
-			
-		</article>
-
-		<article>
-			<code>html:datalist</code>
-			<label>an <a href="#html:Element">HTML element</a></label>
-		</article>
-		
-		<pre>
-			I am a “preformatted” region.  Kind of like a teletype region.
-		</pre>
-		
-		<table>
-			<thead>
-				<!-- Some elements have no place to label themselves: they give all
-						 to their children.  These elements are harder to annotate,
-						 supposing that you don't want to violate the schema. -->
-				<tr>
-					<th>This is a table heading</th>
-					<th>This is another table heading</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td>1</td>
-					<td>2</td>
-				</tr>
-				<tr>
-					<td>44.99</td>
-					<td>34.78</td>
-				</tr>
-				<tr>
-					<td>44.99</td>
-					<td>34.78</td>
-				</tr>
-			</tbody>
-			<tfoot>
-				<tr>
-					<td>a cell in the footer</td>
-					<td>another cell in the footer</td>
-				</tr>
-			</tfoot>
-		</table>
-		<article>
-			<details>
-				<summary>I am an article.</summary>
-
-				<p>I am a <a href="#Number">Number</a>].</p>
-				<p><label>The number 5.</label></p>
-			</details>
-		</article>
-		<article>
-			<h2>darkening or lightening</h2>
-			<p>Things may contribute light or consume light.</p>
-			<p>We cannot talk about a “lack of light.”</p>
-			<p>The extremes map directly to black and white.</p>
-			<p>You may blend in by using a low value (0.1 or 0.2) for alpha.</p>
-			<p>Low luminosity, especially with high alpha, consumes light.</p>
-			<p>Low alpha values compose better than high alpha values.</p>
-			<p>Order matters less when several colors can be seen, though the
-			composition may become muddy.</p>
-			
-		</article>
-		<article>
-			<p>I am a [String].</p>
-			<p><label>The text: <q>Once upon a time</q></label></p>
-		</article> 
-		<!-- These are classes in addition to article. -->
-		<article class="Vector">
-			<p>I am a [Vector].</p>
-			<details>
-				<summary>I consist of these items:</summary>
-				<ol>
-					<li>8</li>
-					<li>6</li>
-					<li>7</li>
-					<li>5</li>
-					<li>3</li>
-					<li>0</li>
-					<li>9</li>
-				</ol>
-			</details>
-		</article>
-		<article>
-			<p>I am a list.  I mean, I <i>myself</i> am a paragraph.  Well,
-			not... anyway.</p>
-			<ul>
-				<li>Whenever you <code>type</code>, you <span class="Sequence">
-				<code>i</code>
-				<code>t</code>
-				<code>e</code>
-				<code>r</code>
-				<code>a</code>
-				<code>t</code>
-				<code>e</code>
-				<code> </code>
-				<code>a</code>
-				<code> </code>
-				<code>s</code>
-				<code>e</code>
-				<code>q</code>
-				<code>u</code>
-				<code>e</code>
-				<code>n</code>
-				<code>c</code>
-				<code>e</code>
-			</span>
-				.</li>
-				<li>Whenever you make an outline, you generate a tree.</li>
-				<li>Whenever you are with people, you navigate graphs.</li>
-				<li>Whenever you make a rule, you write a function.</li>
-			</ul>
-		</article>
-		<aside>
-			<p>An `aside` is something that interrupts your flow.</p>
-			<p>When it has that momentary effect in drama, you recover
-			quickly.</p>
-			<p>What should we do, as a society, with interruptors of flow?
-			Q.E.D.</p>
-		</aside>
-		<aside topic="dude, text is one-dimensional">
-			<p>If you're looking at the source code, these asides may appear at a
-			different point in the flow.  No particular reason.  The
-			one-dimensional structure of a sequence demanded it go somewhere.</p>
-			<p>Sure, text looks two-dimensional when broken into lines and
-			paragraphs.  That's a planar interpretation of a linear sequence.</p>
-		</aside>
-		<article>
-			<p>I am a [Set].</p>
-			<ul>
-				<!-- What are these links doing? -->
-				<!-- Do they link to the parent set, which I take it is anonymous? -->
-				<!--  -->
-				<li>I am <code>frog</code>.  I am a member of [a Set] </li>
-				<li>I am <code>log</code>.  I am a member of [a Set]</li>
-				<li>I am <code>dog</code>.  I am a member of [a Set]</li>
-				<!-- There's your nav k/v (plus Turtle/N3) -->
-				<!--
-						When you click a link, it creates a new representation.  Which
-						may itself include some other links.  But it's affixed to the
-						place where you clicked it.  Cause that was a local event there.
-				-->
-			</ul>
-		</article>
-		
-		<article>
-			<p>I am a note</p>
-		</article>
-		
-		<section>
-			<heading>
-				<h2>DOM elements are real</h2>
-				<h3>What does a heading mean?</h3>
-			</heading>
-			
-			<p>About DOM elements one thing is sure: they are real.  They
-			are as real as anything in the world of computing, in that people's time
-			is devoted to them.  Moreover, most people are, right now, in possession
-			of ready tools for their discovery and inspection!  Not to mention
-			intervention!  I'm talking about the developer tools of course, which
-			have been built-in to common browsers for years.  I mean, that's two
-			levels deep.  How did we get here, and how do we get more of that sweet,
-			sweet meta-action?</p>  <p>So, while all elements are portable,
-			consider the `article` element as a special agent of portability.
-			Article indicates a disposition, an embedded intent to be shared, to be
-			picked up and moved around.  Indeed, what other kind of thing is there?
-			Yet most elements we would not expect to survive out of context.
-			Article represents a (more or less) standalone thing, that you may carry
-			anywhere and leave anywhere.</p> <p>Some things are labeled</p>
-			<details> <summary>This is a summary</summary> <p>Some things have
-			details.  You can use the `details` and `summary` elements together to
-			easily hide extended content.</p> <p>Note that details/summary are
-			stateful.</p> </details> <p>Traits have indicators, so do elements.
-			(indicate :syndicate).  Declarative rules style them.  Never forget
-			that.  Many professionals learn and use CSS without need for imperative
-			languages.</p> <p>The ideal is a combinatorial, or compositional system,
-			where semantics from multiple domains can be overlaid on an otherwise
-			immutable thing without conflict or (too much) loss.  (Indeed, what is
-			the fundamental quantity in this industry that is not preserved?  I.e. a
-			little of which is lost each time?  Yes, time.)</p>
-		</section>
-		
-		<section> <section id="mind-map"></section> </section>
-			
-		<section id="Nonmonotonicity">
-			<h3>non-monotonicity</h3>
-			<p><code class="Hashtag">2020</code> a difficult problem</p>
-			<p>examples recreate the world</p>
-			<p>time is monotonic.  if it weren't...</p>
-		</section>
-		
-		<section id="DirectManipulation">
-			<h3>direct manipulation</h3>
-			<p><code class="Hashtag">2020</code> because non-monotonicity</p>
-		</section>
-		
-		<section id="Negation">
-			<h3>negation</h3>
-			<code class="Hashtag">2020</code>
-			<p>like non-monotonicity, logical negation dramatically complicates the
-			system.</p>
-			<p>focus first on what you <i>can</i> do</p>
-		</section>
-		
-		<section>
-			<h3>bicycles for the mind</h3>
-			<p>computers as “fantasy amplifiers” (Alan Kay) or “bicycles for the mind”
-			(Steve Jobs?)</p>
-		</section>
-
-		<section>
-			<h3>userspace</h3>
-			<p>where people have power</p>
-		</section>
-
-		<section>
-			<h3>description</h3>
-		</section>
-		
-		<section>
-			<h3>the semantic web</h3>
-			<p>was always a good idea but lacked tools for people to make it real</p>
-		</section>
-
-		<section>
-			<h3>information > mechanism</h3>
-			<p>semantics, meaning, knowledge</p>
-			<p>AK: the system knows something about itself and what it's doing</p>
-		</section>
-		
-		<section>
-			<h3>visibility</h3>
-		</section>
-
-		<section>
-			<h3>provenance</h3>
-		</section>
-
-		<section>
-			<h3>rules</h3>
-			<p>people understand rules</p>
-			<p>rules are declarative, more to the point</p>
-		</section>
-
-		<section>
-			<h3>monotonic growth</h3>
-		</section>
-
-		<section> <h3>play</h3>
-		http://nautil.us/issue/73/play/why-it-pays-to-play-around
-		https://news.ycombinator.com/item?id=20131672 </section>
-
-		<section>
-			<h3>close-enough answers</h3>
-			<p>approximate answers are good enough in many cases</p>
-		</section>
-		
-		<section>
-			<h3>visibility-by-default</h3>
-			death to
-			console.log
-			
-			<blockquote>
-				<p>Another example. Most programs today manipulate abstract data
-				structures and opaque objects, not pictures. How can we visualize the
-				state of these programs? </p>
-				<p>Again, wrong question. A better attitude is to assert that we have to
-				be able to understand the state of our programs. We can then ask: <i>How
-				do we design data structures that can be visualized?</i> Can we invent
-				data structures that are <i>intended</i> to be visualized?  <mark>How do
-				we move towards a culture where only visually-understandable data is
-				considered sound?</mark> Where opaque data is regarded in the same way
-				that "goto" is today? </p>
-				<p> Bret Victor, <a
-				href="http://worrydream.com/LearnableProgramming/#end"> “Learnable
-				Programming” </a> </p>
-			</blockquote>
-			
-			<p>how do you know if the problem is with the thing you're interested in,
-			or with your means of seeing it.</p>
-			
-		</section>
-		
-		<section>
-			<h3>open world assumption</h3>
-			<p>design, including system design, information design, interaction
-			design, and even graphic design, proceeds by making claims</p>
-			<p>ontologies can find contradictions in claims (and also help us say more
-			with less)</p>
-			<p>contrast this with the closed-world thinking that dominates</p>
-		</section>
-		
-		<section>
-			<h3>dynamic thinking <i>versus</i> static thinking</h3>
-			<p>userspace versus kernelspace spec versus type systems.  TypeScript is
-			dead.  Long live TypeScript!</p>
-		</section>
-		
-		<section>
-			<h3>intermediate abstraction</h3>
-			<p>we build everything out of atoms, and they're the wrong atoms</p>
-			<p>we use the same low-level tools for everything.  most tools should be
-			ad-hoc, created <i>in situ</i></p>
-			<p>see Odersky</p>
-		</section>
-		
-		<section> <h3>heterogeneity</h3>
-		<p>a.k.a. “diversity”. make form secondary in order to intermix
-		domains</p> </section>
-
-		<section>
-			<h3>reification</h3>
-			<p>making things real</p>
-			<p>if it matters, it should be a thing, like everything else</p>
-			<p>so we can talk about it, pass it around, etc</p>
-		</section>
-
-		<section>
-			<h3>green and yellow code</h3>
-			<p>from raganwald, IIRC</p>
-			<p>green code is userland code</p>
-			<p>yellow code is kernel code (system and drivers)</p>
-		</section>
-
-		<section id="SpaceIsThePlace">
-			<h3>space is the place</h3>
-			<p>screens are cages, we won't miss them</p>
-			<p>we need to think about computing in space <i>now</i></p>
-		</section>
-		
-		<section>
-			<h3>forcefield as default layout</h3>
-			<p>we put things into space</p>
-			<p>composable with manual rearrangement</p>
-		</section>
-		
-		<section>
-			<h3>interop</h3>
-			<p>look at all of the wonderful things people have built</p>
-			<p>there's practically no way to put them together</p>
-			<p>the system that lets you put things together <i>dynamically</i> will
-			become the lingua franca</p>
-		</section>
-		
-		<section id="UserlandHomoiconicity">
-			<h3>userland homoiconicity</h3>
-			<p>work at once on model and its representation</p>
-		</section>
-		
-		<section>
-			<h3>rdf as bytecode</h3>
-			<p>See this for example.
-			https://m00natic.github.io/lisp/manual-jit.html</p>
-			<p>https://news.ycombinator.com/item?id=20191406 looks interesting (on my
-			reading list), but still no mention of RDF</p>
-		</section>
-		
-		<section id="DeathToConsoleLog">
-			<h3>death to console log</h3>
-			<p>visible, dynamic... but deserves mention</p>
-			<p>actually... we can intercept console log and do a “good thing” with it.
-			someone has to work on drivers and interop, after all, so why not make
-			things less painful?</p>
-		</section>
-		
-		<section>
-			<h3>multi-dialect</h3>
-			<p>turtle, lisp, and javascript</p>
-			<p>macros</p>
-		</section>
-		
-		<section>
-			<h3>“forgotten” ideas</h3>
-			<p>as per Armstrong --- or Sussman.  We've moved on to wildly complex
-			things but never really mastered the older things (reasoners, expert
-			systems) </p>
-		</section>
-
-		<section id="DontMakeStuffUp">
-			<h3>don't make stuff up... unless you really have to</h3>
-			<p>find the existing problem/concept space</p>
-			<p>unlocks resources, vocabulary, more things fall into place</p>
-		</section>
-		
-		<section>
-			<h3>cut the machine loose</h3>
-			<p>RDF as compilation source and target</p>
-			<p>there is no reason to use lower-level languages</p>
-		</section>
-		
-		<section>
-			<h3>reintroduce namespaces</h3>
-			<code class="Hashtag">#future</code>
-			<ul>
-				<li>can still write "bare" terms by defaulting certain imports</li>
-				<li>or you can use prefix approach (CURIE's) </li>
-			</ul>
-		</section>
-		
-		<section>
-			<h3>playing with file system</h3>
-			<p>force-directed layout for files</p>
-			<p>cluster by some quality</p>
-			<p>display with relative size --- or any other metric you can compute</p>
-		</section>
-
-		<section>
-			<h3>boggle example outline</h3>
-			<pre>- the board 
-  - the board is just a graph 
-- the word list 
-  - the word list is used to construct a trie 
-- the trie 
-  - a trie is a special kind of tree 
-    - a prefix tree 
-- prefix matches (or non matches)
-- the search 
-  - stateful 
-- the rules 
-  - rules are used to prune the search space 
-- the display 
-- the solutions
-			</pre>
-		</section>
-
-		<aside>Don't put block-level elements inside `summary`.  It hides the
-		label.</aside>
-		
-		<aside>You will have a built-in markdown parser.  Use it.</aside>
-		
-		<script src="./configure-require.js"></script>
-		
-		<script data-main="@def.codes/meld-demo"
-						src="/node_modules/requirejs/require.js"></script>
-		
+		<script src="/configure-require.js"></script>
+		<script data-main="/portable.js" src="/node_modules/requirejs/require.js"></script>
 	</body>
 </html>

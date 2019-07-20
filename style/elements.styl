@@ -1,137 +1,8 @@
-// Stylus <3 CSS variables.  Kind of.
-
-// ========================= MIXINS
-
-Thing()
-  --type 'Thing'
-  background-color s('hsla(var(--hue), var(--saturation), var(--luminosity), var(--alpha))')
-  &::before
-    content var(--prefix)
-
-Indicator()
-  font-size 100%
-  // This will never show because below
-  --type 'Indicator'
-
-Indicated()
-  --luminosity 100%
-
-Affordance()
-  Indicator()
-  --type 'Affordance'
-  cursor hand
-  border 1em solid rgba(green, 0.2)
-  box-shadow 0 0 2em -0.5em
-  // Was curious... no such thing in Gecko.
-  // &:active
-  //   background #F00
-
-  &:hover
-    background var(--indicator-color)
-
-Tag()
-  Indicator()
-
-Navigable()
-  cursor pointer
-  Affordance()
-  --type 'Navigable'
-	
-Section()
-  --type 'Section'
-	
-Header()
-  --type 'Header'
-
-Quotation
-  --type 'Quotation'
-
-Citation()
-  --type 'Citation'
-
-Draggable()
-  header
-    Affordance()
-  // indicate draggability how
-
-Lens()
-  --type 'Lens'
-  // something
-  box-shadow inset 0 0 2em -0.5em
-
-Porthole()
-  Lens()
-  Navigable()
-  --type 'Porthole'
-  width 20rem
-  height 20rem
-  border-radius 50%
-  overflow hidden
-  background #AAA
-
-Paragraph()
-  --type '¶'
-
-Aside()
-  --type 'Aside'
-
-Collection()
-  --type 'Collection'
-
-List
-  Collection()
-  Sequence()
-  // Type won't be seen because requires subtype.  But still
-  --type 'List'
-
-OrderedList()
-  List()
-  --type 'OrderedList'
-
-Vector()
-  OrderedList
-  --type 'Vector'
-
-UnorderedList()
-  Collection()
-  --type 'UnorderedList'
-  border-bottom 1em solid orange
-
-// =====================  ELEMENTS: GENERAL
-
-// Global defaults
-*
-  Thing()
-  transition 0.3s
-  --space-background #222
-  
-  // --main-background rgba(white)
-
-  padding 1em
-  //background-color rgba(white, 0.01)
-  border 1px solid rgba(black, 0.5)
-
-  --prefix var(--type)
-
-  --hue 0deg
-  --saturation 0%
-  --luminosity 50%
-  --alpha 20%
-
-  --label-hue 0deg
-  --label-saturation 100%
-  --label-lumunosity 100%
-  // --label-alpha 1
-  --indicator-color #FAA
-  
-  --border-hue 0deg
-  --border-saturation 100%
-  --border-luminosity 100%
-  --border-alpha 1
-  --border-color s('hsla(var(--border-hue), var(--border-saturation), var(--border-luminosity), var(--border-alpha))')
+@import types
 
 // MESO-GENERAL
 
+// Identified
 [id]:not([id=""])
   --prefix '#' attr(id)
   Tag()
@@ -213,6 +84,7 @@ UnorderedList()
 	// This serves as an assertion, and we can make these for "free".
 	// Well I mean there must be some cost to minting them.
 
+// Classified
 [class]:not([class=""])
   --type attr(class)
 
@@ -286,6 +158,12 @@ article
 section
   margin-top 1em
 
+header
+  --type 'Header'
+
+li
+  --type 'Item'
+
 // unit of provenance
 // should have a citation nearby 
 blockquote
@@ -296,9 +174,5 @@ blockquote
 
 cite
   Citation()
-	
-.Porthole
-  Porthole()
-  text-align center
 
 // ============================ POST rules

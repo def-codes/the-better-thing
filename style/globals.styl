@@ -1,0 +1,33 @@
+@import types
+
+*
+  Thing()
+  transition 0.3s
+  --space-background #222
+  
+  // --main-background rgba(white)
+
+  padding 1em
+  //background-color rgba(white, 0.01)
+  border 1px solid rgba(black, 0.5)
+  &::before
+    opacity 0.5
+
+  --prefix var(--type)
+
+  --hue 0deg
+  --saturation 0%
+  --luminosity 50%
+  --alpha 20%
+
+  --label-hue 0deg
+  --label-saturation 100%
+  --label-lumunosity 100%
+  // --label-alpha 1
+  --indicator-color #FAA
+  
+  --border-hue 0deg
+  --border-saturation 100%
+  --border-luminosity 100%
+  --border-alpha 1
+  --border-color s('hsla(var(--border-hue), var(--border-saturation), var(--border-luminosity), var(--border-alpha))')
