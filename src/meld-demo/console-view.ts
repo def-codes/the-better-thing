@@ -37,7 +37,10 @@ export function register_console() {
     },
     tx.comp(
       tx.slidingWindow(10),
-      tx.map(entries => [render_value, entries]),
+      tx.map(entries => [
+        "output",
+        tx.map(value => [render_value, { value: value["args"] }], entries),
+      ]),
       // tx.map(datafy),
       updateDOM({ root: container, ctx: { render }, span: false })
     )
