@@ -8,7 +8,8 @@ datafy_protocol.extend("@imaginary", imaginary => {
 
 const PRIMITIVE: PropertyDescriptorMap = {
   "@context": {
-    enumerable: true,
+    // Not sure if I want to see this
+    // enumerable: true,
     value: {
       rdf: "http://rdf..syntax",
       xsd: "http://xml/schema",
@@ -23,7 +24,7 @@ for (const [type, Protocol] of Object.entries({
   "xsd:string": String,
 }))
   datafy_protocol.extend(Protocol, value =>
-    Object.create({ "@type": type, value }, PRIMITIVE)
+    Object.assign(Object.create(PRIMITIVE), { "@type": type, value })
   );
 
 // Anyway, can we do this automatically if these are built-ins?

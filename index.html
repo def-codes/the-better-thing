@@ -31,71 +31,57 @@
 		</style>
   </head>
   <body>
-	<script>
-		console.log("they're coming to take you away");
-	</script>
-    <main>
+		<script>
+			console.log("they're coming to take you away");
+		</script>
+    
+		<main>
 			<h1 class="Claim">
 				<b class="plain">(CLAIM)</b>
 				It's PORTABLE: you can move it
 			</h1>
-			<ol>
-				<li><s>restore custom console</s></li>
-				<li draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'This girl is on fire')"><s>modify console to call datafy (because it's a f'n repl)</s></li>
-				<li><s>listen for drag:start events</s></li>
-				<li><s>log event</s></li>
-				<li><s>datafy Event</s></li>
-				<li><s>log datafied event</s></li>
-				<li><s>refine datafy for DragEvent</s></li>
-				<li>repeat for drag:drag</li>
-				<li>repeat for drag:over</li>
-				<li>repeat for drag:end</li>
-				<li>reify drag</li>
-				<li>Next: selectable: reify mark</li>
-				<li>reify: indication (hover)</li>
-				<li>reify: indication/selection (touch)</li>
-				<li>reify: unicode</li>
-			</ol>
-			
-			<section>
-				<p>For dragging between places, you need at least two places.</p>
-				<ul>
-					<li>place 1</li>
-					<li>place 2</li>
-				</ul>
-			</section>
-
-			<!-- <script> -->
-			<!-- 	require(['@th.ing/transducers'], (tx) => { -->
-				
-			<!-- 	}) -->
-			<!-- </script> -->
-
-			<article>
-				<p>Use case.  Tear off a link, boom, you've made a layer.  A layer where
-				the selected link now has the mic, the point of view.  <aside>I mean,
-				there might be more particular things to do with any given term.  You may
-				need to drop it on a “dead zone” to reliably make a layer.  The drop zone
-				should be located where that is the most obvious thing to do.  In the dead
-				zone generally targets are dormant and unresponsive to the dragged thing.
-				But yeah.  That alone.</aside>
-				</p>
-			</article>
-			
 		</main>
-
-		<hr />
-		<p>below is heap</p>
-		<p>hr can effect all following items</p>
-		<p>like a partition, but without real grouping</p>
 		
-		<article id="repl">
-			i dunno, make a repl?  I mean besides userland.
-  		<aside>
-				<p>But you *have* the console</p>
-				<p>Socrates, you'll never understand today's computer systems.</p>
-			</aside>
+		<ol id="tasks">
+			<li><s>restore custom console</s></li>
+			<li draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'This girl is on fire')"><s>modify console to call datafy (because it's a f'n repl)</s></li>
+			<li><s>listen for drag:start events</s></li>
+			<li><s>log event</s></li>
+			<li><s>datafy Event</s></li>
+			<li><s>log datafied event</s></li>
+			<li><s>refine datafy for DragEvent</s></li>
+			<li>repeat for drag:drag</li>
+			<li>repeat for drag:over</li>
+			<li>repeat for drag:end</li>
+			<li>reify drag</li>
+			<li>Next: selectable: reify mark</li>
+			<li>reify: indication (hover)</li>
+			<li>reify: indication/selection (touch)</li>
+			<li>reify: unicode</li>
+		</ol>
+		
+		<article>
+			<h1>dragging a thing from one container to another</h1>
+			
+			<p>For dragging between places, you need at least two places.</p>
+			<p>Your mission is to drag item 1 from place 1 to place 2</p>
+			<ul>
+				<li id="place-1"><span draggable="true">item 1</span></li>
+				<li id="place-2"></li>
+			</ul>
 		</article>
+
+		<article>
+			<p>Use case.  Tear off a link, boom, you've made a layer.  A layer where
+			the selected link now has the mic, the point of view.  <aside>I mean,
+			there might be more particular things to do with any given term.  You may
+			need to drop it on a “dead zone” to reliably make a layer.  The drop zone
+			should be located where that is the most obvious thing to do.  In the dead
+			zone generally targets are dormant and unresponsive to the dragged thing.
+			But yeah.  That alone.</aside>
+			</p>
+		</article>
+		
 		
 		<script src="/configure-require.js"></script>
 		<script data-main="/portable.js" src="/node_modules/requirejs/require.js"></script>
