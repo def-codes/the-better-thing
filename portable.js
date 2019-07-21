@@ -19,9 +19,15 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
     } while ((ele = ele.parentNode));
   };
 
+  // I don't think this can go more than one step
+  const closest_droppable = node => {
+    do {
+      if (node.nodeType === 1) return node;
+    } while ((node = node.parentNode));
+  };
+
   const log = name =>
     function(event) {
-      // console.orig.log(name);
       if (name === "dragstart") {
         const draggable = closest_draggable(event.originalTarget);
         if (draggable) {
@@ -31,28 +37,29 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
           // event.dataTransfer.setDragImage(draggable, 0, 0);
 
           // What is this supposed to be?
-          event.dataTransfer.setData("text/plain", "#"); // draggable.innerText);
+          event.dataTransfer.setData("text/plain", window.location.toString()); // draggable.innerText);
         } else console.orig.warn("expected draggable for dragstart", event);
       } else if (name === "dragenter") {
-        console.log(`enter`, event.originalTarget);
-        if (event.originalTarget.nodeType === 1) {
-          console.log(`..element`, event.originalTarget);
+        const droppable = closest_droppable(event.originalTarget);
+        if (droppable) {
+          const effect = "link";
+          droppable.setAttribute("drop-effect", effect);
+          // droppable.classList.add("DropTarget");
+          event.dataTransfer.dropEffect = effect;
 
+          // Valid targets must to do this on enter and over
           event.preventDefault();
-          event.originalTarget.classList.add("DropTarget");
         }
       } else if (name === "dragover") {
-        // Only matters if same was done during dragenter
-        console.log(`move`, event.originalTarget);
+        // Is this necessary here, if it was set during enter & doesn't change?
+        event.dataTransfer.dropEffect = "link";
 
-        event.dataTransfer.dropEffect = "move";
+        // Valid targets must to do this on enter and over (at least once)
         event.preventDefault();
       } else if (name === "dragleave") {
-        console.orig.log("drag leave", event.originalTarget);
-        if (event.originalTarget.nodeType === 1) {
-          event.originalTarget.classList.remove("DropTarget");
-        }
-      } else console.log(name);
+        if (event.originalTarget.nodeType === 1)
+          event.originalTarget.removeAttribute("drop-effect");
+      } else console.orig.log(name);
     };
 
   // feature detection, blah
@@ -61,7 +68,6 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
     function(event) {
       let draggable = closest_draggable(event.originalTarget);
       if (draggable) {
-        console.orig.log(`draggable`, draggable);
         event.preventDefault();
         // and initiate a synthetic drag event
       }
