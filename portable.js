@@ -1,8 +1,9 @@
 requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
   // Make streams from all events of interest
-  // - hover
+  // - hover (mouseenter/leave)
   // - touch
   // - drag
+  // - mousemove
   //
   // Flow those streams into datafications
 

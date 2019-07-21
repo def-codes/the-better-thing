@@ -41,13 +41,13 @@ export function register_console() {
         thing: tx.noop(),
       }),
       tx.map(({ key, thing }) => [
-        "output",
+        "li.output",
         { key },
         [render_value, datafy(thing)],
       ]),
       // Not exactly monotonic
-      tx.slidingWindow(20),
-      tx.map(blah => ["div.layers", {}, blah.reverse()]),
+      tx.slidingWindow(5),
+      tx.map(blah => ["ul.Stack", {}, blah.reverse()]),
       updateDOM({ root: container, ctx: { render }, span: false })
     )
   );

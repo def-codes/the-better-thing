@@ -1,13 +1,28 @@
 // Declarations only: zero emit
+// Prefer custom properties over built-ins.
 
 // `Thing` is an implicit superclass.  See `globals`
+
+// ====== MISC?
+
+Tag()
+  Indicator()
+
+// huh?
+Hashtag()
+  Tag()
+
 
 // How can you tell it's space?
 Space()
   --type 'Space'
   background-color var(--space-background)
 
+
+// ====== DOMAIN: UX
+
 Indicator()
+  // What's this for?
   font-size 100%
   // This will never show because below
   --type 'Indicator'
@@ -31,18 +46,9 @@ Affordance()
   &:hover
     background var(--indicator-color)
 
-Tag()
-  Indicator()
-
-// huh?
-Hashtag()
-  Tag()
-
-Container()
-  // container
-
-DomContainer()
-  Container()
+// ====== DOMAIN: content categories
+// An unofficial ontology
+// https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Content_categories#Flow_content
 
 // > Content is palpable when it's neither empty or hidden; it is content that
 // > is rendered and is substantive. Elements whose model is flow content or
@@ -59,6 +65,23 @@ PhrasingContent()
 
 FlowContent()
   // flow content
+
+// ====== DOMAIN: box model
+
+// Could this be useful as a thing?  You don't want to over-set it (don't do
+// absolute when you can get away with relative), but you also don't want to
+// “downgrade” it if e.g. it was already `absolute` for some other reason.
+// I.e. it's contextual but on properties themselves (which can't be queried).
+PositioningContainer()
+  position relative
+
+Container()
+  // container
+
+DomContainer()
+  Container()
+	
+// ====== DOMAIN:
 
 Stricken()
   --type 'Stricken'
@@ -123,8 +146,9 @@ Paragraph()
   --type '¶'
 
 Output()
-  --type 'Output'
-  border 1em solid gray !important
+  &, .Output
+    --type 'Output'
+    border 1em solid gray !important
 
 Aside()
   --type 'Aside'
