@@ -59,7 +59,7 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
       } else if (name === "dragleave") {
         if (event.originalTarget.nodeType === 1)
           event.originalTarget.removeAttribute("drop-effect");
-      } else console.orig.log(name);
+      }
     };
 
   // feature detection, blah
@@ -73,6 +73,24 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
       }
     },
     { capture: true, passive: false }
+  );
+
+  let draggable_thing;
+
+  const set_draggable = ele => {
+    const draggable = ele.nodeType === 1 ? ele : ele.parentNode;
+    if (draggable) {
+      if (draggable_thing) draggable_thing.removeAttribute("draggable");
+      (draggable_thing = draggable).draggable = true;
+    }
+  };
+
+  document.body.addEventListener(
+    "mousedown",
+    function(event) {
+      set_draggable(event.originalTarget);
+    },
+    { capture: true }
   );
 
   for (const name of DRAG_EVENT_NAMES)
