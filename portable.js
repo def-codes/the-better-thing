@@ -7,11 +7,7 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
   //
   // Flow those streams into datafications
 
-  const DRAG_EVENT_NAMES = [
-    "drag",
-    "drop",
-    ..."end enter exit leave over start".split(" ").map(name => `drag${name}`),
-  ];
+  // drag end enter exit leave over start drop
 
   const closest_draggable = ele => {
     do {
@@ -26,41 +22,71 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
     } while ((node = node.parentNode));
   };
 
-  const log = name =>
-    function(event) {
-      if (name === "dragstart") {
-        const draggable = closest_draggable(event.originalTarget);
-        if (draggable) {
-          event.dataTransfer.effectAllowed = "all";
+  let element_being_dragged;
 
-          // worse than default
-          // event.dataTransfer.setDragImage(draggable, 0, 0);
+  const on = (name, fn) =>
+    document.body.addEventListener(name, fn, { capture: true });
 
-          // What is this supposed to be?
-          event.dataTransfer.setData("text/plain", window.location.toString()); // draggable.innerText);
-        } else console.orig.warn("expected draggable for dragstart", event);
-      } else if (name === "dragenter") {
-        const droppable = closest_droppable(event.originalTarget);
-        if (droppable) {
-          const effect = "link";
-          droppable.setAttribute("drop-effect", effect);
-          // droppable.classList.add("DropTarget");
-          event.dataTransfer.dropEffect = effect;
+  on("dragstart", event => {
+    const draggable = closest_draggable(event.originalTarget);
+    console.orig.log(`line 30`);
 
-          // Valid targets must to do this on enter and over
-          event.preventDefault();
-        }
-      } else if (name === "dragover") {
-        // Is this necessary here, if it was set during enter & doesn't change?
-        event.dataTransfer.dropEffect = "link";
+    if (draggable) {
+      event.dataTransfer.effectAllowed = "all";
+      element_being_dragged = draggable;
+      // worse than default
+      // event.dataTransfer.setDragImage(draggable, 0, 0);
 
-        // Valid targets must to do this on enter and over (at least once)
-        event.preventDefault();
-      } else if (name === "dragleave") {
-        if (event.originalTarget.nodeType === 1)
-          event.originalTarget.removeAttribute("drop-effect");
+      // What is this supposed to be?
+      console.orig.log(`line 37`);
+
+      event.dataTransfer.setData("text/plain", window.location.toString()); // draggable.innerText);
+    } else console.orig.warn("expected draggable for dragstart", event);
+  });
+
+  on("dragenter", event => {
+    const droppable = closest_droppable(event.originalTarget);
+    if (droppable) {
+      const effect = "link";
+      droppable.setAttribute("drop-effect", effect);
+      // droppable.classList.add("DropTarget");
+      event.dataTransfer.dropEffect = effect;
+
+      // Valid targets must to do this on enter and over
+      event.preventDefault();
+    }
+  });
+
+  on("dragover", event => {
+    // Is this necessary here, if it was set during enter & doesn't change?
+    // Doesn't appear to be
+    // event.dataTransfer.dropEffect = "link";
+
+    // Valid targets must to do this on enter and over (at least once)
+    event.preventDefault();
+  });
+
+  on("dragleave", event => {
+    if (event.originalTarget.nodeType === 1)
+      event.originalTarget.removeAttribute("drop-effect");
+  });
+
+  on("drop", event => {
+    event.preventDefault();
+    // At this point it should be the element with [drop-effect]
+    const droppable = closest_droppable(event.originalTarget);
+    if (droppable) {
+      console.orig.log(`DROP`, droppable);
+      droppable.removeAttribute("drop-effect");
+
+      if (element_being_dragged) {
+        element_being_dragged.draggable = false;
+        const clone = element_being_dragged.cloneNode();
+        event.target.appendChild(clone);
+        element_being_dragged = null;
       }
-    };
+    }
+  });
 
   // feature detection, blah
   document.body.addEventListener(
@@ -92,9 +118,6 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
     },
     { capture: true }
   );
-
-  for (const name of DRAG_EVENT_NAMES)
-    document.body.addEventListener(name, log(name));
 
   // A drag operation is a dragstart, a succession of other drag events,
   // ending with a dragend[/exit?] or drop event
