@@ -15,12 +15,10 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
     } while ((ele = ele.parentNode));
   };
 
-  // I don't think this can go more than one step
-  const closest_droppable = node => {
-    do {
-      if (node.nodeType === 1) return node;
-    } while ((node = node.parentNode));
-  };
+  const closest_element = node =>
+    node.nodeType === 1 ? node : node.parentElement;
+
+  const closest_droppable = closest_element;
 
   let element_being_dragged;
 
@@ -29,8 +27,6 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
 
   on("dragstart", event => {
     const draggable = closest_draggable(event.originalTarget);
-    console.orig.log(`line 30`);
-
     if (draggable) {
       event.dataTransfer.effectAllowed = "all";
       element_being_dragged = draggable;
@@ -38,10 +34,8 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
       // event.dataTransfer.setDragImage(draggable, 0, 0);
 
       // What is this supposed to be?
-      console.orig.log(`line 37`);
-
       event.dataTransfer.setData("text/plain", window.location.toString()); // draggable.innerText);
-    } else console.orig.warn("expected draggable for dragstart", event);
+    }
   });
 
   on("dragenter", event => {
@@ -49,7 +43,6 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
     if (droppable) {
       const effect = "link";
       droppable.setAttribute("drop-effect", effect);
-      // droppable.classList.add("DropTarget");
       event.dataTransfer.dropEffect = effect;
 
       // Valid targets must to do this on enter and over
@@ -58,10 +51,6 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
   });
 
   on("dragover", event => {
-    // Is this necessary here, if it was set during enter & doesn't change?
-    // Doesn't appear to be
-    // event.dataTransfer.dropEffect = "link";
-
     // Valid targets must to do this on enter and over (at least once)
     event.preventDefault();
   });
@@ -75,16 +64,12 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
     event.preventDefault();
     // At this point it should be the element with [drop-effect]
     const droppable = closest_droppable(event.originalTarget);
-    if (droppable) {
-      console.orig.log(`DROP`, droppable);
+    if (droppable && element_being_dragged) {
       droppable.removeAttribute("drop-effect");
-
-      if (element_being_dragged) {
-        element_being_dragged.draggable = false;
-        const clone = element_being_dragged.cloneNode();
-        event.target.appendChild(clone);
-        element_being_dragged = null;
-      }
+      element_being_dragged.draggable = false;
+      const clone = element_being_dragged.cloneNode(true);
+      event.target.appendChild(clone);
+      element_being_dragged = null;
     }
   });
 
@@ -113,9 +98,7 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
 
   document.body.addEventListener(
     "mousedown",
-    function(event) {
-      set_draggable(event.originalTarget);
-    },
+    event => set_draggable(event.originalTarget),
     { capture: true }
   );
 
