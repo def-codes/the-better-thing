@@ -51,12 +51,7 @@ short as “facts” and conveys the propositional nature without scare quotes.
 
 Cohabitating the world with "claims of truth" are things called "values".
 
-I would say that values have “no strings attached,” but I would rather make a
-positive assertion, as I don't believe that the value of values depends on
-negation.
-
-I would say that a value is "of no consequence", since they do not themselves
-trigger any kind of dispatch (indeed, they have no strings attached).
+Values are of no consequence.  They have no strings attached.
 
 Representations of values can be navigable, by containing links to other things.
 Values can thus serve indirectly as (the locus of) inflection points in a
@@ -160,7 +155,9 @@ dom tree), you can see the attributes for what they are (a dictionary).
 
 
 
+## DOM for tree representation
 
+It's only natural.
 
 
 
@@ -1864,3 +1861,4 @@ Can you ever get Emacs levels of userland function from a small javascript
 kernel?  Other than by bootstrapping lisp?
 
 ClojureScript is lovely, but taxes portability.
+

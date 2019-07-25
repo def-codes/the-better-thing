@@ -45,20 +45,26 @@ main
 // ================================ ELEMENTS: SPECIAL
 
 p
+  FlowContent()
   Paragraph()
 
 // Links are the holiest thing.
 a
+  // Except phrasing when in para's, right?
+  FlowContent()
   Navigable()
 
 ul
+  FlowContent()
   UnorderedList()
   counter-reset array-item
 
 ol
+  FlowContent()
   OrderedList()
 
 li
+  FlowContent()
   Item()
   counter-increment array-item
   --prefix "Item " counter(array-item)
@@ -153,6 +159,11 @@ code, output
   FlowContent()
   display block
 
+i
+  FlowContent()
+  PhrasingContent()
+
 s
+  FlowContent()
   PhrasingContent()
   Stricken()

@@ -55,6 +55,16 @@ Affordance()
 // > phrasing content should have at least one node which is palpable. [MDN]
 PalpableContent()
   // 
+	
+SectioningContent()
+  // 
+	
+HeadingContent()
+  // 
+
+FlowContent()
+  // let sectioning elements form the crossbars
+  display inline-block
 
 PhrasingContext()
   DomContainer()
@@ -62,9 +72,6 @@ PhrasingContext()
 
 PhrasingContent()
   // phrasing content
-
-FlowContent()
-  // flow content
 
 // ====== DOMAIN: box model
 
@@ -99,6 +106,9 @@ Navigable()
 	
 Section()
   --type 'Section'
+	
+Article()
+  --type 'Article'
 	
 Header()
   --type 'Header'
@@ -169,9 +179,12 @@ OrderedList()
 Vector()
   OrderedList
   --type 'Vector'
+	
+List()
+  Collection()
 
 UnorderedList()
-  Collection()
+  List()
   --type 'UnorderedList'
   border-bottom 1em solid orange
 

@@ -46,3 +46,20 @@ for i in 1..9
   --box-height 1em
   width var(--box-width)
   height var(--box-height)
+	
+// see only the box structure
+// just need to make text invisible
+// .Boxes
+#hashtags > *
+  *
+    float left
+    border 1px solid green
+    &:not(p)
+      border 1px solid indigo
+      box-sizing padding-box // default // padding-box
+      // width 0
+      // height 0
+      overflow hidden
+  
+  > *
+    display block
