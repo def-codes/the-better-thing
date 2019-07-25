@@ -1726,14 +1726,18 @@ Meanwhile, the elements used in the representation may have their own semantics.
 
 Consider these element templates:
 
-    .Thing.Container.OrderedList.Vector
+```
+.Thing.Container.OrderedList.Vector
+```
 
 *versus*
 
-    .Thing
-      .Container
-        .OrderedList
-          .Vector
+```
+.Thing
+  .Container
+    .OrderedList
+      .Vector
+```
 
 (That's what I like about Stylus.)
 
@@ -1792,3 +1796,71 @@ You need to have a REPL.
 
 And your console should produce things.
 
+# dragging things
+
+Browser drag & drop provides userland interop.
+
+But it's a needless constraint within the page.
+
+Only problem: you don't know where the target is going to be.
+
+Touch screens complicate the first one (built-in D&D) especially.
+
+## What don't I like about this?
+
+As a way to proceed.
+
+Well, from what point of view?
+
+It has a low information density.  I don't like that.
+
+## What can we stack?
+
+One path may be to stack the deck a bit more, if we can do so in a way that
+leaves things affordable to the touch.
+
+Can we stack successions of sections?  Yes.
+
+```
+    .Stack
+      > section*
+```
+
+Can we stack list items?  Yes.
+
+```
+    ul.Stack
+```
+
+Can we stack paragraphs?  Yes.
+
+```
+    .Stack
+      > p
+```
+
+Can we stack flow content items generally?
+
+    .FlowContent
+      sdf
+
+We *can* stack them, but these are not yet rules.
+
+Still more generally, what are 
+
+## What keyboard commands are dealbreakers?
+
+I don't like the document enough to compose in it.  For that, I still come here.
+
+On the PC, I don't even get home-row navigation.
+
+Beyond that, there's
+
+- `backward-kill-word`
+- `kill-line-or-region`
+- `backward-sentence`
+
+Can you ever get Emacs levels of userland function from a small javascript
+kernel?  Other than by bootstrapping lisp?
+
+ClojureScript is lovely, but taxes portability.

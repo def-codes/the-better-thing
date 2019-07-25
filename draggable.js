@@ -1,3 +1,45 @@
+// FROM touch punch
+
+/**
+ * Simulate a mouse event based on a corresponding touch event
+ * @param {Object} event A touch event
+ * @param {String} simulatedType The corresponding mouse event
+ */
+// [gpc] removed `originalEvent` references (from jquery)
+function simulateMouseEvent(event, simulatedType) {
+  // [gpc] “ignore” == retain default handling
+  //
+  // Ignore multi-touch events
+  if (event.touches.length > 1) return;
+
+  event.preventDefault();
+
+  var touch = event.changedTouches[0],
+    simulatedEvent = document.createEvent("MouseEvents");
+
+  // Initialize the simulated mouse event using the touch event's coordinates
+  simulatedEvent.initMouseEvent(
+    simulatedType, // type
+    true, // bubbles
+    true, // cancelable
+    window, // view
+    1, // detail
+    touch.screenX, // screenX
+    touch.screenY, // screenY
+    touch.clientX, // clientX
+    touch.clientY, // clientY
+    false, // ctrlKey
+    false, // altKey
+    false, // shiftKey
+    false, // metaKey
+    0, // button
+    null // relatedTarget
+  );
+
+  // Dispatch the simulated event to the target element
+  event.target.dispatchEvent(simulatedEvent);
+}
+
 requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
   // Make streams from all events of interest
   // - hover (mouseenter/leave)
@@ -73,19 +115,6 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
     }
   });
 
-  // feature detection, blah
-  document.body.addEventListener(
-    "touchstart",
-    function(event) {
-      let draggable = closest_draggable(event.originalTarget);
-      if (draggable) {
-        event.preventDefault();
-        // and initiate a synthetic drag event
-      }
-    },
-    { capture: true, passive: false }
-  );
-
   let draggable_thing;
 
   const set_draggable = ele => {
@@ -102,6 +131,23 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
     { capture: true }
   );
 
+  // feature detection, blah (re listeners args
+
+  document.body.addEventListener(
+    "touchmove",
+    touch_event => {
+      simulateMouseEvent(touch_event, "mousemove");
+    },
+    { capture: true, passive: false }
+  );
+
+  document.body.addEventListener(
+    "touchstart",
+    touch_event => {
+      simulateMouseEvent(touch_event, "mousedown");
+    },
+    { capture: true, passive: false }
+  );
   // A drag operation is a dragstart, a succession of other drag events,
   // ending with a dragend[/exit?] or drop event
 });

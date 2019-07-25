@@ -34,6 +34,7 @@
     "@thi.ng/dcons": "2.0.19",
     "@thi.ng/defmulti": "1.0.9",
     "@thi.ng/hdom": "7.2.8",
+    "@thi.ng/hiccup-markdown": "1.1.1",
     "@thi.ng/interceptors": "2.0.12",
     "@thi.ng/rstream": "2.4.4",
     "@thi.ng/rstream-query": "1.0.26",

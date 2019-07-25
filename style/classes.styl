@@ -7,7 +7,11 @@
   outline 1em dotted red !important
   --luminosity 100%
   --alpha 100%
-  
+
+for i in 1..9
+  .nth-child({i})
+    --luminosity i * 10%
+
 body[drop-effect]
   background white
 

@@ -53,12 +53,18 @@ a
 
 ul
   UnorderedList()
+  counter-reset array-item
 
 ol
   OrderedList()
 
 li
   Item()
+  counter-increment array-item
+  --prefix "Item " counter(array-item)
+	// FF thing: https://developer.mozilla.org/en-US/docs/Web/CSS/::marker
+  &::marker
+    display none
 
 dl
   Dictionary()
@@ -103,9 +109,13 @@ section
   margin-top 1em
 
 header
-  SectioningContent
+  SectioningContent()
   --type 'Header'
 
+h1, h2, h3
+  HeadingContent()
+  --type 'Heading'
+	
 // unit of provenance
 // should have a citation nearby 
 blockquote

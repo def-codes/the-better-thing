@@ -1,7 +1,7 @@
 // Rollup JS bundler configuration.  https://rollupjs.org/#javascript-api
 
 const TO_INLINE = {
-  tslib: "node_modules/tslib/tslib.es6.js"
+  tslib: "node_modules/tslib/tslib.es6.js",
 };
 
 /** Modules involved in testing */
@@ -20,14 +20,14 @@ const modules = [
   ["rdf-data-model"],
   ["rdf-expressions"],
   ["rdf-expressions-test"],
-  ["meld-core"]
+  ["meld-core"],
 ];
 
 // Unfortunately, rollup doesn't support wildcards for specifying externals.
 const things = (
   "rstream rstream-graph rstream-csp transducers paths hdom dcons " +
   "iterators atom csp compose associative checks interceptors rstream-query " +
-  "transducers-hdom defmulti"
+  "transducers-hdom defmulti hiccup-markdown fsm"
 )
   .split(" ")
   .map(name => `@thi.ng/${name}`);
@@ -61,7 +61,7 @@ const bundle = ([name, { standalone, split, dir, ...config } = {}]) => ({
         : { file: `node_modules/@def.codes/${name}.js` })),
     sourcemap: true,
     globals, // Suppress “Missing global variable names” warning
-    ...((config && config.output) || {})
+    ...((config && config.output) || {}),
   },
   // Avoid `ENOSPC` issue on Linux. https://github.com/rollup/rollup/issues/1669
 
@@ -74,10 +74,10 @@ const bundle = ([name, { standalone, split, dir, ...config } = {}]) => ({
     (function() {
       return {
         name: "meld-resolve",
-        resolveId: includee => TO_INLINE[includee] || null
+        resolveId: includee => TO_INLINE[includee] || null,
       };
-    })()
-  ]
+    })(),
+  ],
 });
 
 export default modules.map(bundle);

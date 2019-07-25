@@ -3,17 +3,20 @@
   PositioningContainer()
   transform-style preserve-3d
   perspective 10em
+
+  // Cheaper
   // > :first-child ~ *
   //   filter blur(1px)
+  
   for $n in 2..100
     > {':nth-child(%s)' % $n}
+      --z $n * -1em
       transform translate3d(0, 0, $n * -1em)
+      transform translate3d(0, 0, $n * -1em) rotate3d(0, 0, $n * 5deg)
       // filter blur($n * 1px)
       // filter s('blur(calc(%s * var(--stack-blur-factor)))' % ($n * 1px))
-  
+
 .Stack > *
-  // Even this isn't necessary if you know the height a priori, you can use
-  // negative margin to get offset.  But you would need to set position relative
-  // to reverse z-ordering (if later items should not be on top).
+  // Negative margin would also achieve this, and be animatable.  You have to
+  // know the height *a priori* though.
   position absolute
-  // transform-origin center
