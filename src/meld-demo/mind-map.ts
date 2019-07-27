@@ -938,7 +938,7 @@ Bob.hostOutput("Bob")
 Alice . hasInterval(250)
 
 Bob.listensTo.Alice
-Bob.transformsWith(mapsWith(x => x * 2)))
+Bob.transformsWith(mapsWith(x => x * 2))
 
 `,
       },

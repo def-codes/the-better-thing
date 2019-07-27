@@ -42,6 +42,7 @@ export function show_example(model_id) {
   const model_spec = MIND_MAP["@graph"].find(_ => _.id === model_id);
   if (!model_spec) {
     console.warn(`No such model: ${model_id}`);
+    renderOnce(["p", `No such model: ${model_id}`], { root: "model" });
     return;
   }
 

@@ -14,10 +14,14 @@
   border 1px solid rgba(black, 0.5)
   background-color s('hsla(var(--hue), var(--saturation), var(--luminosity), var(--alpha))')
   &::before
+    // because meta?
     opacity 0.5
+    display block
     content var(--prefix) '\00a0'
 	
-  
+  --color s('rgba(var(--pen-red), var(--pen-green), var(--pen-blue), var(--pen-alpha))')
+  color var(--color)
+	
   --prefix var(--type)
   --space-background #222
 

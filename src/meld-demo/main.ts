@@ -3,6 +3,7 @@ import * as hdom from "@thi.ng/hdom";
 import { MIND_MAP } from "./mind-map";
 import { RULES } from "./rules";
 import { make_renderer } from "@def.codes/polymorphic-hdom";
+import { show_example } from "./show-example";
 
 // Cool, how do protocols get registered?
 const protocol_registry = {};
@@ -55,7 +56,8 @@ export function main() {
   // @ts-ignore
   protocol_registry.show = show;
 
-  hdom.renderOnce(() => [show, MIND_MAP["@graph"]], { root: "mind-map", ctx });
+  // hdom.renderOnce(() => [show, MIND_MAP["@graph"]], { root: "mind-map", ctx });
+  show_example(window.location.search.replace(/^\?/, ""));
 }
 
 main();

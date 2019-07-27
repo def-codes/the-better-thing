@@ -54,6 +54,11 @@ a
   FlowContent()
   Navigable()
 
+dfn
+  FlowContent()
+  PhrasingContent()
+  PalpableContent()
+
 ul
   FlowContent()
   UnorderedList()
@@ -76,8 +81,14 @@ dl
   Dictionary()
 
 dt
+  Term()
+  --type "Term"
   &::after
     content '→'
+
+dd
+  --type "Definition"
+  DefinitionDetails()
 
 // How can you tell it's a label?
 // label, .Label
@@ -147,8 +158,17 @@ p
   PhrasingContext()
 
 cite
+  FlowContent()
   PhrasingContent()
+  PalpableContent()
   Citation()
+  // -- permitted: PhrasingContent()
+	
+code
+  FlowContent()
+  PhrasingContent()
+  PalpableContent()
+  Code()
 
 // Treat `code` and `output` as block unless in phrasing context
 p code, p output

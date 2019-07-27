@@ -1862,3 +1862,15 @@ kernel?  Other than by bootstrapping lisp?
 
 ClojureScript is lovely, but taxes portability.
 
+## Multiple types
+
+Not the same as multiple inheritance.
+
+> It is obvious that no object can be both a cow and a table, so it is quite
+> natural to insist that every record shall belong to one and only one class.
+
+C.A.R. Hoare, "Record Handling"
+
+In RDF, any resource may have any number of types asserted.
+
+Wait is this *Tony* Hoare?
