@@ -127,7 +127,8 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
 
   document.body.addEventListener(
     "mousedown",
-    event => set_draggable(event.originalTarget),
+    // Primary button only
+    event => event.buttons === 1 && set_draggable(event.originalTarget),
     { capture: true }
   );
 

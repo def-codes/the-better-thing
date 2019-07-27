@@ -26,7 +26,8 @@
 // ==================================== ELEMENTS: singletons
 
 // Discourage elements with no semantics
-div
+div:not([class])
+div[class=""]
   border 1em solid rgba(red, .5)
 span
   border 0.2em dashed rgba(red, .5)
@@ -78,17 +79,17 @@ li
     display none
 
 dl
+  FlowContent()
   Dictionary()
 
 dt
   Term()
   --type "Term"
-  &::after
-    content '→'
 
 dd
   --type "Definition"
   DefinitionDetails()
+  margin-inline-start 0					// beat browser default (Moz at least)
 
 // How can you tell it's a label?
 // label, .Label
@@ -104,9 +105,14 @@ summary
   Affordance()
 
 aside
+  SectioningContent()
   border 1em solid yellow
   float right
   // width 50%
+
+nav
+  SectioningContent()
+  --type 'Nav'
 
 // unit of portability
 // unit of context
@@ -115,6 +121,7 @@ aside
 // It may be all those things, but does it afford moving?
 // Does it afford etc?
 article
+  SectioningContent()
   display inline-block
   --article-margin 4em
   // border 2em solid rgba(black, 0.2)
@@ -123,11 +130,20 @@ article
   margin 1em
 
 section
+  SectioningContent()
   margin-top 1em
 
 header
-  SectioningContent()
+  FlowContent()
   --type 'Header'
+
+footer
+  FlowContent()
+  --type 'Footer'
+
+figure
+  FlowContent()
+  --type 'Figure'
 
 h1, h2, h3
   HeadingContent()

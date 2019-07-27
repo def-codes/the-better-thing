@@ -471,7 +471,7 @@ We represent the thing in data form, only what we've heard.
 
 We can build our own "shadow profiles" of things.
 
-Indeed, we do it all the time.  Our mermories are shadow profiles---mental
+Indeed, we do it all the time.  Our memories are shadow profiles---mental
 representations of a thing.
 
 

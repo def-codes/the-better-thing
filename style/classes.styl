@@ -31,6 +31,25 @@ for i in 1..9
   Porthole()
   text-align center
 
+.Value
+  // Need some way to distinguish this visually
+  border-radius 1em
+
+.KeyValue
+  // Put an arrow between the key and value
+  display flex
+  > *
+    flex 1 1 auto
+  > dt
+    order 1
+  > dd
+    order 3
+  &::after
+    content '→'
+    order 2
+    align-self center
+    font-size 200%
+
 .Claim
   border 1em solid red
   > .plain
@@ -49,6 +68,11 @@ for i in 1..9
 	
 // see only the box structure
 // just need to make text invisible
+//
+// problem is, you can't target text nodes *per se* with CSS
+// hdom does wrap text in spans by default, but I have that turned off
+// 
+//
 // .Boxes
 #hashtags > *
   *
