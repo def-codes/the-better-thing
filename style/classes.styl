@@ -75,15 +75,12 @@ for i in 1..9
 //
 // .Boxes
 #hashtags > *
-  *
-    float left
-    border 1px solid green
-    &:not(p)
-      border 1px solid indigo
-      box-sizing padding-box // default // padding-box
-      // width 0
-      // height 0
-      overflow hidden
-  
-  > *
-    display block
+  // I enabled span for just this item to play with this
+  p span
+    display inline-block
+    overflow hidden
+    border-top-style solid
+    border-left-style solid
+    &:not(:hover)
+      max-width 0
+      max-height 0

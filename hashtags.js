@@ -7,7 +7,7 @@ requirejs(
       const text = await response.text();
       hdom.renderOnce(["div", {}, tx.iterator(md.parse(), text)], {
         root: "hashtags",
-        span: false,
+        span: true,
       });
     })();
   }

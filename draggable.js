@@ -97,6 +97,8 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
     event.preventDefault();
   });
 
+  // This doesn't cover the case where you move from parent to child
+  // i.e. parent keeps drop effect and now you appear to have two targets
   on("dragleave", event => {
     if (event.originalTarget.nodeType === 1)
       event.originalTarget.removeAttribute("drop-effect");
