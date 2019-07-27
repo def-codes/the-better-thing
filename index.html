@@ -49,6 +49,24 @@
 			</div>
 		</dl>
 		
+		<article>
+			<h2>reify a CSS variable</h2>
+			hue
+			<input type="range" min="0" max="1" step="0.1" oninput="document.getElementById('hue').innerText=`* { --hue: ${Math.round(360 * parseFloat(event.target.value))}deg;}`;" />
+			<style id="hue"></style>
+			
+			saturation
+			<input type="range" min="0" max="1" step="0.1" oninput="document.getElementById('saturation').innerText=`* { --saturation: ${Math.round(100 * parseFloat(event.target.value))}%;}`" />
+			<style id="saturation"></style>
+			
+			luminosity
+			<input type="range" min="0" max="1" step="0.1" oninput="document.getElementById('luminosity').innerText=`* { --luminosity: ${Math.round(100 * parseFloat(event.target.value))}%;}`" />
+			<style id="luminosity"></style>
+
+			<input type="range" min="0" max="1" step="0.1" oninput="document.getElementById('alpha').innerText=`* { --alpha: ${parseFloat(event.target.value)};}`" />
+			<style id="alpha"></style>
+		</article>
+		
 		<ul>
 			<li><label><input type="checkbox" />reify types as classes</label></li>
 		</ul>

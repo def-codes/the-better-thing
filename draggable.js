@@ -120,7 +120,16 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
   let draggable_thing;
 
   const set_draggable = ele => {
-    const draggable = ele.nodeType === 1 ? ele : ele.parentNode;
+    let draggable;
+    try {
+      // When using a slider input, apparently events fire on a “Restricted”
+      // node (I guess representing the handle).  In that particular case you
+      // want the default behavior anyway.  But this probably applies to other
+      // built-in widgets also.
+      draggable = ele.nodeType === 1 ? ele : ele.parentNode;
+    } catch (error) {
+      return;
+    }
     if (draggable) {
       if (draggable_thing) draggable_thing.removeAttribute("draggable");
       (draggable_thing = draggable).draggable = true;
