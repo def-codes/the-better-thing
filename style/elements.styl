@@ -33,6 +33,15 @@ span
   border-width 0.2em
   border-style dashed
   border-color rgba(red, .5)
+  // Prevents spans from wrapping strangely, esp wrt border
+  // This may be expensive
+  display block
+
+// Suppress meta tag for generic inline containers
+span:not([class])
+span[class=""]
+  &::before
+    display none
 
 html
   background none
@@ -199,11 +208,10 @@ code
 // Treat `code` and `output` as block unless in phrasing context
 p code, p output
   PhrasingContent()
-  display default
+  display inline-block
 
 code, output
   FlowContent()
-  display block
 
 i
   FlowContent()

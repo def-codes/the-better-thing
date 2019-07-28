@@ -1,1 +1,1 @@
-require(["/draggable.js", "/hashtags.js"]);
+require(["/draggable.js", "/hashtags.js", "@def.codes/meld-core"]);

@@ -604,6 +604,206 @@ Can we consider HDOM templates basically a macro-language for defining
 side-effects?  Or is it just a message type (hiccup/hdom)?  HDOM does
 specifically support interpretation of JSON-based Expressions.
 
+## process protocol
+
+What would a process protocol look like?
+
+For things that already exist (i.e. you don't *construct* them from the
+protocol), it can be boiled down to one method:
+
+```typescript
+interface Protocol {
+  port<T>(key: unknown): ISubscribable<T>
+}
+```
+
+But what about stopping the process, or controlling it, or enumerating its
+ports?  And what if the ports are dynamic, i.e. you can create a port by
+asking for it?
+
+How would this cope with backpressure?  Event buses, for example, use *message*
+ports, which should be more like queues than dataflow nodes, i.e. they can be
+full and reject or block writes.  Even if you don't use (CSP-style) blocking
+queues for a given process, the model should not preclude their use.  That is, a
+write to a port *may* return a promise that resolves when the write has
+succeeded.  Conversely, in order to monitor a channel, you need a way for an
+observer to receive notifications of events without becoming an active
+participant (i.e. a reader).  A channel reader, unlike a subscriber, is
+“destructive” (it removes an item from the queue) and exclusive (only one reader
+recieves the value).
+
+And what other models are there?
+
+Note that subscriptions are themselves processes.  So each *port* is a
+process?  That doesn't seem right.  Then ports have ports.  And subscribables
+kind of do have ports (next, error, done).  This is asymmetrical with say,
+interceptors, though perhaps correctly.
+
+### another angle on processes
+
+All of the above takes a subjective view of processes.  A process is a thing,
+and to transact with it, we address it directly.
+
+It is also possible to define a system in more “global” terms.
+
+Linda tuple spaces use a shared value space and set of operations to support
+indirect coordination among a number of processes.
+
+Coordination through a shared value space can be used to implement a
+discrete-event model.  They can also be suitable for implementing
+fact-and-rule-based systems.
+
+This is essentially what we are doing in MELD: the model contains a set of
+facts, and each process (driver) implements some rule by listening to that
+common value space and contributing back to that value space (or producing side
+effects) in response to firings.
+
+The value space need not be a triple store.  (Though a triple store can in
+principle emulate any other form.)
+
+It is also not necessary to use a non-monotonic value space.
+
+Consider how this impacts the notion of a process.
+
+Let's say that a process is a stateful entity that receives and sends messages
+based on some stable operating rule.
+
+We need to be more specific about message passing.  Supposing we do that, this
+definition would allow process descriptions to essentially differ only in the
+definition of their operating rule.
+
+### So tell me more about this message passing
+
+- subscription (push-based, broadcast, sync or async)
+  - dataflow (subscription + sync / merge)
+- channel (blocking, push/pull queue, destructive read)
+- kb/rule (higher abstraction... not a process formalism *per se*)
+- actor, Erlang-style (mailbox, queue)
+- actor, Comunica-style (bus, mediator)
+- tuple space (pattern matching)
+- discrete event
+- logic solver
+
+Does process import the notion of invocation (as a more fundamental thing)?
+
+### how to implement a discrete-event model
+
+In a discrete-event system, we have the notion of “occurrence.”  Events occur.
+We traffic in descriptions of events.  Processes respond to events by changing
+their own state, which in turn can affect their future responses.
+
+#### representing time in discrete-event systems
+
+Time can be modeled explicitly or implicitly.
+
+With an explicit notion of time, we assign a discrete ordinal value to each
+event.  This allows events to be specified out of order.  It also provides a way
+to model the superseding of one assertion by another in a monotonic way.
+
+Time can also be represented implicitly by the order of evaluation.  That is,
+events are presented to the system in the relative order in which they occur,
+without any explicit timestamp.  This does not necessitate a notion of physical
+time, since the events can be assigned a monotonically-increasing value that
+merely preserves their relative ordering.  In principle, this does not even
+necessitate a serial ordering of events, in that interdependencies among events
+
+#### execution model in discrete-event systems
+
+In a strictly logical system, we must provide a set of rules and a set of
+assertions.  The assertions in this case function like the events.  We can then
+make queries against the system about the truth values of terms.  Such systems
+are purely functional and can be implemented using lazy evaluation, eager
+evaluation (forward chaining/caching), or some combination of these.
+
+Practical applications need to produce effects.  Even within the realm of pure
+logical systems, we need to see results, we need to experiment with changes---in
+short, we need a dynamic environment.  Such environments are not functional.
+
+We should seek to restrict solutions to the least powerful mechanism that is
+necessary.  Unfortunately, pure functional models are not well suited to *live*
+systems.  There is no such thing as a pure functional system involving a human.
+
+The execution model of a live system.
+
+Do discrete-event systems use message passing?
+
+Are discrete-event systems an abstraction layer on top of more direct
+message-passing systems?
+
+Message passing necessitates the identification of a target.  In a tuple space
+model, the target is always the system, though the message can identify one or
+more other processes.
+
+In a message-passing system that eschews direct object references, the system
+must always be the broker, anyway.  Could you thus mimic an actor system with a
+tuple space (i.e. could a tuple space be considered more general)?  Rather than
+sending a message as such, you just write a tuple with the recipient id.  This
+of course would trust that processes would only read the messages for which they
+were the declared recipient.  However, "recipient" would be regarded more as a
+convention in this case than a formalism.  Meanwhile, the Linda model also
+allows multiple processes to vy (vie?) for the same messages.  (For better or
+worse: what would you do with this, and wouldn't it introduce a kind of
+non-determinism in cases where more than one process matches?  Since these are
+destructive reads.)
+
+#### dynamic systems
+
+Formalisms like Event Calculus (EC) do not (that I know of) provise for the
+addition of rules during execution.
+
+In an RDF system where rules can be expressed as facts, you can at least achieve
+homoiconicity between the rules and the things they operate on.  However, this
+does not in itself adapt any theoretical model to the introduction of new rules
+“during” execution.
+
+
+#### tangible processes
+
+What do we need to make processes tangible?
+
+All forms of process entail some kind of activity.  The activity necessarily
+corresponds with certain computations, which necessarily occur at definite
+points in time.
+
+We assume that representations of the activity of the process *may* be relevant
+to any visualization of the process.
+
+It may or may not be important that activity be represented at or near the time
+it occurs.
+
+#### user model versus execution model
+
+Ideally, both the user model and the execution model can be made tangible.  But
+we recognize that they the latter may have properties which are accidental to
+the former.
+
+Can we separate the execution model from the user model?  That is, can the
+system select an execution model based on what the user has expressed?  If so,
+what is essential about user intent that can be separated from the actual
+implementation?
+
+Facts.  Assume a monotonic knowledge store.  A fact is not a process.  Is a
+knowledge store a process?  Ideally, it shouldn't be.  We would treat it as a
+persistent value, and processes would operate using those values.  A process
+acting as a thin wrapper around it would look much like a mutable knowledge
+store.  There's a big difference, though.
+
+Assertion.  Assertion is the event in which a fact is added to the store.
+
+Rules.  If we consider a rule a kind of composite assertion, then the genesis
+and persistence of rules are subject to the same expectations as facts.
+
+Rule firing.  Is the firing of a rule an event?
+
+Messages.  Is the sending of a message an event?  What about the receipt?
+
+
+
+
+
+
+### Are DOM elements processes?
+
 ## Polymorphism - QUESTION about interpretation “as”
 
 About the “as” part of interpret expressions...  Is it atomic?  Is it part of an
