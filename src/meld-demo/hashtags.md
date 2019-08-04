@@ -769,7 +769,75 @@ We assume that representations of the activity of the process *may* be relevant
 to any visualization of the process.
 
 It may or may not be important that activity be represented at or near the time
-it occurs.
+it occurs.  Transience is a kind of invisibility.
+
+In interactive processes (those involving interaction machines), representations
+are expected to track with the model in time.  But note that such processes can
+be used to model process which themselves use abstract time.
+
+There is a tension between a system-wide view and a subjective view.  We can
+say, let each thing represent itself.  Yet some representations require
+knowledge of many things.
+
+Which view do the main process formalisms take?
+
+> In distinction to finite automata, which are used to describe global changes
+> in the states of a system, Petri nets concentrate on local events (these
+> correspond to transitions), local conditions (these correspond to places), and
+> local links between events and conditions. Therefore, one can give a more
+> adequate simulation of distributed asynchronous systems in terms of Petri nets
+> rather than automata.
+> (https://www.encyclopediaofmath.org/index.php/Petri_net)
+
+#### DeMO revisited
+
+> descriptive versus prescriptive
+
+> Subclasses of ModelComponent define the building blocks of the model, which
+> roughly correspond to the elements of the n-tuples used in formal definitions
+> of models
+
+This makes more sense to me now after reading several such definitions.
+
+
+In the mathematical definitions, Markov processes do not include a notion of
+time.  The Markov property only defines the transition function.  The
+“Generalized Semi-Markov Process” (GSMP) is defined as having a stochastic clock
+function.  GSMP-SE, a subclass which disallows simultaneous events, uses no
+clock.
+
+I take “no clock” to mean that the process is “pull-based”---that it requires an
+out-of-band trigger.  But then what are the Triggering classes for?
+
+GSMP is “the highest concrete class in the state-oriented model hierarchy.”
+What kind of state-oriented process would *not* be a Markov process?  One in
+which any of the earlier states may bear on future states.
+
+
+
+#### subscriptions as Petri nets
+
+It seems to me that subscriptions (a la thi.ng) are like PetriNets: once a
+subscription gets a value (token), it fires the transition function for its
+output places (subscribers).  A sync node has multiple input places, and must
+have a token in each before it fires.  A merge node would have to be constructed
+somewhat differently.
+
+Subscriptions are not just passing around generic tokens, but *values*.  At a
+glance, it sounds like like “colored Petri nets” are an extension in which
+tokens can have attributes.
+
+#### what *is* versus what is *significant*
+
+#### the process of representing a process
+
+FSM diagrams represent disjunct states as spatially disjunct.
+
+#### stable-state: the mostly-unmoving part of the model
+
+You might think of the goal of process modeling as finding the expression of a
+model that allows its range of states to be captured in a static form.
+
 
 #### user model versus execution model
 

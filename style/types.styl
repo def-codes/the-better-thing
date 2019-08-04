@@ -116,7 +116,7 @@ Article()
 Header()
   --type 'Header'
 
-Quotation
+Quotation()
   --type 'Quotation'
 
 Citation()
@@ -169,7 +169,7 @@ Aside()
 Collection()
   --type 'Collection'
 
-List
+List()
   Collection()
   Sequence()
   // Type won't be seen because requires subtype.  But still
@@ -182,9 +182,6 @@ OrderedList()
 Vector()
   OrderedList
   --type 'Vector'
-	
-List()
-  Collection()
 
 UnorderedList()
   List()

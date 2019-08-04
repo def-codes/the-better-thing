@@ -11,6 +11,19 @@
     <link href="/build/style/layers.css" rel="stylesheet" />
     <!-- <link href="/build/style/value-view.css" rel="stylesheet" /> -->
     <link href="/build/style/fonts.css" rel="stylesheet" />
+		<script>
+  const links = [...document.querySelectorAll(`link[rel="stylesheet"]`)];
+  for (const link of links) {
+    const style = document.createElement("style");
+    const css = [...link.sheet.cssRules].map(_ => _.cssText).join("\n");
+    const text = document.createTextNode(css);
+    style.appendChild(text);
+    // link.parentNode.replaceChild(style, link);
+    document.head.appendChild(style);
+    link.parentNode.removeChild(link);
+}
+			
+		</script>
 		<!-- Stylus won't compile for some reason. -->
 		<style>
 			label, .Label {
@@ -31,12 +44,64 @@
 		</style>
   </head>
   <body>
-		
+		<!--
 		<main>
 			<h1 class="Claim">
 				It's PORTABLE: you can move it
 			</h1>
 		</main>
+		-->
+		
+		<article>
+			<h1>streams</h1>
+			<p>Let's talk about streams</p>
+			<div id="keydown"></div>
+			<p>A stream is a push-based sequence.  You can</p>
+			<ul>
+				<li>listen to (“subscribe to”) a stream</li>
+				<li>stop listening to (“unsubscribe from”) a stream</li>
+				<li>write to a stream.  but why</li>
+			</ul>
+			<p>You (as an outsider, i.e. not the owner of the stream)
+			<i>cannot</i>:</p>
+			<ul>
+				<li>stop the stream from broadcasting</li>
+				<li>unsubscribe other listeners</li>
+				<li>know how many other listeners there are</li>
+				<li>know whether there are any other listeners</li>
+				<li>know whether the stream is “initialized” (which it is once it's had
+				a subscriber)</li>
+			</ul>
+			<p>Every stream has some kind of <i>source</i>.  You can get streams from
+			various sources:</p>
+			<ul>
+				<li>timers</li>
+				<li>
+					events, which in turn can include:
+					<ul>
+						<li>
+							dom events, which in turn can include:
+							<ul>
+								<li>mouse/touch events</li>
+								<li>keyboard events</li>
+								<li>focus events</li>
+								<li>input events</li>
+								<li>scroll events</li>
+								<li>dom listener (not exactly like the others)</li>
+							</ul>
+						</li>
+						<li>drag/drop events (distinct from mouse/touch because they can
+						include interop events from outside)</li>
+						<li>storage events</li>
+						<li>audio events (need mic)</li>
+						<li>worker events (post message)</li>
+						<li>network events (sockets)</li>
+						<li>and so much more...</li>
+					</ul>
+				</li>
+				<li>the synchronization of other streams</li>
+			</ul>
+		</article>
 		
 		<dl class="Dictionary KeyValueCollection Collection Value">
 			<div class="KeyValuePair">

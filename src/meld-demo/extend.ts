@@ -30,6 +30,10 @@ for (const [type, Protocol] of Object.entries({
 // Anyway, can we do this automatically if these are built-ins?
 
 const EVENT_PROTOTYPE = { "@type": "browser:Event" };
+const KEYBOARD_EVENT_PROTOTYPE = {
+  // In normal practice, if these are subclasses, only most specific will be listed
+  "@type": ["browser:KeyboardEvent", "browser:Event"],
+};
 const MOUSE_EVENT_PROTOTYPE = {
   // In normal practice, if these are subclasses, only most specific will be listed
   "@type": ["browser:MouseEvent", "browser:Event"],
@@ -50,6 +54,16 @@ datafy_protocol.extend(Event, event =>
     bubbles: event.bubbles,
     cancelable: event.cancelable,
     composed: event.composed,
+  })
+);
+
+datafy_protocol.extend(KeyboardEvent, event =>
+  Object.assign(Object.create(MOUSE_EVENT_PROTOTYPE), {
+    key: event.key,
+    shift: event.shiftKey,
+    ctrl: event.ctrlKey,
+    alt: event.altKey,
+    meta: event.metaKey,
   })
 );
 
