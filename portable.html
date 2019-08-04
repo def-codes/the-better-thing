@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>portability test</title>
+    <meta charset="utf-8" />
+    <link href="/build/style/fonts.css" rel="stylesheet" />
+    <link href="/portable.css" rel="stylesheet" />
+    <script src="/node_modules/requirejs/require.js"></script>
+    <style>
+      body::after {
+        content: 'Hello from an originally-inlined stylesheet.';
+      }
+    </style>
+    <script>
+      console.log("Hello from an originally-inlined script.");
+    </script>
+  </head>
+  <body>
+    <main>
+      <h1>Portability test</h1>
+      <a download="portability.html" href="" data-intent="save-document">Save me!</a>
+      <section>
+        <h2>What do we mean by “portability”?</h2>
+        <p>People already have tools for working with files.  The more you can
+        do with a single file, the more leverage you get from those tools.</p>
+        <aside>How many of these concerns are separable?</aside>
+        <section>
+          <h3>goals</h3>
+          <p>Basically what I want is a portable, customizable computing
+          environment.  Persisting changes is a necessary piece of that.</p>
+          <p>With the tools provided by this package, it should be possible to
+          provide (either standalone or hosted) an HTML file with the following
+          properties:</p>
+          <ul>
+            <li>A custom “save” option is available that prompts you to download
+            the document in its current state.</li>
+            <li>AMD loader is always available.</li>
+            <li>Support “literate” programming (dynamic, visible script
+            blocks)</li>
+            <li>Support visible script blocks even for these support
+            scripts</li>
+            <li>Remote (AMD) modules that were referenced will still load in
+            (custom) saved version.</li>
+            <li>make it possible for scripts (external or inline) to define and
+            use content provided by inline scripts.  Basically, support AMD
+            define.</li>
+            <li>Dependencies of remote (AMD) scripts that were referenced will
+            still load in (custom) saved version.</li>
+            <li>Preserve dynamic modification of stylesheets</li>
+            <li>Support going <em>back</em> into hosted mode from standalone
+            mode (e.g. to get access to network API's)</li>
+            <li>Custom save will retain changes to DOM made by scripts (not
+            including iframes...?)</li>
+            <li>custom configuration of e.g. requirejs still works (??)</li>
+            <li>You can load modules dynamically</li>
+            <li>When saving either a standalone or hosted file using the custom
+            save function, all of these properties are preserved.</li>
+            <li>When saving either type using browser built-in... what
+            guarantees can we make?</li>
+          </ul>
+        </section>
+        <section>
+          <h3>inlining</h3>
+          <p><dfn>Inline</dfn> content is included directly in the document.
+          Inline content travels with the document and remain available even
+          when offline.  Here, “inline” is also used to refer to <em>state</em>
+          that may be persisted with the HTML.</p>
+          <p>(Note that inlined content may itself refer to external sources,
+          such as stylesheet and script imports.  Such content is not included
+          with inlined content.)</p>
+          <p>Custom save <em>inlines</em> the following:</p>
+          <ul>
+            <li>
+              <input type="checkbox" checked=""/>
+              Content of scripts that were inlined to begin with
+            </li>
+            <li>
+              <input type="checkbox" checked="" />
+              Content of stylesheets that were inlined to begin with
+            </li>
+            <li>
+              <input type="checkbox" checked="" />
+              Remote stylesheets that were referenced by <code>link</code>
+            </li>
+            <li>
+              <input type="checkbox" checked="" />
+              Edits made in <code>contenteditable</code> sections
+              <p>See example <a href="#contenteditable">here</a></p>
+            </li>
+            <li>
+              <input type="checkbox" />
+              Checked state of checkboxes
+              
+              <p>Looks like this has to be done in a preprocess.  The state of
+              the input is not reflected in attributes when the DOM is
+              serialized.</p>
+            </li>
+            <li>
+              <input type="checkbox" />
+              Content of form fields generally (may need to split up by type as
+              with checkbox)
+            </li>
+            <li>
+              <input type="checkbox" checked="" />
+              Open/closed state of summary/details
+              <p>(Appears this happens automatically with serialization)</p>
+            </li>
+            <li>
+              <input type="checkbox" />
+              Content of inline stylesheets that were added dynamically
+            </li>
+          </ul>
+        </section>
+        <section>
+          <h3>degrees of portability</h3>
+          <p>If you're willing to assume internet access, then you can get a
+          degree of portability without having to inline everything.</p>
+        </section>
+        <section>
+          <h3>inventory dependencies</h3>
+          <p>We could inventory <em>some</em> of the external resources
+          referenced by the document, but not all of them:</p>
+          <ul>
+            <li>dependencies of scripts (imports, required dependencies)</li>
+            <li>dependencies of stylesheets (anything referenced by URL or
+            @import)</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Limitations</h3>
+          <p>Once a document has been saved as HTML, it may be too late to
+          recover certain aspects of the original.  This package provides
+          facilities for coping with that situation in advance, but depending on
+          how the document was saved and how it's being viewed (i.e. over file
+          protocol), some of the resources it used may no longer be
+          available.</p>
+        </section>
+      </section>
+      <section>
+        <h2>Some of the reasons why this isn't easy</h2>
+        <h3>i.e. why built-in save don't cut it</h3>
+        <section>
+          <h3>not all browsers actually seem to <em>have</em> a “Save”
+          feature</h3>
+          <p>I'm looking at you, Edge.</p>
+        </section>
+        <section>
+          <h3>Not all built-in “Save” features work the same</h3>
+          <p>There's no specification for it, so we can't count on them working
+          a certain way.  Insert details about how wildly different they
+          are as of this writing.</p>
+        </section>
+        <section>
+          <h3>Built-in save doesn't include dynamic changes</h3>
+          <p>Or at least, not all the ones we're interested in.</p>
+        </section>
+        <section>
+          <h3>Built-in save isn't extensible.</h3>
+          <p>As long as we're making our own “save” functionality, we might as
+          well also admit that we can't anticipate everything that it will need
+          to do.  Let's make it a protocol so that other things can extend
+          it.</p>
+        </section>
+        <section>
+          <h3>Standalone HTML files can't make arbitrary fetches</h3>
+          <p>Because of this little restriction, the document has to have
+          already taken a number of measures to support portability before
+          getting out of the gate.</p>
+        </section>
+        <section>
+          <h3>Script can't read the content of scripts they've loaded.</h3>
+          <p>This is just one more annoyance.</p>
+        </section>
+        <section>
+          <h3>Support dynamically-loaded remote scripts</h3>
+          <p>In a live environment, we need to load remote scripts that
+          themselves have dependencies.</p>
+          <p>This package supports the dynamic loading of NPM packages
+          supporting AMD (and thus UMD) loaders from a (presumably configurable)
+          well-known CDN.  d3-require is prior art.</p>
+        </section>
+      </section>
+      <section>
+        <h2>Example usage</h2>
+        <p>This document includes some scripts that demonstrate the working of
+        the various portability techniques.</p>
+        <p>Like, let's add a script that creates a table of contents from the
+        structure of the document.  That runs on startup.  If that was done by
+        an externally-loaded script, then the saved document should have it
+        inlined.</p>
+        <p>Let's also have something that exercises the
+        find-it-in-the-state-you-left-it thing.</p>
+        <p>Exercise the extension mechanism by preserving the textareas</p>
+      </section>
+      <section>
+        <h2>how to use it</h2>
+        <p>What do authors have to do to take advantage of this?</p>
+        <ul>
+          <li>embed an amd loader</li>
+          <li>generally, use AMD</li>
+          <li>load or embed the portability module</li>
+          <li>make a save link</li>
+          <li>and wire it to the save function</li>
+        </ul>
+      </section>
+      <section contenteditable="">
+        <h2><a id="contenteditable" href="#contenteditable">An editable section</a></h2>
+        <p>You can edit the content of this section.  When you save the
+        document, any changes that you made here should be included.</p>
+      </section>
+      <section>
+        <h2>A text input</h2>
+        <textarea>You can edit this content.
+When you save the document, any changes that you made here should be included.
+        </textarea>
+      </section>
+      <section>
+        <h2>What about other form inputs?</h2>
+      </section>
+      <section>
+        <h2>What about the state of summary/details?</h2>
+        <details>
+          <summary>Wouldn't you like to know?</summary>
+          <p>See all of this stuff?  This stuff is hidden unless you open the
+          toggle.  What if you open it and save the document?</p>
+        </details>
+      </section>
+    </main>
+      <script src="/portable.js"></script>
+  </body>
+</html>
