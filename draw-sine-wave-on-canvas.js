@@ -2,7 +2,7 @@
 
 define([""], function(module) {
   // Yes, HDOM
-  function draw_sine_wave_on(canvas) {
+  function draw_sine_wave_on(canvas, freq = 10) {
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
     canvas.width = width;
@@ -14,7 +14,7 @@ define([""], function(module) {
     context.beginPath();
     context.moveTo(0, 0);
     for (let x = 0; x < canvas.width; x++)
-      context.lineTo(x, (Math.sin(x / 10) * height) / 2 + height / 2);
+      context.lineTo(x, (Math.sin(x / freq) * height) / 2 + height / 2);
     context.stroke();
   }
 

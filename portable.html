@@ -5,6 +5,7 @@
     <meta charset="utf-8" />
     <link href="/build/style/fonts.css" rel="stylesheet" />
     <link href="/build/style/portable.css" rel="stylesheet" />
+    <script src="/configure-require.js"></script>
     <script src="/node_modules/requirejs/require.js"></script>
     <script src="/amd-portable.js"></script>
     <style>
@@ -22,11 +23,14 @@
       <a download="portability.html" href="" data-intent="save-document">Save me!</a>
       <section id="something-moving">
         <p>need something moving right here</p>
-        <canvas></canvas>
+        <figure>
+          <canvas></canvas>
+          <figcaption>Here is a thing that shows a script must have loaded.</figcaption>
+        </figure>
         <code>
-Here be whatever makes following
+Here be whatever makes the moving thing
         </code>
-        <script>require(['something-moving'], thing => {
+        <script>require(['/something-moving.js'], thing => {
         console.log("got something moving", thing);
         })</script>
         <output id="something-moving-output"></output>
@@ -261,7 +265,7 @@ When you save the document, any changes that you made here should be included.
     </main>
     <script src="/portable.js"></script>
     <script>
-      require(['some-module'], (...args) => {
+      require(['/some-module.js'], (...args) => {
         // console.log("I loaded module", ...args);
       })
     </script>
