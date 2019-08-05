@@ -1,3 +1,18 @@
+// You *cannot*(AFAIK) get the content of external scripts via the DOM.
+// If you could, then this would be possible* in local mode.
+//
+// *But it's moot in the general case, because of module dependencies
+async function inline_external_scripts() {
+  // Materialize because this is a live collection and we're mutating doc.
+  for (const script of [...document.querySelectorAll("script[src]")]) {
+    const inlined = document.createElement("script");
+    inlined.innerHTML = await (await fetch(script.src)).text();
+    // Adding this to the doc will cause it to execute again.
+    // This should only be used for AMD loader itself
+    script.parentNode.replaceChild(inlined, script);
+  }
+}
+
 function fsdopfsdf() {
   // script here will run on startup
 
@@ -37,14 +52,6 @@ function fsdopfsdf() {
 }
 
 function morstyf() {
-  const scripts = document.querySelectorAll("script[src]");
-  for (const script of scripts) {
-    // console.log("script", script);
-    // console.log("text", script.innerText);
-    // console.log("html", script.innerHTML);
-  }
-  window.scripts = scripts;
-
   // const links = document.querySelectorAll(`link[rel="stylesheet"]`);
   // for (const link of links) {
   //   const style = document.createElement("style");
@@ -53,7 +60,6 @@ function morstyf() {
   //   style.appendChild(text);
   //   link.parentNode.replaceChild(style, link);
   // }
-
   //window.links = links;
 }
 function snapshot_and_prompt_download_wait() {
@@ -76,6 +82,7 @@ require([], () => {
   if (!is_file) {
     // Do prep for going into standalone mode on save
     console.log(`hosted mode`);
+    inline_external_scripts();
   }
 
   // General standalone mode support
