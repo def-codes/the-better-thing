@@ -67,6 +67,9 @@ function snapshot_and_prompt_download_wait() {
   // window.URL.revokeObjectURL(link.href);
 }
 
+// This module should have no dependencies
+// I'm not even sure it should be a module
+// It's supposed to persist itself
 require([], () => {
   // Distinguish standalone mode from hosted mode
   const is_file = window.location.protocol === "file:";

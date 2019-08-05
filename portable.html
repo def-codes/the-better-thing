@@ -4,8 +4,9 @@
     <title>portability test</title>
     <meta charset="utf-8" />
     <link href="/build/style/fonts.css" rel="stylesheet" />
-    <link href="/portable.css" rel="stylesheet" />
+    <link href="/build/style/portable.css" rel="stylesheet" />
     <script src="/node_modules/requirejs/require.js"></script>
+    <script src="/amd-portable.js"></script>
     <style>
       body::after {
         content: 'Hello from an originally-inlined stylesheet.';
@@ -19,6 +20,17 @@
     <main>
       <h1>Portability test</h1>
       <a download="portability.html" href="" data-intent="save-document">Save me!</a>
+      <section id="something-moving">
+        <p>need something moving right here</p>
+        <canvas></canvas>
+        <code>
+Here be whatever makes following
+        </code>
+        <script>require(['something-moving'], thing => {
+        console.log("got something moving", thing);
+        })</script>
+        <output id="something-moving-output"></output>
+      </section>
       <section>
         <h2>What do we mean by “portability”?</h2>
         <p>People already have tools for working with files.  The more you can
@@ -35,8 +47,10 @@
             <li>A custom “save” option is available that prompts you to download
             the document in its current state.</li>
             <li>AMD loader is always available.</li>
-            <li>Support “literate” programming (dynamic, visible script
-            blocks)</li>
+            <li>Support “literate” programming (dynamic, visible script blocks)
+            <aside>I think what I mean here and below is “userland reification”
+            of script blocks, which may be orthogonal to this purpose</aside>
+            </li>
             <li>Support visible script blocks even for these support
             scripts</li>
             <li>Remote (AMD) modules that were referenced will still load in
@@ -51,6 +65,10 @@
             mode (e.g. to get access to network API's)</li>
             <li>Custom save will retain changes to DOM made by scripts (not
             including iframes...?)</li>
+            <li>support development of scripts as external modules (even when
+            they're intended for inlining), in other words even though the
+            browser should be a viable development environment, it shouldn't be
+            <em>required</em> to develop portable content there.</li>
             <li>custom configuration of e.g. requirejs still works (??)</li>
             <li>You can load modules dynamically</li>
             <li>When saving either a standalone or hosted file using the custom
@@ -60,14 +78,28 @@
           </ul>
         </section>
         <section>
+          <h3>non-goals</h3>
+          <p>While some of the following may be technically possible, they are
+          not priorities for this package:</p>
+          <ul>
+            <li>inlining of raster images</li>
+            <li>inlining of fonts</li>
+            <li>inlining of scripts that are not AMD modules</li>
+          </ul>
+        </section>
+        <section>
           <h3>inlining</h3>
           <p><dfn>Inline</dfn> content is included directly in the document.
-          Inline content travels with the document and remain available even
-          when offline.  Here, “inline” is also used to refer to <em>state</em>
+          Inline content travels with the document and remains available even
+          when offline.</p>
+          <p>WHAT DO IT LOOK LIKE???</p>
+          <p>Here, <dfn>“inline”</dfn> is also used to refer to <em>state</em>
           that may be persisted with the HTML.</p>
-          <p>(Note that inlined content may itself refer to external sources,
-          such as stylesheet and script imports.  Such content is not included
-          with inlined content.)</p>
+          <p>WHAT DO THAT LOOK LIKE???</p>
+          <p>
+            Inlined content may itself refer to (import) external sources.  Such
+            second-order imports are not inlined.
+          </p>
           <p>Custom save <em>inlines</em> the following:</p>
           <ul>
             <li>
@@ -103,6 +135,7 @@
             <li>
               <input type="checkbox" checked="" />
               Open/closed state of summary/details
+              <p>See example <a href="#summary-details">here</a></p>
               <p>(Appears this happens automatically with serialization)</p>
             </li>
             <li>
@@ -218,7 +251,7 @@ When you save the document, any changes that you made here should be included.
         <h2>What about other form inputs?</h2>
       </section>
       <section>
-        <h2>What about the state of summary/details?</h2>
+        <h2><a id="summary-details" href="#summary-details">What about the state of summary/details?</a></h2>
         <details>
           <summary>Wouldn't you like to know?</summary>
           <p>See all of this stuff?  This stuff is hidden unless you open the
@@ -226,6 +259,11 @@ When you save the document, any changes that you made here should be included.
         </details>
       </section>
     </main>
-      <script src="/portable.js"></script>
+    <script src="/portable.js"></script>
+    <script>
+      require(['some-module'], (...args) => {
+        // console.log("I loaded module", ...args);
+      })
+    </script>
   </body>
 </html>
