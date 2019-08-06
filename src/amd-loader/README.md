@@ -23,7 +23,7 @@ Not sure yet:
 ## Motivation
 
 Module loading is central to MELD.  Existing loaders that implement the AMD spec
-(or some subset of it) do not provide sufficient flexibility for a numver of
+(or some subset of it) do not provide sufficient flexibility for a number of
 purposes:
 
 - dynamically determining dependency tree
