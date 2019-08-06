@@ -8,12 +8,7 @@
     <h1>MELD AMD loader</h1>
     <script src="amd-loader.js"></script>
     <script>
-      require(['./thing-one.js', './thing-two.js'], (one, two) => {
-        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! one", one);
-        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! two", two);
-        console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ one.op", one.op());
-        console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ two.op", two.op());
-      });
+      require(['./index.js']);
     </script>
   </body>
 </html>

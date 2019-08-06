@@ -25,64 +25,67 @@ const make_registry = () => {
   };
 };
 
+const default_resolver = (name, base) => {
+  return base ? base.replace(/[^\/]+$/, "") + name : name;
+};
+
 const make_loader = () => {
   const stack = [];
 
-  // resolver is provisional; currently unused
   function require_from(resolver) {
     const modules = make_registry();
 
-    const require_internal = url => {
-      if (modules.has(url)) {
-        console.log(`HAS`, url);
-        return modules.request(url);
-      }
+    const require_absolute = url => {
+      if (modules.has(url)) return modules.request(url);
 
       const script = document.createElement("script");
       script.async = true;
       script.src = url;
-
       const remove = () => script.parentNode.removeChild(script);
 
       return new Promise((resolve, reject) => {
         script.onload = async () => {
           remove();
-          // This `pop` is used to coordinate with script.  The flow from a
+          // This `pop` is used to coordinate with the script.  The flow from a
           // script's execution context to its `onload` handler is synchronous,
           // so this script's `define` should have been the last one executed.
+          if (!stack.length)
+            throw Error(`Expected a define on stack for ${url}`);
           const { context, promise } = stack.pop();
-          const result = promise(require);
+          const result = promise(require_relative(url));
 
           resolve(result);
           const module = await result;
+
           // 3rd arg is ignored.  map is better but current call site doesn't expect
           // because it's not parallel with other case (where module is taken synchronously.)
           modules.register(url, module, { ...context, module });
         };
-        script.onerror = error => {
-          remove();
-          reject(error);
-        };
+        script.onerror = error => (remove(), reject(error));
+
         document.head.appendChild(script);
       });
     };
 
+    const require_relative = base => name =>
+      Promise.resolve(resolver(name, base)).then(require_absolute);
+
     const meet = (needs, factory) =>
-      Promise.all(needs.map(require_internal)).then(imports =>
-        factory(...imports)
+      Promise.all(needs.map(require_absolute)).then(
+        imports => typeof factory === "function" && factory(...imports)
       );
 
     // side-effects only.  needs + factory or standalone factory
     return Object.assign(
       function require(a, b) {
-        if (Array.isArray(a) && typeof b === "function") meet(a, b);
+        if (Array.isArray(a)) meet(a, b);
         else if (typeof a === "function") a();
-      },
-      { internal: require_internal }
+      }
+      //{ absolute: require_absolute }
     );
   }
 
-  const require = require_from();
+  const require = require_from(default_resolver);
 
   const define = (a, b, c) => {
     const [given_name, needs, factory] =
@@ -91,9 +94,7 @@ const make_loader = () => {
     stack.push({
       context: { given_name, needs, factory },
       promise: require =>
-        Promise.all(needs.map(require.internal)).then(imports =>
-          factory(...imports)
-        ),
+        Promise.all(needs.map(require)).then(imports => factory(...imports)),
     });
   };
 
