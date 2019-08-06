@@ -10,8 +10,10 @@
     <script>
       require(['./thing-one.js', './thing-two.js'], (one, two) => {
 console.log("bar");
-        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! one", one.op());
-        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! two", two.op());
+        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! one", one);
+        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! two", two);
+        console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ one.op", one.op());
+        console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ two.op", two.op());
       });
     </script>
   </body>

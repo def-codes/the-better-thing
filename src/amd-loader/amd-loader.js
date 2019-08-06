@@ -1,4 +1,4 @@
-const PUSHPOP = false;
+const DEBUGPOP = true;
 
 // General-purpose async registry for coordinating requests with things.  Lets
 // consumers await items until providers register them by name.
@@ -18,6 +18,8 @@ const make_registry = () => {
   };
 
   return {
+    things,
+    pending,
     has: name => name in things,
     request: name => (name in things ? things[name] : promise_for(name)),
     register: (name, thing) => {
@@ -33,8 +35,15 @@ const make_loader = () => {
 
   // These require methods should be enclosed
 
-  const require_internal = url =>
-    new Promise((resolve, reject) => {
+  const require_internal = url => {
+    if (modules.has(url)) {
+      console.log(`HAS`, url);
+      return modules.request(url);
+    }
+
+    return new Promise((resolve, reject) => {
+      //  Could be done outside here
+
       const script = document.createElement("script");
       script.async = true;
       script.src = url;
@@ -43,20 +52,24 @@ const make_loader = () => {
 
       script.onload = async () => {
         remove();
-        // This pop is used to coordinate with script, where define should have
-        // been the last thing executed.
+        // This `pop` is used to coordinate with script.  The flow from a
+        // script's execution context to its `onload` handler is synchronous, so
+        // this script's `define` should have been the last one executed.
+        //
+        // At least I think that's true & how it works!
         const { context, lambda } = stack.pop();
         const { needs, factory } = context;
-        const result = lambda(require_internal);
-        if (PUSHPOP) console.log(stack.length, url, `POPPED`, ...needs, result);
+        const result = lambda(require);
+        if (DEBUGPOP)
+          console.log(stack.length, url, `POPPED`, ...needs, result);
 
         resolve(result);
         const mod = await result;
-
-        modules.register(url, mod);
+        // 3rd arg is ignored.  map is better but current call site doesn't expect
+        modules.register(url, mod, { needs, factory, module: mod });
         console.log(url, "depends on", needs, mod);
 
-        if (PUSHPOP) console.log("RESOLVED POP", url, "TO", mod);
+        if (DEBUGPOP) console.log("RESOLVED POP", url, "TO", mod);
       };
       script.onerror = error => {
         remove();
@@ -64,9 +77,14 @@ const make_loader = () => {
       };
       document.head.appendChild(script);
     });
+  };
 
   const meet = (needs, factory) =>
-    Promise.all(needs.map(require_internal), imports => factory(...imports));
+    Promise.all(needs.map(require_internal)).then(imports => {
+      console.log(`imports`, imports);
+
+      return factory(...imports);
+    });
 
   // side-effects only
   const require = (a, b) => {
@@ -81,14 +99,10 @@ const make_loader = () => {
         ? [first, second, third]
         : [undefined, first, second];
 
-    if (PUSHPOP) console.log(stack.length, `PUSH`, ...needs);
+    if (DEBUGPOP) console.log(stack.length, `PUSH`, ...needs);
     stack.push({
       context: { given_name, needs, factory },
-      lambda: require =>
-        meet(needs, factory).then(imports => {
-          if (PUSHPOP) console.log(`imports`, imports);
-          return factory(...imports);
-        }),
+      lambda: require => meet(needs, factory),
     });
   };
 
