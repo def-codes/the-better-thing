@@ -1,3 +1,4 @@
-define(["./lib-two.js"], common => {
-  return { name: "thing two", op: buzz => common.make("buzz") };
+define(["./lib-two.js"], lib_two => {
+  console.log(`THING_TWO says LIB TWO `, lib_two);
+  return { name: "thing two", op: buzz => lib_two.make("buzz") };
 });

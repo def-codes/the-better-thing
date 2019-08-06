@@ -73,20 +73,21 @@ dependency graph will remain acyclic.
 
 ### The coordination problem
 
-AMD loaders must solve a particular coordination problem.  This section
-describes that problem and approaches to solving it.
+AMD loaders must solve a particular coordination problem.  `define` is
+essentially a coordinator tailored to this situation.  This section describes
+that problem and approaches to solving it.
 
 The web platform has no native mechanism linking the execution context of a
 script with its loading context.  In the `define` function, nothing in the
-execution context tells us about this script.  Likewise, nothing in the loading
-context (which is done through the introduction of a `script` element) allows us
-to capture that execution context.
+execution context tells us about this script (such as how it got here).
+Likewise, nothing in the loading context (which is done through the introduction
+of a `script` element) allows us to capture its ultimate execution context.
 
 The problem is that, when resolving dependencies, the *name* of the module
 exists only in the loading context, and the module factory exists only in the
 execution context.  The challenge is to pass control flow back to any and all
-consumers of the module *with* the module (i.e. the result of executing the
-factory function on *its* resolved dependencies).
+consumers of the module along *with* a reference to the module itself (i.e. the
+result of executing the factory function on *its* resolved dependencies).
 
 Aside: Recent versions of ECMAScript introduce a `meta` element on the `import`
 keyword (or on dynamic `import` calls?), and one of the (I presume) motivating
@@ -94,9 +95,27 @@ proposals is to include the URL by which the import was requested.  Presumably
 this would have a distinguishable value for inline modules, which are currently
 supported.)
 
-The challenge is to associating each `define` call with the thing that required
-it (if any).  This is tricky because the `define` call is executed without any
+The challenge is to associate each `define` call with the thing that required it
+(if any).  This is tricky because the `define` call is executed without any
 context.
+
+What makes it possible to capture the execution context of a loaded script?
+`define`.
+
+The global `define` and `require` functions serve as the means of coordination
+between module definitions and those of their imports.
+
+Since such entities must be global, they cannot be contextualized for the
+purpose of tracking concurrent execution contexts.  Yet it is essential to track
+the context somehow.  Where does the module name match up with the declaration
+of its dependencies?  That is a matter of interest at the meta-level.  The spec
+doesn't provise for this being possible.
+
+I finally see how d3-require copes with this.  It uses a pushdown stack plus the
+fact that when a script's `onload` handler is called, the most recent thing to
+have run will be the script that it loaded.  So `define` pushes its factory
+output onto a stack, and the first thing to execute following that will be (we
+happen to know) the script's `onload` handler.
 
 ### Example flow walkthrough
 
