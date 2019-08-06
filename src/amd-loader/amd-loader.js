@@ -1,5 +1,3 @@
-const DEBUGPOP = true;
-
 // General-purpose async registry for coordinating requests with things.  Lets
 // consumers await items until providers register them by name.
 const make_registry = () => {
@@ -57,19 +55,14 @@ const make_loader = () => {
         // this script's `define` should have been the last one executed.
         //
         // At least I think that's true & how it works!
-        const { context, lambda } = stack.pop();
+        const { context, promise } = stack.pop();
         const { needs, factory } = context;
-        const result = lambda(require);
-        if (DEBUGPOP)
-          console.log(stack.length, url, `POPPED`, ...needs, result);
+        const result = promise(require);
 
         resolve(result);
         const mod = await result;
         // 3rd arg is ignored.  map is better but current call site doesn't expect
         modules.register(url, mod, { needs, factory, module: mod });
-        console.log(url, "depends on", needs, mod);
-
-        if (DEBUGPOP) console.log("RESOLVED POP", url, "TO", mod);
       };
       script.onerror = error => {
         remove();
@@ -80,29 +73,23 @@ const make_loader = () => {
   };
 
   const meet = (needs, factory) =>
-    Promise.all(needs.map(require_internal)).then(imports => {
-      console.log(`imports`, imports);
+    Promise.all(needs.map(require_internal)).then(imports =>
+      factory(...imports)
+    );
 
-      return factory(...imports);
-    });
-
-  // side-effects only
+  // side-effects only.  needs + factory or standalone factory
   const require = (a, b) => {
-    // needs + factory
     if (Array.isArray(a) && typeof b === "function") meet(a, b);
     else if (typeof a === "function") a();
   };
 
-  const define = (first, second, third) => {
+  const define = (a, b, c) => {
     const [given_name, needs, factory] =
-      typeof first === "string"
-        ? [first, second, third]
-        : [undefined, first, second];
+      typeof a === "string" ? [a, b, c] : [undefined, a, b];
 
-    if (DEBUGPOP) console.log(stack.length, `PUSH`, ...needs);
     stack.push({
       context: { given_name, needs, factory },
-      lambda: require => meet(needs, factory),
+      promise: require => meet(needs, factory),
     });
   };
 
