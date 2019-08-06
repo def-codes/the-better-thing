@@ -9,6 +9,7 @@ const TEST_MODULES = [];
 
 /** Modules built in this project. */
 const modules = [
+  ["amd-loader"],
   ["meld-demo"],
   ["polymorphic-functions"],
   ["polymorphic-hdom"],

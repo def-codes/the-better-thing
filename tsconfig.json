@@ -2,6 +2,7 @@
   "include": [],
   "files": [],
   "references": [
+    {"path": "src/amd-loader" },
     {"path": "src/meld-demo" },
     {"path": "src/polymorphic-functions" },
     {"path": "src/polymorphic-hdom" },
