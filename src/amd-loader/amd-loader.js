@@ -27,17 +27,8 @@ const make_registry = () => {
 
 const default_resolver = (name, base) => {
   if (/^(\w+:)|\/\//.test(name)) return name;
-
-  if (/^[.]{0,2}\//.test(name)) {
-    console.log(`name base`, name, base);
-    const url = new URL(name, base == null ? location : base);
-    console.log(`url`, url);
-    return url.href;
-  }
-
-  // if (base) {
-  //   base.replace(/[^\/]+$/, "") + name;
-  // }
+  if (/^[.]{0,2}\//.test(name))
+    return new URL(name, base == null ? location : base).href;
 
   return name;
 };
@@ -62,17 +53,12 @@ const make_loader = () => {
           // This `pop` is used to coordinate with the script.  The flow from a
           // script's execution context to its `onload` handler is synchronous,
           // so this script's `define` should have been the last one executed.
-          if (!stack.length)
-            throw Error(`Expected a define on stack for ${url}`);
+          if (!stack.length) throw Error(`Expected a define for ${url}`);
           const { context, promise } = stack.pop();
           const result = promise(require_relative(url));
-
-          resolve(result);
           const module = await result;
-
-          // 3rd arg is ignored.  map is better but current call site doesn't expect
-          // because it's not parallel with other case (where module is taken synchronously.)
-          modules.register(url, module, { ...context, module });
+          modules.register(url, { ...context, module });
+          resolve({ module });
         };
         script.onerror = error => (remove(), reject(error));
 
@@ -81,7 +67,9 @@ const make_loader = () => {
     };
 
     const require_relative = base => name =>
-      Promise.resolve(resolver(name, base)).then(require_absolute);
+      Promise.resolve(resolver(name, base))
+        .then(require_absolute)
+        .then(_ => _.module);
 
     const meet = (needs, factory) =>
       Promise.all(needs.map(require_relative(null))).then(
