@@ -26,7 +26,20 @@ const make_registry = () => {
 };
 
 const default_resolver = (name, base) => {
-  return base ? base.replace(/[^\/]+$/, "") + name : name;
+  if (/^(\w+:)|\/\//.test(name)) return name;
+
+  if (/^[.]{0,2}\//.test(name)) {
+    console.log(`name base`, name, base);
+    const url = new URL(name, base == null ? location : base);
+    console.log(`url`, url);
+    return url.href;
+  }
+
+  // if (base) {
+  //   base.replace(/[^\/]+$/, "") + name;
+  // }
+
+  return name;
 };
 
 const make_loader = () => {
@@ -71,18 +84,15 @@ const make_loader = () => {
       Promise.resolve(resolver(name, base)).then(require_absolute);
 
     const meet = (needs, factory) =>
-      Promise.all(needs.map(require_absolute)).then(
+      Promise.all(needs.map(require_relative(null))).then(
         imports => typeof factory === "function" && factory(...imports)
       );
 
     // side-effects only.  needs + factory or standalone factory
-    return Object.assign(
-      function require(a, b) {
-        if (Array.isArray(a)) meet(a, b);
-        else if (typeof a === "function") a();
-      }
-      //{ absolute: require_absolute }
-    );
+    return function require(a, b) {
+      if (Array.isArray(a)) meet(a, b);
+      else if (typeof a === "function") a();
+    };
   }
 
   const require = require_from(default_resolver);
