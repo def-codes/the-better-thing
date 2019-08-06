@@ -8,7 +8,10 @@ export interface AMDRequire {
   (dependencies: readonly string[], factory: AMDFactory): void;
 }
 
-export interface AMDDefine extends AMDRequire {
+export interface AMDDefineFunction extends AMDRequire {
   (name: string, dependencies: readonly string[], factory: AMDFactory): void;
+}
+
+export interface AMDDefine extends AMDDefineFunction {
   amd: object;
 }
