@@ -15,7 +15,7 @@ interface ModuleWithContext {
 
 interface PendingModule {
   readonly context: ModuleContext;
-  // Thunk that returns
+  // Resolves to the module given a (possibly contextualized) require
   readonly promise: (require: AMDRequire) => Promise<any>;
 }
 
@@ -29,10 +29,9 @@ const default_resolver = (name: string, base: string | null | undefined) => {
 
 export const make_loader = (): { define: AMDDefine; require: AMDRequire } => {
   const stack: PendingModule[] = [];
+  const modules = new AsyncMap<string, ModuleWithContext>();
 
   function require_from(resolver) {
-    const modules = new AsyncMap<string, ModuleWithContext>();
-
     const require_absolute = async (
       url: string
     ): Promise<ModuleWithContext> => {
@@ -74,13 +73,21 @@ export const make_loader = (): { define: AMDDefine; require: AMDRequire } => {
         const [given_name, needs, factory] =
           typeof a === "string" ? [a, b, c] : [undefined, a, b];
 
-        stack.push({
-          context: { given_name, needs, factory },
-          promise: require =>
-            Promise.all(needs.map(require)).then(imports =>
-              typeof factory === "function" ? factory(...imports) : factory
-            ),
-        });
+        const promise = (require: AMDRequire) =>
+          Promise.all(needs.map(require)).then(imports =>
+            typeof factory === "function" ? factory(...imports) : factory
+          );
+        const context = { given_name, needs, factory };
+
+        // It's possible for a define *not* to have been loaded by a separate
+        // script.  In such cases, we expect the name to be present.  In
+        // principle, the loading context would be that of the "current" script,
+        // however, we have (to wit) no way to know that here.
+        if (given_name)
+          promise(require_from(default_resolver)).then(module =>
+            modules.set(given_name, { context, module })
+          );
+        else stack.push({ context, promise });
       }) as AMDDefineFunction,
       { amd: {} }
     ),

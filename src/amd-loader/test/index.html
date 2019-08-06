@@ -8,6 +8,14 @@
     <h1>MELD AMD loader</h1>
     <script src="../../../node_modules/@def.codes/amd-loader.js"></script>
     <script>
+      define('named-example', [], { inlined: true });
+    </script>
+    <script>
+      require(['named-example'], mod => {
+      console.log("imported:", mod);
+      });
+    </script>
+    <script>
       require(['./index.js']);
     </script>
   </body>
