@@ -1,5 +1,6 @@
 import { AMDFactory } from "./api";
 import { AsyncMap } from "./AsyncMap";
+import { load_script } from "./load_script";
 
 interface ModuleContext {
   readonly given_name: string | undefined;
@@ -29,27 +30,17 @@ export const make_loader = () => {
     const require_absolute = (url: string): Promise<ModuleWithContext> => {
       if (modules.has(url)) return modules.get(url);
 
-      const script = document.createElement("script");
-      script.async = true;
-      script.src = url;
-      const remove = () => script.parentNode.removeChild(script);
-
-      return new Promise((resolve, reject) => {
-        script.onload = async () => {
-          remove();
-          // This `pop` is used to coordinate with the script.  The flow from a
-          // script's execution context to its `onload` handler is synchronous,
-          // so this script's `define` should have been the last one executed.
-          if (!stack.length) throw Error(`Expected a define for ${url}`);
-          const { context, promise } = stack.pop();
-          const result = promise(require_relative(url));
-          const module = await result;
-          modules.set(url, { context, module });
-          resolve({ module });
-        };
-        script.onerror = error => (remove(), reject(error));
-
-        document.head.appendChild(script);
+      return load_script(url).then(async () => {
+        // This `pop` is used to coordinate with the script.  The flow from a
+        // script's execution context to its `onload` handler (and hence to
+        // this) is synchronous, so this script's `define` should have been the
+        // last one executed.
+        if (!stack.length) throw Error(`Expected a define for ${url}`);
+        const { context, promise } = stack.pop();
+        const result = promise(require_relative(url));
+        const module = await result;
+        modules.set(url, { context, module });
+        return { module };
       });
     };
 
