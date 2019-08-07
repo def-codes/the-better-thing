@@ -65,15 +65,13 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
       // The stack is used to coordinate with the script.  This should occur
       // synchronously after the script load, when its `define` should have been
       // the last one executed.
-      if (!stack.length) throw Error(`Expected a define for ${url}`);
+      if (!context_stack.length) throw Error(`Expected a define for ${url}`);
       const context = context_stack.pop();
       const { needs, factory } = context;
 
-      const promise = (require: (url: string) => Promise<any>) =>
-        Promise.all(needs.map(require)).then(apply(factory));
-
-      const result = promise(require_relative(url));
-      const module = await result;
+      const module = await Promise.all(needs.map(require_relative(url))).then(
+        apply(factory)
+      );
 
       // HERE
       //
@@ -106,9 +104,6 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
         const [given_name, needs, factory] =
           typeof a === "string" ? [a, b, c] : [undefined, a, b];
 
-        const promise = (require: AMDRequire) =>
-          Promise.all(needs.map(require)).then(apply(factory));
-
         const context = { given_name, needs, factory };
 
         // It's possible for a define *not* to have been loaded by a separate
@@ -116,9 +111,9 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
         // principle, the loading context would be that of the "current" script,
         // however, we have (to wit) no way to know that here.
         if (given_name)
-          promise(require_from(default_resolver)).then(module =>
-            modules.set(given_name, { context, module })
-          );
+          Promise.all(needs.map(require_from(default_resolver)))
+            .then(apply(factory))
+            .then(module => modules.set(given_name, { context, module }));
         else context_stack.push(context);
       }) as AMDDefineFunction,
       { amd: {} }
