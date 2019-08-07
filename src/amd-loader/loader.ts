@@ -39,13 +39,23 @@ const is_relative = id => IS_RELATIVE.test(id);
 6. Relative identifiers are resolved relative to the identifier of the module in
    which "require" is written and called.
 */
-const default_resolver = (name: string, base: string | null | undefined) => {
+
+export const default_resolver = (
+  name: string,
+  base: string | null | undefined
+) => {
   if (/^(\w+:)|\/\//.test(name)) return name;
   if (/^[.]{0,2}\//.test(name))
     return new URL(name, base == null ? location.href : base).href;
 
   return name;
 };
+
+/** “If the factory argument is an object, that object should be assigned as the
+ * exported value of the module.”
+ * https://github.com/amdjs/amdjs-api/blob/master/AMD.md */
+const apply = (factory: Function | object) => (imports: readonly any[]) =>
+  typeof factory === "function" ? factory(...imports) : factory;
 
 export const make_loader = (resolver = default_resolver): AMDGlobals => {
   const stack: PendingModule[] = [];
@@ -68,7 +78,9 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
 
       // HERE
       //
-      // This is the point at which the module and context are known.
+      // This is the point at which the module and context are known.  Should
+      // this be broadcast here, or can that be the job of e.g. a wrapper on the
+      // modules registry?
       modules.set(url, { context, module });
       return { module };
     };
@@ -78,10 +90,8 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
         .then(require_absolute)
         .then(_ => _.module);
 
-    const meet = (needs, factory) =>
-      Promise.all(needs.map(require_relative(null))).then(
-        imports => typeof factory === "function" && factory(...imports)
-      );
+    const meet = async (needs, factory) =>
+      Promise.all(needs.map(require_relative(null))).then(apply(factory));
 
     // side-effects only.  needs + factory or standalone factory
     return function require(a, b) {
@@ -98,9 +108,8 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
           typeof a === "string" ? [a, b, c] : [undefined, a, b];
 
         const promise = (require: AMDRequire) =>
-          Promise.all(needs.map(require)).then(imports =>
-            typeof factory === "function" ? factory(...imports) : factory
-          );
+          Promise.all(needs.map(require)).then(apply(factory));
+
         const context = { given_name, needs, factory };
 
         // It's possible for a define *not* to have been loaded by a separate
