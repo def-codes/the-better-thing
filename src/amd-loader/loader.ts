@@ -45,11 +45,24 @@ export const default_resolver = (
   return name;
 };
 
-/** “If the factory argument is an object, that object should be assigned as the
- * exported value of the module.”
- * https://github.com/amdjs/amdjs-api/blob/master/AMD.md */
-const apply = (factory: Function | object) => (imports: readonly any[]) =>
-  typeof factory === "function" ? factory(...imports) : factory;
+const construct = (
+  needs: readonly string[],
+  factory: Function | object,
+  resolver
+) =>
+  Promise.all(needs.map(resolver)).then(imports => {
+    /** “If the factory argument is an object, that object should be assigned as
+     * the exported value of the module.”
+     * https://github.com/amdjs/amdjs-api/blob/master/AMD.md */
+    if (typeof factory !== "function") return factory;
+
+    const exports = {};
+    const special = { exports };
+    const result = factory(
+      ...needs.map((id, index) => special[id] || imports[index])
+    );
+    return needs.includes("exports") ? exports : result;
+  });
 
 export const make_loader = (resolver = default_resolver): AMDGlobals => {
   const context_stack: ModuleContext[] = [];
@@ -68,10 +81,7 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
       if (!context_stack.length) throw Error(`Expected a define for ${url}`);
       const context = context_stack.pop();
       const { needs, factory } = context;
-
-      const module = await Promise.all(needs.map(require_relative(url))).then(
-        apply(factory)
-      );
+      const module = await construct(needs, factory, require_relative(url));
 
       // HERE
       //
@@ -88,7 +98,7 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
         .then(_ => _.module);
 
     const meet = async (needs, factory) =>
-      Promise.all(needs.map(require_relative(null))).then(apply(factory));
+      construct(needs, factory, require_relative(null));
 
     // side-effects only.  needs + factory or standalone factory
     return function require(a, b) {
@@ -111,9 +121,9 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
         // principle, the loading context would be that of the "current" script,
         // however, we have (to wit) no way to know that here.
         if (given_name)
-          Promise.all(needs.map(require_from(default_resolver)))
-            .then(apply(factory))
-            .then(module => modules.set(given_name, { context, module }));
+          construct(needs, factory, require_from(default_resolver)).then(
+            module => modules.set(given_name, { context, module })
+          );
         else context_stack.push(context);
       }) as AMDDefineFunction,
       { amd: {} }
