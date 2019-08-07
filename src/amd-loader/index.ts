@@ -16,14 +16,11 @@ function main() {
     mappings[
       `@thi.ng/${thing}`
     ] = `/node_modules/@thi.ng/${thing}/lib/index.umd.js`;
-  console.log(`paths`, paths);
 
   Object.assign(
     window,
     make_loader((name, base) => {
-      console.log("custom resolver", name, base);
       if (mappings[name]) return mappings[name];
-
       if (paths[name]) name = paths[name];
       return default_resolver(name, base);
     })

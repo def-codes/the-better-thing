@@ -5,4 +5,5 @@ define(["./thing-one.js", "./thing-two.js"], (one, two) => {
   console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! two", two);
   console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ one.op", one.op());
   console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ two.op", two.op());
+  require(["./lateral.js"], wut => ({ wut, penal: "colony" }));
 });

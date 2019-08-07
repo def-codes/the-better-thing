@@ -12,22 +12,21 @@
     </script>
     <script>
       require(['../../../node_modules/@thi.ng/transducers/lib/index.umd.js'], tx => {
-        console.log("TX", tx);
+        // console.log("TX", tx);
       })
     </script>
     <script>
       require(['@thi.ng/transducers', '@thi.ng/rstream'], (tx, rs) => {
-        console.log("TX", tx);
-        console.log("RS", rs);
+        console.log("TX, RS", tx, rs);
       })
     </script>
     <script>
       require(['named-example'], mod => {
-      console.log("imported:", mod);
+        console.log("imported from inline:", mod);
       });
     </script>
     <script>
-      require(['./index.js']);
+      require(['./index.js'], () => {});
     </script>
   </body>
 </html>

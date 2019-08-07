@@ -1,10 +1,4 @@
-import {
-  AMDFactory,
-  AMDDefineFunction,
-  AMDGlobals,
-  AMDRequire,
-  MaybeAsync,
-} from "./api";
+import { AMDFactory, AMDDefineFunction, AMDGlobals, MaybeAsync } from "./api";
 import { AsyncMap } from "./AsyncMap";
 import { memo_map } from "./memo_map";
 import { load_script } from "./load_script";
@@ -69,7 +63,7 @@ export const default_resolver: ModuleNameResolver = (
 const construct = async (
   needs: readonly string[],
   factory: AMDFactory,
-  resolver: ModuleResolver
+  resolve: ModuleResolver
 ) => {
   /** “If the factory argument is an object, that object should be assigned as
    * the exported value of the module.”
@@ -79,34 +73,53 @@ const construct = async (
   const exports = {};
   const local = { exports };
   // Run all this even if `exports` is used, for possible side-effects
-  const imports = await Promise.all(needs.map(id => local[id] || resolver(id)));
+  const imports = await Promise.all(needs.map(id => local[id] || resolve(id)));
   const module = factory(...imports);
   return needs.includes("exports") ? exports : module;
 };
 
 export const make_loader = (resolver = default_resolver): AMDGlobals => {
+  // The stack is used to coordinate with the script.
   const define_stack: ModuleExecutionContext[] = [];
+
+  // A dictionary of loaded modules by their resolved URL's.
   const modules = new AsyncMap<string, ModuleWithContext>();
 
   function require_with(resolver: ModuleNameResolver) /*: AMDRequire*/ {
-    const require_absolute = memo_map(modules, load_module).get;
-
-    // SIDE EFFECTING
-    // The stack is used to coordinate with the script.  This should occur
-    // synchronously after the script load, when its `define` should have been
-    // the last one executed.
+    // EFFECT
     async function load_module(url: string): Promise<ModuleWithContext> {
+      // EFFECT
+      // If the script loads, it will execute, including any define/require calls.
       await load_script(url);
 
+      // That load changes the state of the VM.  Generally, any effect from the
+      // execution of external scripts is unknowable to us.  But for AMD
+      // modules, `define` and `require` serve as rendez-vouz points.
+      // Each call to `define` pushes its execution context onto a stack.
+
+      // Last `define` should be from the script, which we follow synchronously.
       if (!define_stack.length) throw Error(`Expected a define for ${url}`);
 
-      // loader-level *execution* context
-      const context = define_stack.pop(),
+      // Now *we* change the state.
+      //
+      // The stack is local to this instance of require.  But it could well be
+      // global.  Indeed, nothing is gained by scoping it to this instance, as
+      // `define` calls in exotic modules will be made against the global
+      // scope, and they will all get the same global `define`.
+
+      // EFFECT: mutating loader-level execution context.
+      //
+      // This in particular is non-monotonic.  It's still not 100% clear to me
+      // in what circumstances a nested context could exist.
+      const context = define_stack[define_stack.length - 1], //.pop(),
         { needs, factory } = context,
+        // EFFECT: the constructor may trigger effects (including loads)
         module = await construct(needs, factory, require_relative(url));
 
       return { ...context, url, module };
     }
+
+    const require_absolute = memo_map(modules, load_module).get;
 
     const require_relative = (base: string | null) => (name: string) =>
       Promise.resolve(resolver(name, base))
@@ -116,7 +129,7 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
     return Object.assign(
       // side-effects only
       (needs, factory) => construct(needs, factory, require_relative(null)),
-      { async: require_relative }
+      { modules, define_stack, async: require_relative }
     );
   }
 
@@ -132,7 +145,10 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
         // It's possible for a define *not* to have been loaded by a separate
         // script.  In such cases, we expect the name to be present.  In
         // principle, the loading context would be that of the "current" script,
-        // however, we have (to wit) no way to know that here.
+        // however, we have (to wit) no way to know that here.  Which is
+        // strange, because we do all this bookkeeping with context, and some of
+        // that is (or could be) in scope here.
+
         if (given_name)
           construct(needs, factory, require_with(resolver).async(null)).then(
             module => modules.set(given_name, { ...context, url: null, module })

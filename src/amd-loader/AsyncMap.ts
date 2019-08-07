@@ -12,7 +12,6 @@ export class AsyncMap<K, V> extends Map<K, MaybeAsync<V>> {
   readonly pending = new Map<K, PendingItem<V>>();
 
   async get(key: K) {
-    // this or super?
     if (super.has(key)) return super.get(key);
     if (this.pending.has(key)) return this.pending.get(key).promise;
 
@@ -23,7 +22,7 @@ export class AsyncMap<K, V> extends Map<K, MaybeAsync<V>> {
     return promise;
   }
 
-  set(key: K, value: MaybeAsync<V>) {
+  set(key: K, value: V) {
     if (this.pending.has(key)) this.pending.get(key).resolve(value);
     return super.set(key, value);
   }

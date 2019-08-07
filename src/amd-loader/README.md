@@ -12,19 +12,22 @@ as well as a later proposal introducing dynamic imports (via asynchronous
 `import()` expressions).
 
 These proposals were aimed at solving the set of problems associated with
-existing module loading systems.  For browser environments, the Asynchronous
-Module Definition (AMD) effectively filled the module gap for many
-years. Significantly, AMD is a *userland* protocol.  AMD is still used very
-widely and is baked into interop systems (such as UMD) that make a large
-ecosystem of modules available.
+existing module loading systems.  One module system dominated each of the two
+main environments: AMD for the browser, and CommonJS for Node.
+
+For browser environments, the Asynchronous Module Definition (AMD) effectively
+filled the module gap for many years. Significantly, AMD is a *userland*
+protocol.  AMD is still used very widely and is baked into interop systems (such
+as UMD) that make a large ecosystem of modules available.
 
 It is necessary to point out that what has replaced AMD in common practice is
 *not* another module loader, but a re-framing of the whole problem that makes
 module-loading more of a development and deployment concern, rather than a
 userland operation.  In particular, development servers that serve module
-content “dynamically” in effect obscure the semantics of client-side that deal
-with dependencies.  This approach moves away from a dynamic worldview towards a
-more static view: package needs are a one-time, up-front decision.
+content “dynamically” in effect obscure the semantics of client-side code that
+deals with dependencies.  This approach moves away from a dynamic worldview
+towards a more static view, where package needs are a one-time, up-front
+decision.
 
 So it is no surprise that when we look at ECMAScript 2015 through the lens of
 visibility-by-default and our other core values, we find gaps in the story.
