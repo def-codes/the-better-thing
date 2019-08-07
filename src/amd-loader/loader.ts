@@ -1,12 +1,19 @@
-import { AMDFactory, AMDRequire, AMDDefineFunction, AMDGlobals } from "./api";
+import { AMDFactory, AMDDefineFunction, AMDGlobals, MaybeAsync } from "./api";
 import { AsyncMap } from "./AsyncMap";
+import { MemoMap } from "./MemoMap";
 import { load_script } from "./load_script";
 
-interface ModuleContext {
+interface ModuleLoadingContext {
+  readonly url: string;
+}
+
+interface ModuleExecutionContext {
   readonly given_name: string | undefined;
   readonly needs: readonly string[];
   readonly factory: AMDFactory;
 }
+
+interface ModuleContext extends ModuleLoadingContext, ModuleExecutionContext {}
 
 interface ModuleWithContext {
   readonly context?: ModuleContext;
@@ -14,6 +21,7 @@ interface ModuleWithContext {
 }
 
 /*
+http://wiki.commonjs.org/wiki/Modules/1.1.1#Module_Identifiers
 
 1. A module identifier is a String of "terms" delimited by forward slashes.
 
@@ -52,45 +60,44 @@ const construct = async (
 ) => {
   /** “If the factory argument is an object, that object should be assigned as
    * the exported value of the module.”
-   * https://github.com/amdjs/amdjs-api/blob/master/AMD.md */
+   * https://github.com/amdjs/amdjs-api/blob/master/AMD.md#factory- */
   if (typeof factory !== "function") return factory;
 
   const exports = {};
   const special = { exports };
-  const imports = await Promise.all(
-    needs.map((id, index) => special[id] || resolver(needs[index]))
-  );
-  const result = factory(...imports);
+  const imports = Promise.all(needs.map(id => special[id] || resolver(id)));
+  const result = factory(...(await imports));
   return needs.includes("exports") ? exports : result;
 };
 
 export const make_loader = (resolver = default_resolver): AMDGlobals => {
-  const context_stack: ModuleContext[] = [];
+  const define_stack: ModuleContext[] = [];
   const modules = new AsyncMap<string, ModuleWithContext>();
 
-  function require_from(resolver) {
-    const require_absolute = async (
-      url: string
-    ): Promise<ModuleWithContext> => {
-      if (modules.has(url)) return modules.get(url);
-
+  function require_with(resolver) {
+    // SIDE EFFECTING
+    // The stack is used to coordinate with the script.  This should occur
+    // synchronously after the script load, when its `define` should have been
+    // the last one executed.
+    async function load_module(url: string) {
       await load_script(url);
-      // The stack is used to coordinate with the script.  This should occur
-      // synchronously after the script load, when its `define` should have been
-      // the last one executed.
-      if (!context_stack.length) throw Error(`Expected a define for ${url}`);
-      const context = context_stack.pop();
-      const { needs, factory } = context;
-      const module = await construct(needs, factory, require_relative(url));
 
-      // HERE
-      //
-      // This is the point at which the module and context are known.  Should
-      // this be broadcast here, or can that be the job of e.g. a wrapper on the
-      // modules registry?
-      modules.set(url, { context, module });
-      return { module };
-    };
+      if (!define_stack.length) throw Error(`Expected a define for ${url}`);
+
+      // loader-level *execution* context
+      const context = define_stack.pop(),
+        { needs, factory } = context,
+        module = await construct(needs, factory, require_relative(url));
+
+      return { context, url, module };
+    }
+
+    const mods = new MemoMap<string, MaybeAsync<ModuleWithContext>>(
+      modules,
+      load_module
+    );
+
+    const require_absolute = (url: string) => mods.get(url);
 
     const require_relative = base => name =>
       Promise.resolve(resolver(name, base))
@@ -108,7 +115,7 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
   }
 
   return {
-    require: require_from(resolver),
+    require: require_with(resolver),
     define: Object.assign(
       ((a, b, c) => {
         const [given_name, needs, factory] =
@@ -121,10 +128,10 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
         // principle, the loading context would be that of the "current" script,
         // however, we have (to wit) no way to know that here.
         if (given_name)
-          construct(needs, factory, require_from(default_resolver)).then(
+          construct(needs, factory, require_with(default_resolver)).then(
             module => modules.set(given_name, { context, module })
           );
-        else context_stack.push(context);
+        else define_stack.push(context);
       }) as AMDDefineFunction,
       { amd: {} }
     ),

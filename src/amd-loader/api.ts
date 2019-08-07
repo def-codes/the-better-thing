@@ -1,3 +1,5 @@
+export type MaybeAsync<T> = T | PromiseLike<T>;
+
 export interface AMDFactory {
   // AMD allows any kind of export, though for ES2015 compatibility you should
   // only export objects.

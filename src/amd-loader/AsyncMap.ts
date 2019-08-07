@@ -1,16 +1,19 @@
+import { MaybeAsync } from "./api";
+
 interface PendingItem<T> {
   promise: Promise<T>;
   // Same as first argument (`resolve`) to `Promise` executor
-  resolve: (value?: T | PromiseLike<T>) => void;
+  resolve: (value?: MaybeAsync<T>) => void;
 }
 
 /** General-purpose async registry for coordinating requests with things.  Lets
  *  consumers await items until providers register them by name. */
-export class AsyncMap<K, V> extends Map<K, V | Promise<V>> {
+export class AsyncMap<K, V> extends Map<K, MaybeAsync<V>> {
   readonly pending = new Map<K, PendingItem<V>>();
 
   async get(key: K) {
-    if (this.has(key)) return super.get(key);
+    // this or super?
+    if (super.has(key)) return super.get(key);
     if (this.pending.has(key)) return this.pending.get(key).promise;
 
     const promise = new Promise<V>(resolve => {
@@ -20,7 +23,7 @@ export class AsyncMap<K, V> extends Map<K, V | Promise<V>> {
     return promise;
   }
 
-  set(key: K, value: V | Promise<V>) {
+  set(key: K, value: MaybeAsync<V>) {
     if (this.pending.has(key)) this.pending.get(key).resolve(value);
     return super.set(key, value);
   }
