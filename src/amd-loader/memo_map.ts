@@ -1,6 +1,5 @@
 /** Functional cache for single-arity functions.  `get` retrieves (and saves)
  * the value of `f(key)` for a given function `f`. */
-// Still doesn't preserve type of original input
 export const memo_map = <K, V>(
   base: Map<K, V>,
   transform: (key: K) => V
