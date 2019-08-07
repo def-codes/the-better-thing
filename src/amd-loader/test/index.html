@@ -16,6 +16,12 @@
       })
     </script>
     <script>
+      require(['@thi.ng/transducers', '@thi.ng/rstream'], (tx, rs) => {
+        console.log("TX", tx);
+        console.log("RS", rs);
+      })
+    </script>
+    <script>
       require(['named-example'], mod => {
       console.log("imported:", mod);
       });

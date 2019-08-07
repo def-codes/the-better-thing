@@ -45,24 +45,24 @@ export const default_resolver = (
   return name;
 };
 
-const construct = (
+const construct = async (
   needs: readonly string[],
   factory: Function | object,
   resolver
-) =>
-  Promise.all(needs.map(resolver)).then(imports => {
-    /** “If the factory argument is an object, that object should be assigned as
-     * the exported value of the module.”
-     * https://github.com/amdjs/amdjs-api/blob/master/AMD.md */
-    if (typeof factory !== "function") return factory;
+) => {
+  /** “If the factory argument is an object, that object should be assigned as
+   * the exported value of the module.”
+   * https://github.com/amdjs/amdjs-api/blob/master/AMD.md */
+  if (typeof factory !== "function") return factory;
 
-    const exports = {};
-    const special = { exports };
-    const result = factory(
-      ...needs.map((id, index) => special[id] || imports[index])
-    );
-    return needs.includes("exports") ? exports : result;
-  });
+  const exports = {};
+  const special = { exports };
+  const imports = await Promise.all(
+    needs.map((id, index) => special[id] || resolver(needs[index]))
+  );
+  const result = factory(...imports);
+  return needs.includes("exports") ? exports : result;
+};
 
 export const make_loader = (resolver = default_resolver): AMDGlobals => {
   const context_stack: ModuleContext[] = [];
