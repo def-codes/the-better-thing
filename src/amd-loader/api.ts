@@ -15,3 +15,8 @@ export interface AMDDefineFunction extends AMDRequire {
 export interface AMDDefine extends AMDDefineFunction {
   amd: object;
 }
+
+export interface AMDGlobals {
+  define: AMDDefine;
+  require: AMDRequire;
+}

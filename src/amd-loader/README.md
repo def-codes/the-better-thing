@@ -2,7 +2,80 @@
 
 This package provides a flexible AMD module loader.
 
-Goals:
+## Background
+
+For over twenty years, Javascript had no official notion of modules.
+
+ECMAScript 2015 introduced first-class modules.  Common browsers now implement
+the 2015 spec (`import` and `export` statements and a script `type="module"`),
+as well as a later proposal introducing dynamic imports (via asynchronous
+`import()` expressions).
+
+These proposals were aimed at solving the set of problems associated with
+existing module loading systems.  For browser environments, the Asynchronous
+Module Definition (AMD) effectively filled the module gap for many
+years. Significantly, AMD is a *userland* protocol.  AMD is still used very
+widely and is baked into interop systems (such as UMD) that make a large
+ecosystem of modules available.
+
+It is necessary to point out that what has replaced AMD in common practice is
+*not* another module loader, but a re-framing of the whole problem that makes
+module-loading more of a development and deployment concern, rather than a
+userland operation.  In particular, development servers that serve module
+content “dynamically” in effect obscure the semantics of client-side that deal
+with dependencies.  This approach moves away from a dynamic worldview towards a
+more static view: package needs are a one-time, up-front decision.
+
+So it is no surprise that when we look at ECMAScript 2015 through the lens of
+visibility-by-default and our other core values, we find gaps in the story.
+
+How do we construct a dependency tree?
+
+How do we configure module name resolution?
+
+(Of course, custom module name resolution may be one of the things that the
+proposal aims to diminish, as it does reduce portability (assuming that you
+can't also ship the custom logic)).
+
+Can we (and should we) change the semantics of these globals, just because (by
+intercepting them) we can?  Intuitively, it seems folly to change the semantics
+of any well-defined thing.  Yet there are ways that we can "advise" the
+implementation in a fundamental way while still providing a meaningful outcome.
+
+Let's consider the notion of a "module loader" in the context of a live system.
+
+    But this starts getting into the deep-proxy territory, which is fine but a
+	separate package
+
+In a live programming system (such as is common to Lisp environments), name
+resolution is late-binding.  You can redefine functions any number of times, and
+you don't have to re-declare any things that referenced them earlier.
+
+I see two ways to deal with this in JavaScript (which does not have such late
+binding).
+
+You can use a proxy for things that will need late binding of their members.
+This approach is well-suited to module definitions.
+
+You can also use a dataflow, in which re-declarations of modules trigger updates
+in downstream nodes, which are re-evaluated using the new definitions.  Modules
+with multiple dependencies are modeled as sync nodes.
+
+The main difference between these two approaches is that one results in the
+frequent reëvaluation of factory functions.
+
+
+
+## Prior art
+
+RequireJS has been the *de facto* AMD loader for many years.  It is stable and
+has many configuration options with practical value.
+
+d3-require is a minimal AMD implementation used by the d3 family of packages.
+This implementation owes much to `d3-require`.
+
+## Goals
+
 - extensible
 - visible (provides hooks for later mechanisms to view its workings)
 - standalone (no outside dependencies)
@@ -216,3 +289,32 @@ done to know that we can “dequeue” one of the dependencies.
 
 ##### We're done
 
+## Other viewpoints
+
+AMD makes claims about two global names: `define` and (optionally) `require`.
+
+Just as we tapify the console in `@def.codes/console-stream`, we have reason to
+extend AMD's well-known objects.
+
+If we can talk about concepts like modules and dependencies, then those things
+should be reified.
+
+The domain implies the existence of a dependency graph, yet we cannot actually
+construct (that is, we cannot know) the dependency graph.
+
+We also have no way to know when these things are occuring.
+
+Let's suspend our view of the module loader as such.
+
+Looking topologically at what's going on:
+
+- we reference a well-known global
+- using a well-known signature
+- we reference by name some other things
+- and we provide a function whose parameters correspond semantically to the
+  vector of referenced things
+- we take the invocation of that well-known global as a command to make
+  something happen now.  (indeed, we have no other way to capture this intent)
+- the thing that it asks to happen is the invocation of that function with the
+  somehow-interpreted values of the referenced things
+- 

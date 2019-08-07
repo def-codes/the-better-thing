@@ -11,6 +11,11 @@
       define('named-example', [], { inlined: true });
     </script>
     <script>
+      require(['../../../node_modules/@thi.ng/transducers/lib/index.umd.js'], tx => {
+        console.log("TX", tx);
+      })
+    </script>
+    <script>
       require(['named-example'], mod => {
       console.log("imported:", mod);
       });

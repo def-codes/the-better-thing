@@ -1,4 +1,4 @@
-import { AMDFactory, AMDRequire, AMDDefine, AMDDefineFunction } from "./api";
+import { AMDFactory, AMDRequire, AMDDefineFunction, AMDGlobals } from "./api";
 import { AsyncMap } from "./AsyncMap";
 import { load_script } from "./load_script";
 
@@ -19,6 +19,26 @@ interface PendingModule {
   readonly promise: (require: AMDRequire) => Promise<any>;
 }
 
+/*
+
+1. A module identifier is a String of "terms" delimited by forward slashes.
+
+2. A term must be a camelCase identifier, ".", or "..".
+
+3. Module identifiers may not have file-name extensions like ".js".
+
+4. Module identifiers may be "relative" or "top-level". A module identifier is
+   "relative" if the first term is "." or "..".
+*/
+const IS_RELATIVE = /^[.][.]?\//;
+const is_relative = id => IS_RELATIVE.test(id);
+
+/*
+5. Top-level identifiers are resolved off the conceptual module name space root.
+
+6. Relative identifiers are resolved relative to the identifier of the module in
+   which "require" is written and called.
+*/
 const default_resolver = (name: string, base: string | null | undefined) => {
   if (/^(\w+:)|\/\//.test(name)) return name;
   if (/^[.]{0,2}\//.test(name))
@@ -27,7 +47,7 @@ const default_resolver = (name: string, base: string | null | undefined) => {
   return name;
 };
 
-export const make_loader = (): { define: AMDDefine; require: AMDRequire } => {
+export const make_loader = (resolver = default_resolver): AMDGlobals => {
   const stack: PendingModule[] = [];
   const modules = new AsyncMap<string, ModuleWithContext>();
 
@@ -45,6 +65,10 @@ export const make_loader = (): { define: AMDDefine; require: AMDRequire } => {
       const { context, promise } = stack.pop();
       const result = promise(require_relative(url));
       const module = await result;
+
+      // HERE
+      //
+      // This is the point at which the module and context are known.
       modules.set(url, { context, module });
       return { module };
     };
@@ -67,7 +91,7 @@ export const make_loader = (): { define: AMDDefine; require: AMDRequire } => {
   }
 
   return {
-    require: require_from(default_resolver),
+    require: require_from(resolver),
     define: Object.assign(
       ((a, b, c) => {
         const [given_name, needs, factory] =
