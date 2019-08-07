@@ -1,6 +1,6 @@
 import { AMDFactory, AMDDefineFunction, AMDGlobals, MaybeAsync } from "./api";
 import { AsyncMap } from "./AsyncMap";
-import { MemoMap } from "./MemoMap";
+import { memo_map } from "./memo_map";
 import { load_script } from "./load_script";
 
 interface ModuleLoadingContext {
@@ -15,8 +15,7 @@ interface ModuleExecutionContext {
 
 interface ModuleContext extends ModuleLoadingContext, ModuleExecutionContext {}
 
-interface ModuleWithContext {
-  readonly context?: ModuleContext;
+interface ModuleWithContext extends ModuleContext {
   readonly module: any;
 }
 
@@ -71,7 +70,7 @@ const construct = async (
 };
 
 export const make_loader = (resolver = default_resolver): AMDGlobals => {
-  const define_stack: ModuleContext[] = [];
+  const define_stack: ModuleExecutionContext[] = [];
   const modules = new AsyncMap<string, ModuleWithContext>();
 
   function require_with(resolver) {
@@ -79,7 +78,7 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
     // The stack is used to coordinate with the script.  This should occur
     // synchronously after the script load, when its `define` should have been
     // the last one executed.
-    async function load_module(url: string) {
+    async function load_module(url: string): Promise<ModuleWithContext> {
       await load_script(url);
 
       if (!define_stack.length) throw Error(`Expected a define for ${url}`);
@@ -89,15 +88,10 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
         { needs, factory } = context,
         module = await construct(needs, factory, require_relative(url));
 
-      return { context, url, module };
+      return { ...context, url, module };
     }
 
-    const mods = new MemoMap<string, MaybeAsync<ModuleWithContext>>(
-      modules,
-      load_module
-    );
-
-    const require_absolute = (url: string) => mods.get(url);
+    const require_absolute = memo_map(modules, load_module).get;
 
     const require_relative = base => name =>
       Promise.resolve(resolver(name, base))
@@ -129,7 +123,7 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
         // however, we have (to wit) no way to know that here.
         if (given_name)
           construct(needs, factory, require_with(default_resolver)).then(
-            module => modules.set(given_name, { context, module })
+            module => modules.set(given_name, { ...context, url: null, module })
           );
         else define_stack.push(context);
       }) as AMDDefineFunction,
