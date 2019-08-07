@@ -13,12 +13,6 @@ interface ModuleWithContext {
   readonly module: any;
 }
 
-interface PendingModule {
-  readonly context: ModuleContext;
-  // Resolves to the module given a (possibly contextualized) require
-  readonly promise: (require: AMDRequire) => Promise<any>;
-}
-
 /*
 
 1. A module identifier is a String of "terms" delimited by forward slashes.
@@ -58,7 +52,7 @@ const apply = (factory: Function | object) => (imports: readonly any[]) =>
   typeof factory === "function" ? factory(...imports) : factory;
 
 export const make_loader = (resolver = default_resolver): AMDGlobals => {
-  const stack: PendingModule[] = [];
+  const context_stack: ModuleContext[] = [];
   const modules = new AsyncMap<string, ModuleWithContext>();
 
   function require_from(resolver) {
@@ -72,7 +66,12 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
       // synchronously after the script load, when its `define` should have been
       // the last one executed.
       if (!stack.length) throw Error(`Expected a define for ${url}`);
-      const { context, promise } = stack.pop();
+      const context = context_stack.pop();
+      const { needs, factory } = context;
+
+      const promise = (require: (url: string) => Promise<any>) =>
+        Promise.all(needs.map(require)).then(apply(factory));
+
       const result = promise(require_relative(url));
       const module = await result;
 
@@ -120,7 +119,7 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
           promise(require_from(default_resolver)).then(module =>
             modules.set(given_name, { context, module })
           );
-        else stack.push({ context, promise });
+        else context_stack.push(context);
       }) as AMDDefineFunction,
       { amd: {} }
     ),
