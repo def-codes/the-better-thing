@@ -119,7 +119,7 @@ As of 2015, the ECMAScript standard defines a module system.  It is possible
 today to use ECMAScript modules in the browser.  (And in Node, though with
 notable incompatibilities.)
 
-Why invest energy in a userland module system, rather than exending?
+Why invest energy in a userland module system, rather than extending?
 
 ECMAScript modules, as currently specified (and maybe permanently), lack some of
 the extensibility that has long been achievable in userland module systems.  For
@@ -320,4 +320,17 @@ Looking topologically at what's going on:
   something happen now.  (indeed, we have no other way to capture this intent)
 - the thing that it asks to happen is the invocation of that function with the
   somehow-interpreted values of the referenced things
-- 
+
+## Taking it apart
+
+An AMD loader *can* load all dependencies without executing them.
+
+The execution context in which dependencies are declared is isolated from that
+in which things are provided.
+
+## is `define` like a Lisp macro?
+
+Macros are applied at compile time, not evaluation time.
+
+In-flight script loads in which a `define` is expected must be contextualized
+for the sake of the factory.

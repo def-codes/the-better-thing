@@ -1,65 +1,17 @@
-import { AMDFactory, AMDDefineFunction, AMDGlobals, MaybeAsync } from "./api";
+import { AMDFactory, AMDDefineFunction, AMDGlobals } from "./api";
+import {
+  ModuleResolver,
+  ModuleNameResolver,
+  ModuleExecutionContext,
+  ModuleWithContext,
+} from "./types";
 import { AsyncMap } from "./AsyncMap";
 import { memo_map } from "./memo_map";
 import { load_script } from "./load_script";
+import { default_resolver } from "./name-resolution";
 
-interface ModuleLoadingContext {
-  readonly url: string;
-}
-
-interface ModuleExecutionContext {
-  readonly given_name: string | undefined;
-  readonly needs: readonly string[];
-  readonly factory: AMDFactory;
-}
-
-interface ModuleContext extends ModuleLoadingContext, ModuleExecutionContext {}
-
-interface ModuleWithContext extends ModuleContext {
-  readonly module: object;
-}
-
-type RequireAbsolute = (url: string) => MaybeAsync<ModuleWithContext>;
-type ModuleResolver = (id: string) => MaybeAsync<object>;
-
-type ModuleNameResolver = (
-  name: string,
-  base?: string | null
-) => MaybeAsync<string>;
-
-/*
-http://wiki.commonjs.org/wiki/Modules/1.1.1#Module_Identifiers
-
-1. A module identifier is a String of "terms" delimited by forward slashes.
-
-2. A term must be a camelCase identifier, ".", or "..".
-
-3. Module identifiers may not have file-name extensions like ".js".
-
-4. Module identifiers may be "relative" or "top-level". A module identifier is
-   "relative" if the first term is "." or "..".
-*/
-const IS_RELATIVE = /^[.][.]?\//;
-const is_relative = id => IS_RELATIVE.test(id);
-
-/*
-5. Top-level identifiers are resolved off the conceptual module name space root.
-
-6. Relative identifiers are resolved relative to the identifier of the module in
-   which "require" is written and called.
-*/
-
-export const default_resolver: ModuleNameResolver = (
-  name: string,
-  base?: string | null
-) => {
-  if (/^(\w+:)|\/\//.test(name)) return name;
-  if (/^[.]{0,2}\//.test(name))
-    return new URL(name, base == null ? location.href : base).href;
-
-  return name;
-};
-
+// BOTH launches fetch for dependencies and executes factories.
+// TODO: these must be decoupled
 const construct = async (
   needs: readonly string[],
   factory: AMDFactory,
@@ -80,7 +32,12 @@ const construct = async (
 
 export const make_loader = (resolver = default_resolver): AMDGlobals => {
   // The stack is used to coordinate with the script.
-  const define_stack: ModuleExecutionContext[] = [];
+  //
+  // The stack is local to this instance of require.  But it could well be
+  // global.  Indeed, nothing is gained by scoping it to this instance, as
+  // `define` calls in exotic modules will be made against the global scope, and
+  // they will all get the same global `define`.
+  const defines: ModuleExecutionContext[] = [];
 
   // A dictionary of loaded modules by their resolved URL's.
   const modules = new AsyncMap<string, ModuleWithContext>();
@@ -98,20 +55,11 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
       // Each call to `define` pushes its execution context onto a stack.
 
       // Last `define` should be from the script, which we follow synchronously.
-      if (!define_stack.length) throw Error(`Expected a define for ${url}`);
+      if (!defines.length) throw Error(`Expected a define for ${url}`);
 
       // Now *we* change the state.
-      //
-      // The stack is local to this instance of require.  But it could well be
-      // global.  Indeed, nothing is gained by scoping it to this instance, as
-      // `define` calls in exotic modules will be made against the global
-      // scope, and they will all get the same global `define`.
 
-      // EFFECT: mutating loader-level execution context.
-      //
-      // This in particular is non-monotonic.  It's still not 100% clear to me
-      // in what circumstances a nested context could exist.
-      const context = define_stack[define_stack.length - 1], //.pop(),
+      const context = defines[defines.length - 1], //.pop(),
         { needs, factory } = context,
         // EFFECT: the constructor may trigger effects (including loads)
         module = await construct(needs, factory, require_relative(url));
@@ -129,7 +77,7 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
     return Object.assign(
       // side-effects only
       (needs, factory) => construct(needs, factory, require_relative(null)),
-      { modules, define_stack, async: require_relative }
+      { modules, defines, async: require_relative }
     );
   }
 
@@ -149,11 +97,14 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
         // strange, because we do all this bookkeeping with context, and some of
         // that is (or could be) in scope here.
 
-        if (given_name)
+        if (given_name) {
+          // No avail here anyway... doesn't link to URL
+          //const cont = defines[defines.length - 1];
+          //console.log(`CONT BALLONS`, cont);
           construct(needs, factory, require_with(resolver).async(null)).then(
             module => modules.set(given_name, { ...context, url: null, module })
           );
-        else define_stack.push(context);
+        } else defines.push(context);
       }) as AMDDefineFunction,
       { amd: {} }
     ),

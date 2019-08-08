@@ -1,6 +1,8 @@
+export * from "./api";
 export * from "./loader";
 
-import { make_loader, default_resolver } from "./loader";
+import { make_loader } from "./loader";
+import { default_resolver } from "./name-resolution";
 
 function main() {
   const paths = {};
