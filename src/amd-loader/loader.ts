@@ -3,31 +3,36 @@ import {
   ModuleResolver,
   ModuleNameResolver,
   ModuleExecutionContext,
-  ModuleWithContext,
+  ModuleContext,
 } from "./types";
 import { AsyncMap } from "./AsyncMap";
 import { memo_map } from "./memo_map";
 import { load_script } from "./load_script";
 import { default_resolver } from "./name-resolution";
 
-// BOTH launches fetch for dependencies and executes factories.
-// TODO: these must be decoupled
+// BOTH launches fetch for dependencies and executes factories.  You can't
+// decouple these as long as a module may assume the side-effects of one of its
+// dependencies.
 const construct = async (
   needs: readonly string[],
   factory: AMDFactory,
   resolve: ModuleResolver
 ) => {
+  const exports = {};
+  const local = { exports };
+
+  // Run all this even if `exports` is used, for possible side-effects
+  const imports = await Promise.all(needs.map(id => local[id] || resolve(id)));
+
   /** “If the factory argument is an object, that object should be assigned as
    * the exported value of the module.”
    * https://github.com/amdjs/amdjs-api/blob/master/AMD.md#factory- */
-  if (typeof factory !== "function") return factory;
-
-  const exports = {};
-  const local = { exports };
-  // Run all this even if `exports` is used, for possible side-effects
-  const imports = await Promise.all(needs.map(id => local[id] || resolve(id)));
-  const module = factory(...imports);
+  const module = typeof factory === "function" ? factory(...imports) : factory;
   return needs.includes("exports") ? exports : module;
+};
+
+const module_from = async <T>(value: T): Promise<T> => {
+  return value;
 };
 
 export const make_loader = (resolver = default_resolver): AMDGlobals => {
@@ -40,44 +45,42 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
   const defines: ModuleExecutionContext[] = [];
 
   // A dictionary of loaded modules by their resolved URL's.
-  const modules = new AsyncMap<string, ModuleWithContext>();
+  const modules = new AsyncMap<string, ModuleContext>();
+
+  // EFFECT
+  // The `load_script` call changes the state of the VM.  If the script loads,
+  // it will execute, including any define/require calls. Generally, any effect
+  // from the execution of external scripts is unknowable to us.  But for AMD
+  // modules, `define` and `require` serve as rendez-vouz points.  Each call to
+  // `define` pushes its execution context onto a stack.  When that's done, the
+  // last `define` should be from the script, which we follow synchronously.
+
+  // Load a script and associate its URL with what should be its request context.
+  async function load_module_impl(url: string): Promise<ModuleContext> {
+    await load_script(url);
+    if (!defines.length) throw Error(`Expected a define for ${url}`);
+    return { ...defines[defines.length - 1], url };
+  }
 
   function require_with(resolver: ModuleNameResolver) /*: AMDRequire*/ {
-    // EFFECT
-    async function load_module(url: string): Promise<ModuleWithContext> {
-      // EFFECT
-      // If the script loads, it will execute, including any define/require calls.
-      await load_script(url);
-
-      // That load changes the state of the VM.  Generally, any effect from the
-      // execution of external scripts is unknowable to us.  But for AMD
-      // modules, `define` and `require` serve as rendez-vouz points.
-      // Each call to `define` pushes its execution context onto a stack.
-
-      // Last `define` should be from the script, which we follow synchronously.
-      if (!defines.length) throw Error(`Expected a define for ${url}`);
-
-      // Now *we* change the state.
-
-      const context = defines[defines.length - 1], //.pop(),
-        { needs, factory } = context,
-        // EFFECT: the constructor may trigger effects (including loads)
+    const load_module = async (url: string) => {
+      const context = await load_module_impl(url);
+      const { needs, factory } = context,
+        // EFFECT: factory may trigger effects (including more loads)
         module = await construct(needs, factory, require_relative(url));
 
       return { ...context, url, module };
-    }
+    };
 
     const require_absolute = memo_map(modules, load_module).get;
 
     const require_relative = (base: string | null) => (name: string) =>
-      Promise.resolve(resolver(name, base))
-        .then(require_absolute)
-        .then(_ => _.module);
+      Promise.resolve(resolver(name, base)).then(require_absolute);
 
     return Object.assign(
       // side-effects only
       (needs, factory) => construct(needs, factory, require_relative(null)),
-      { modules, defines, async: require_relative }
+      { modules, defines, async: require_relative(null) }
     );
   }
 
@@ -97,14 +100,11 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
         // strange, because we do all this bookkeeping with context, and some of
         // that is (or could be) in scope here.
 
-        if (given_name) {
-          // No avail here anyway... doesn't link to URL
-          //const cont = defines[defines.length - 1];
-          //console.log(`CONT BALLONS`, cont);
-          construct(needs, factory, require_with(resolver).async(null)).then(
-            module => modules.set(given_name, { ...context, url: null, module })
+        if (given_name)
+          construct(needs, factory, require_with(resolver).async).then(module =>
+            modules.set(given_name, { ...context, url: null })
           );
-        } else defines.push(context);
+        else defines.push(context);
       }) as AMDDefineFunction,
       { amd: {} }
     ),
