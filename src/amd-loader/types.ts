@@ -2,19 +2,17 @@
 // used only internally
 import { AMDFactory, AMDDefineFunction, AMDGlobals, MaybeAsync } from "./api";
 
-export interface ModuleLoadingContext {
-  readonly url: string;
-}
-
-export interface ModuleExecutionContext {
+export interface ModuleDefinition {
   readonly given_name: string | undefined;
   readonly needs: readonly string[];
   readonly factory: AMDFactory;
 }
 
-export interface ModuleContext
-  extends ModuleLoadingContext,
-    ModuleExecutionContext {}
+export interface ModuleFetchContext {
+  readonly url: string;
+}
+
+export interface ModuleContext extends ModuleFetchContext, ModuleDefinition {}
 
 export interface ModuleWithContext extends ModuleContext {
   readonly module: object;

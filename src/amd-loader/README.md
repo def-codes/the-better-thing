@@ -334,3 +334,7 @@ Macros are applied at compile time, not evaluation time.
 
 In-flight script loads in which a `define` is expected must be contextualized
 for the sake of the factory.
+
+## Related
+
+https://html.spec.whatwg.org/multipage/dom.html#dom-document-currentscript

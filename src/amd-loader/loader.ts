@@ -2,7 +2,7 @@ import { AMDFactory, AMDDefineFunction, AMDGlobals } from "./api";
 import {
   ModuleResolver,
   ModuleNameResolver,
-  ModuleExecutionContext,
+  ModuleDefinition,
   ModuleContext,
 } from "./types";
 import { AsyncMap } from "./AsyncMap";
@@ -20,9 +20,25 @@ const construct = async (
 ) => {
   const exports = {};
   const local = { exports };
+  let imports: any[];
 
-  // Run all this even if `exports` is used, for possible side-effects
-  const imports = await Promise.all(needs.map(id => local[id] || resolve(id)));
+  const load = id => {
+    const val = resolve(id);
+    return val instanceof Promise
+      ? val.catch(error => {
+          throw new Error(`Couldn't load ${id} for something`);
+        })
+      : val;
+  };
+
+  try {
+    // Run all this even if `exports` is used, for possible side-effects
+    imports = await Promise.all(needs.map(id => local[id] || load(id)));
+  } catch (error) {
+    throw new Error(
+      `Could not load dependencies for something ` + error.message
+    );
+  }
 
   /** “If the factory argument is an object, that object should be assigned as
    * the exported value of the module.”
@@ -42,7 +58,7 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
   // global.  Indeed, nothing is gained by scoping it to this instance, as
   // `define` calls in exotic modules will be made against the global scope, and
   // they will all get the same global `define`.
-  const defines: ModuleExecutionContext[] = [];
+  const defines: ModuleDefinition[] = [];
 
   // A dictionary of loaded modules by their resolved URL's.
   const modules = new AsyncMap<string, ModuleContext>();
@@ -55,8 +71,15 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
   // `define` pushes its execution context onto a stack.  When that's done, the
   // last `define` should be from the script, which we follow synchronously.
 
-  // Load a script and associate its URL with what should be its request context.
-  async function load_module_impl(url: string): Promise<ModuleContext> {
+  // Fetch a script and associate its URL with what should be its request context.
+  // `defines` is taken from the enclosing context.
+  // it must be a "fluent" or this trick can't work.
+  //
+  // What about the module resolution rules... can they change retroactively?
+  //
+  // url should be richer... it should be a context and able to include
+  // e.g. how the URL was resolved.
+  async function fetch_module(url: string): Promise<ModuleContext> {
     await load_script(url);
     if (!defines.length) throw Error(`Expected a define for ${url}`);
     return { ...defines[defines.length - 1], url };
@@ -64,11 +87,11 @@ export const make_loader = (resolver = default_resolver): AMDGlobals => {
 
   function require_with(resolver: ModuleNameResolver) /*: AMDRequire*/ {
     const load_module = async (url: string) => {
-      const context = await load_module_impl(url);
+      // EFFECT, sort of.  fetching a module SHOULD NOT have side effects
+      const context = await fetch_module(url);
       const { needs, factory } = context,
         // EFFECT: factory may trigger effects (including more loads)
         module = await construct(needs, factory, require_relative(url));
-
       return { ...context, url, module };
     };
 
