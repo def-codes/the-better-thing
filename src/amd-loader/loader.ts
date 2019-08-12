@@ -1,3 +1,5 @@
+// Mostly dedicated to anonymous define support, which we may consider a
+// *special case* (yet where most of the complication arises).
 import { AMDFactory, AMDDefineFunction, AMDGlobals } from "./api";
 import {
   ModuleResolver,
@@ -45,10 +47,6 @@ const construct = async (
    * https://github.com/amdjs/amdjs-api/blob/master/AMD.md#factory- */
   const module = typeof factory === "function" ? factory(...imports) : factory;
   return needs.includes("exports") ? exports : module;
-};
-
-const module_from = async <T>(value: T): Promise<T> => {
-  return value;
 };
 
 export const make_loader = (resolver = default_resolver): AMDGlobals => {

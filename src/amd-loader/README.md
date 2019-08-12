@@ -335,6 +335,15 @@ Macros are applied at compile time, not evaluation time.
 In-flight script loads in which a `define` is expected must be contextualized
 for the sake of the factory.
 
+## would it break the spec to make `define` lazy wrt factory and `require` eager?
+
+Intuitively, `define` should not have side-effects.
+
+Turns out this has already been discussed:
+https://groups.google.com/forum/#!topic/amd-implement/-z-Umb-cz4o
+
+
 ## Related
 
 https://html.spec.whatwg.org/multipage/dom.html#dom-document-currentscript
+https://www.npmjs.com/package/lockandload (https://github.com/BuGlessRB/lockandload#readme)
