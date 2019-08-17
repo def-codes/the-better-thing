@@ -365,7 +365,17 @@ define('B', ['A'], a => ({ speak: () => `A's name is ${a.name}` }));
 define('A', { name: 'alpha' });
 ```
 
+## Hmmm
 
+So one problem with mixing named and anonymous defines is that you can't tell
+(from an id) whether a module is expected to be defined locally or fetched
+remotely.
+
+One consequence though of this setup is that a dependent can *keep waiting*
+after a failed load, for a module to be defined later.  It would be possible
+through path configuration to signal that a given module id doesn't map to a
+URL, and therefore you shouldn't attempt to fetch it.  Since this mapping can
+itself be async, you could actually do such resolution dynamically.
 
 ## Related
 
