@@ -31,6 +31,14 @@
     </script>
     -->
     <script src="./basic.js"></script>
+    <script src="./extended.js"></script>
+    <!--
     <script src="./things.js"></script>
+    -->
+    <script>
+      require(['./alpha.js'], alpha => {
+        console.log("GOT ALPHA", alpha);
+      })
+    </script>
   </body>
 </html>

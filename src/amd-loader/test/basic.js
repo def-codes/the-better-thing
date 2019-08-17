@@ -1,23 +1,23 @@
 // Plain JS implementation of *basic* AMD define/require (named modules only).
-//
-// Question: is it possible to build a full and itself-extensible AMD loader on
-// top of this with no modifications?
+// Basic support has no notion of name resolution (all id's are interpreted as
+// given), nor any notion of remote scripts (all modules are taken as given).
 
 (function() {
   /** Reify Object's dictionary operations in a Map-like interface. */
   // You can't extend map instances without running into problems.
   // https://tc39.es/ecma262/#sec-map.prototype.has
   // https://stackoverflow.com/a/48738347
-  const namespace = () => {
-    const store = Object.create(null);
-    return {
-      has: key => key in store,
-      get: key => store[key],
-      set: (key, value) => (store[key] = value),
-      delete: key => delete store[key],
-    };
-  };
+  const namespace = (store = Object.create(null)) => ({
+    has: key => key in store,
+    get: key => store[key],
+    set: (key, value) => (store[key] = value),
+    delete: key => delete store[key],
+  });
 
+  /** General-purpose async registry for coordinating requests with things.
+   *  Extends a given namespace (or a default one) so that requests for
+   *  undefined things return promises, which resolve as things are defined.
+   *  Lets consumers await items until providers register them by name. */
   const async_namespace = (base = namespace(), pending = namespace()) =>
     Object.assign(Object.create(base), {
       async get(key) {
@@ -70,7 +70,7 @@
   // The spec says that “If omitted, [the dependencies argument] should default
   // to ["require", "exports", "module"].”  However, the constructor uses the
   // presence of an `exports` dependency to determine how to obtain the module
-  // from the factory.  This breaks nullary factories and testing factory arity
+  // from the factory.  This breaks nullary factories, and testing factory arity
   // (as also noted in the spec) has not proven reliable.  Anyway, I've never
   // seen those defaults used in the wild.
   const DEFAULT_IMPORTS = [];
@@ -108,8 +108,8 @@
     return { define, require, modules };
   };
 
-  // How else to provide this?  Shouldn't assign it to `define` because it's not
-  // complete
+  // Don't assign this to global `define`/`require` because it's not yet a
+  // complete AMD implementation.
   Object.assign(window, { "@def.codes/amd-basic": make_basic_amd() });
 
   window["@def.codes/amd-basic"].define("@def.codes/amd-basic-support", {
