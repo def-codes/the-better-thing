@@ -1,6 +1,7 @@
 // Plain JS implementation of *basic* AMD define/require (named modules only).
 
 (function() {
+  /** Reify Object's dictionary operations in a Map-like interface. */
   // You can't extend map instances without running into problems.
   // https://tc39.es/ecma262/#sec-map.prototype.has
   // https://stackoverflow.com/a/48738347
@@ -64,21 +65,29 @@
   }
 
   // ==== instances
+  const DEFAULT_IMPORTS = ["require", "exports", "module"];
 
   const make_define_require = () => {
     const definitions = with_async();
 
-    const define = (id, dependencies, factory) => {
-      if (!Array.isArray(dependencies)) return define(id, [], dependencies);
+    const define = (...args) => {
+      const [id, dependencies, factory] = args;
+      // “The dependencies argument is optional. If omitted, it should default
+      // to ["require", "exports", "module"]. ”
+      if (args.length === 2) return define(id, DEFAULT_IMPORTS, dependencies);
       definitions.set(id, { id, dependencies, factory });
     };
 
+    // “If the factory is a function it should only be executed once.” (re memo)
     const modules = with_memo(with_async(), async id => {
       const definition = await definitions.get(id);
-      const { dependencies } = definition;
-      const imports = await resolve_all(dependencies, modules);
-      const result = amd_construct(definition, { imports });
-      return result;
+      // Self-reference here
+      const imports = await resolve_all(definition.dependencies, modules);
+      // “If the factory function returns a value (an object, function, or any
+      // value that coerces to true), then that value should be assigned as the
+      // exported value for the module.”
+      // Note the factory result here will be assigned regardless of truthiness.
+      return amd_construct(definition, { imports });
     });
 
     const require = (dependencies, factory) => {
