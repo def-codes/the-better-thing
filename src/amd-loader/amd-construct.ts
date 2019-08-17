@@ -13,9 +13,9 @@ const make_contextualized_require = (
   return () => {};
 };
 
-import { ModuleDefinition } from "./types";
+import { AnonymousModuleDefinition } from "./types";
 export function amd_construct(
-  { needs, factory }: ModuleDefinition, // but without given name,
+  { needs, factory }: AnonymousModuleDefinition,
   context: MinimalRequireContext
 ) {
   const exports = {};

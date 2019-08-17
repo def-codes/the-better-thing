@@ -1,8 +1,10 @@
 export * from "./api";
 export * from "./loader";
+export * from "./basic";
 
 import { make_loader } from "./loader";
 import { default_resolver } from "./name-resolution";
+import { make_define_basic } from "./basic";
 
 function main() {
   const paths = {};
@@ -18,6 +20,8 @@ function main() {
     mappings[
       `@thi.ng/${thing}`
     ] = `/node_modules/@thi.ng/${thing}/lib/index.umd.js`;
+
+  window["def"] = make_define_basic();
 
   Object.assign(
     window,

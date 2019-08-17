@@ -342,8 +342,33 @@ Intuitively, `define` should not have side-effects.
 Turns out this has already been discussed:
 https://groups.google.com/forum/#!topic/amd-implement/-z-Umb-cz4o
 
+## Basic
+
+“Basic” support is not mentioned in the AMD spec, but it is distinguished in the
+[tests](https://github.com/amdjs/amdjs-tests) from “anonymous” defines.  This is
+a useful distinction because anonymous defines introduce most of the
+impementation complexity, while the “basic” subset still describes a useful
+mechanism.
+
+Basic modules *must* be named and defined inline, and their names must be
+“absolute.”  More on “absolute” names elsewhere, but this means that no
+additional name resolution is needed.
+
+Basic `define` also doesn't get involved in the loading of scripts.
+
+Still, basic define is an asynchronous coordination tool.  This is illustrated
+by a simple case:
+
+```js
+require(['B'], b => b.speak());
+define('B', ['A'], a => ({ speak: () => `A's name is ${a.name}` }));
+define('A', { name: 'alpha' });
+```
+
+
 
 ## Related
 
-https://html.spec.whatwg.org/multipage/dom.html#dom-document-currentscript
-https://www.npmjs.com/package/lockandload (https://github.com/BuGlessRB/lockandload#readme)
+- https://html.spec.whatwg.org/multipage/dom.html#dom-document-currentscript
+- https://www.npmjs.com/package/lockandload
+  (https://github.com/BuGlessRB/lockandload#readme)

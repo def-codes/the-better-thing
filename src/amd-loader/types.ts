@@ -1,11 +1,14 @@
 // These are all provisional
 // used only internally
-import { AMDFactory, AMDDefineFunction, AMDGlobals, MaybeAsync } from "./api";
+import { AMDFactory, MaybeAsync } from "./api";
 
-export interface ModuleDefinition {
-  readonly given_name: string | undefined;
+export interface AnonymousModuleDefinition {
   readonly needs: readonly string[];
   readonly factory: AMDFactory;
+}
+
+export interface ModuleDefinition extends AnonymousModuleDefinition {
+  readonly given_name: string;
 }
 
 export interface ModuleFetchContext {
