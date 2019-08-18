@@ -117,31 +117,35 @@ http://wiki.commonjs.org/wiki/Modules/1.1.1#Module_Identifiers
         else [deps, fact] = args;
       }
       const desc = [];
-      desc.push(id ? `defining ‘${id}’` : "anonymous define");
+      desc.push(id ? `defining <code>${id}</code>` : "anonymous define");
       desc.push(
-        deps ? `depending on ${JSON.stringify(deps)}` : `with no dependencies`
+        deps
+          ? `depending on <code>${JSON.stringify(deps)}</code>`
+          : `with no dependencies`
       );
-      //desc.push(`with factory ${fact}`);
+      //desc.push(`with factory <code>${fact}</code>`);
+      if (id)
+        document
+          .getElementById("definitions")
+          .appendChild(
+            document.createElement("div")
+          ).innerHTML = `<dt>${id}</dt><dd>${desc.slice(1).join(" ")}</dd>`;
 
       document
-        .getElementById("definitions")
-        .appendChild(document.createElement("li")).innerText = desc.join(" ");
-      const result = base.define(...args);
-      console.log(`DEFINE args, result`, args, result);
-      return result;
+        .getElementById("events")
+        .appendChild(document.createElement("li")).innerHTML = desc.join(" ");
+      return base.define(...args);
     }, base.define),
     require: (...args) => {
+      const [deps, fact] = args;
+      const desc = ["require"];
+      desc.push(`<code>${JSON.stringify(deps)}</code>`);
+      desc.push(`for <code>${fact}</code>`);
       document
-        .getElementById("requires")
-        .appendChild(
-          document.createElement("li")
-        ).innerText = `require is requesting ${JSON.stringify(args[0])} for ${
-        args[1]
-      }`;
+        .getElementById("events")
+        .appendChild(document.createElement("li")).innerHTML = desc.join(" ");
 
-      const result = base.require(...args);
-      console.log(`REQUIRE args, result`, args, result);
-      return result;
+      return base.require(...args);
     },
   });
 })();

@@ -18,7 +18,7 @@
     "bundle": "rollup -c",
     "watch": "bash -c './watch.sh'",
     "start": "node server",
-    "port": "live-server --watch=\"*.html,*.css,*.js,build/style,node_modules/@def.codes\" --open=portable.html",
+    "port": "live-server --watch=\"src/amd-loader/test/*.js,*.html,*.css,*.js,build/style,node_modules/@def.codes\" --open=portable.html",
     "meld": "live-server --watch=\"*.html,build/style,node_modules/@def.codes\""
   },
   "repository": {
