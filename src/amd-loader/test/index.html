@@ -6,6 +6,14 @@
   </head>
   <body>
     <h1>MELD AMD loader</h1>
+    <section>
+      <h2>definitions</h2>
+      <ul id="definitions"></ul>
+    </section>
+    <section>
+      <h2>requires</h2>
+      <ul id="requires"></ul>
+    </section>
     <!--
     <script src="../../../node_modules/@def.codes/amd-loader.js"></script>
     <script>
@@ -26,20 +34,18 @@
         console.log("imported from inline:", mod);
       });
     </script>
-    <script>
-      require(['./index.js'], () => {});
-    </script>
     -->
     <script src="../basic.js"></script>
     <script src="../extended.js"></script>
-    <!--
+    <script>
+      require(['./index.js'], () => {});
+    </script>
     <script src="./things.js"></script>
     <script>
       require(['./alpha.js'], alpha => {
         console.log("GOT ALPHA", alpha);
       })
     </script>
-    -->
     <script>
       require(['./beta.js'], beta => {
         console.log("GOT BETA", beta);

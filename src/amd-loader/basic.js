@@ -20,7 +20,16 @@
     delete: key => delete store[key],
   });
 
+  // ^ That thing is invisible.  I mean, you can't discover it and monitor it
+  // It can't make itself discoverable, that has to be the caller's job.
+  // A wrapper could be used to make it, e.g. a stream source
+  //
+  // A problem with these things is that once the reference is in place, it's
+  // too late to change them.  But the caller (to the AMD loader) doesn't get
+  // direct access to this anyway.
+
   /** Return a new `Promise` along with its extracted resolve/reject methods. */
+  // This is still not visible
   const trigger = () => {
     let resolve, reject;
     const promise = new Promise((_resolve, _reject) => {
@@ -78,6 +87,9 @@
     //const require = () => {}; // make_contextualized_require(context);
     const special = { module, exports };
     const imports = dependencies.map(id => special[id] || context.imports[id]);
+    // “If the factory argument is an object, that object should be assigned as
+    // the exported value of the module.”
+    // https://github.com/amdjs/amdjs-api/blob/master/AMD.md#factory-
     const result =
       typeof factory === "function" ? factory(...imports) : factory;
     return dependencies.includes("exports") ? exports : result;

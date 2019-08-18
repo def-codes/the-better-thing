@@ -377,6 +377,10 @@ through path configuration to signal that a given module id doesn't map to a
 URL, and therefore you shouldn't attempt to fetch it.  Since this mapping can
 itself be async, you could actually do such resolution dynamically.
 
+## On the invisibility of Promise state.  Spoiler alert: it's by design
+
+https://esdiscuss.org/topic/how-can-i-synchronously-determine-a-javascript-promise-s-state
+
 ## Related
 
 - https://html.spec.whatwg.org/multipage/dom.html#dom-document-currentscript

@@ -108,11 +108,37 @@ http://wiki.commonjs.org/wiki/Modules/1.1.1#Module_Identifiers
   const base = make_full_amd(window["@def.codes/amd-basic"]);
   Object.assign(window, {
     define: Object.assign((...args) => {
+      let id, deps, fact;
+      if (typeof args[0] === "string") {
+        if (args.length === 2) [id, fact] = args;
+        else [id, deps, fact] = args;
+      } else {
+        if (args.length === 1) [fact] = args;
+        else [deps, fact] = args;
+      }
+      const desc = [];
+      desc.push(id ? `defining ‘${id}’` : "anonymous define");
+      desc.push(
+        deps ? `depending on ${JSON.stringify(deps)}` : `with no dependencies`
+      );
+      //desc.push(`with factory ${fact}`);
+
+      document
+        .getElementById("definitions")
+        .appendChild(document.createElement("li")).innerText = desc.join(" ");
       const result = base.define(...args);
       console.log(`DEFINE args, result`, args, result);
       return result;
     }, base.define),
     require: (...args) => {
+      document
+        .getElementById("requires")
+        .appendChild(
+          document.createElement("li")
+        ).innerText = `require is requesting ${JSON.stringify(args[0])} for ${
+        args[1]
+      }`;
+
       const result = base.require(...args);
       console.log(`REQUIRE args, result`, args, result);
       return result;
