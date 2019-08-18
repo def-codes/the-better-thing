@@ -1,4 +1,4 @@
-// Plain JS implementation of *basic* AMD define/require (named modules only).
+// Plain JS implementation of *basic* AMD define/require (named defines only).
 // Basic support has no notion of name resolution (all id's are interpreted as
 // given), nor any notion of remote scripts (all modules are taken as given).
 
@@ -20,23 +20,31 @@
     delete: key => delete store[key],
   });
 
+  /** Return a new `Promise` along with its extracted resolve/reject methods. */
+  const trigger = () => {
+    let resolve, reject;
+    const promise = new Promise((_resolve, _reject) => {
+      resolve = _resolve;
+      reject = _reject;
+    });
+    return [promise, resolve, reject];
+  };
+
   /** General-purpose async registry for coordinating requests with things.
    *  Extends a given namespace (or a default one) so that requests for
    *  undefined things return promises, which resolve as things are defined.
-   *  Lets consumers await items until providers register them by name. */
+   *  Lets consumers await items until providers register them by name.  Note
+   *  that once a value is set, there are not notifications of later updates. */
   const async_namespace = (base = namespace(), pending = namespace()) =>
     Object.assign(Object.create(base), {
       async get(key) {
         if (base.has(key)) return base.get(key);
         if (pending.has(key)) return pending.get(key).promise;
 
-        let resolve;
-        const promise = new Promise(_resolve => {
-          resolve = _resolve;
-        }).finally(() => pending.delete(key));
+        const [promise, resolve] = trigger();
         pending.set(key, { promise, resolve });
 
-        return promise;
+        return promise.finally(() => pending.delete(key));
       },
       set(key, value) {
         if (pending.has(key)) pending.get(key).resolve(value);
@@ -53,6 +61,8 @@
         return value;
       },
     });
+
+  // AMD-specific stuff
 
   const resolve_all = (dependencies, modules) =>
     Promise.all(dependencies.map(id => modules.get(id))).then(resolved =>
@@ -85,8 +95,9 @@
     const definitions = async_namespace();
 
     const define = (...args) => {
+      // Basic AMD assumes the first argument is always id.
       const [id, dependencies, factory] = args;
-      // “The dependencies argument is optional.” (but see above)
+      // “The dependencies argument is optional.” (but see above).
       if (args.length === 2) return define(id, DEFAULT_IMPORTS, dependencies);
       definitions.set(id, { id, dependencies, factory });
     };
@@ -110,8 +121,8 @@
       });
     };
 
-    // Modules... cheating?
-    return { define, require, modules };
+    // Include `definitions` and `modules` for visibility.
+    return { define, require, definitions, modules };
   };
 
   // Don't assign this to global `define`/`require` because it's not yet a
