@@ -61,10 +61,15 @@ http://wiki.commonjs.org/wiki/Modules/1.1.1#Module_Identifiers
 
     const define = Object.assign(
       (...args) => {
-        if (typeof args[0] === "string") return basic_amd.define(...args);
+        if (typeof args[0] === "string") basic_amd.define(...args);
         // Anonymous define!  Assume we're in a script being loaded.
-        define_stack.push({ args });
+        else define_stack.push({ args });
       },
+      // “To allow a clear indicator that a global define function (as needed
+      // for script src browser loading) conforms to the AMD API, any global
+      // define function SHOULD have a property called "amd" whose value is an
+      // object.”
+      // https://github.com/amdjs/amdjs-api/blob/master/AMD.md#defineamd-property-
       { amd: {} }
     );
 
@@ -72,23 +77,18 @@ http://wiki.commonjs.org/wiki/Modules/1.1.1#Module_Identifiers
     // initiate any requests for remote scripts.
     const require = async (...args) => {
       const [dependencies] = args;
-      // debug - a lot of this is not necessary
-      dependencies.map(async id => {
+      dependencies.map(id => {
+        // Don't do a remote request if we already have the module.
+        // Is this a good idea?
         if (basic_amd.modules.has(id)) {
-          console.log(`we already have`, id, basic_amd.modules.get(id));
+          console.log(id, "already defined as", basic_amd.modules.get(id));
           return;
         }
 
-        const url1 = default_resolver(id);
-        console.log(`id, url`, id, url1);
-        fetch_module(url1)
-          .catch(error => {
-            console.log(`SOOOOOOO, it looks like ${url1} is not a thing`);
-          })
-          .then(stuff => {
-            console.log(`WE GOT 'IM!`, stuff);
-            basic_amd.define(id, ...stuff.args);
-          });
+        const url = default_resolver(id);
+        fetch_module(url)
+          .catch(error => console.warn(`Couldn't load ${url} for ${id}`, error))
+          .then(context => basic_amd.define(id, ...context.args));
       });
 
       return basic_amd.require(...args);
@@ -97,6 +97,17 @@ http://wiki.commonjs.org/wiki/Modules/1.1.1#Module_Identifiers
     return { define, require };
   };
 
-  Object.assign(window, make_full_amd(window["@def.codes/amd-basic"]));
-  const { define, require } = window;
+  const base = make_full_amd(window["@def.codes/amd-basic"]);
+  Object.assign(window, {
+    define: (...args) => {
+      const result = base.define(...args);
+      console.log(`DEFINE args, result`, args, result);
+      return result;
+    },
+    require: (...args) => {
+      const result = base.require(...args);
+      console.log(`REQUIRE args, result`, args, result);
+      return result;
+    },
+  });
 })();

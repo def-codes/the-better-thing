@@ -8,9 +8,15 @@
   // https://tc39.es/ecma262/#sec-map.prototype.has
   // https://stackoverflow.com/a/48738347
   const namespace = (store = Object.create(null)) => ({
+    store, // DEBUG
+    entries: () => Object.entries(store),
+    keys: () => Object.keys(store),
     has: key => key in store,
     get: key => store[key],
-    set: (key, value) => (store[key] = value),
+    set(key, value) {
+      store[key] = value;
+      return this;
+    },
     delete: key => delete store[key],
   });
 
