@@ -381,6 +381,12 @@ itself be async, you could actually do such resolution dynamically.
 
 https://esdiscuss.org/topic/how-can-i-synchronously-determine-a-javascript-promise-s-state
 
+## A battle against implicit execution context
+
+One of the bad parts of JavaScript, or at least, a part that we don't want to
+carry into userland but that we must necessarily be concerned with in a script
+loader, is implicit execution context.
+
 ## Related
 
 - https://html.spec.whatwg.org/multipage/dom.html#dom-document-currentscript

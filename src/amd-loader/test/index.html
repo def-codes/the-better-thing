@@ -6,6 +6,16 @@
   </head>
   <body>
     <h1>MELD AMD loader</h1>
+    <p>Where does the requirement occur?  In other words, what is the URL
+    associated with the execution context?  Cases:</p>
+    <ul>
+      <li>for a top-level (embedded) script, it's the URL of the document.  Note
+      that this includes iframes</li>
+      <li>for all other scripts, it is the URL of the script</li>
+    </ul>
+    <p>Can this be known at a given time?  Not simply from the execution
+    context.  https://caniuse.com/#feat=document-currentscript
+    https://developer.mozilla.org/en-US/docs/Web/API/Document/currentScript</p>
     <section>
       <h2>events</h2>
       <ul id="events"></ul>
@@ -38,7 +48,7 @@
     <script src="../basic.js"></script>
     <script src="../extended.js"></script>
     <script>
-      require(['./index.js'], () => {});
+      require(['./index.js'], () => {console.log("loaded all things")});
     </script>
     <script src="./things.js"></script>
     <script>
