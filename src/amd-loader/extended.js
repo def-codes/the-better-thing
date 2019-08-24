@@ -42,6 +42,8 @@ http://wiki.commonjs.org/wiki/Modules/1.1.1#Module_Identifiers
   const default_resolver = (name, base) => {
     console.log(`name, base`, name, base);
 
+    // Add `.js` extension if not present
+    if (!/[.]m?js($|[?#])/.test(name)) name += ".js";
     if (/^(\w+:)|[/][/]/.test(name)) return name;
     if (/^[.]{0,2}[/]/.test(name))
       return new URL(name, base == null ? location.href : base).href;
