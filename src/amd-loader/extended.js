@@ -17,6 +17,8 @@
       doc.head.appendChild(script);
     });
 
+  const SPECIAL_NAMES = ["exports", "require", "module"];
+
   /*
 http://wiki.commonjs.org/wiki/Modules/1.1.1#Module_Identifiers
 
@@ -51,7 +53,7 @@ http://wiki.commonjs.org/wiki/Modules/1.1.1#Module_Identifiers
     return name;
   };
 
-  const make_full_amd = basic_amd => {
+  const make_full_amd = (basic_amd, resolver) => {
     const anonymous_defines = [];
 
     // Fetch a script and associate its URL with what should be its request
@@ -90,9 +92,13 @@ http://wiki.commonjs.org/wiki/Modules/1.1.1#Module_Identifiers
 
     // Must more or less entirely supersede the basic require, which will not
     // initiate any requests for remote scripts.
-    const require_from = base => async (...args) => {
+    const require_from = (base, resolver = default_resolver) => async (
+      ...args
+    ) => {
       const [dependencies] = args;
       dependencies.map(id => {
+        if (SPECIAL_NAMES.includes(id)) return;
+
         // Don't do a remote request if we already have the module.
         // Is this a good idea?  Depends on `modules` being exposed.
         if (basic_amd.modules.has(id)) {
@@ -106,7 +112,7 @@ http://wiki.commonjs.org/wiki/Modules/1.1.1#Module_Identifiers
         // then.  If it *can't*, that suggests that the same define can mean
         // different things (in terms of how *its* ids are resolved) may vary
         // based on where it's being requested from.  Is that the case?
-        const url = default_resolver(id, base);
+        const url = resolver(id, base);
         fetch_module(url)
           .catch(error => console.warn(`Couldn't load ${url} for ${id}`, error))
           .then(context => {
@@ -117,17 +123,41 @@ http://wiki.commonjs.org/wiki/Modules/1.1.1#Module_Identifiers
             // Use window.define to get logging.  Otherwise same as internal
             window.define(id, ...context.args);
             // Just defining it here doesn't trigger its factory.
-            require_from(url)(...context.args);
+            require_from(url, resolver)(...context.args);
           });
       });
 
       return basic_amd.require(...args);
     };
 
-    return { define, require: require_from(null) };
+    return { define, require: require_from(null, resolver) };
   };
 
-  const base = make_full_amd(window["@def.codes/amd-basic"]);
+  // Special testing path config
+  const res = (function() {
+    const paths = {};
+    const mappings = {};
+
+    const d3s = "dispatch force quadtree timer".split(" ");
+    for (const name of d3s)
+      paths[`d3-${name}`] = `/node_modules/d3-${name}/dist`;
+
+    const things = "compare errors checks api equiv memoize strings compose transducers arrays dcons associative atom binary diff hiccup hdom interceptors paths random rstream rstream-dot rstream-query transducers-hdom defmulti hiccup-markdown fsm".split(
+      " "
+    );
+    for (const thing of things)
+      mappings[
+        `@thi.ng/${thing}`
+      ] = `/node_modules/@thi.ng/${thing}/lib/index.umd.js`;
+
+    return (name, base) => {
+      if (mappings[name]) return mappings[name];
+      if (paths[name]) name = paths[name];
+      return default_resolver(name, base);
+    };
+  })();
+
+  const base = make_full_amd(window["@def.codes/amd-basic"], res);
   Object.assign(window, {
     define: Object.assign((...args) => {
       let id, deps, fact;

@@ -73,13 +73,18 @@
 
   // AMD-specific stuff
 
-  const resolve_all = (dependencies, modules) =>
-    Promise.all(dependencies.map(id => modules.get(id))).then(resolved =>
+  const SPECIAL_NAMES = ["exports", "require", "module"];
+  const unreserved_name = id => !SPECIAL_NAMES.includes(id);
+
+  const resolve_all = (dependencies, modules) => {
+    const custom = dependencies.filter(unreserved_name);
+    return Promise.all(custom.map(id => modules.get(id))).then(resolved =>
       resolved.reduce(
-        (map, mod, index) => Object.assign(map, { [dependencies[index]]: mod }),
+        (map, mod, index) => Object.assign(map, { [custom[index]]: mod }),
         {}
       )
     );
+  };
 
   function amd_construct({ dependencies, factory }, context) {
     const exports = {};
