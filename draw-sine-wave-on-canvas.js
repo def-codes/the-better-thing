@@ -1,6 +1,6 @@
 /*global define*/
 
-define([""], function(module) {
+define([], function(module) {
   // Yes, HDOM
   function draw_sine_wave_on(canvas, freq = 10) {
     const width = canvas.clientWidth;

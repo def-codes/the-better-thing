@@ -5,14 +5,12 @@
     <meta charset="utf-8" />
     <link href="/build/style/fonts.css" rel="stylesheet" />
     <link href="/build/style/portable.css" rel="stylesheet" />
-    <script src="/configure-require.js"></script>
+    <script src="/src/amd-loader/basic.js"></script>
+    <script src="/src/amd-loader/extended.js"></script>
     <!--
-    <script src="/node_modules/requirejs/require.js"></script>
+    <script src="/configure-require.js"></script>
     -->
-    <script src="/node_modules/d3-require/dist/d3-require.js"></script>
-    <script>
-      window.require = window.define = d3.require;
-    </script>
+    <script src="/init-require.js"></script>
     <script src="/amd-portable.js"></script>
     <style>
       body::after {
@@ -108,9 +106,23 @@ Here be whatever makes the moving thing
           <p>WHAT DO THAT LOOK LIKE???</p>
           <p>
             Inlined content may itself refer to (import) external sources.  Such
-            second-order imports are not inlined.
+            second-order imports are only inlined when they are loaded through
+            the AMD loader mechanism.
           </p>
-          <p>Custom save <em>inlines</em> the following:</p>
+          <p>HTML documents of course travel with their textual content.  It is
+          considered the main thing.  Indeed, it is the only thing that we can
+          consider to be part of the userland model of an HTML document, because
+          everything beyond the content is invisible by default.</p>
+          <blockquote>
+            <p>
+              When everything in a computer system is visible on the screen, the
+              display becomes reality.  Objects and actions can be understaood
+              purely in terms of their effects on the display.
+            </p>
+            <cite>David Smith, quoted in <i>Dealers of Lightning</i></cite>
+          </blockquote>
+          <p>Some document extensions are portable “for
+          free.”  Documents already travel with</p>
           <ul>
             <li>
               <input type="checkbox" checked=""/>
@@ -120,6 +132,9 @@ Here be whatever makes the moving thing
               <input type="checkbox" checked="" />
               Content of stylesheets that were inlined to begin with
             </li>
+          </ul>
+          <p>Custom save <em>inlines</em> the following:</p>
+          <ul>
             <li>
               <input type="checkbox" checked="" />
               Remote stylesheets that were referenced by <code>link</code>

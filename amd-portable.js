@@ -19,43 +19,48 @@
 // This must be loaded after an AMD loader is in scope and before any modules
 // have been loaded (at least, it can't work on already-loaded modules).
 
-const amd_define_code = (name, dependencies, factory_code) =>
-  `define("${name}", ${JSON.stringify(dependencies)}, ${factory_code})`;
-
 // uses attribute (`data-amd-module`) to identify what module is being provided.
 // assumes one module per script
 
-const ensure_amd_module = (
-  module_name,
-  dependencies,
-  factory,
-  container = document.body
-) => {
-  const selector = `script[data-amd-module="${module_name}"]`;
-  const existing_element = document.querySelector(selector);
-  if (!existing_element) {
-    const new_script = document.createElement("script");
-    new_script.setAttribute("data-amd-module", module_name);
-    container.appendChild(new_script);
-  }
-  const factory_code = factory.toString();
-  // const dependencies = ["@thi.ng/transducers"]; // example
-  const code = amd_define_code(module_name, dependencies, factory_code);
-};
+// Ironically, putting these things at top level results in a "redeclaration"
+// error when run
 
-function make_amd_loader_portable(require, define) {
-  console.log(`require`, require);
-  console.log(`define`, define);
-  const shimmed_require = (...args) => {
-    // problem is associating the module id
-    const required = require(...args);
-    console.log(`REQUIRE!`, required, " -> ", ...args);
-    // Here we can log the fact that “this” module has these dependencies.  But
-    // how do we know what the module id is?  The only way I've been able to do
-    // this is through
-    return required;
+(function() {
+  const amd_define_code = (name, dependencies, factory_code) =>
+    `define("${name}", ${JSON.stringify(dependencies)}, ${factory_code})`;
+
+  const ensure_amd_module = (
+    module_name,
+    dependencies,
+    factory,
+    container = document.body
+  ) => {
+    const selector = `script[data-amd-module="${module_name}"]`;
+    const existing_element = document.querySelector(selector);
+    if (!existing_element) {
+      const new_script = document.createElement("script");
+      new_script.setAttribute("data-amd-module", module_name);
+      container.appendChild(new_script);
+    }
+    const factory_code = factory.toString();
+    // const dependencies = ["@thi.ng/transducers"]; // example
+    const code = amd_define_code(module_name, dependencies, factory_code);
   };
-  window.require = shimmed_require;
-}
 
-make_amd_loader_portable(require, define);
+  function make_amd_loader_portable(require, define) {
+    console.log(`require`, require);
+    console.log(`define`, define);
+    const shimmed_require = (...args) => {
+      // problem is associating the module id
+      const required = require(...args);
+      console.log(`REQUIRE!`, required, " -> ", ...args);
+      // Here we can log the fact that “this” module has these dependencies.  But
+      // how do we know what the module id is?  The only way I've been able to do
+      // this is through
+      return required;
+    };
+    window.require = shimmed_require;
+  }
+
+  make_amd_loader_portable(require, define);
+})();

@@ -1,8 +1,4 @@
-define([
-  "@thi.ng/transducers",
-  "@thi.ng/rstream",
-  "/draw-sine-wave-on-canvas.js",
-], (tx, rs, { draw_sine_wave_on }) => {
+define(["/draw-sine-wave-on-canvas.js"], ({ draw_sine_wave_on }) => {
   const canvas = document.querySelector("canvas");
   canvas.style.width = "100%";
   canvas.style.height = "20rem";
@@ -14,13 +10,10 @@ define([
   // Some make no such promises (stochastic clocks)
   //
   //
-  const clock_function = rs.fromInterval(1000 / 20);
-
-  clock_function.subscribe({
-    next: value => {
-      draw_sine_wave_on(canvas, value);
-    },
-  });
+  let i = 0;
+  window.setInterval(() => {
+    draw_sine_wave_on(canvas, i++);
+  }, 1000 / 20);
 
   // in DeMO, what does trigger function correspond to?
   // const trigger_function = event;

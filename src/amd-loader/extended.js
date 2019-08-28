@@ -55,31 +55,35 @@ http://wiki.commonjs.org/wiki/Modules/1.1.1#Module_Identifiers
 
   const make_full_amd = (basic_amd, resolver) => {
     const anonymous_defines = [];
+    const inflight = new Set();
 
-    // Fetch a script and associate its URL with what should be its request
-    // context.  `anonymous_defines` is taken from the enclosing context.
-    // Resolved value is undefined if the script didn't make any anonymous
-    // defines.  That is not *necessarily* an error, if the module happens to
-    // make a named define for the thing that was being required.
+    // Fetch a script and associate its URL with its expected module definition.
+    // `anonymous_defines` is taken from the enclosing context.  Resolved value
+    // is undefined if the script didn't make any anonymous defines.  That is
+    // not *necessarily* an error, if the module happens to make a named define
+    // for the thing that was being required.
     async function fetch_module(url) {
       await load_script(url);
       if (anonymous_defines.length)
         // popping here is non-monotonic, but avoids incorrect association
         return { ...anonymous_defines.pop(), url };
-
-      //throw Error(`Expected a define for ${url}`);
     }
 
     const define = Object.assign(
       (...args) => {
         if (typeof args[0] === "string") basic_amd.define(...args);
         // Anonymous define!  Assume we're in a script being loaded.
-        else
+        else {
+          const src = document.currentScript && document.currentScript.src;
+          if (/equiv/.test(src))
+            console.log(`DEFINE being pushed for`, src, args);
+
           anonymous_defines.push({
             args,
             // Okay, but this is going to be equal to url by the time it's read
             src: document.currentScript && document.currentScript.src,
           });
+        }
       },
       // “To allow a clear indicator that a global define function (as needed
       // for script src browser loading) conforms to the AMD API, any global
@@ -113,6 +117,7 @@ http://wiki.commonjs.org/wiki/Modules/1.1.1#Module_Identifiers
         // different things (in terms of how *its* ids are resolved) may vary
         // based on where it's being requested from.  Is that the case?
         const url = resolver(id, base);
+
         fetch_module(url)
           .catch(error => console.warn(`Couldn't load ${url} for ${id}`, error))
           .then(context => {
@@ -120,7 +125,7 @@ http://wiki.commonjs.org/wiki/Modules/1.1.1#Module_Identifiers
               console.warn(`No context for ${url} for ${id}`);
               return;
             }
-            // Use window.define to get logging.  Otherwise same as internal
+            // Use window.define to include any later wrapping.
             window.define(id, ...context.args);
             // Just defining it here doesn't trigger its factory.
             require_from(url, resolver)(...context.args);
