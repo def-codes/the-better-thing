@@ -116,6 +116,12 @@
       const [id, dependencies, factory] = args;
       // “The dependencies argument is optional.” (but see above).
       if (args.length === 2) return define(id, DEFAULT_IMPORTS, dependencies);
+
+      window.dispatchEvent(
+        new CustomEvent("https://def.codes/amd/define", {
+          detail: { id, dependencies, factory },
+        })
+      );
       definitions.set(id, { id, dependencies, factory });
     };
 

@@ -29,6 +29,14 @@
   const amd_define_code = (name, dependencies, factory_code) =>
     `define("${name}", ${JSON.stringify(dependencies)}, ${factory_code})`;
 
+  window.addEventListener("https://def.codes/amd/define", function(event) {
+    console.log(`AMD DEFINE`, event);
+    const { detail } = event;
+    const { id, dependencies, factory } = detail;
+    const ele = document.body.appendChild(document.createElement("pre"));
+    ele.innerText = amd_define_code(id, dependencies, factory.toString());
+  });
+
   const ensure_amd_module = (
     module_name,
     dependencies,
