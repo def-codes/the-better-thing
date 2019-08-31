@@ -25,6 +25,73 @@
     <main>
       <h1>Portability test</h1>
       <a download="portability.html" href="" data-intent="save-document">Save me!</a>
+      <section id="implementation">
+        <details>
+          <summary>
+            <a id="implementation" href="#implementation"></a>
+            Implementation — how it works
+          </summary>
+          <div>
+            <p>In this section we work out the details of how portability can be
+            supported given the constraints and capabilities.</p>
+            <p>Ideally, we could just say “make the document portable.”  More
+            specifically, that could mean, “make sure that when you save the
+            document, it contains everything that it needs.”  Even more
+            specifically, that could mean, “anything that the document fetches
+            from a remote server should be pulled into the document itself in
+            such a way that future requests obtain the local copy instead of
+            looking for a remote.”  This latter operation is what we call
+            “inlining.”</p>
+            <p>Even more ideally, we would like this capability to be
+            independent from any other features, such as <em>literate
+            programming</em>.  However, we will see that the two cannot be
+            completely separated [citation needed].</p>
+            <p>Yet another consideration is the notion of <em>visible</em>
+            scripts.  I'm starting to think that this is actually more
+            fundamental than portability.  Indeed, the buiding blocks of
+            literate programming may be as well.  This would put us in the
+            position of the following tradeoff:</p>
+            <ul>
+              <li>visibility (reification) of scripts is available even before a
+              module loader.</li>
+              <li>BUT, therefore such visibility cannot be modularized (at least
+              not to externals).</li>
+            </ul>
+            <p>Does this make intuitive sense?  If visibility is just about
+            visibility of embedded scripts, then I don't see much conflict
+            there.  We're talking about dealing with content that's already
+            inside the document, so remote scripts don't come into play.
+            Dealing with content that comes from remote sources can be seen as
+            an extension of basic visibility mechanisms.  For literate
+            mechanisms, it's less clear; I'd have to define exactly what I
+            meant.</p>
+            <p>Finally comes the question of integration with existing
+            workflows.  For example, how do we best integrate modules that are
+            <em>defined</em>externally—i.e. whose authoritative source is an
+            external package—so that they are also naturally embedded into a
+            document?  There is an integrity id, there are RDFa attributes, and
+            all sorts of things.  It's another entire topic.  I just want to
+            keep it in mind when working on these other things.</p>
+            <section>
+              <h3>Some relevant facts</h3>
+              <ul>
+                <li>In standalone mode, you can't get get the source of external
+                scripts.  So, once the document has left a hosting context, it's
+                not possible to independently obtain the content of a
+                script—even one that the document loaded.</li>
+                <li>(Not so much a fact as the conclusion of an argument that I
+                don't actually work out.) It's not possible to shim a generic
+                AMD loader in a way that captures the dependency tree.  Even if
+                you completely wrap the <code>define</code> function, you cannot
+                associate an incoming <em>anonymous</em> definition with the
+                module ID that was resolved to require it.  Proof left to the
+                reader.  The @def.codes AMD loader provides hooks that make this
+                possible.</li>
+              </ul>
+            </section>
+          </div>
+        </details>
+      </section>
       <section id="something-moving">
         <p>need something moving right here</p>
         <figure>

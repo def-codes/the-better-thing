@@ -1,8 +1,5 @@
 // when AMD dependencies are loaded,
 // ensure that they are stored (retrievably) in the document
-//
-// I don't think it's possible to shim a generic AMD loader in a way that
-// captures the dependency tree.
 
 //
 // Describe the process whereby an external AMD module (that knows nothing about
@@ -14,8 +11,7 @@
 // ^ but how do you know that it isn't pointing to an AMD module?  If it is,
 // then you'll get the anonymous define error.
 //
-// In standalone mode, you can't get get the source of external scripts.
-//
+
 // This must be loaded after an AMD loader is in scope and before any modules
 // have been loaded (at least, it can't work on already-loaded modules).
 
@@ -26,15 +22,21 @@
 // error when run
 
 (function() {
-  const amd_define_code = (name, dependencies, factory_code) =>
-    `define("${name}", ${JSON.stringify(dependencies)}, ${factory_code})`;
+  const amd_define_code = (name, dependencies, factory) =>
+    `define("${name}", ${JSON.stringify(dependencies)}, ${
+      typeof factory === "function"
+        ? factory.toString()
+        : JSON.stringify(factory)
+    })`;
+
+  //  const loader = window["@def.codes/amd-loader"];
 
   window.addEventListener("https://def.codes/amd/define", function(event) {
     console.log(`AMD DEFINE`, event);
     const { detail } = event;
     const { id, dependencies, factory } = detail;
-    const ele = document.body.appendChild(document.createElement("pre"));
-    ele.innerText = amd_define_code(id, dependencies, factory.toString());
+    const ele = document.body.appendChild(document.createElement("script"));
+    ele.innerText = amd_define_code(id, dependencies, factory);
   });
 
   const ensure_amd_module = (

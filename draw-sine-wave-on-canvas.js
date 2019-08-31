@@ -13,7 +13,7 @@ define([], function(module) {
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.beginPath();
     context.moveTo(0, 0);
-    for (let x = 0; x < canvas.width; x++)
+    for (let x = 0; x < canvas.width; x += 4)
       context.lineTo(x, (Math.sin(x / freq) * height) / 2 + height / 2);
     context.stroke();
   }
