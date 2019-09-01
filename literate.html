@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title contenteditable>literate</title>
+  </head>
+  <body>
+    <main>
+      <h1>dynamic html for the twenty-first century</h1>
+      <p>This document is about making plain HTML into a literate programming
+      platform.</p>
+      
+      <section>
+        <h2>Goals</h2>
+        <p>This project will create an HTML document that offers the following
+        capabilities:</p>
+        
+        <ul>
+          <li>the foundation is sufficient to build more powerful tools</li>
+          <li>the mechanisms used support persistence and portability</li>
+          <li>support a modular form of composition using external resources</li>
+          <li>support the breaking up of script execution units into physical
+          pieces</li>
+          <li>whatever code is needed to get this up and running can be “tucked
+          away” into a section (like an appendix) of this document that is
+          normally hidden.</li>
+        </ul>
+        
+        <p>Most of these features have some analog in literate programming
+        systems such as Emacs' <a href="https://orgmode.org/">Org Mode</a>.</p>
+      </section>
+      
+      <section>
+        <h2>What next?</h2>
+        <ul>
+          <li>Right now, any changes that you make don't actually persist.</li>
+        </ul>
+      </section>
+      
+      <section>
+        <h2>House rules</h2>
+        <p>The following style rules are included just to make the document more
+        readable.  They are not essential to the functionality being discussed.
+        This does, however, illustrate a usage of dynamic documents.</p>
+        
+        <style contenteditable="true">
+body {
+  font-family: sans-serif; /* Sans Serif fonts tend to be more screen friendly */
+}
+        </style>
+        
+        <p>Following are common rules to make narrative document content more
+        readable than browser defaults.</p>
+        
+        <style contenteditable="true">
+main {
+  width: 60rem;  /* A comfortable reading width */
+  max-width: 100%; /* Don't overflow if the viewport is less than width */
+  margin-left: auto;  /* This and the following rule center the block horizontally. */
+  margin-right: auto;
+}
+</style>
+        
+        <p>Following are common rules to make narrative document content more
+        readable than browser defaults.</p>
+        
+        <style contenteditable="true">
+aside {
+  float: right;
+  clear: both;
+  width: 50%;
+  margin-left: 2rem;
+  margin-bottom: 2rem;
+}
+</style>
+        
+      </section>
+      
+      <section>
+        <h2>Built-in capabilities : what we get “for free”</h2>
+        
+        <p>In this section, we look at (yes, <em>look at</em>) the web
+        platform's built-in capabilities supporting dynamic documents.</p>
+        
+        <p>We can't edit things until we can see them.  So the first order of
+        business is to <a href="#make-invisible-elements-visible">make invisible
+        elements visible</a>.</p>
+        
+        <section id="make-invisible-elements-visible">
+          <h3>Making invisible elements visible</h3>
+
+          <section>
+            <h4>Markup languages <i>verus</i> programming languages</h4>
+            
+            <p>Perhaps the most wonderful thing about HTML is that what you
+            write is <em>visible by default</em>.  Whatever you type will be
+            output (more or less) as you typed it.  For example, an HTML file
+            containing nothing but the following eleven characters</p>
+
+            <pre>hello world</pre>
+
+            <p>will, when opened in a web browser, display the text “hello
+            world” as expected.  Here, <a target="_blank"
+            download="hello-world.html" href="data:text/html, hello world"> try
+            it</a></p>
+            
+            <p>More realistically, look at the code for this section's opening
+            paragraph:</p>
+            
+            <pre>
+              &lt;p&gt;Perhaps the most wonderful thing about HTML is that
+              what you write is &lt;em&gt;visible by default&lt;/em&gt;.  Whatever
+              you type will be output (more or less) as you typed it.  For
+              example, an HTML file containing nothing but the following eleven
+              bytes&lt;/p&gt;
+            </pre>
+            
+            <aside><b>Note:</b> You can use “view source” in your browser to see
+            the markup for this entire document.</aside>
+            
+            <p>Most of the text is displayed as-is, just like writing on paper.
+            This is true generally of “markup” languages.  You have to go out of
+            your way to switch to a mode where text is not taken literally.  (In
+            the case of HTML, the notorious “angle brackets” are the
+            signal.)</p>
+            
+            <p>This “literal” quality is also true of spreadsheets: just about
+            anything you type into a spreadsheet cell will be displayed in the
+            cell just as you typed it.</p>
+            
+            <p>This see-what-you-typed quality of markup languages may be hard to
+            appreciate until you've used something that <em>doesn't</em> work that
+            way—such as nearly every programming language.</p>
+            
+            <p>In “programming” languages, by contrast, the code that you provide
+            is <em>not</em> displayed, only interpreted.  You have to go out of
+            your way to produce output.</p>
+            
+            <p>People find markup languages much more intuitive than programming
+            languages.  No doubt this quality is a major reason for the web's
+            initial success.  Invisiblity is the <em>exception</em> rather than
+            the rule.</p>
+          </section>
+
+          
+          <p>Still, there are exceptions.  In HTML, all “tags” (such as the
+          <code>&lt;p&gt;</code> tags indicating “paragraph”) are themselves
+          invisible, as are their attributes.  Instead, the tags impact
+          <em>how</em> the text content is displayed.  (More strictly speaking,
+          markup helps <em>classify</em> the content, which in turn can subject
+          the content to special display rules.) </p>
+          
+          <p>But for some HTML elements, even the <em>content</em> is invisible
+          by default.  These elements include the document <code>head</code>
+          (and everything inside it, such as <code>title</code>,
+          <code>link</code>, <code>meta</code>, etc), <code>style</code>, and
+          <code>script</code>, as well as some newer elements like
+          <code>template</code> (whose main purpose is to support the “semantic”
+          inclusion of content that is used only by scripts).</p>
+          
+          <p>Considering that some of these invisible elements—particularly
+          <code>style</code> and <code>script</code>—are the only way to format
+          the document or model changes to it, </p>
+          
+          <aside>
+            <h4>Historical note</h4>
+            <p>In the old days, elements like <code>head</code>,
+            <code>style</code>, and <code>script</code> were specially excluded
+            from rendering.  At some point, for consistency's sake, browsers
+            started treating these “special” elements just like anything else
+            for display purposes.  Now, these invisible elements are simpy
+            hidden with default rules that set their <code>display</code>
+            property to <code>none</code>, which is easily overridden.
+            (Citation needed.  But I'm willing to bet this is the case.)</p>
+            <p>Some people <a
+            href="https://stackoverflow.com/q/18182211">discovered these
+            capabilities by accident</a> by using <code>display</code> rules
+            with an unintentionally-excessive scope.  As recently as 2018, the
+            ability to show <em>and edit</em> these elements even <a
+            href="https://css-tricks.com/did-you-know-that-style-and-script-tags-can-be-set-to-display-block/">took
+            some self-styled CSS authorities by surprise</a>, though as to “why
+            we would want to do this,” the author was “not entirely sure.”  </p>
+          </aside>
+          <section>
+            <h4>Make stylesheets visible</h4>
+            <p>We're about to introduce a style rule that makes scripts visible.
+            But style rules are also invisible :( So let's do something about
+            that.</p>
+            <style>
+              style, script { display: initial; white-space: pre; font-family: monospace; }
+              style[contenteditable=""], style[contenteditable="true"] {
+              background: #FFC;
+              }
+            </style>
+            <p>Note that “enumerated” attributes are enabled when the value is
+            <code>true</code> or the empty string.</p>
+            <p>Amazingly, making a <code>style</code> block
+            <code>contenteditable</code> will immediately reflect changes that
+            you make.  (Tested in Firefox, Chrome, and Edge.)</p>
+            <p>Go ahead, try it.</p>
+            <style contenteditable>
+              body {
+              color: black; /* edit this to set the document's default text color */
+              }
+            </style>
+            <style>
+              textarea { display: block; }
+            </style>
+            
+            <p>You can also make <code>script</code> tags editable.  However, they
+            are <em>not</em> re-evaluated when edited.</p>
+            
+            <script contenteditable>
+              console.log("mind blown");
+            </script>
+            
+            <p>Wait, can you do this for the head as well?</p>
+            <style>
+              head, link, title, meta { display: block; white-space: pre; font-family: monospace; }
+            </style>
+          </section>
+        </section>
+
+        <section>
+          <h3>Making elements editable</h3>
+          
+          <p>The web platform includes a way to make elements editable.  The
+          global <a
+          href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/contenteditable"><code>contenteditable</code></a>
+          attribute (which controls the boolean <a
+          href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/contentEditable"><code>contentEditable</code></a>
+          interface property).</p>
+          <p></p>
+
+          <p>Most elements, including <code>style</code>, will inherit the
+          <code>contentEditable</code> property, all the way up to the
+          <code>html</code> (document).  Some elements (to wit,
+          <code>title</code>) are only editable </p>
+          
+          <p>Because of this inheritability, we cannot reliably indicate
+          editability using CSS, since CSS can only target <em>explicit
+          attribute values</em>, not <em>effective property values</em>.</p>
+          
+          <section>
+            <h3>Regarding persistence of contenteditable</h3>
+            
+            <p>Well, it turns out that “the major” browsers, when you use the
+            built-in save function, does <em>not</em> include changes that you
+            made to <code>contenteditable</code> elements.  This is true
+            regardless of whether you save the page as “Complete” or “HTML only”
+            (the claims in <a href="https://superuser.com/a/823165">this post</a>
+            notwithstanding.  It appears that browsers did save changes to
+            contenteditable elements as recently as 2014 (<a
+            href="https://www.encodedna.com/2014/03/convert-your-browser-into-a-notepad-html5-contenteditable.htm">as
+            described here</a>), but this is no longer the case in any browser I
+            have.)</p>
+            
+          </section>
+          
+        </section>
+      </section>
+      
+      <section>
+        <h2>Extending the built-in capabilities</h2>
+
+        <section>
+          <h2>the bootstrapper</h2>
+          
+          <p>This can be accomplished with a surprisingly small
+          bootstrapper.</p>
+          
+          <p>Find all designated script tags.  The timeout is to wait until the
+          script has loaded.</p>
+          
+          <script>
+            window.setTimeout(() => {
+            for (const script of document.querySelectorAll('[data-autoexec="true"]'))
+            eval(script.innerText || script.value);
+            }, 1);
+          </script>
+          
+          <textarea data-autoexec="true">
+            console.log("hey Tremé!!!!")
+          </textarea>
+          
+          <p>All right, now we should be able to create scripts and edit them
+          dynamically just by adding the <code>data-autoexec</code> attribute to a
+          <code>textarea</code>.</p>
+          
+          <textarea data-autoexec="true">
+            console.log("gee isn't there anything I can do besides console log?? :(");
+          </textarea>
+          
+        </section>
+
+      </section>
+      
+    </main>
+  </body>
+</html>
