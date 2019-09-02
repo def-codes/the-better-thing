@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title contenteditable>literate</title>
+    <title contenteditable="true">literate</title>
   </head>
   <body>
     <main>
@@ -54,15 +54,15 @@ body {
         
         <style contenteditable="true">
 main {
-  width: 60rem;  /* A comfortable reading width */
+  width: 50rem;  /* A comfortable reading width */
   max-width: 100%; /* Don't overflow if the viewport is less than width */
   margin-left: auto;  /* This and the following rule center the block horizontally. */
   margin-right: auto;
 }
 </style>
         
-        <p>Following are common rules to make narrative document content more
-        readable than browser defaults.</p>
+        <p>The <code>aside</code> element, although it has to be place at some
+        definite point in the document, is not part of the document “flow.”</p>
         
         <style contenteditable="true">
 aside {
@@ -74,20 +74,32 @@ aside {
 }
 </style>
         
+        
+        <p>Blockquotes traditionally have certain formatting.  Some of that,
+        such as the left margin, is a default style in most browsers.</p>
+        
+        <style contenteditable="true">
+blockquote {
+  font-size: smaller; /* block quotes conventionally use smaller font */
+}
+</style>
+        
       </section>
       
       <section>
         <h2>Built-in capabilities : what we get “for free”</h2>
         
         <p>In this section, we look at (yes, <em>look at</em>) the web
-        platform's built-in capabilities supporting dynamic documents.</p>
-        
-        <p>We can't edit things until we can see them.  So the first order of
-        business is to <a href="#make-invisible-elements-visible">make invisible
-        elements visible</a>.</p>
+        platform's <em>built-in</em> capabilities supporting dynamic documents.
+        While they are not sufficient for all of our needs, we can use these
+        features with minimal effort and build on them.</p>
         
         <section id="make-invisible-elements-visible">
-          <h3>Making invisible elements visible</h3>
+          <h3>Free element visibility</h3>
+        
+          <p>Things are not real until we can see them.  So the first order of
+          business is to <a href="#make-invisible-elements-visible">make
+          invisible elements visible</a>.</p>
 
           <section>
             <h4>Markup languages <i>verus</i> programming languages</h4>
@@ -141,7 +153,6 @@ aside {
             initial success.  Invisiblity is the <em>exception</em> rather than
             the rule.</p>
           </section>
-
           
           <p>Still, there are exceptions.  In HTML, all “tags” (such as the
           <code>&lt;p&gt;</code> tags indicating “paragraph”) are themselves
@@ -160,7 +171,8 @@ aside {
           
           <p>Considering that some of these invisible elements—particularly
           <code>style</code> and <code>script</code>—are the only way to format
-          the document or model changes to it, </p>
+          the document or model changes to it, bringing these elements to light
+          is clearly a first step in making any dynamic document system.</p>
           
           <aside>
             <h4>Historical note</h4>
@@ -181,76 +193,203 @@ aside {
             some self-styled CSS authorities by surprise</a>, though as to “why
             we would want to do this,” the author was “not entirely sure.”  </p>
           </aside>
-          <section>
-            <h4>Make stylesheets visible</h4>
-            <p>We're about to introduce a style rule that makes scripts visible.
-            But style rules are also invisible :( So let's do something about
-            that.</p>
-            <style>
-              style, script { display: initial; white-space: pre; font-family: monospace; }
-              style[contenteditable=""], style[contenteditable="true"] {
-              background: #FFC;
-              }
-            </style>
-            <p>Note that “enumerated” attributes are enabled when the value is
-            <code>true</code> or the empty string.</p>
-            <p>Amazingly, making a <code>style</code> block
-            <code>contenteditable</code> will immediately reflect changes that
-            you make.  (Tested in Firefox, Chrome, and Edge.)</p>
-            <p>Go ahead, try it.</p>
-            <style contenteditable>
-              body {
-              color: black; /* edit this to set the document's default text color */
-              }
-            </style>
-            <style>
-              textarea { display: block; }
-            </style>
-            
-            <p>You can also make <code>script</code> tags editable.  However, they
-            are <em>not</em> re-evaluated when edited.</p>
-            
-            <script contenteditable>
-              console.log("mind blown");
-            </script>
-            
-            <p>Wait, can you do this for the head as well?</p>
-            <style>
-              head, link, title, meta { display: block; white-space: pre; font-family: monospace; }
-            </style>
-          </section>
+
+          <p>We're about to introduce a style rule that makes scripts visible.
+          But style rules are also invisible :( So let's do something about
+          that.</p>
+          
+          <style contenteditable="true">
+            style, script { display: initial; white-space: pre; font-family: monospace; }
+          </style>
+
+          
+          <p>This also goes for the document head and its contents.</p>
+          
+          <style contenteditable="true">
+            head, link, title, meta { display: block; white-space: pre; font-family: monospace; }
+          </style>
         </section>
 
-        <section>
-          <h3>Making elements editable</h3>
+        <section id="free-content-editability">
+          <h3>Free content editability</h3>
           
-          <p>The web platform includes a way to make elements editable.  The
-          global <a
+          <p>The web platform includes a built-in way to make elements editable.
+          The global <a
           href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/contenteditable"><code>contenteditable</code></a>
           attribute (which controls the boolean <a
           href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/contentEditable"><code>contentEditable</code></a>
           interface property).</p>
-          <p></p>
+
+          
+          <p>Note that “enumerated” attributes are enabled when the value is
+          <code>true</code> or the empty string.</p>
+          
+          <p>Amazingly, making a <code>style</code> block
+          <code>contenteditable</code> will immediately reflect changes that
+          you make.  (Tested in Firefox, Chrome, and Edge.)</p>
+          
+          <p>Go ahead, try it.</p>
+          
+          <style contenteditable="true">
+            body {
+            color: black; /* edit this to set the document's default text color */
+            }
+          </style>
+          <style contenteditable="true">
+            textarea { display: block; }
+          </style>
+          
+          <p>You can also make <code>script</code> tags editable.  However, they
+          are <em>not</em> re-evaluated when edited.</p>
+          
+          <script contenteditable="true">
+            console.log("mind blown");
+          </script>
 
           <p>Most elements, including <code>style</code>, will inherit the
           <code>contentEditable</code> property, all the way up to the
           <code>html</code> (document).  Some elements (to wit,
-          <code>title</code>) are only editable </p>
+          <code>title</code>) do not inherit this property, but are only
+          editable when they are explicitly marked as such.</p>
+
+          <section>
+            <h4>Indicating when elements are editable</h4>
+            
+            <p>How can you tell when something is editable, other than trying it?</p>
+            
+            <p>If the browser lets you put your cursor into a regular text
+            element (i.e. a place that is not a text input), then it's
+            editable.</p>
+            
+            <p>It would be useful if we could provide additional visual cues
+            that something can be edited.  Here is a rule that targets elements
+            with the <code>contenteditable</code> property set.</p>
+            
+            <style contenteditable="true">
+[contenteditable=""],
+[contenteditable="true"]
+{
+  background-color: #FFC;
+}
+</style>
+
+            <p>Because <code>contenteditable</code> is inherited (in most
+            cases), we cannot reliably indicate editability on individual
+            elements using CSS.  CSS can only target <em>explicit attribute
+            values</em>, not <em>effective property values</em>.  However, we
+            can use a CSS property that is itself inherited (such as
+            <code>background-color</code>).</p>
+            
+            <p>Editability can also be turned <em>off</em>.  To prevent
+            non-editable elements from inheriting the indicator, we can reset
+            them to their initial value.</p>
+
+            <style contenteditable="true">
+[contenteditable=""] [contenteditable="false"],
+[contenteditable="true"] [contenteditable="false"]
+{
+  background-color: initial;
+}
+            </style>
+            
+          </section>
+        </section>
+        
+        <section>
+          <h3>Free persistence</h3>
           
-          <p>Because of this inheritability, we cannot reliably indicate
-          editability using CSS, since CSS can only target <em>explicit
-          attribute values</em>, not <em>effective property values</em>.</p>
+          <p>Once upon a time,</p>
+          <ol>
+            <li>browsers had a built-in “Save” feature</li>
+            <li>and that “Save” feature would include changes that the user had
+            made to <a href="#free-content-editability">content-editable
+            elements</a>.</li>
+          </ol>
           
           <section>
-            <h3>Regarding persistence of contenteditable</h3>
+            <h4>Built-in “Save” feature is no longer universal</h4>
+
+            <p>As of 2019, Microsoft Edge does not have a “Save” feature.</p>
+            
+            <aside>
+              <h4>A brief aside on Microsoft Edge's lack of “Save”, and the
+              people’s response</h4>
+              
+              <p>By 2015, thousands of <a
+              href="https://answers.microsoft.com/en-us/windows/forum/windows_10-networking/how-to-save-web-page-in-edge-browser/6c6f4095-f62e-48e8-8512-3fb47f981f88">Edge
+              users were reporting that the browser lacked a “Save” option</a>.
+              Before being locked by the moderators, that thread attracted 418
+              replies, including the following plaintive remarks:</p>
+              
+              <blockquote>
+                <p>What's the point of being able to highlight, or write on a page
+                unless it can be saved and sent to someone? The only way I can
+                make this work is to "print screen" then edit in a photo editing
+                program, save as a jpg for email. What a bad workaround.</p>
+                
+                <cite>a user named Grant-Fuller on the answers.microsoft.com
+                forum</cite>
+              </blockquote>
+              
+              <p>As this situation had not changed by 2017, third-party sites
+              were coming to users’ rescue by offering ad-riddled articles such
+              as <a
+              href="http://www.rawinfopages.com/tips/2016/05/how-to-save-web-pages-to-disk-using-edge-browser-in-windows-10/">“How
+              to save web pages to disk using Edge browser in Windows 10”</a>,
+              whose proposed solution is to print the page to a Document Format
+              that is actually... Portable:</p>
+
+              <blockquote>
+                <p>Does anyone see the fundamental problem with this? If I’m
+                viewing a text file I have to print and save as pdf. Then use
+                adobe to save as text file? Or even worse, open with Internet
+                Explorer? What next, use Xcopy? Grip? Really? Let’s go back to
+                IBM mainframes…. Sorry, I’m not a Microsoft hater, but this is
+                Microsoft arrogance at its greatest. What happened to improving
+                the user experience? No one at Microsoft ever had to save an
+                Internet file?</p>
+                
+                <cite>
+                  <a
+                  href="http://www.rawinfopages.com/tips/2016/05/how-to-save-web-pages-to-disk-using-edge-browser-in-windows-10/#comment-516">use
+                  Malc Boczek on rawinfopages.com</a>
+                </cite>
+              </blockquote>
+
+              
+              <p>These grievances (whose “workarounds” reminded me of a <a
+              href="http://wyorock.com/excelasadatabase.htm">Rory Blyth
+              cartoon</a>) express just how painfully our computing platform
+              fails to meet basic expectations of portability.</p>
+
+            </aside>
+
+
+            
+
+            
+            
+            
+            <p>I have not checked for a “Save” feature in Safari, or on any
+            mobile browsers.</p>
+          </section>
+          
+          <p></p>
+          
+          <p>Alas, I have no good news here.</p>
+          
+          <section>
+            <h3>The lost persistence of contenteditable</h3>
+            
+            <p>I am quite sure that it used to be the case, that when</p>
             
             <p>Well, it turns out that “the major” browsers, when you use the
             built-in save function, does <em>not</em> include changes that you
             made to <code>contenteditable</code> elements.  This is true
             regardless of whether you save the page as “Complete” or “HTML only”
-            (the claims in <a href="https://superuser.com/a/823165">this post</a>
-            notwithstanding.  It appears that browsers did save changes to
-            contenteditable elements as recently as 2014 (<a
+            (the claims in <a href="https://superuser.com/a/823165">this
+            post</a> notwithstanding.  It appears that browsers did save changes
+            to contenteditable elements as recently as 2014 (<a
             href="https://www.encodedna.com/2014/03/convert-your-browser-into-a-notepad-html5-contenteditable.htm">as
             described here</a>), but this is no longer the case in any browser I
             have.)</p>
