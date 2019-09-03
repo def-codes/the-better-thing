@@ -39,55 +39,6 @@
       </section>
       
       <section>
-        <h2>House rules</h2>
-        <p>The following style rules are included just to make the document more
-        readable.  They are not essential to the functionality being discussed.
-        This does, however, illustrate a usage of dynamic documents.</p>
-        
-        <style contenteditable="true">
-body {
-  font-family: sans-serif; /* Sans Serif fonts tend to be more screen friendly */
-}
-        </style>
-        
-        <p>Following are common rules to make narrative document content more
-        readable than browser defaults.</p>
-        
-        <style contenteditable="true">
-main {
-  width: 50rem;  /* A comfortable reading width */
-  max-width: 100%; /* Don't overflow if the viewport is less than width */
-  margin-left: auto;  /* This and the following rule center the block horizontally. */
-  margin-right: auto;
-}
-</style>
-        
-        <p>The <code>aside</code> element, although it has to be placed at some
-        definite point in the document, is not part of the document “flow.”</p>
-        
-        <style contenteditable="true">
-aside {
-  float: right;
-  clear: both;
-  width: 50%;
-  margin-left: 2rem;
-  margin-bottom: 2rem;
-}
-</style>
-        
-        
-        <p>Blockquotes traditionally have certain formatting.  Some of that,
-        such as the left margin, is a default style in most browsers.</p>
-        
-        <style contenteditable="true">
-blockquote {
-  font-size: smaller; /* block quotes conventionally use smaller font */
-}
-</style>
-        
-      </section>
-      
-      <section>
         <h2>Built-in capabilities : what we get “for free”</h2>
         
         <p>In this section, we look at (yes, <em>look at</em>) the web
@@ -109,15 +60,32 @@ blockquote {
           that.</p>
           
           <style contenteditable="true">
-            style, script { display: initial; white-space: pre; font-family: monospace; }
+style,
+script
+{
+  display: block;  /* `initial` also works, but gives odd results */
+  white-space: pre; /* Preserve whitespace (it's collapsed in normal content) */
+}
           </style>
 
+          <p>Many people would also use <code>font-family: monospace</code>, but
+          I've been happily coding in proportional fonts for many years.
+          Besides, I don't want to write code.</p>
           
           <p>This also goes for the document head and its contents.</p>
           
           <style contenteditable="true">
-            head, link, title, meta { display: block; white-space: pre; font-family: monospace; }
+head, link, title, meta
+{
+  display: block;
+  white-space: pre;
+  font-family: monospace;
+}
           </style>
+          
+          <p>In practice, you won't see <code>link</code> or <code>meta</code>
+          elements because they have no content (only attributes).</p>
+          
         </section>
 
         <section id="free-content-editability">
@@ -278,6 +246,57 @@ blockquote {
       <footer>
         <h2>Notes and appendages</h2>
 
+        <article id="house-rules">
+          <h3>House rules</h3>
+          
+          <p>The following style rules are included just to make the document
+          more readable.  They are not essential to the functionality being
+          discussed.  This does, however, illustrate a usage of dynamic
+          documents.</p>
+          
+          <style contenteditable="true">
+body {
+  font-family: sans-serif; /* Sans Serif fonts tend to be more screen friendly */
+  font-size: 16pt; /* I like big fonts and I cannot lie */
+}
+          </style>
+          
+          <p>Following are common rules to make narrative document content more
+          readable than browser defaults.</p>
+          
+          <style contenteditable="true">
+main {
+  width: 50rem;  /* A comfortable reading width */
+  max-width: 100%; /* Don't overflow if the viewport is less than width */
+  margin-left: auto;  /* This and the following rule center the block horizontally. */
+  margin-right: auto;
+}
+          </style>
+          
+          <p>The <code>aside</code> element, although it has to be placed at some
+          definite point in the document, is not part of the document “flow.”</p>
+          
+          <style contenteditable="true">
+            aside {
+            float: right;
+            clear: both;
+            width: 50%;
+            margin-left: 2rem;
+            margin-bottom: 2rem;
+            }
+          </style>
+          
+          
+          <p>Blockquotes traditionally have certain formatting.  Some of that,
+          such as the left margin, is a default style in most browsers.</p>
+          
+          <style contenteditable="true">
+            blockquote {
+            font-size: smaller; /* block quotes conventionally use smaller font */
+            }
+          </style>
+        </article>
+        
         <article id="markup-versus-programming">
           <h3>Markup languages <i>versus</i> programming languages</h3>
           
