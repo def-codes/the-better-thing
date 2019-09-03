@@ -5,6 +5,7 @@
     <title contenteditable="true">literate</title>
   </head>
   <body>
+    <script src="/jumping.js"></script>
     <main>
       <h1>dynamic html for the twenty-first century</h1>
       <p>This document is about making plain HTML into a literate programming
@@ -58,9 +59,18 @@
           href="#markup-versus-programming">“Markup languages <i>versus</i>
           programming languages”</a>) </p>
 
-          <p>We're about to introduce a style rule that makes scripts visible.
-          But style rules are also invisible :( So let's do something about
-          that.</p>
+          <p>The two most powerful elements in HTML—<code>script</code> and
+          <code>style</code>—are both invisible by default.</p>
+          
+          <p>We start by using a style rule to make style rules visible:</p>
+          
+          <style contenteditable="true">style { display: initial }</style>
+          
+          <p>This rule is critical.  Without this rule (or some equivalent),
+          you'd be unable to see the rule itself, or any of the other rules.</p>
+          
+          <p>A more practical version follows, which makes scripts visible as
+          well:</p>
           
           <style contenteditable="true">
 style,
@@ -71,9 +81,9 @@ script
 }
           </style>
 
-          <p>Many people would also use <code>font-family: monospace</code>, but
-          I've been happily coding in proportional fonts for many years.
-          Besides, I don't want to write code.</p>
+          <p>Many people would also use <code>font-family: monospace</code>
+          here, but I've been happily coding in proportional fonts for many
+          years.  Besides, I don't want to write code.</p>
           
           <p>This also goes for the document head and its contents.</p>
           
@@ -197,7 +207,7 @@ textarea { width: 100%; }
             <p>That is no longer the case.  As of 2019, <a
             href="#edge-no-save">Microsoft Edge does not have a “Save” feature
             at all</a>, and browsers that do <a href="#lost-free-persistence">do
-            not preserve dynamic edits</a>.</p>
+            not preserve your edits</a>.</p>
 
             <aside>I have not checked for a “Save” feature in Safari, or on any
             mobile browsers.</aside>
@@ -219,13 +229,18 @@ textarea { width: 100%; }
         <h2>Extending the built-in capabilities</h2>
 
         <section>
-          <h2>the bootstrapper</h2>
+          <h3>the bootstrapper</h3>
+
+          <p>Everything that we don't get for free, we have to accomplish with
+          script.  Therefore, the first thing we need is a way to use scripts
+          (without leaving the document).</p>
           
-          <p>This can be accomplished with a surprisingly small
-          bootstrapper.</p>
+          <p>We will need to write, run, and save scripts.  We'll take up each
+          one separately.</p>
           
           <p>Find all designated script tags.  The timeout is to wait until the
-          script has loaded.</p>
+          script has loaded (to cover elements that are not in the document yet
+          at this point).</p>
           
           <script>
             window.setTimeout(() => {
@@ -245,13 +260,30 @@ textarea { width: 100%; }
           <textarea data-autoexec="true">
             console.log("gee isn't there anything I can do besides console log?? :(");
           </textarea>
+        </section>
+        
+        <section>
+          <h3>defensiveness</h3>
+
+          <p>Certain capabilities are available only in hosted environments.
+          The objective of portability is that (to the extent possible) a
+          document can be removed from its hosted environment and retain its
+          essential character (for lack of a better word).  Some of that
+          preservation relies on those capabilities that will become unavailable
+          in standalone mode.  Therefore, a portable document must
+          <em>pre-emptively</em> take the steps that will allow it to survive in
+          the wild.</p>
           
+          <p>What this means in practice is that we need to inline scripts as
+          soon as the document is loaded.</p>
         </section>
 
       </section>
       
       <footer>
-        <h2>Notes and appendages</h2>
+        <h2>Appendices</h2>
+        
+        <p>Excise at will.</p>
 
         <article id="house-rules">
           <h3>House rules</h3>
