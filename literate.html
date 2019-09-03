@@ -16,6 +16,7 @@
         capabilities:</p>
         
         <ul>
+          <li>the document does the expected thing for common actions</li>
           <li>the foundation is sufficient to build more powerful tools</li>
           <li>the mechanisms used support persistence and portability</li>
           <li>support a modular form of composition using external resources</li>
@@ -61,7 +62,7 @@ main {
 }
 </style>
         
-        <p>The <code>aside</code> element, although it has to be place at some
+        <p>The <code>aside</code> element, although it has to be placed at some
         definite point in the document, is not part of the document “flow.”</p>
         
         <style contenteditable="true">
@@ -99,100 +100,9 @@ blockquote {
         
           <p>Things are not real until we can see them.  So the first order of
           business is to <a href="#make-invisible-elements-visible">make
-          invisible elements visible</a>.</p>
-
-          <section>
-            <h4>Markup languages <i>verus</i> programming languages</h4>
-            
-            <p>Perhaps the most wonderful thing about HTML is that what you
-            write is <em>visible by default</em>.  Whatever you type will be
-            output (more or less) as you typed it.  For example, an HTML file
-            containing nothing but the following eleven characters</p>
-
-            <pre>hello world</pre>
-
-            <p>will, when opened in a web browser, display the text “hello
-            world” as expected.  Here, <a target="_blank"
-            download="hello-world.html" href="data:text/html, hello world"> try
-            it</a></p>
-            
-            <p>More realistically, look at the code for this section's opening
-            paragraph:</p>
-            
-            <pre>
-              &lt;p&gt;Perhaps the most wonderful thing about HTML is that
-              what you write is &lt;em&gt;visible by default&lt;/em&gt;.  Whatever
-              you type will be output (more or less) as you typed it.  For
-              example, an HTML file containing nothing but the following eleven
-              bytes&lt;/p&gt;
-            </pre>
-            
-            <aside><b>Note:</b> You can use “view source” in your browser to see
-            the markup for this entire document.</aside>
-            
-            <p>Most of the text is displayed as-is, just like writing on paper.
-            This is true generally of “markup” languages.  You have to go out of
-            your way to switch to a mode where text is not taken literally.  (In
-            the case of HTML, the notorious “angle brackets” are the
-            signal.)</p>
-            
-            <p>This “literal” quality is also true of spreadsheets: just about
-            anything you type into a spreadsheet cell will be displayed in the
-            cell just as you typed it.</p>
-            
-            <p>This see-what-you-typed quality of markup languages may be hard to
-            appreciate until you've used something that <em>doesn't</em> work that
-            way—such as nearly every programming language.</p>
-            
-            <p>In “programming” languages, by contrast, the code that you provide
-            is <em>not</em> displayed, only interpreted.  You have to go out of
-            your way to produce output.</p>
-            
-            <p>People find markup languages much more intuitive than programming
-            languages.  No doubt this quality is a major reason for the web's
-            initial success.  Invisiblity is the <em>exception</em> rather than
-            the rule.</p>
-          </section>
-          
-          <p>Still, there are exceptions.  In HTML, all “tags” (such as the
-          <code>&lt;p&gt;</code> tags indicating “paragraph”) are themselves
-          invisible, as are their attributes.  Instead, the tags impact
-          <em>how</em> the text content is displayed.  (More strictly speaking,
-          markup helps <em>classify</em> the content, which in turn can subject
-          the content to special display rules.) </p>
-          
-          <p>But for some HTML elements, even the <em>content</em> is invisible
-          by default.  These elements include the document <code>head</code>
-          (and everything inside it, such as <code>title</code>,
-          <code>link</code>, <code>meta</code>, etc), <code>style</code>, and
-          <code>script</code>, as well as some newer elements like
-          <code>template</code> (whose main purpose is to support the “semantic”
-          inclusion of content that is used only by scripts).</p>
-          
-          <p>Considering that some of these invisible elements—particularly
-          <code>style</code> and <code>script</code>—are the only way to format
-          the document or model changes to it, bringing these elements to light
-          is clearly a first step in making any dynamic document system.</p>
-          
-          <aside>
-            <h4>Historical note</h4>
-            <p>In the old days, elements like <code>head</code>,
-            <code>style</code>, and <code>script</code> were specially excluded
-            from rendering.  At some point, for consistency's sake, browsers
-            started treating these “special” elements just like anything else
-            for display purposes.  Now, these invisible elements are simpy
-            hidden with default rules that set their <code>display</code>
-            property to <code>none</code>, which is easily overridden.
-            (Citation needed.  But I'm willing to bet this is the case.)</p>
-            <p>Some people <a
-            href="https://stackoverflow.com/q/18182211">discovered these
-            capabilities by accident</a> by using <code>display</code> rules
-            with an unintentionally-excessive scope.  As recently as 2018, the
-            ability to show <em>and edit</em> these elements even <a
-            href="https://css-tricks.com/did-you-know-that-style-and-script-tags-can-be-set-to-display-block/">took
-            some self-styled CSS authorities by surprise</a>, though as to “why
-            we would want to do this,” the author was “not entirely sure.”  </p>
-          </aside>
+          invisible elements visible</a>. (See also the appendix <a
+          href="#markup-versus-programming">“Markup languages <i>versus</i>
+          programming languages”</a>) </p>
 
           <p>We're about to introduce a style rule that makes scripts visible.
           But style rules are also invisible :( So let's do something about
@@ -298,102 +208,33 @@ blockquote {
         <section>
           <h3>Free persistence</h3>
           
+          <p>Warning, this story does not have a happy ending.</p>
+          
           <p>Once upon a time,</p>
           <ol>
             <li>browsers had a built-in “Save” feature</li>
             <li>and that “Save” feature would include changes that the user had
             made to <a href="#free-content-editability">content-editable
-            elements</a>.</li>
+            elements</a>. (<a href="#lost-free-persistence">Historical note</a>)
+            </li>
           </ol>
+
+          <p>In a way, it would be better if browsers <em>didn't</em> have a
+          built-in save.  It creates certain expectations, yet it's not a
+          standard and we (authors) can't control what it does.  In that sense,
+          Edge is the first browser to get this right.</p>
           
+          <p>As such, the problem becomes, how do we deal with the expectations
+          created by a built-in “Save” feature when it does exist?</p>
+
           <section>
             <h4>Built-in “Save” feature is no longer universal</h4>
 
-            <p>As of 2019, Microsoft Edge does not have a “Save” feature.</p>
-            
-            <aside>
-              <h4>A brief aside on Microsoft Edge's lack of “Save”, and the
-              people’s response</h4>
-              
-              <p>By 2015, thousands of <a
-              href="https://answers.microsoft.com/en-us/windows/forum/windows_10-networking/how-to-save-web-page-in-edge-browser/6c6f4095-f62e-48e8-8512-3fb47f981f88">Edge
-              users were reporting that the browser lacked a “Save” option</a>.
-              Before being locked by the moderators, that thread attracted 418
-              replies, including the following plaintive remarks:</p>
-              
-              <blockquote>
-                <p>What's the point of being able to highlight, or write on a page
-                unless it can be saved and sent to someone? The only way I can
-                make this work is to "print screen" then edit in a photo editing
-                program, save as a jpg for email. What a bad workaround.</p>
-                
-                <cite>a user named Grant-Fuller on the answers.microsoft.com
-                forum</cite>
-              </blockquote>
-              
-              <p>As this situation had not changed by 2017, third-party sites
-              were coming to users’ rescue by offering ad-riddled articles such
-              as <a
-              href="http://www.rawinfopages.com/tips/2016/05/how-to-save-web-pages-to-disk-using-edge-browser-in-windows-10/">“How
-              to save web pages to disk using Edge browser in Windows 10”</a>,
-              whose proposed solution is to print the page to a Document Format
-              that is actually... Portable:</p>
+            <p>As of 2019, Microsoft Edge does not have a “Save” feature. (<a
+            href="#edge-no-save">Note</a>) </p>
 
-              <blockquote>
-                <p>Does anyone see the fundamental problem with this? If I’m
-                viewing a text file I have to print and save as pdf. Then use
-                adobe to save as text file? Or even worse, open with Internet
-                Explorer? What next, use Xcopy? Grip? Really? Let’s go back to
-                IBM mainframes…. Sorry, I’m not a Microsoft hater, but this is
-                Microsoft arrogance at its greatest. What happened to improving
-                the user experience? No one at Microsoft ever had to save an
-                Internet file?</p>
-                
-                <cite>
-                  <a
-                  href="http://www.rawinfopages.com/tips/2016/05/how-to-save-web-pages-to-disk-using-edge-browser-in-windows-10/#comment-516">use
-                  Malc Boczek on rawinfopages.com</a>
-                </cite>
-              </blockquote>
-
-              
-              <p>These grievances (whose “workarounds” reminded me of a <a
-              href="http://wyorock.com/excelasadatabase.htm">Rory Blyth
-              cartoon</a>) express just how painfully our computing platform
-              fails to meet basic expectations of portability.</p>
-
-            </aside>
-
-
-            
-
-            
-            
-            
             <p>I have not checked for a “Save” feature in Safari, or on any
             mobile browsers.</p>
-          </section>
-          
-          <p></p>
-          
-          <p>Alas, I have no good news here.</p>
-          
-          <section>
-            <h3>The lost persistence of contenteditable</h3>
-            
-            <p>I am quite sure that it used to be the case, that when</p>
-            
-            <p>Well, it turns out that “the major” browsers, when you use the
-            built-in save function, does <em>not</em> include changes that you
-            made to <code>contenteditable</code> elements.  This is true
-            regardless of whether you save the page as “Complete” or “HTML only”
-            (the claims in <a href="https://superuser.com/a/823165">this
-            post</a> notwithstanding.  It appears that browsers did save changes
-            to contenteditable elements as recently as 2014 (<a
-            href="https://www.encodedna.com/2014/03/convert-your-browser-into-a-notepad-html5-contenteditable.htm">as
-            described here</a>), but this is no longer the case in any browser I
-            have.)</p>
-            
           </section>
           
         </section>
@@ -434,6 +275,178 @@ blockquote {
 
       </section>
       
+      <footer>
+        <h2>Notes and appendages</h2>
+
+        <article id="markup-versus-programming">
+          <h3>Markup languages <i>versus</i> programming languages</h3>
+          
+          <p>Perhaps the most wonderful thing about HTML is that what you write
+          is <em>visible by default</em>.  Whatever you type will be output
+          (more or less) as you typed it.  For example, an HTML file containing
+          nothing but the following eleven characters</p>
+
+          <pre>hello world</pre>
+
+          <p>will, when opened in a web browser, display the text “hello world”
+          as expected.  Here, <a target="_blank" download="hello-world.html"
+          href="data:text/html, hello world"> try it</a></p>
+          
+          <p>More realistically, look at the code for this section's opening
+          paragraph:</p>
+          
+          <pre>
+            &lt;p&gt;Perhaps the most wonderful thing about HTML is that
+            what you write is &lt;em&gt;visible by default&lt;/em&gt;.  Whatever
+            you type will be output (more or less) as you typed it.  For
+            example, an HTML file containing nothing but the following eleven
+            bytes&lt;/p&gt;
+          </pre>
+          
+          <aside><b>Note:</b> You can use “view source” in your browser to see
+          the markup for this entire document.</aside>
+          
+          <p>Most of the text is displayed as-is, just like writing on paper.
+          This is true generally of “markup” languages.  You have to go out of
+          your way to switch to a mode where text is not taken literally.  (In
+          the case of HTML, the notorious “angle brackets” are the signal.)</p>
+          
+          <p>This “literal” quality is also true of spreadsheets: just about
+          anything you type into a spreadsheet cell will be displayed in the
+          cell just as you typed it.</p>
+          
+          <p>This see-what-you-typed quality of markup languages may be hard to
+          appreciate until you've used something that <em>doesn't</em> work that
+          way—such as nearly every programming language.</p>
+          
+          <p>In “programming” languages, by contrast, the code that you provide
+          is <em>not</em> displayed, only interpreted.  You have to go out of
+          your way to produce output.</p>
+          
+          <p>People find markup languages much more intuitive than programming
+          languages.  No doubt this quality is a major reason for the web's
+          initial success.  Invisiblity is the <em>exception</em> rather than
+          the rule.</p>
+
+          <section>
+            <h4>Invisible elements in HTML</h4>
+            
+            <p>Still, there are exceptions.  In HTML, all “tags” (such as the
+            <code>&lt;p&gt;</code> tags indicating “paragraph”) are themselves
+            invisible, as are their attributes.  Instead, the tags impact
+            <em>how</em> the text content is displayed.  (More strictly
+            speaking, markup helps <em>classify</em> the content, which in turn
+            can subject the content to special display rules.) </p>
+            
+            <p>But for some HTML elements, even the <em>content</em> is
+            invisible by default.  These elements include the document
+            <code>head</code> (and everything inside it, such as
+            <code>title</code>, <code>link</code>, <code>meta</code>, etc),
+            <code>style</code>, and <code>script</code>, as well as some newer
+            elements like <code>template</code> (whose main purpose is to
+            support the “semantic” inclusion of content that is used only by
+            scripts).</p>
+            
+            <p>Considering that some of these invisible elements—particularly
+            <code>style</code> and <code>script</code>—are the only way to
+            format the document or model changes to it, bringing these elements
+            to light is clearly a first step in making any dynamic document
+            system.  (<a href="#despecialization">Historical note)</a></p>
+          </section>
+        </article>
+
+        <article id="despecialization">
+          <h3>The despecialization of special elements</h3>
+          
+          <p>In the old days, elements like <code>head</code>,
+          <code>style</code>, and <code>script</code> were specially excluded
+          from rendering.  At some point, for consistency's sake, browsers
+          started treating these “special” elements just like anything else for
+          display purposes.  Now, these invisible elements are simply hidden
+          with default rules that set their <code>display</code> property to
+          <code>none</code>, which is easily overridden.  (Citation needed.  But
+          I'm willing to bet this is the case.)</p>
+          
+          <p>Some people <a
+          href="https://stackoverflow.com/q/18182211">discovered these
+          capabilities by accident</a> by using <code>display</code> rules
+          with an unintentionally-excessive scope.  As recently as 2018, the
+          ability to show <em>and edit</em> these elements even <a
+          href="https://css-tricks.com/did-you-know-that-style-and-script-tags-can-be-set-to-display-block/">took
+          some self-styled CSS authorities by surprise</a>, though as to “why
+          we would want to do this,” the author was “not entirely sure.”  </p>
+        </article>
+
+        
+        <article id="edge-no-save">
+          <h3>On on Microsoft Edge's lack of “Save”, and the people’s
+          response</h3>
+          
+          <p>By 2015, thousands of <a
+          href="https://answers.microsoft.com/en-us/windows/forum/windows_10-networking/how-to-save-web-page-in-edge-browser/6c6f4095-f62e-48e8-8512-3fb47f981f88">Edge
+          users were reporting that the browser lacked a “Save” option</a>.
+          Before being locked by the moderators, that thread attracted 418
+          replies, including the following plaintive remarks:</p>
+          
+          <blockquote>
+            <p>What's the point of being able to highlight, or write on a page
+            unless it can be saved and sent to someone? The only way I can make
+            this work is to "print screen" then edit in a photo editing program,
+            save as a jpg for email. What a bad workaround.</p>
+            
+            <cite>a user named Grant-Fuller on the answers.microsoft.com
+            forum</cite>
+          </blockquote>
+          
+          <p>As this situation had not changed by 2017, third-party sites were
+          coming to users’ rescue by offering ad-riddled articles such as <a
+          href="http://www.rawinfopages.com/tips/2016/05/how-to-save-web-pages-to-disk-using-edge-browser-in-windows-10/">“How
+          to save web pages to disk using Edge browser in Windows 10”</a>, whose
+          proposed solution is to print the page to a Document Format that is
+          actually... Portable:</p>
+
+          <blockquote>
+            <p>Does anyone see the fundamental problem with this? If I’m viewing
+            a text file I have to print and save as pdf. Then use adobe to save
+            as text file? Or even worse, open with Internet Explorer? What next,
+            use Xcopy? Grip? Really? Let’s go back to IBM mainframes…. Sorry,
+            I’m not a Microsoft hater, but this is Microsoft arrogance at its
+            greatest. What happened to improving the user experience? No one at
+            Microsoft ever had to save an Internet file?</p>
+            
+            <cite>
+              <a
+              href="http://www.rawinfopages.com/tips/2016/05/how-to-save-web-pages-to-disk-using-edge-browser-in-windows-10/#comment-516">use
+              Malc Boczek on rawinfopages.com</a>
+            </cite>
+          </blockquote>
+          
+          <p>These grievances (whose “workarounds” reminded me of a <a
+          href="http://wyorock.com/excelasadatabase.htm">Rory Blyth cartoon</a>)
+          express just how painfully our computing platform fails to meet basic
+          expectations of portability.</p>
+        </article>
+        
+        <article id="lost-free-persistence">
+          <h3>On the lost persistence of contenteditable</h3>
+          
+          <p>I am quite sure that it used to be the case, that when you would
+          save a document wherein you had made changes to content-editable
+          elements, those changes would be included in the saved version.</p>
+          
+          <p>Unfortunately, as of this writing, browsers (at least, those that
+          that still <em>have</em> a “Save” feature), do <em>not</em> include
+          changes that you made to editable elements.  This is true regardless
+          of whether you save the page as “Complete” or “HTML only” (the claims
+          in <a href="https://superuser.com/a/823165">this post</a>
+          notwithstanding.  It appears that browsers did save changes to
+          contenteditable elements as recently as 2014 (<a
+          href="https://www.encodedna.com/2014/03/convert-your-browser-into-a-notepad-html5-contenteditable.htm">as
+          described here</a>), but this is no longer the case in any browser I
+          have.)</p>
+        </article>
+
+      </footer>
     </main>
   </body>
 </html>
