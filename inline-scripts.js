@@ -1,7 +1,3 @@
-// Find and inline all of the remote scripts in the document
-// only available in hosted mode
-// If they have absolute URL's, then they may work even after detachment
-
 (async function() {
   const scripts = document.querySelectorAll("script[src]");
   for (const script of scripts) {

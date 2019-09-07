@@ -5,7 +5,6 @@
     <title contenteditable="true">literate</title>
   </head>
   <body>
-    <script src="/jumping.js"></script>
     <main>
       <h1>dynamic html for the twenty-first century</h1>
       <p>This document is about making plain HTML into a literate programming
@@ -122,10 +121,6 @@ head, link, title, meta
 body {
   color: black; /* edit this to set the document's default text color */
 }
-          </style>
-          house rule?
-          <style contenteditable="true">
-textarea { width: 100%; }
           </style>
           
           <p>You can also make <code>script</code> tags editable.  However, they
@@ -280,18 +275,50 @@ textarea { width: 100%; }
         
         <section>
           <h3>defensiveness</h3>
-
-          <p>Certain capabilities are available only in hosted environments.
-          The objective of portability is that (to the extent possible) a
-          document can be removed from its hosted environment and retain its
-          essential character (for lack of a better word).  Some of that
-          preservation relies on those capabilities that will become unavailable
-          in standalone mode.  Therefore, a portable document must
-          <em>pre-emptively</em> take the steps that will allow it to survive in
-          the wild.</p>
           
-          <p>What this means in practice is that we need to inline scripts as
-          soon as the document is loaded.</p>
+          <p>The objective of portability is that (to the extent possible) a
+          document can travel from one environment to another and retain its
+          essential character (for lack of a better word).</p>
+          
+          <p>Some of that preservation relies on those capabilities that will
+          become unavailable in standalone mode.  Therefore, a portable document
+          must <em>pre-emptively</em> take the steps that will allow it to
+          survive in the wild.</p>
+          
+          <p>What this means in practice is that we need to inline scripts (and
+          other things that come from the host) as soon as the document is
+          loaded.</p>
+
+          <p>This script finds and inlines all of the remote scripts in the
+          document by fetching their content.  Since it fetches an arbitrary
+          resource from an arbitrary location, it will only work in hosted mode.
+          (At least, I have not found a way to access the content of a remote
+          script that was fetched via a script <code>src</code>.) </p>
+          
+          <script src="/inline-scripts.js"></script>
+          
+          <p>That code replaces remote script references with inline scripts.
+          It also annotates the inlined script with the source URL, so that we
+          know where it came from.  We make that annotation visible with style
+          rules:</p>
+          
+          <style contenteditable="true">
+            script[data-source]::after
+            {
+            content: 'from ' attr(data-source);
+            display: block;
+            font-style: italic;
+            }
+          </style>
+
+        </section>
+        
+        <section>
+          <h3>saving ourselves</h3>
+          
+          <p>Portability depends on our having the ability to save the document.</p>
+          
+          <aside>Does this come before or after the AMD loader?</aside>
         </section>
 
       </section>
@@ -353,18 +380,39 @@ textarea { width: 100%; }
               font-size: smaller; /* block quotes conventionally use smaller font */
               }
             </style>
-            
-            <p>I'm using <a
+
+            <p>I'm a fan of the <a
             href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details">“disclosure”</a>
-            elements to make sections collapsible.  For some reason (I guess
-            related to built-in rules), block-level elements do not appear when
-            used inside of a <code>summary</code>.  This fixes that.</p>
+            elements.  They provide a free way to hide and show things.</p>
+            
+            <p>The <code>summary</code> element is affordable (you can act on
+            it), but the default styles do not indicate this.</p>
+            
+            <style contenteditable="true">
+              summary:hover
+              {
+              cursor: pointer;
+              background-color: rgba(0, 0, 0, 0.3);
+              }
+            </style>
+            
+            <p>I'm using disclosure elements to make sections collapsible.  For
+            some reason (I guess related to built-in rules), block-level
+            elements do not appear when used inside of a <code>summary</code>.
+            This fixes that.</p>
             
             <style contenteditable="true">
               summary > h3
               {
-                display: inline;
+              display: inline;
               }
+            </style>
+            
+            <p>We're using text inputs for scripts.  By default, text inputs are
+            far too small.</p>
+
+            <style contenteditable="true">
+              textarea { width: 100%; }
             </style>
 
           </details>
@@ -557,6 +605,41 @@ textarea { width: 100%; }
             described here</a>), but this is no longer the case in any browser I
             have.)</p>
           </details>
+        </article>
+        
+        <article id="protocols-and-documents">
+          <details>
+            <summary>
+              <h3>protocols and documents</h3>
+            </summary>
+
+            <p>We can get at documents in two main ways: through hosts or
+            through files.  These correspond to <em>protocols</em>.  The
+            <code>http://</code> and <code>https://</code> protocols are used to
+            access documents on hosts.  Files are accessed using the
+            <code>file://</code> protocol.  Any file that you </p>
+            
+            <p>We identify a <em>hosted</em> environment as one which is served
+            over HTTP or HTTPS.</p>
+            
+            <p>Strictly speaking, we can't know anything for sure about the
+            accessibility of any host—certainly not from within the
+            document.</p>
+            
+            <p>We have to rely on certain assumptions.</p>
+            
+            <p>We identify two kinds of hosts: global and local.  Most of the
+            time, you will get documents from a global host.</p>
+
+            <p>A host with a local name (particularly <code>localhost</code>) is
+            probably tied to the environment where the document is being viewed.
+            Anything that the document depends on from such hosts <em>will</em>
+            be unavailable as soon as the document is in another
+            environment.</p>
+
+            <p>Certain capabilities are available only in hosted environments.</p>
+          </details>
+          
         </article>
 
       </footer>
