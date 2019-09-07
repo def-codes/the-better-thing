@@ -274,6 +274,73 @@ body {
         </section>
         
         <section>
+          <details>
+            <summary>
+              <h3>AMD loader</h3>
+            </summary>
+            
+            <p>Before we add too much stuff, we need a way to organize it.
+            Organizing stuff itself requires some stuff.</p>
+
+            <section>
+              <details>
+                <summary>
+                  <h4>basic</h4>
+                </summary>
+                
+                <p>We start with a basic module loader.  Following is a (far
+                from final) implementation of a minimal subset of AMD.  It
+                handles asynchronous definitions, but has no notion of remote
+                scripts.</p>
+                
+                <p>One distinguishing feature of this implementation is that it
+                posts a global event whenever a module is defined.  This
+                information can be put to various uses by listeners, such as to
+                construct a dependency graph.</p>
+                
+                <script src="/src/amd-loader/basic.js"></script>
+              </details>
+            </section>
+            
+            <section>
+              <details>
+                <summary>
+                  <h4>extended</h4>
+                </summary>
+
+                <p>We now extend the basic AMD core defined above to include
+                support for name resolution and remote script retrieval.</p>
+                
+                <script src="/src/amd-loader/extended.js"></script>
+              </details>
+            </section>
+            
+          </details>
+        </section>
+            
+            <section>
+              <h3>initialize amd loader</h3>
+              
+              <p>The AMD loader provides functions that can be used to create
+              the globals, but it doesn't actually create them.  It should.  I
+              think the only reason I do it separatey is that I don't currently
+              have a way to configure the loader (paths, etc) after the
+              fact.</p>
+              
+              <script>
+(function() {
+  console.log("all");
+  const { make_full_amd, default_resolver } = window["@def.codes/amd-loader"];
+  console.log("your", make_full_amd, default_resolver);
+  const base = make_full_amd(window["@def.codes/amd-basic"]);
+  Object.assign(window, base);
+  console.log(base);
+})();
+                
+              </script>
+            </section>
+        
+        <section>
           <h3>defensiveness</h3>
           
           <p>The objective of portability is that (to the extent possible) a
@@ -402,7 +469,9 @@ body {
             This fixes that.</p>
             
             <style contenteditable="true">
-              summary > h3
+              summary > h2,
+              summary > h3,
+              summary > h4
               {
               display: inline;
               }
