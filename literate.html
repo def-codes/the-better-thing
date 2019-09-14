@@ -9,6 +9,18 @@
       <h1>dynamic html for the twenty-first century</h1>
       <p>This document is about making plain HTML into a literate programming
       platform.</p>
+
+      <p>
+        <a download="literate.html" href="" data-intent="save-document">
+          Save this document!
+        </a>
+        (<a href="#saving-ourselves">Learn about this feature.</a>)
+      </p>
+      
+      <p><b>Status:</b> you can use the above link to save the document with
+      dynamic changes to HTML (such as edits to the title), and the resulting
+      (standalone) document can also be saved in a way that persists such
+      changes!</p>
       
       <section>
         <h2>Goals</h2>
@@ -380,12 +392,39 @@ body {
 
         </section>
         
-        <section>
+        <section id="saving-ourselves">
           <h3>saving ourselves</h3>
           
           <p>Portability depends on our having the ability to save the document.</p>
           
           <aside>Does this come before or after the AMD loader?</aside>
+          
+          <p>This module provides tools for persisting the state of the document
+          and making its content available for download using ordinary
+          links.</p>
+          
+          <script src="/document-persistence.js"></script>
+          
+          <p>That defines the mechanism for making a download link, but doesn't
+          actually apply it to the document.</p>
+          
+          <script>
+require(["@def-codes/meld/document-persistence"], functions => {
+  functions.wire_save_links();
+})
+          </script>
+          
+          <p>A few notes:</p>
+          <ul>
+            <li>This doesn't guarantee that the document has a download link.
+            We could also create one if one is not found.  The only question
+            would be, where to put it?</li>
+            <li>Simply taking the document content as-is will not give the
+            desired or expected result for many particular cases (such as
+            preserving the content of textareas).  To support these cases, we
+            will need a way to register functions to perform synchronous
+            preprocessing of the document before document serialization.</li>
+          </ul>
         </section>
 
       </section>
@@ -469,20 +508,45 @@ body {
             This fixes that.</p>
             
             <style contenteditable="true">
-              summary > h2,
-              summary > h3,
-              summary > h4
-              {
-              display: inline;
-              }
+summary > h2,
+summary > h3,
+summary > h4
+{
+  display: inline;
+}
             </style>
             
-            <p>We're using text inputs for scripts.  By default, text inputs are
-            far too small.</p>
+            <p>By default, text inputs are far too small.  If I wanted something
+            that small, I'd use an <code>input</code>.  A textarea should be
+            like a block-level element, which automatically uses the available
+            horizontal space.</p>
 
             <style contenteditable="true">
-              textarea { width: 100%; }
+textarea { width: 100%; }
             </style>
+            
+            <p>In general, we would prefer that scripts be editable, in which
+            case they would use a <code>textarea</code>.  However, we do still
+            see some <code>script</code> elements, which are read-only.  Scripts
+            need to be <em>interpreted</em> differently than their surrounding
+            content, and thus should be demarked in some way, to cue the change
+            in context.</p>
+            <p>But <em>how</em> should scripts be demarked?  Many factors bear
+            on this.  I will not go into all of them now, but in general, I
+            believe that physical demarcations should be reserved to indicate
+            physical distinctions.  While I personally prefer proportional fonts
+            for code, I would note that the <em>JavaScript</em> code in question
+            here is not what we ultimately want to be reading anyway.  A
+            typewriter font suggests a suitably archaic computing idiom.</p>
+
+            <style contenteditable="true">
+script {
+  font-family: Consolas, monospace;
+}
+            </style>
+            
+            <p>“Consolas” is a monospace font that is available on many Windows
+            systems and is better than the default of “Courier New.”</p>
 
           </details>
 
