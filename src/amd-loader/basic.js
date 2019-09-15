@@ -152,9 +152,18 @@
   // complete AMD implementation.
   Object.assign(window, { "@def.codes/amd-basic": make_basic_amd() });
 
-  window["@def.codes/amd-basic"].define("@def.codes/amd-basic-support", {
-    namespace,
-    async_namespace,
-    memoized_namespace,
-  });
+  // This could be defined directly as an object (rather than a function).
+  // However, definitions like this cannot be recaptured as such.  Making it a
+  // function doesn't fix it anyway, since the enclosures are not captured.  It
+  // may not be possible for the portability mechanism to support ad-hoc defines
+  // of this sort.
+  window["@def.codes/amd-basic"].define(
+    "@def.codes/amd-basic-support",
+    [],
+    () => ({
+      namespace,
+      async_namespace,
+      memoized_namespace,
+    })
+  );
 })();

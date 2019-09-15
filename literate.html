@@ -6,7 +6,7 @@
   </head>
   <body>
     <article id="meld-preamble">
-      <details open="">
+      <details>
         <summary>
           <h2>MELD preamble</h2>
         </summary>
@@ -23,12 +23,12 @@
             documents.  A MELD document is anything you can think of: an
             interactive presentation, a model of the Earth, a personal computing
             environment.  MELD supports the arbitrary organization of “programs”
-            and is itself is embodied in HTML, meaning that you could tuck it
-            away in an appendix or scatter its parts as you see fit.  However,
-            because of the way that HTML works, some of that foundation must
-            physically (i.e. lexically) precede everything else in order for the
-            system to work.  That's what this preamble is for: to provide a
-            minimal basis for everything else.</p>
+            into documents and is itself is embodied in HTML fragments, meaning
+            that you could tuck it away in an appendix or scatter its parts as
+            you see fit.  However, because of the way that HTML works, some of
+            that foundation must physically (i.e. lexically) precede everything
+            else in order for the system to work.  That's what this preamble is
+            for: to provide a minimal basis for everything else.</p>
             
             <p>(This still does not precede the document <code>head</code>.
             MELD systems avoid using the document head because it's
@@ -37,7 +37,57 @@
           </details>
         </section>
         
-        <section>
+        <section id="meld-preamble-define-globalthis">
+          <details>
+            <summary>
+              <h3>ensure <code>globalThis</code> is defined</h3>
+            </summary>
+
+            <p>MELD embraces the use of the <a href="#global-namespace">
+            <em>global namespace</em></a> as a shared place for use by many
+            parties.  Strange as it may sound, JavaScript does not define a
+            universal name for this topmost singleton.  A global property called
+            <a
+            href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis"><code>globalThis</code></a>
+            has been proposed by ECMAScript as a uniform way of referencing the
+            global namespace across various JavaScript runtime contexts.</p>
+            
+            <p>As of this writing, <code>globalThis</code> is a <a
+            href="https://tc39.es/proposal-global/#sec-other-properties-of-the-global-object-global">stage
+            3 proposal</a> and is available in all remotely tolerable
+            environments.  MELD assumes the existence of
+            <code>globalThis</code>.  Here we ensure that it is defined in all
+            environments.</p>
+            
+            <script src="/polyfill-globalthis.js"></script>
+
+            <p>This is a “naive” polyfill which depends on the fact that it's
+            not run in strict mode.  At present, I don't actually need this and
+            have included this entire section only as a nod to the notion that I
+            might one day care about Edge.</p>
+            
+            <p>More robust shims are available.  Mathias Bynens (of Google's V8
+            team) gives a thorough discussion of the userland issues surrounding
+            this problem in his article <a
+            href="https://mathiasbynens.be/notes/globalthis">“A horrifying
+            <code>globalThis</code> polyfill in universal JavaScript,”</a>
+            dissecting an apparently bulletproof technique that he credits to
+            one Toon Verwaest.  As usual, Dr. Axel Rauschmayer offers <a
+            href="https://2ality.com/2019/08/global-this.html">a complete
+            description of the proposal</a>.</p>
+
+            <p>Note that the proposal explicitly states that
+            <code>globalThis</code> is a configurable and writable property.  As
+            much as I advocate for more dynamic computing environments, I find
+            this surprising, since the entire value proposition of the feature is
+            that it always be present and mean the same thing.  A JavaScript
+            engine implementing <code>globalthis</code> avails nothing if someone
+            can come along and say <code>globalThis = "potato"</code>, which this
+            spec allows.</p>
+          </details>
+        </section>
+        
+        <section id="meld-preamble-amd-loader">
           <details>
             <summary>
               <h3>AMD loader</h3>
@@ -90,7 +140,7 @@
           </details>
         </section>
 
-        <section>
+        <section id="meld-preamble-initialize-amd-loader">
           <details>
             <summary>
               <h3>initialize amd loader</h3>
@@ -113,8 +163,44 @@
               
             </script>
           </details>
-        </section>        
+        </section>
+        
       </details>
+    </article>
+
+    <article id="global-namespace">
+      <details>
+        <summary>
+          <h2>The global namespace</h2>
+        </summary>
+        
+        <header>
+          <noscript>
+            <p>JavaScript is not available in this document.</p>
+          </noscript>
+          
+          <p>Every HTML document that supports JavaScript has its own runtime
+          context.  JavaScript runtimes have a <em>global namespace</em>.  Here is a
+          representation of the global namespace of the JavaScript runtime in this
+          document.</p>
+          
+          <p>We will use a protocol for determining how things are represented
+          in this namespace.</p>
+          
+          <script src="/global-namespace-representation.js"></script>
+        </header>
+
+        <section id="global-namespace-representation"></section>
+        
+        <p>This will execute immediately and so has to follow the container
+        element being referenced.</p>
+          <script>
+require(["@def-codes/meld/global-namespace-representation"], functions => {
+  functions.represent_global_namespace_in("global-namespace-representation");
+})
+          </script>
+      </details>
+      
     </article>
     
     <main>
