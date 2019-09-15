@@ -91,25 +91,28 @@
         </section>
 
         <section>
-          <h3>initialize amd loader</h3>
-          
-          <p>The AMD loader provides functions that can be used to create
-          the globals, but it doesn't actually create them.  It should.  I
-          think the only reason I do it separatey is that I don't currently
-          have a way to configure the loader (paths, etc) after the
-          fact.</p>
-          
-          <script>
-            (function() {
-            console.log("all");
-            const { make_full_amd, default_resolver } = window["@def.codes/amd-loader"];
-            console.log("your", make_full_amd, default_resolver);
-            const base = make_full_amd(window["@def.codes/amd-basic"]);
-            Object.assign(window, base);
-            console.log(base);
-            })();
+          <details>
+            <summary>
+              <h3>initialize amd loader</h3>
+            </summary>
             
-          </script>
+            <p>The AMD loader provides functions that can be used to create the
+            globals, but it doesn't actually create them.  It should.  I think
+            the only reason I do it separatey is that I don't currently have a
+            way to configure the loader (paths, etc) after the fact.</p>
+            
+            <script>
+              (function() {
+              console.log("all");
+              const { make_full_amd, default_resolver } = window["@def.codes/amd-loader"];
+              console.log("your", make_full_amd, default_resolver);
+              const base = make_full_amd(window["@def.codes/amd-basic"]);
+              Object.assign(window, base);
+              console.log(base);
+              })();
+              
+            </script>
+          </details>
         </section>        
       </details>
     </article>
@@ -132,348 +135,384 @@
       changes!</p>
       
       <section>
-        <h2>Goals</h2>
-        <p>This project will create an HTML document that offers the following
-        capabilities:</p>
-        
-        <ul>
-          <li>the document does the expected thing for common actions</li>
-          <li>the foundation is sufficient to build more powerful tools</li>
-          <li>the mechanisms used support persistence and portability</li>
-          <li>support a modular form of composition using external resources</li>
-          <li>support the breaking up of script execution units into physical
-          pieces</li>
-          <li>whatever code is needed to get this up and running can be “tucked
-          away” into a section (like an appendix) of this document that is
-          normally hidden.</li>
-        </ul>
-        
-        <p>Most of these features have some analog in literate programming
-        systems such as Emacs' <a href="https://orgmode.org/">Org Mode</a>.</p>
+        <details>
+          <summary>
+            <h2>Goals</h2>
+          </summary>
+          <p>This project will create an HTML document that offers the following
+          capabilities:</p>
+          
+          <ul>
+            <li>the document does the expected thing for common actions</li>
+            <li>the foundation is sufficient to build more powerful tools</li>
+            <li>the mechanisms used support persistence and portability</li>
+            <li>support a modular form of composition using external
+            resources</li>
+            <li>support the breaking up of script execution units into physical
+            pieces</li>
+            <li>whatever code is needed to get this up and running can be
+            “tucked away” into a section (like an appendix) of this document
+            that is normally hidden.</li>
+          </ul>
+          
+          <p>Most of these features have some analog in literate programming
+          systems such as Emacs' <a href="https://orgmode.org/">Org
+          Mode</a>.</p>
+        </details>
       </section>
       
       <section>
-        <h2>What next?</h2>
-        <ul>
-          <li>Right now, any changes that you make don't actually persist.</li>
-        </ul>
-      </section>
-      
-      <section>
-        <h2>Built-in capabilities : what we get “for free”</h2>
-        
-        <p>In this section, we look at (yes, <em>look at</em>) the web
-        platform's <em>built-in</em> capabilities supporting dynamic documents.
-        While they are not sufficient for all of our needs, we can use these
-        features with minimal effort and build on them.</p>
-        
-        <p>By “free” I mean “without script.”  If we have to implement it
-        ourselves, it's not free.</p>
-        
-        <section id="make-invisible-elements-visible">
-          <h3>Free element visibility</h3>
-        
-          <p>Things are not real until we can see them.  So the first order of
-          business is to <a href="#make-invisible-elements-visible">make
-          invisible elements visible</a>. (See also the appendix <a
-          href="#markup-versus-programming">“Markup languages <i>versus</i>
-          programming languages”</a>) </p>
+        <details>
+          <summary>
+            <h2>Built-in capabilities : what we get “for free”</h2>
+          </summary>
+          
+          <p>In this section, we look at (yes, <em>look at</em>) the web
+          platform's <em>built-in</em> capabilities supporting dynamic
+          documents.  While they are not sufficient for all of our needs, we can
+          use these features with minimal effort and build on them.</p>
+          
+          <p>By “free” I mean “without script.”  If we have to implement it
+          ourselves, it's not free.</p>
+          
+          <section id="make-invisible-elements-visible">
+            <details>
+              <summary>
+                <h3>Free element visibility</h3>
+              </summary>
+              
+              <p>Things are not real until we can see them.  So the first order
+              of business is to <a href="#make-invisible-elements-visible">make
+              invisible elements visible</a>. (See also the appendix <a
+              href="#markup-versus-programming">“Markup languages <i>versus</i>
+              programming languages”</a>) </p>
 
-          <p>The two most powerful elements in HTML—<code>script</code> and
-          <code>style</code>—are both invisible by default.</p>
-          
-          <p>We start by using a style rule to make style rules visible:</p>
-          
-          <style contenteditable="true">style { display: initial }</style>
-          
-          <p>This rule is critical.  Without this rule (or some equivalent),
-          you'd be unable to see the rule itself, or any of the other rules.</p>
-          
-          <p>A more practical version follows, which makes scripts visible as
-          well:</p>
-          
-          <style contenteditable="true">
+              <p>The two most powerful elements in HTML—<code>script</code> and
+              <code>style</code>—are both invisible by default.</p>
+              
+              <p>We start by using a style rule to make style rules visible:</p>
+              
+              <style contenteditable="true">style { display: initial }</style>
+              
+              <p>This rule is critical.  Without this rule (or some equivalent),
+              you'd be unable to see the rule itself, or any of the other
+              rules.</p>
+              
+              <p>A more practical version follows, which makes scripts visible
+              as well:</p>
+              
+              <style contenteditable="true">
 style,
 script
 {
   display: block;  /* `initial` also works, but gives odd results */
   white-space: pre; /* Preserve whitespace (it's collapsed in normal content) */
 }
-          </style>
-          
-          <p>This also goes for the document head and its contents.</p>
-          
-          <style contenteditable="true">
+              </style>
+              
+              <p>This also goes for the document head and its contents.</p>
+              
+              <style contenteditable="true">
 head, link, title, meta
 {
   display: block;
   white-space: pre;
   font-family: monospace;
 }
-          </style>
-          
-          <p>In practice, you won't see <code>link</code> or <code>meta</code>
-          elements because they have no content (only attributes).</p>
-          
-        </section>
+              </style>
+              
+              <p>In practice, you won't see <code>link</code> or
+              <code>meta</code> elements because they have no content (only
+              attributes).</p>
+            </details>
+          </section>
 
-        <section id="free-content-editability">
-          <h3>Free content editability</h3>
-          
-          <p>The web platform includes a built-in way to make elements editable.
-          The global <a
-          href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/contenteditable"><code>contenteditable</code></a>
-          attribute (which controls the boolean <a
-          href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/contentEditable"><code>contentEditable</code></a>
-          interface property) indicates that “the user” (that's you) should be
-          able to type in the area.</p>
-          
-          <p>Amazingly, making a <code>style</code> block
-          <code>contenteditable</code> will immediately reflect changes that
-          you make.  (Tested in Firefox, Chrome, and Edge.)</p>
-          
-          <p>Go ahead, try it.</p>
-          
-          <style contenteditable="true">
+          <section id="free-content-editability">
+            <details>
+              <summary>
+                <h3>Free content editability</h3>
+              </summary>
+              
+              <p>The web platform includes a built-in way to make elements
+              editable.  The global <a
+              href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/contenteditable"><code>contenteditable</code></a>
+              attribute (which controls the boolean <a
+              href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/contentEditable"><code>contentEditable</code></a>
+              interface property) indicates that “the user” (that's you) should
+              be able to type in the area.</p>
+              
+              <p>Making a <code>style</code> block <code>contenteditable</code>
+              will immediately reflect changes that you make.  (Tested in
+              Firefox, Chrome, and Edge.)</p>
+              
+              <p>Go ahead, try it.</p>
+              
+              <style contenteditable="true">
 body {
   color: black; /* edit this to set the document's default text color */
 }
-          </style>
-          
-          <p>You can also make <code>script</code> tags editable.  However, they
-          are <em>not</em> re-evaluated when edited.</p>
-          
-          <script contenteditable="true">
-            console.log("mind blown");
-          </script>
+              </style>
+              
+              <p>You can also make <code>script</code> tags editable.  However,
+              they are <em>not</em> re-evaluated when edited.</p>
+              
+              <script contenteditable="true">
+console.log("mind blown");
+              </script>
 
-          <p>Most elements, including <code>style</code>, will inherit the
-          <code>contentEditable</code> property, all the way up to the
-          <code>html</code> (document).  Some elements (to wit,
-          <code>title</code>) do not inherit this property, but are only
-          editable when they are explicitly marked as such.</p>
+              <p>Most elements, including <code>style</code>, will inherit the
+              <code>contentEditable</code> property, all the way up to the
+              <code>html</code> (document).  Some elements (to wit,
+              <code>title</code>) do not inherit this property, but are only
+              editable when they are explicitly marked as such.</p>
 
-          <section>
-            <h4>Indicating when elements are editable</h4>
-            
-            <p>How can you tell when something is editable, other than trying it?</p>
-            
-            <p>If the browser lets you put your cursor into a regular text
-            element (i.e. a place that is not a text input), then it's
-            editable.</p>
-            
-            <p>It would be useful if we could provide additional visual cues
-            that something can be edited.  Here is a rule that targets elements
-            with the <code>contenteditable</code> property set.</p>
-            
-            <style contenteditable="true">
+              <section>
+                <details>
+                  <summary>
+                    <h4>Indicating when elements are editable</h4>
+                  </summary>
+                  
+                  <p>How can you tell when something is editable, other than
+                  trying it?</p>
+                  
+                  <p>If the browser lets you put your cursor into a regular text
+                  element (i.e. a place that is not a text input), then it's
+                  editable.</p>
+                  
+                  <p>It would be useful if we could provide additional visual
+                  cues that something can be edited.  Here is a rule that
+                  targets elements with the <code>contenteditable</code>
+                  property set.</p>
+                  
+                  <style contenteditable="true">
 [contenteditable=""],
 [contenteditable="true"]
 {
   background-color: #FFC;
 }
-</style>
+                  </style>
 
-          <p>(Note that “enumerated” attributes are enabled when the value is
-          <code>true</code> or the empty string.)</p>
+                  <p>(Note that “enumerated” attributes are enabled when the
+                  value is <code>true</code> or the empty string.)</p>
 
-            <p>Because <code>contenteditable</code> is inherited (in most
-            cases), we cannot reliably indicate editability on individual
-            elements using CSS.  CSS can only target <em>explicit attribute
-            values</em>, not <em>effective property values</em>.  However, we
-            can use a CSS property that is itself inherited (such as
-            <code>background-color</code>).</p>
-            
-            <p>Editability can also be turned <em>off</em>.  To prevent
-            non-editable elements from inheriting the indicator, we can reset
-            them to their initial value.</p>
+                  <p>Because <code>contenteditable</code> is inherited (in most
+                  cases), we cannot reliably indicate editability on individual
+                  elements using CSS.  CSS can only target <em>explicit
+                  attribute values</em>, not <em>effective property values</em>.
+                  However, we can use a CSS property that is itself inherited
+                  (such as <code>background-color</code>).</p>
+                  
+                  <p>Editability can also be turned <em>off</em>.  To prevent
+                  non-editable elements from inheriting the indicator, we can
+                  reset them to their initial value.</p>
 
-            <style contenteditable="true">
+                  <style contenteditable="true">
 [contenteditable=""] [contenteditable="false"],
 [contenteditable="true"] [contenteditable="false"]
 {
   background-color: white;
 }
-            </style>
-            
-            <p>It's not sufficient to set the color to <code>initial</code>, as
-            this is transparent and the parent's background color will still
-            show through.</p>
-            
-            <figure>
-              <p contenteditable="true">
-                You can change me.  And you can change me.  <em
-                contenteditable="false">But you cannot change me so easily.</em>
-                For my part, I am also of the changeable type.  In fact, while
-                you cannot make edits to that text <em>per se</em>, you can
-                select across the editable regions and delete it.  I don't know
-                whether this is intentional.
-              </p>
-              <figcaption>
-                Example of a non-editable region within an editable one.
-              </figcaption>
-            </figure>
+                  </style>
+                  
+                  <p>It's not sufficient to set the color to
+                  <code>initial</code>, as this is transparent and the parent's
+                  background color will still show through.</p>
+                  
+                  <figure>
+                    <p contenteditable="true">
+                      You can change me.  And you can change me.  <em
+                      contenteditable="false">But you cannot change me so
+                      easily.</em> For my part, I am also of the changeable
+                      type.  In fact, while you cannot make edits to that text
+                      <em>per se</em>, you can select across the editable
+                      regions and delete it.  I don't know whether this is
+                      intentional.
+                    </p>
+                    <figcaption>
+                      Example of a non-editable region within an editable one.
+                    </figcaption>
+                  </figure>
+                </details>
+
+              </section>
+            </details>
+
           </section>
-        </section>
-        
-        <section>
-          <h3>Free persistence</h3>
-          
-          <p>By “persistence,” I mean “portability”: the ability to preserve the
-          document in whatever state it's in, pick it up, take it somewhere
-          else, and pick up where you left off.  For that, we get nothing at all
-          for free from the browser.  Even worse: we get a problem.</p>
           
           <section>
-            <h4>The “Save” problem</h4>
-            
-            <p>Once upon a time, browsers had a built-in “Save” feature, and
-            that “Save” feature would include changes that the user had made to
-            <a href="#free-content-editability">content-editable
-            elements</a>.</p>
+            <details>
+              <summary>
+                <h3>Free persistence</h3>
+              </summary>
+              
+              <p>By “persistence,” I mean “portability”: the ability to preserve
+              the document in whatever state it's in, pick it up, take it
+              somewhere else, and pick up where you left off.  For that, we get
+              nothing at all for free from the browser.  Even worse: we get a
+              problem.</p>
+              
+              <section>
+                <h4>The “Save” problem</h4>
+                
+                <p>Once upon a time, browsers had a built-in “Save” feature, and
+                that “Save” feature would include changes that the user had made
+                to <a href="#free-content-editability">content-editable
+                elements</a>.</p>
 
-            <p>That is no longer the case.  As of 2019, <a
-            href="#edge-no-save">Microsoft Edge does not have a “Save” feature
-            at all</a>, and browsers that do <a href="#lost-free-persistence">do
-            not preserve your edits</a>.</p>
+                <p>That is no longer the case.  As of 2019, <a
+                href="#edge-no-save">Microsoft Edge does not have a “Save”
+                feature at all</a>, and browsers that do <a
+                href="#lost-free-persistence">do not preserve your
+                edits</a>.</p>
 
-            <aside>I have not checked for a “Save” feature in Safari, or on any
-            mobile browsers.</aside>
+                <aside>I have not checked for a “Save” feature in Safari, or on
+                any mobile browsers.</aside>
 
-            <p>In a way, it would be better if browsers <em>didn't</em> have a
-            built-in save.  It creates certain expectations, yet it's not a
-            standard and we (authors) can't control what it does.  In that
-            sense, Edge is the first browser to get this right.</p>
-            
-            <p>As such, the problem becomes, how do we deal with the expectations
-            created by a built-in “Save” feature when it does exist?</p>
-
-          </section>
-          
-        </section>
+                <p>In a way, it would be better if browsers <em>didn't</em> have
+                a built-in save.  It creates certain expectations, yet it's not
+                a standard and we (authors) can't control what it does.  In that
+                sense, Edge is the first browser to get this right.</p>
+                
+                <p>As such, the problem becomes, how do we deal with the
+                expectations created by a built-in “Save” feature when it does
+                exist?</p>
+              </section>
+            </details>
+          </section>          
+        </details>
       </section>
       
       <section>
-        <h2>Extending the built-in capabilities</h2>
+        <details>
+          <summary>
+            <h2>Extending the built-in capabilities</h2>
+          </summary>
 
-        <section>
-          <h3>the bootstrapper</h3>
+          <section>
+            <h3>the bootstrapper</h3>
 
-          <p>Everything that we don't get for free, we have to accomplish with
-          script.  Therefore, the first thing we need is a way to use scripts
-          (without leaving the document).</p>
+            <p>Everything that we don't get for free, we have to accomplish with
+            script.  Therefore, the first thing we need is a way to use scripts
+            (without leaving the document).</p>
+            
+            <p>We will need to write, run, and save scripts.  We'll take up each
+            one separately.</p>
+            
+            <p>Find all designated script tags.  The timeout is to wait until
+            the script has loaded (to cover elements that are not in the
+            document yet at this point).</p>
+            
+            <script>
+window.setTimeout(() => {
+for (const script of document.querySelectorAll('[data-autoexec="true"]'))
+  eval(script.innerText || script.value);
+}, 1);
+            </script>
+            
+            <textarea data-autoexec="true">
+console.log("hey Tremé!!!!")
+            </textarea>
+            
+            <p>All right, now we should be able to create scripts and edit them
+            dynamically just by adding the <code>data-autoexec</code> attribute
+            to a <code>textarea</code>.</p>
+            
+            <textarea data-autoexec="true">
+console.log("gee isn't there anything I can do besides console log?? :(");
+            </textarea>
+          </section>
           
-          <p>We will need to write, run, and save scripts.  We'll take up each
-          one separately.</p>
-          
-          <p>Find all designated script tags.  The timeout is to wait until the
-          script has loaded (to cover elements that are not in the document yet
-          at this point).</p>
-          
-          <script>
-            window.setTimeout(() => {
-            for (const script of document.querySelectorAll('[data-autoexec="true"]'))
-            eval(script.innerText || script.value);
-            }, 1);
-          </script>
-          
-          <textarea data-autoexec="true">
-            console.log("hey Tremé!!!!")
-          </textarea>
-          
-          <p>All right, now we should be able to create scripts and edit them
-          dynamically just by adding the <code>data-autoexec</code> attribute to a
-          <code>textarea</code>.</p>
-          
-          <textarea data-autoexec="true">
-            console.log("gee isn't there anything I can do besides console log?? :(");
-          </textarea>
-        </section>
-        
+          <section>
+            <details>
+              <summary>
+                <h3>defensiveness</h3>
+              </summary>
+              
+              <p>The objective of portability is that (to the extent possible) a
+              document can travel from one environment to another and retain its
+              essential character (for lack of a better word).</p>
+              
+              <p>Some of that preservation relies on those capabilities that
+              will become unavailable in standalone mode.  Therefore, a portable
+              document must <em>pre-emptively</em> take the steps that will
+              allow it to survive in the wild.</p>
+              
+              <p>What this means in practice is that we need to inline scripts
+              (and other things that come from the host) as soon as the document
+              is loaded.</p>
 
-        
-        <section>
-          <h3>defensiveness</h3>
+              document by fetching their content.  Since it fetches an arbitrary
+              <p>This script finds and inlines all of the remote scripts in the
+              resource from an arbitrary location, it will only work in hosted
+              mode.  (At least, I have not found a way to access the content of
+              a remote script that was fetched via a script <code>src</code>.)
+              </p>
+              
+              <script src="/inline-scripts.js"></script>
+              
+              <p>That code replaces remote script references with inline
+              scripts.  It also annotates the inlined script with the source
+              URL, so that we know where it came from.  We make that annotation
+              visible with style rules:</p>
+              
+              <style contenteditable="true">
+script[data-source]::after
+{
+  content: 'from ' attr(data-source);
+  display: block;
+  font-style: italic;
+}
+              </style>
+            </details>
+          </section>
           
-          <p>The objective of portability is that (to the extent possible) a
-          document can travel from one environment to another and retain its
-          essential character (for lack of a better word).</p>
-          
-          <p>Some of that preservation relies on those capabilities that will
-          become unavailable in standalone mode.  Therefore, a portable document
-          must <em>pre-emptively</em> take the steps that will allow it to
-          survive in the wild.</p>
-          
-          <p>What this means in practice is that we need to inline scripts (and
-          other things that come from the host) as soon as the document is
-          loaded.</p>
-
-          <p>This script finds and inlines all of the remote scripts in the
-          document by fetching their content.  Since it fetches an arbitrary
-          resource from an arbitrary location, it will only work in hosted mode.
-          (At least, I have not found a way to access the content of a remote
-          script that was fetched via a script <code>src</code>.) </p>
-          
-          <script src="/inline-scripts.js"></script>
-          
-          <p>That code replaces remote script references with inline scripts.
-          It also annotates the inlined script with the source URL, so that we
-          know where it came from.  We make that annotation visible with style
-          rules:</p>
-          
-          <style contenteditable="true">
-            script[data-source]::after
-            {
-            content: 'from ' attr(data-source);
-            display: block;
-            font-style: italic;
-            }
-          </style>
-
-        </section>
-        
-        <section id="saving-ourselves">
-          <h3>saving ourselves</h3>
-          
-          <p>Portability depends on our having the ability to save the document.</p>
-          
-          <aside>Does this come before or after the AMD loader?</aside>
-          
-          <p>This module provides tools for persisting the state of the document
-          and making its content available for download using ordinary
-          links.</p>
-          
-          <script src="/document-persistence.js"></script>
-          
-          <p>That defines the mechanism for making a download link, but doesn't
-          actually apply it to the document.</p>
-          
-          <script>
+          <section id="saving-ourselves">
+            <details>
+              <summary>
+                <h3>saving ourselves</h3>
+              </summary>
+              
+              <p>Portability depends on our having the ability to save the
+              document.</p>
+              
+              <aside>Does this come before or after the AMD loader?</aside>
+              
+              <p>This module provides tools for persisting the state of the
+              document and making its content available for download using
+              ordinary links.</p>
+              
+              <script src="/document-persistence.js"></script>
+              
+              <p>That defines the mechanism for making a download link, but
+              doesn't actually apply it to the document.</p>
+              
+              <script>
 require(["@def-codes/meld/document-persistence"], functions => {
   functions.wire_save_links();
 })
-          </script>
-          
-          <p>A few notes:</p>
-          <ul>
-            <li>This doesn't guarantee that the document has a download link.
-            We could also create one if one is not found.  The only question
-            would be, where to put it?</li>
-            <li>Simply taking the document content as-is will not give the
-            desired or expected result for many particular cases (such as
-            preserving the content of textareas).  To support these cases, we
-            will need a way to register functions to perform synchronous
-            preprocessing of the document before document serialization.</li>
-          </ul>
-        </section>
-
+              </script>
+              
+              <p>A few notes:</p>
+              <ul>
+                <li>This doesn't guarantee that the document has a download
+                link.  We could also create one if one is not found.  The only
+                question would be, where to put it?</li>
+                <li>Simply taking the document content as-is will not give the
+                desired or expected result for many particular cases (such as
+                preserving the content of textareas).  To support these cases,
+                we will need a way to register functions to perform synchronous
+                preprocessing of the document before document
+                serialization.</li>
+              </ul>
+            </details>
+          </section>
+        </details>
       </section>
       
       <footer>
         <h2>Appendices</h2>
         
         <p>Excise at will.</p>
-            
         <article>
           
           <details id="on-order-mattering-in-HTML">
