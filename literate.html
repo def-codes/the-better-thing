@@ -89,7 +89,7 @@
             
           </details>
         </section>
-        
+
         <section>
           <h3>initialize amd loader</h3>
           
@@ -510,12 +510,11 @@ require(["@def-codes/meld/document-persistence"], functions => {
               <section>
                 <h5>How order matters in scripts</h5>
                 
-                <p>Order matters in scripts because of the way that the
-                <em>execution model</em> of HTML documents is defined.  In
-                particular, scripts are executed in the order in which they are
-                encountered.  Because scripts may have side effects, the order
-                in which they are evaluated can matter <em>at that
-                time</em>.</p>
+                <p>Order matters in scripts because of the <em>execution
+                model</em> of scripts in HTML documents.  In particular, scripts
+                are executed in the order in which they are encountered.
+                Because scripts may have side effects, the order in which they
+                are evaluated can matter <em>at that time</em>.</p>
                 
                 <p>This creates a difficulty for composition, particularly the
                 kind of
@@ -528,8 +527,12 @@ require(["@def-codes/meld/document-persistence"], functions => {
                 <h5>How order matters in style rules</h5>
                 
                 <p>Like most rule-based languages, CSS is <em>declarative</em>,
-                meaning that it is based on statements rather than
-                instructions.</p>
+                meaning that it is based on statements rather than instructions.
+                As in other rule languages, rules in CSS are mostly independent
+                of order.  Yet (as is also the case in some other rule
+                languages), there <em>is</em> a lexical order defined, and it is
+                used as an arbiter between rules when other factors cannot
+                choose from among multiple matches.</p>
               </section>
             </section>
 
@@ -879,5 +882,20 @@ script {
 
       </footer>
     </main>
+    
+    <footer>
+      <section>
+        <h2>modules</h2>
+        
+        <section>
+          <p>We need a place to put modules.  When something is imported
+          transitively, it needs to be captured and put there.</p>
+          <script src="/amd-module-persistence.js"></script>
+          
+          <section id="amd-modules"></section>
+        </section>
+
+      </section>
+    </footer>
   </body>
 </html>
