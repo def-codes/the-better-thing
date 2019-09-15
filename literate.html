@@ -6,17 +6,36 @@
   </head>
   <body>
     <article id="meld-preamble">
-      <details>
+      <details open="">
         <summary>
           <h2>MELD preamble</h2>
         </summary>
         
-        <p>This is (a working draft of) the MELD preamble.  The purpose of the
-        preamble is to provide those pieces of a dynamic document system that
-        must physically precede everything else.  Once this is out of the way,
-        things can be in any order.  We'll try to keep it to a minimum.  (This
-        still does not precede the document <code>head</code>.  MELD systems
-        avoid using the document head because it's invisible.)</p>
+        <p>This is (a working draft of) the MELD preamble.</p>
+        
+        <section id="meld-preamble-background">
+          <details>
+            <summary>
+              <h3>Background</h3>
+            </summary>
+            
+            <p>MELD is a project for creating a dynamic medium on top of HTML
+            documents.  A MELD document is anything you can think of: an
+            interactive presentation, a model of the Earth, a personal computing
+            environment.  MELD supports the arbitrary organization of “programs”
+            and is itself is embodied in HTML, meaning that you could tuck it
+            away in an appendix or scatter its parts as you see fit.  However,
+            because of the way that HTML works, some of that foundation must
+            physically (i.e. lexically) precede everything else in order for the
+            system to work.  That's what this preamble is for: to provide a
+            minimal basis for everything else.</p>
+            
+            <p>(This still does not precede the document <code>head</code>.
+            MELD systems avoid using the document head because it's
+            invisible.)</p>
+
+          </details>
+        </section>
         
         <section>
           <details>
@@ -454,6 +473,68 @@ require(["@def-codes/meld/document-persistence"], functions => {
         <h2>Appendices</h2>
         
         <p>Excise at will.</p>
+            
+        <article>
+          
+          <details id="on-order-mattering-in-HTML">
+            <summary>
+              <h3>On order mattering in HTML</h3>
+            </summary>
+            
+            <p>Documents have always been a powerful medium.  But it was
+            inevitable that we would strain against their linearity.  In the
+            dynamic medium, we want to keep what is powerful about documents
+            while freeing them from their dimensional constraints.</p>
+            
+            <section id="on-order-mattering-in-composition">
+              <h4>On order mattering in composition</h4>
+              
+              <p>A document is a <em>composition</em>, that is, a “putting
+              together” of parts.  Composition is powerful.  An effective
+              composition is said to be “greater than the sum of its parts.”
+              This suggests that there is something in way the parts are
+              composed that itself contributes to the effect.  In some cases
+              that “extra” thing is the order in which they occur.  Think of the
+              AABA form commonly used in music and rhetoric.</p>
+            </section>
+            
+            <section>
+              <h4>When does order matter in HTML?</h4>
+              
+              <p><em>Coordinated</em> composition is impossible in an
+              environment like the web.  HTML documents are and will continue to
+              be the locus of components from multiple parties.  These parties
+              have no say in the order in which their artifacts will appear in
+              the document.</p>
+              
+              <section>
+                <h5>How order matters in scripts</h5>
+                
+                <p>Order matters in scripts because of the way that the
+                <em>execution model</em> of HTML documents is defined.  In
+                particular, scripts are executed in the order in which they are
+                encountered.  Because scripts may have side effects, the order
+                in which they are evaluated can matter <em>at that
+                time</em>.</p>
+                
+                <p>This creates a difficulty for composition, particularly the
+                kind of
+
+                Formal module
+                definitions are a way to mitigate this.</p>
+              </section>
+              
+              <section>
+                <h5>How order matters in style rules</h5>
+                
+                <p>Like most rule-based languages, CSS is <em>declarative</em>,
+                meaning that it is based on statements rather than
+                instructions.</p>
+              </section>
+            </section>
+
+          </details>
+        </article>
 
         <article id="house-rules">
           <details>
