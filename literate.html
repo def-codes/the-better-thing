@@ -215,6 +215,32 @@ require(["@def-codes/meld/global-namespace-representation"], functions => {
         (<a href="#saving-ourselves">Learn about this feature.</a>)
       </p>
       
+      <section id="something-moving">
+        <h2>Illustration that AMD module persistence works</h2>
+        
+        <p>One of the chief hurdles of persistence is capturing transitive
+        dependencies.  If we require an external module that in turn requires an
+        external module, we need to incorporate <em>both</em> into a standalone
+        document in order for it to work.</p>
+        
+        <p>The following <a href="#something-moving-fig">figure</a> shows an
+        animation that is the result of an AMD module which depends on another
+        AMD module.</p>
+        
+        <figure id="something-moving-fig">
+          <output id="something-moving-output"></output>
+          <figcaption>Here is a thing that shows a transitive dependency must
+          have loaded.</figcaption>
+        </figure>
+        
+        
+        <p>The following script triggers the initialization</p>
+        
+        <script>require(['/something-moving.js'], thing => {
+  thing.make_something_moving_in("something-moving-output");
+})</script>
+      </section>
+
       <p><b>Status:</b> you can use the above link to save the document with
       dynamic changes to HTML (such as edits to the title), and the resulting
       (standalone) document can also be saved in a way that persists such

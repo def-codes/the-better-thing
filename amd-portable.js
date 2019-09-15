@@ -1,3 +1,5 @@
+// SUPERSEDED BY amd-module-persistence
+
 // when AMD dependencies are loaded,
 // ensure that they are stored (retrievably) in the document
 
@@ -22,13 +24,7 @@
 // error when run
 
 (function() {
-  const amd_define_code = (name, dependencies, factory) =>
-    `define("${name}", ${JSON.stringify(dependencies)}, ${
-      typeof factory === "function"
-        ? factory.toString()
-        : JSON.stringify(factory)
-    })`;
-
+  //
   //  const loader = window["@def.codes/amd-loader"];
 
   window.addEventListener("https://def.codes/amd/define", function(event) {

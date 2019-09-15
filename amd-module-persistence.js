@@ -1,8 +1,13 @@
 (function() {
+  const amd_define_code = ({ id, dependencies, factory }) =>
+    `define("${id}", ${JSON.stringify(dependencies)}, ${
+      typeof factory === "function"
+        ? factory.toString()
+        : JSON.stringify(factory)
+    })`;
+
   window.addEventListener("https://def.codes/amd/define", event => {
-    const { detail } = event;
-    const { id, dependencies, factory } = detail;
-    console.log({ id, dependencies, factory });
+    const { detail: definition } = event;
 
     const create = tag => document.createElement(tag);
     const append = (parent, child) => parent.appendChild(child);
@@ -14,11 +19,8 @@
     const heading = append(summary, create("h3"));
     const script = append(details, create("pre"));
 
-    heading.innerHTML = id;
-    script.setAttribute("data-amd-module", id);
-    script.innerHTML = (typeof factory === "function"
-      ? factory
-      : new Function(`return (${factory})`)
-    ).toString();
+    heading.innerHTML = definition.id;
+    script.setAttribute("data-amd-module", definition.id);
+    script.innerHTML = amd_define_code(definition);
   });
 })();
