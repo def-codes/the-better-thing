@@ -1,4 +1,6 @@
 define(["/draw-sine-wave-on-canvas.js"], ({ draw_sine_wave_on }) => {
+  console.log(`IN SOMETHING MOVING`, draw_sine_wave_on);
+
   const make_something_moving_in = id => {
     const container = document.getElementById(id);
     const canvas = container.appendChild(document.createElement("canvas"));

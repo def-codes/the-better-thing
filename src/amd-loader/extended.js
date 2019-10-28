@@ -1,11 +1,10 @@
 // Extend a basic AMD implementation to support remote scripts and anonymous
-// defines.
+// defines.  Unlike the basic module, this is browser-specific.
 
 (function() {
   /** Load the script at a given URL (for its side-effects) and resolve when
    * complete (which will occur synchronously after the script has been executed).
    * Temporarily adds a script element to the document head. */
-  // BROWSER-specific
   const load_script = (url, doc = document) =>
     new Promise((resolve, reject) => {
       const script = doc.createElement("script");
@@ -17,33 +16,7 @@
       doc.head.appendChild(script);
     });
 
-  const SPECIAL_NAMES = ["exports", "require", "module"];
-
-  /*
-http://wiki.commonjs.org/wiki/Modules/1.1.1#Module_Identifiers
-
-1. A module identifier is a String of "terms" delimited by forward slashes.
-
-2. A term must be a camelCase identifier, ".", or "..".
-
-3. Module identifiers may not have file-name extensions like ".js".
-
-4. Module identifiers may be "relative" or "top-level". A module identifier is
-   "relative" if the first term is "." or "..".
-*/
-  const IS_RELATIVE = /^[.][.]?\//;
-  const is_relative = id => IS_RELATIVE.test(id);
-
-  /*
-5. Top-level identifiers are resolved off the conceptual module name space root.
-
-6. Relative identifiers are resolved relative to the identifier of the module in
-   which "require" is written and called.
-*/
-  // BROWSER-specific
   const default_resolver = (name, base) => {
-    console.log(`name, base`, name, base);
-
     // Add `.js` extension if not present
     if (!/[.]m?js($|[?#])/.test(name)) name += ".js";
     if (/^(\w+:)|[/][/]/.test(name)) return name;
@@ -55,7 +28,6 @@ http://wiki.commonjs.org/wiki/Modules/1.1.1#Module_Identifiers
 
   const make_full_amd = (basic_amd, resolver) => {
     const anonymous_defines = [];
-    const inflight = new Set();
 
     // Fetch a script and associate its URL with its expected module definition.
     // `anonymous_defines` is taken from the enclosing context.  Resolved value
@@ -75,9 +47,6 @@ http://wiki.commonjs.org/wiki/Modules/1.1.1#Module_Identifiers
         // Anonymous define!  Assume we're in a script being loaded.
         else {
           const src = document.currentScript && document.currentScript.src;
-          if (/equiv/.test(src))
-            console.log(`DEFINE being pushed for`, src, args);
-
           anonymous_defines.push({
             args,
             // Okay, but this is going to be equal to url by the time it's read
@@ -93,6 +62,8 @@ http://wiki.commonjs.org/wiki/Modules/1.1.1#Module_Identifiers
       // Include `anonymous_defines` for visibility.
       { amd: { anonymous_defines } }
     );
+
+    const SPECIAL_NAMES = ["exports", "require", "module"];
 
     // Must more or less entirely supersede the basic require, which will not
     // initiate any requests for remote scripts.
