@@ -8,6 +8,7 @@
     {"path": "packages/datafy-node" },
     {"path": "packages/expression-reader" },
     {"path": "packages/function-testing" },
+    {"path": "packages/graphviz-format" },
     {"path": "packages/meld-core" },
     {"path": "packages/meld-demo" },
     {"path": "packages/polymorphic-functions" },

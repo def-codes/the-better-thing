@@ -15,6 +15,7 @@ const modules = [
   ["datafy-node"],
   ["expression-reader"],
   ["function-testing"],
+  ["graphviz-format"],
   ["meld-core"],
   ["meld-demo"],
   ["polymorphic-functions"],
