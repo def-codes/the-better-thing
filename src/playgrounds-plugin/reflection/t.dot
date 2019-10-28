@@ -1,0 +1,23 @@
+digraph { rankdir="LR";
+ "n0" [style="filled"shape="record"label="{ <0> 0 } | { <1> 1 }"];
+ "n2" [shape="Mrecord"label="{ <pid> pid | 1 } | { <message> message }"];
+ "n0":1 -> "n2";
+ "n4" [shape="Mrecord"label="{ <channel> channel | 0 } | { <take> take }"];
+ "n2":message -> "n4";
+ "n6" [shape="Mrecord"label="{ <emit> emit } | { <diagnostics> diagnostics }"];
+ "n4":take -> "n6";
+ "n8" [style="filled"shape="record"label=""];
+ "n6":diagnostics -> "n8";
+ "n7" [shape="Mrecord"label="{ <outputFiles> outputFiles } | { <emitSkipped> emitSkipped | false }"];
+ "n6":emit -> "n7";
+ "n9" [style="filled"shape="record"label="{ <0> 0 }"];
+ "n7":outputFiles -> "n9";
+ "n11" [shape="Mrecord"label="{ <name> name | /Users/gcannizz } | { <text> text | define([\"requi }"];
+ "n9":0 -> "n11";
+ "n1" [shape="Mrecord"label="{ <pid> pid | 1 } | { <message> message }"];
+ "n0":0 -> "n1";
+ "n14" [shape="Mrecord"label="{ <channel> channel | 0 } | { <take> take }"];
+ "n1":message -> "n14";
+ "n15" [shape="Mrecord"label="{ <svg> svg | <?xml\ version= }"];
+ "n14":take -> "n15";
+ }

@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig-base",
+  "compilerOptions": {
+    "forceConsistentCasingInFileNames": false,
+    "module": "ES2015",
+    "noImplicitAny": false,
+    "outDir": "../../../dist/playgrounds/server/modules",
+    "target": "ES2015"
+  },
+  "references": [
+    { "path": "../../core" },
+    { "path": "../../node" },
+    { "path": "../../graphviz" }
+  ]
+}

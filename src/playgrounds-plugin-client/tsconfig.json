@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig-base",
+  "compilerOptions": {
+    "forceConsistentCasingInFileNames": false,
+    "inlineSourceMap": true,
+    "lib": [ "ES2015.Iterable", "es2017", "DOM" ],
+    "module": "ES6",
+    "noImplicitAny": false,
+    "outDir": "../../../dist/playgrounds/client/modules",
+    "target": "ES5"
+  },
+  "references": [
+    { "path": "../../core" }
+    { "path": "../../graphviz" }
+  ]
+}
