@@ -32,7 +32,16 @@ function init(modules: { typescript: typeof ts_module }) {
       "site_port" | "socket_port" | "name"
     > = info.config;
     const project_root = info.serverHost.getCurrentDirectory();
-    const plugin_root = `${project_root}/node_modules/@def.codes/playgrounds-plugin`;
+    const resolved_plugin_module = require.resolve(
+      "@def.codes/playgrounds-plugin"
+    );
+    const resolved_plugin_module_dir = path.dirname(resolved_plugin_module);
+    // If this happened to be resolved there...
+    const plugin_root = resolved_plugin_module_dir; // `${project_root}/node_modules/@def.codes/playgrounds-plugin`;
+
+    // But suppose you want to set an alternate location for the site?
+    // You need a way to ensure that the node_modules that you depend on
+    // (e.g. other @def.codes packages)
 
     const proxy = bound_copy_of(info.languageService);
     log("created proxy");

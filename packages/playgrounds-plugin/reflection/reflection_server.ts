@@ -25,6 +25,7 @@ import { CompilerOptions, EmitOutput } from "typescript/lib/tsserverlibrary";
 import {
   create_server, // For the web site
   // For the web server
+  with_constant,
   with_path_mount,
   with_static_files,
 } from "@def.codes/simple-http-server";
@@ -97,8 +98,68 @@ function* create_site_server(
       { path: "project", handler: with_static_files({ root: project_root }) },
       // Convert Graphviz Dot code to graphic formats.
       { path: "graphviz", handler: graphviz_service() },
-      // Mindgrub package directory is mounted at the root.
-      { path: "", handler: with_static_files({ root: plugin_root }) },
+      // Putting this here for now, in case site root is different...
+      {
+        path: "plugin_files",
+        handler: with_static_files({ root: plugin_root }),
+      },
+      // Hmm, okay when this is the exact thing, but it doesn't work like a disk
+      // file (i.e. isn't used as fallback for directory with no file).  So
+      // maybe use as fallback?
+      {
+        path: "",
+        handler: with_constant({
+          response: {
+            headers: { "Content-type": "text/html" },
+            content: `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Typescript playgrounds</title>
+  </head>
+  <body>
+    <h1>play</h1>
+    <div id="mindgrub-reflect"></div>
+    <pre id="test"></pre>
+    <script>
+      var require = {
+      // A “virtual” path which serves the current emit for source modules in
+      // the project consuming the plugin.
+      baseUrl: "/emit",
+      paths: {
+			  // Ditto note below about requirejs.
+        "tslib": "/project/node_modules/tslib/tslib",
+        "browser-bootstrap": "/dist/browser-bootstrap/mindgrub-browser-bootstrap",
+        "reflection-constants": "/dist/playgrounds/server/umd/reflection-constants",
+        
+        // Use the mindgrub bundles instead of individual modules
+        // (e.g. /dist/core/umd/index) because their imports are relative to
+        // themselves, and we need the base path to be the consuming project's.
+        "mindgrub/graphviz": "/dist/graphviz/mindgrub-graphviz",
+        "mindgrub/playgrounds": "/dist/playgrounds/client",
+        "mindgrub": "/dist/core/mindgrub"
+      }
+      };
+    </script>
+		<!-- RequireJS is a dependency of mindgrub, so it *should* be installed here
+		     if you have the plugin. -->
+    <script src="/project/node_modules/requirejs/require.js"></script>
+    <script>
+      require(['browser-bootstrap'], bootstrap => {
+        bootstrap.shim_amd_require();
+        window.require(['mindgrub/playgrounds'], playgrounds => {
+          playgrounds.discovery_init()
+        });
+      });
+    </script>
+  </body>
+</html>`,
+          },
+        }),
+      },
+      // The user should be able to set what is mounted at the site...
+      // Yet you need to access an index that has the needed bootstrap
+      // { path: "", handler: with_static_files({ root: plugin_root }) },
     ],
   });
   // TODO: register and dispose resource
