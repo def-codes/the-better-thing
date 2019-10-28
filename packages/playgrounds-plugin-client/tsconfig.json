@@ -5,6 +5,7 @@
     "noImplicitAny": false,
   },
   "references": [
+    { "path": "../meld-process" },
     { "path": "../graphviz-format" }
   ]
 }

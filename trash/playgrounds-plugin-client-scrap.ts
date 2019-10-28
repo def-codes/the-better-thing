@@ -6,7 +6,8 @@ import {
   is_reference_type,
   members_of,
 } from "./general-object-to-graphviz";
-import { has_items, sequence } from "mindgrub";
+import { sequence } from "mindgrub";
+import { has_items } from "@def.codes/helpers";
 const { take, repeatedly } = sequence;
 
 // @ts-ignore: WIP

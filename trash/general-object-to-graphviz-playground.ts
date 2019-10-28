@@ -3,7 +3,7 @@ import {
   object_graph_to_dot,
   walk_object,
 } from "./general-object-to-graphviz";
-import * as dot from "mindgrub/graphviz";
+import * as Dot from "@def.codes/graphviz-format";
 import { sequence as seq } from "mindgrub";
 
 // @ts-ignore: WIP
@@ -93,5 +93,5 @@ const dfw = Array.from(depth_first_walk(OBJECT_TO_WALK));
 
 export const reflect = () => ({
   test_walk: walk_object(OBJECT_TO_WALK),
-  graph: dot.serialize_dot(object_graph_to_dot(OBJECT_TO_WALK)),
+  graph: Dot.serialize_dot(object_graph_to_dot(OBJECT_TO_WALK)),
 });

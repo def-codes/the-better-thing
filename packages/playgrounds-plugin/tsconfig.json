@@ -4,6 +4,7 @@
   },
   "references": [
     { "path": "../helpers" },
+    { "path": "../meld-process" },
     { "path": "../graphviz-format" },
     { "path": "../simple-http-server" }
   ]

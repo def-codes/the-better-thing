@@ -1,18 +1,19 @@
 /** Kind of a client-side reflection.  Contact well-known sources, look
  * around. */
 
+import { delayed } from "@thi.ng/compose";
+import { deserialize_query } from "@def.codes/simple-http-server";
+import { path } from "@def.codes/helpers";
 import {
-  deserialize_query,
-  timeout,
   SystemSink,
-  path,
   Multicast,
   MulticastType,
-} from "mindgrub";
+  Channel,
+  System,
+  GeneratorProcess,
+} from "@def.codes/meld-process";
 
-import { Channel, System, GeneratorProcess } from "@def.codes/meld-process";
-
-import { serialize_dot } from "@def.code/graphviz-format";
+import { serialize_dot } from "@def.codes/graphviz-format";
 import { object_graph_to_dot } from "./general-object-to-graphviz";
 import { encode_text } from "./xml-helpers";
 
@@ -148,7 +149,7 @@ const process_messages: GeneratorProcess = function* process_messages(
   for (;;) {
     const message = yield this.take(messages);
     if (message.emit && message.path) {
-      const file = path(["outputFiles", 0], message.emit);
+      const file = path(message.emit, "outputFiles", 0);
       if (!file) continue;
       const { name, text } = file;
       if (!name || !text) continue;
@@ -175,7 +176,7 @@ async function attempt_to_contact_reflection_server(messages: Channel) {
         console.error("Error parsing message JSON", event);
       }
     });
-    await timeout(1000);
+    await delayed(true, 1000);
   }
 }
 

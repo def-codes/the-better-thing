@@ -21,6 +21,7 @@ const modules = [
   ["meld-demo"],
   ["meld-process"],
   ["playgrounds-plugin"],
+  ["playgrounds-plugin-client"],
   ["polymorphic-functions"],
   ["polymorphic-hdom"],
   ["rdf-data-model"],
