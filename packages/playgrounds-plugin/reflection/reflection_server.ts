@@ -95,7 +95,28 @@ function* create_site_server(
       // Provide a way to execute code against the plugin
       { path: "plugin", handler: plugin_dispatch_service(plugin_info) },
       // The consuming project's files are mounted at `project`.
+      // but... this isn't necessarily where the node_modules are located
+      // since this can be a subproject
+      // and it can of course have its own node modules
+      // you could do require.resolve("requirejs"), but that's for the node module
+      // ultimately, we're going to use our own (def.codes) require
       { path: "project", handler: with_static_files({ root: project_root }) },
+      // fixed location to wherever requirejs is installed (probably temp)
+      {
+        path: "@def.codes",
+        handler: with_static_files({
+          // TEMP, works from *this* project, but downloaded packages would have
+          // additional nesting.  (using arbitrary example
+          root: _path.dirname(require.resolve("@def.codes/playgrounds-plugin")),
+        }),
+      },
+      {
+        path: "requirejs",
+        handler: with_static_files({
+          // Node resolves require to {dir}/bin/r.js, but we want {dir}
+          root: _path.dirname(_path.dirname(require.resolve("requirejs"))),
+        }),
+      },
       // Convert Graphviz Dot code to graphic formats.
       { path: "graphviz", handler: graphviz_service() },
       // Putting this here for now, in case site root is different...
@@ -129,7 +150,7 @@ function* create_site_server(
       paths: {
 			  // Ditto note below about requirejs.
         "tslib": "/project/node_modules/tslib/tslib",
-        "browser-bootstrap": "/dist/browser-bootstrap/mindgrub-browser-bootstrap",
+        "browser-bootstrap": "/@def.codes/browser-bootstrap",
         "reflection-constants": "/dist/playgrounds/server/umd/reflection-constants",
         
         // Use the mindgrub bundles instead of individual modules
@@ -141,9 +162,7 @@ function* create_site_server(
       }
       };
     </script>
-		<!-- RequireJS is a dependency of mindgrub, so it *should* be installed here
-		     if you have the plugin. -->
-    <script src="/project/node_modules/requirejs/require.js"></script>
+    <script src="/requirejs/require.js"></script>
     <script>
       require(['browser-bootstrap'], bootstrap => {
         bootstrap.shim_amd_require();

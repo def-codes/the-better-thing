@@ -3,6 +3,7 @@
   "files": [],
   "references": [
     {"path": "packages/amd-loader" },
+    {"path": "packages/browser-bootstrap" },
     {"path": "packages/console-stream" },
     {"path": "packages/datafy-nav" },
     {"path": "packages/datafy-node" },

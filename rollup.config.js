@@ -10,6 +10,7 @@ const TEST_MODULES = [];
 /** Modules built in this project. */
 const modules = [
   ["amd-loader"],
+  ["browser-bootstrap"],
   ["console-stream"],
   ["datafy-nav"],
   ["datafy-node"],
