@@ -24,7 +24,7 @@ function init(modules: { typescript: typeof ts_module }) {
   const versions = Object.create(null);
 
   function create(info: ts.server.PluginCreateInfo) {
-    const log = s => info.project.projectService.logger.info("MINDGRUB: " + s);
+    const log = s => info.project.projectService.logger.info("MELD: " + s);
 
     log("init plugin, config: " + util.format(info.config));
     const config: Pick<
@@ -32,7 +32,7 @@ function init(modules: { typescript: typeof ts_module }) {
       "site_port" | "socket_port" | "name"
     > = info.config;
     const project_root = info.serverHost.getCurrentDirectory();
-    const plugin_root = `${project_root}/node_modules/@mindgrub/mindgrub`;
+    const plugin_root = `${project_root}/node_modules/@def.codes/playgrounds-plugin`;
 
     const proxy = bound_copy_of(info.languageService);
     log("created proxy");

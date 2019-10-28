@@ -3,5 +3,7 @@
   "compilerOptions": {
   },
   "references": [
+    { "path": "../graphviz-format" },
+    { "path": "../simple-http-server" }
   ]
 }

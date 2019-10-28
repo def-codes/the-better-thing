@@ -1,3 +1,4 @@
+import * as Dot from "./api";
 import { assert_unreachable } from "./assert_unreachable";
 
 const is_subgraph = (o: any): o is Dot.Subgraph => o && o.type === "subgraph";
