@@ -1,4 +1,4 @@
-import { has_items } from "./helpers/has_items";
+import { has_items } from "@def.codes/helpers";
 
 /** A directional, synchronizing queue between readers and writers.
 

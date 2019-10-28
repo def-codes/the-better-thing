@@ -16,6 +16,7 @@ const modules = [
   ["expression-reader"],
   ["function-testing"],
   ["graphviz-format"],
+  ["helpers"],
   ["meld-core"],
   ["meld-demo"],
   ["playgrounds-plugin"],

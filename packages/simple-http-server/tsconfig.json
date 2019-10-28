@@ -4,5 +4,6 @@
     "downlevelIteration": true
   },
   "references": [
+    { "path": "../helpers" },
   ]
 }

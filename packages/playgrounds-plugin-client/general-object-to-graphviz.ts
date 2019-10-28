@@ -1,5 +1,5 @@
 import * as Dot from "@def.codes/graphviz-format";
-import { has_items } from "mindgrub";
+import { has_items } from "@def.codes/helpers";
 
 /** Arbitrarily-keyed map with O(1) equals-based membership test and lookup. */
 

@@ -1,4 +1,4 @@
-import { dictionary_from } from "./dictionary_from";
+import { dictionary_from } from "@def.codes/helpers";
 
 /** Return a plain javascript object representing a given URL query string. */
 export const deserialize_query = (query: string) =>
