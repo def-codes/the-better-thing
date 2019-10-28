@@ -1,7 +1,7 @@
 /** Tools for monitoring a system's output from the console (if you must). */
 
 import * as util from "util";
-import { Process } from "../csp/index";
+import { Process } from "@def.codes/meld-process";
 
 const WIDTH = process.stdout.columns || 70;
 

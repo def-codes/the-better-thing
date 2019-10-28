@@ -6,7 +6,7 @@
 import * as ts_module from "typescript/lib/tsserverlibrary";
 import * as util from "util";
 import * as path from "path";
-import { Channel } from "./csp/index";
+import { Channel } from "@def.codes/meld-process";
 import { map_object } from "@def.codes/helpers";
 import {
   start_reflection_server,

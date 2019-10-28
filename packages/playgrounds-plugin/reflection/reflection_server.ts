@@ -14,7 +14,7 @@ import {
   SystemSink,
   // For plumbing
   mapping_process,
-} from "../csp/index";
+} from "@def.codes/meld-process";
 import { make_text_sink } from "./system_console_utils";
 import * as reflection from "../reflection-constants";
 

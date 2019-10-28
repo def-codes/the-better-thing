@@ -19,6 +19,7 @@ const modules = [
   ["helpers"],
   ["meld-core"],
   ["meld-demo"],
+  ["meld-process"],
   ["playgrounds-plugin"],
   ["polymorphic-functions"],
   ["polymorphic-hdom"],

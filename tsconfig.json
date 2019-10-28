@@ -12,6 +12,7 @@
     {"path": "packages/helpers" },
     {"path": "packages/meld-core" },
     {"path": "packages/meld-demo" },
+    {"path": "packages/meld-process" },
     {"path": "packages/playgrounds-plugin" },
     {"path": "packages/polymorphic-functions" },
     {"path": "packages/polymorphic-hdom" },

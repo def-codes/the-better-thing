@@ -1,6 +1,6 @@
 import * as Dot from "@def.codes/graphviz-format";
 import { SinkLog } from "../reflection/temp.api";
-import { Channel } from "../csp/index";
+import { Channel } from "@def.codes/meld-process";
 
 /** Tools for converting a process's message log to GraphViz format. */
 

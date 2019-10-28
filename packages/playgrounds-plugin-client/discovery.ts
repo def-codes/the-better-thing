@@ -4,16 +4,15 @@
 import {
   deserialize_query,
   timeout,
-  Channel,
-  System,
   SystemSink,
-  GeneratorProcess,
   path,
   Multicast,
   MulticastType,
 } from "mindgrub";
 
-import { serialize_dot } from "mindgrub/graphviz";
+import { Channel, System, GeneratorProcess } from "@def.codes/meld-process";
+
+import { serialize_dot } from "@def.code/graphviz-format";
 import { object_graph_to_dot } from "./general-object-to-graphviz";
 import { encode_text } from "./xml-helpers";
 
