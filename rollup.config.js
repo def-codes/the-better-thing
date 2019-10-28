@@ -21,6 +21,7 @@ const modules = [
   ["rdf-data-model"],
   ["rdf-expressions"],
   ["rdf-expressions-test"],
+  ["simple-http-server"],
   ["meld-core"],
 ];
 

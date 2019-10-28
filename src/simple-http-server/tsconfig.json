@@ -1,0 +1,8 @@
+{
+  "extends": "../tsconfig-composite",
+  "compilerOptions": {
+    "downlevelIteration": true
+  },
+  "references": [
+  ]
+}

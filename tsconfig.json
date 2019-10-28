@@ -14,6 +14,7 @@
     {"path": "src/rdf-data-model" },
     {"path": "src/rdf-expressions" },
     {"path": "src/rdf-expressions-test" },
+    {"path": "src/simple-http-server" },
     {"path": "src/meld-core" }
   ]
 }
