@@ -2,19 +2,19 @@
   "include": [],
   "files": [],
   "references": [
-    {"path": "src/amd-loader" },
-    {"path": "src/meld-demo" },
-    {"path": "src/polymorphic-functions" },
-    {"path": "src/polymorphic-hdom" },
-    {"path": "src/datafy-nav" },
-    {"path": "src/datafy-node" },
-    {"path": "src/function-testing" },
-    {"path": "src/console-stream" },
-    {"path": "src/expression-reader" },
-    {"path": "src/rdf-data-model" },
-    {"path": "src/rdf-expressions" },
-    {"path": "src/rdf-expressions-test" },
-    {"path": "src/simple-http-server" },
-    {"path": "src/meld-core" }
+    {"path": "packages/amd-loader" },
+    {"path": "packages/console-stream" },
+    {"path": "packages/datafy-nav" },
+    {"path": "packages/datafy-node" },
+    {"path": "packages/expression-reader" },
+    {"path": "packages/function-testing" },
+    {"path": "packages/meld-core" },
+    {"path": "packages/meld-demo" },
+    {"path": "packages/polymorphic-functions" },
+    {"path": "packages/polymorphic-hdom" },
+    {"path": "packages/rdf-data-model" },
+    {"path": "packages/rdf-expressions" },
+    {"path": "packages/rdf-expressions-test" },
+    {"path": "packages/simple-http-server" }
   ]
 }

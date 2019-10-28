@@ -8,8 +8,8 @@
   ],
   "scripts": {
     "clean": "rm -rf build/ node_modules/@def.codes/",
-    "format": "prettier --write 'src/**/*.{ts,json}'",
-    "test-format": "prettier --list-different 'src/**/*.{ts,json}'",
+    "format": "prettier --write 'packages/**/*.{ts,json}'",
+    "test-format": "prettier --list-different 'packages/**/*.{ts,json}'",
     "build": "npm run build:script && npm run build:style",
     "build:script": "tsc --build",
     "prebuild:style": "bash -c \"mkdir -p build/style\"",
@@ -18,7 +18,7 @@
     "bundle": "rollup -c",
     "watch": "bash -c './watch.sh'",
     "start": "node server",
-    "port": "live-server --watch=\"src/amd-loader/test/*.js,*.html,*.css,*.js,build/style,node_modules/@def.codes\" --open=portable.html",
+    "port": "live-server --watch=\"packages/amd-loader/test/*.js,*.html,*.css,*.js,build/style,node_modules/@def.codes\" --open=portable.html",
     "meld": "live-server --watch=\"*.html,build/style,node_modules/@def.codes\""
   },
   "repository": {

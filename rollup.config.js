@@ -10,19 +10,19 @@ const TEST_MODULES = [];
 /** Modules built in this project. */
 const modules = [
   ["amd-loader"],
+  ["console-stream"],
+  ["datafy-nav"],
+  ["datafy-node"],
+  ["expression-reader"],
+  ["function-testing"],
+  ["meld-core"],
   ["meld-demo"],
   ["polymorphic-functions"],
   ["polymorphic-hdom"],
-  ["datafy-nav"],
-  ["datafy-node"],
-  ["function-testing"],
-  ["console-stream"],
-  ["expression-reader"],
   ["rdf-data-model"],
   ["rdf-expressions"],
   ["rdf-expressions-test"],
   ["simple-http-server"],
-  ["meld-core"],
 ];
 
 // Unfortunately, rollup doesn't support wildcards for specifying externals.
