@@ -1,4 +1,4 @@
-import * as dot from "mindgrub/graphviz";
+import * as dot from "@def.codes/graphviz-format";
 
 // @ts-ignore: WIP
 import { object_graph_to_dot } from "./general-object-to-graphviz";

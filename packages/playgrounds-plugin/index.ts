@@ -6,7 +6,8 @@
 import * as ts_module from "typescript/lib/tsserverlibrary";
 import * as util from "util";
 import * as path from "path";
-import { pick, Channel, map_object } from "mindgrub";
+import { Channel } from "./csp/index";
+import { map_object } from "./map_object";
 import {
   start_reflection_server,
   ReflectionServerOptions,
@@ -15,7 +16,8 @@ import { make_text_sink } from "./reflection/system_console_utils";
 
 /** Return a copy of an object instance with all of its methods bound.  Assumes
  * all of its members are functions.*/
-const bound_copy_of = <T>(o: T): T => map_object(v => v.bind(o), o);
+const bound_copy_of = <T extends { [K in keyof T]: Function }>(o: T): T =>
+  map_object(v => (<Function>v).bind(o), o);
 
 function init(modules: { typescript: typeof ts_module }) {
   const ts = modules.typescript;
@@ -28,8 +30,7 @@ function init(modules: { typescript: typeof ts_module }) {
     const config: Pick<
       ReflectionServerOptions,
       "site_port" | "socket_port" | "name"
-    > =
-      info.config;
+    > = info.config;
     const project_root = info.serverHost.getCurrentDirectory();
     const plugin_root = `${project_root}/node_modules/@mindgrub/mindgrub`;
 
@@ -66,7 +67,7 @@ function init(modules: { typescript: typeof ts_module }) {
       );
       // More compact version for display
       const diagnostics = raw_diagnostics.map(
-        pick(["category", "code", "messageText"])
+        ({ category, code, messageText }) => ({ category, code, messageText })
       );
 
       // The client module uses the `path` to this source file as a module id.

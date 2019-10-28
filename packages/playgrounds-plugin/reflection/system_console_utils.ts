@@ -1,6 +1,7 @@
 /** Tools for monitoring a system's output from the console (if you must). */
 
 import * as util from "util";
+import { Process } from "../csp/index";
 
 const WIDTH = process.stdout.columns || 70;
 
@@ -29,7 +30,7 @@ const write_stdout = message => process.stdout.write(message);
 
 /** Write system messages as formatted text. */
 export const make_text_sink = (options?: TextSinkOptions) => {
-  const processes = new Array<mg.Process>(64);
+  const processes = new Array<Process>(64);
   const format = (options && options.format) || default_format;
   const write_output = (options && options.sink_ouput) || write_stdout;
   const write_error = (options && options.sink_error) || write_output;

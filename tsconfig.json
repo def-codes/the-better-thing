@@ -11,6 +11,7 @@
     {"path": "packages/graphviz-format" },
     {"path": "packages/meld-core" },
     {"path": "packages/meld-demo" },
+    {"path": "packages/playgrounds-plugin" },
     {"path": "packages/polymorphic-functions" },
     {"path": "packages/polymorphic-hdom" },
     {"path": "packages/rdf-data-model" },

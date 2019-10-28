@@ -4,15 +4,7 @@ import { Request, Response, Handler } from "./api";
 import { STATUS } from "./constants";
 import { with_error_boundary } from "./with_error_handler";
 import { Readable } from "stream";
-import { dictionary_from } from "./dictionary_from";
-
-/** Return a plain javascript object representing a given URL query string. */
-const deserialize_query = (query: string) =>
-  dictionary_from(
-    query.split("&").map(_ => _.split("=")),
-    ([_, value]) => decodeURIComponent(value),
-    ([key]) => decodeURIComponent(key)
-  );
+import { deserialize_query } from "./url-query";
 
 const read_to_end = (stream: Readable) =>
   new Promise<string>((resolve, reject) => {

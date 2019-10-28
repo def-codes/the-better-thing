@@ -1,4 +1,5 @@
 import { SinkLog } from "../reflection/temp.api";
+import { Channel } from "../csp/index";
 
 /** Tools for converting a process's message log to GraphViz format. */
 
@@ -17,9 +18,9 @@ function* system_log_to_dot_statements(
   log: SinkLog
 ): IterableIterator<Dot.Statement> {
   const links = new Map();
-  const channels = new Set();
+  const channels = new Set<number>();
 
-  for (let { pid, message } of log) {
+  for (const { pid, message } of log) {
     const { init, spawned, channel } = message;
 
     if (typeof channel === "number") {
@@ -86,7 +87,7 @@ function* system_log_to_dot_statements(
     }
   }
   // Write channel nodes
-  for (let channel of channels)
+  for (const channel of channels)
     yield {
       type: "node",
       id: `channel_${channel}`,

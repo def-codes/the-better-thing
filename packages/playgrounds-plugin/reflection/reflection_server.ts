@@ -4,17 +4,17 @@
 import * as WebSocket from "ws";
 import * as _path from "path";
 
+import { serialize_query } from "@def.codes/simple-http-server";
+import { identity, delayed } from "@thi.ng/compose";
+
 import {
   System,
   Channel,
   GeneratorProcess,
   SystemSink,
-  serialize_query,
   // For plumbing
   mapping_process,
-  timeout,
-  identity,
-} from "mindgrub";
+} from "../csp/index";
 import { make_text_sink } from "./system_console_utils";
 import * as reflection from "../reflection-constants";
 
@@ -23,16 +23,18 @@ import * as ts_module from "typescript/lib/tsserverlibrary";
 import { CompilerOptions, EmitOutput } from "typescript/lib/tsserverlibrary";
 
 import {
-  broadcast_as_json, // For the socket server
   create_server, // For the web site
-  // For launching the browser
-  shell_open,
   // For the web server
   with_path_mount,
   with_static_files,
-  // For module graph discovery
-  //fork_process,
-} from "mindgrub-node";
+} from "@def.codes/simple-http-server";
+import {
+  broadcast_as_json, // For the socket server
+} from "./node-utils/socket_utils";
+// For launching the browser
+import { shell_open } from "./node-utils/shell_open";
+// For module graph discovery
+// import { fork_process } from "mindgrub-node";
 import { plugin_dispatch_service } from "./plugin_dispatch_service";
 import { graphviz_service } from "./graphviz_service";
 
@@ -200,7 +202,7 @@ const reflection_server_main: GeneratorProcess = function*(
 
   for (;;) {
     this.put(entry_point_channel, "src/index");
-    yield timeout(2000);
+    yield delayed(true, 2000); // value is meaningless
   }
 };
 

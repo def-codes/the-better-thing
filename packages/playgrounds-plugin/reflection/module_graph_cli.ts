@@ -1,5 +1,5 @@
 /** Entry point for starting a module-structure reading process. */
-
+/*
 const initial_entry_point = process.argv[2];
 import { dependency_grapher } from "./typescript_module_graph";
 import { System, GeneratorProcess, SystemSink, Channel } from "mindgrub";
@@ -31,3 +31,4 @@ process.on("message", message => {
 });
 
 entry_point_channel.put(initial_entry_point);
+*/

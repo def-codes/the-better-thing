@@ -46,7 +46,8 @@
     "d3-require": "1.2.2",
     "node-static": "0.7.11",
     "requirejs": "2.3.6",
-    "tslib": "1.10.0"
+    "tslib": "1.10.0",
+    "ws": "7.2.0"
   },
   "devDependencies": {
     "live-server": "1.2.1",

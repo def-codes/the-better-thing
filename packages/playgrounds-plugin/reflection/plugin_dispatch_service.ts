@@ -1,4 +1,8 @@
-import { Response, STATUS, with_path_mount } from "mindgrub-node";
+import {
+  Response,
+  STATUS,
+  with_path_mount,
+} from "@def.codes/simple-http-server";
 
 const response = (status: keyof typeof STATUS, content: object): Response => ({
   ...STATUS[status],

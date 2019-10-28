@@ -1,3 +1,4 @@
+/*
 import { ProjectorSpec, deep_equals, project_many } from "mindgrub";
 
 const data_1 = [
@@ -50,3 +51,4 @@ const projection_tests = {
   // result_1,
   // result_2,
 };
+*/

@@ -18,6 +18,7 @@ const modules = [
   ["graphviz-format"],
   ["meld-core"],
   ["meld-demo"],
+  ["playgrounds-plugin"],
   ["polymorphic-functions"],
   ["polymorphic-hdom"],
   ["rdf-data-model"],
