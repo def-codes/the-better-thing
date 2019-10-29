@@ -13,7 +13,6 @@
     "build": "npm run build:script && npm run build:style",
     "build:script": "tsc --build",
     "prebuild:style": "bash -c \"mkdir -p build/style\"",
-    "xbuild:style": "stylus --out build/style style",
     "build:style": "stylus --out build/style style",
     "bundle": "rollup -c",
     "watch": "bash -c './watch.sh'"
@@ -48,7 +47,7 @@
   "devDependencies": {
     "@types/ws": "6.0.3",
     "prettier": "1.18.2",
-    "rollup": "1.16.3",
+    "rollup": "1.26.0",
     "stylus": "0.54.5",
     "typescript": "3.7.1-rc"
   },

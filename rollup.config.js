@@ -13,7 +13,7 @@ const modules = [
   ["browser-bootstrap"],
   ["console-stream"],
   ["datafy-nav"],
-  ["datafy-node"],
+  ["datafy-node", { node_only: true }],
   ["expression-reader"],
   ["function-testing"],
   ["graphviz-format"],
@@ -21,27 +21,31 @@ const modules = [
   ["meld-core"],
   ["meld-demo"],
   ["meld-process"],
-  ["playgrounds-plugin"],
+  ["playgrounds-plugin", { node_only: true }],
   ["playgrounds-plugin-client"],
   ["polymorphic-functions"],
   ["polymorphic-hdom"],
   ["rdf-data-model"],
   ["rdf-expressions"],
   ["rdf-expressions-test"],
-  ["simple-http-server"],
+  ["simple-http-server", { node_only: true }],
 ];
 
 // Unfortunately, rollup doesn't support wildcards for specifying externals.
 const things = (
   "rstream rstream-graph rstream-csp transducers paths hdom dcons " +
   "iterators atom csp compose associative checks interceptors rstream-query " +
-  "transducers-hdom defmulti hiccup-markdown fsm"
+  "transducers-hdom defmulti hiccup-markdown fsm equiv diff"
 )
   .split(" ")
   .map(name => `@thi.ng/${name}`);
 
+// You might expect rollup to automatically treat these as externals.
+const node_builtins = ["child_process", "fs", "http", "path", "url", "util"];
+const node_imports = ["ws", "typescript/lib/tsserverlibrary"];
+
 /** Modules imported by this project. */
-const imports = [...things];
+const imports = [...things, ...node_builtins, ...node_imports];
 
 // Our own modules are “external” when they are importing each other.
 const external = [...imports, ...modules.map(([name]) => `@def.codes/${name}`)];
@@ -49,10 +53,8 @@ const external = [...imports, ...modules.map(([name]) => `@def.codes/${name}`)];
 const globals = {};
 external.forEach(name => (globals[name] = name));
 
-const bundle = ([name, { standalone, split, dir, ...config } = {}]) => ({
-  input: standalone
-    ? `build/modules/${dir || name}.js`
-    : `build/modules/${dir || name}/index.js`,
+const bundle = ([name, { node_only, ...config } = {}]) => ({
+  input: `build/modules/${name}/index.js`,
   external, // Suppress “Unresolved dependencies” warning.
   // Suppress warnings due to tslib. https://github.com/rollup/rollup/issues/794
   onwarn(warning) {
@@ -62,11 +64,10 @@ const bundle = ([name, { standalone, split, dir, ...config } = {}]) => ({
   ...(config || {}),
   output: {
     name,
-    format: "umd",
-    ...(!(config && config.output && config.output.dir) &&
-      (split
-        ? { dir: `node_modules/@def.codes/${name}` }
-        : { file: `node_modules/@def.codes/${name}.js` })),
+    format: node_only ? "cjs" : "umd",
+    ...(!(config && config.output && config.output.dir) && {
+      file: `node_modules/@def.codes/${name}.js`,
+    }),
     sourcemap: true,
     globals, // Suppress “Missing global variable names” warning
     ...((config && config.output) || {}),
