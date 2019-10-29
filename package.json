@@ -16,10 +16,7 @@
     "xbuild:style": "stylus --out build/style style",
     "build:style": "stylus --out build/style style",
     "bundle": "rollup -c",
-    "watch": "bash -c './watch.sh'",
-    "start": "node server",
-    "port": "live-server --watch=\"packages/amd-loader/test/*.js,*.html,*.css,*.js,build/style,node_modules/@def.codes\" --open=portable.html",
-    "meld": "live-server --watch=\"*.html,build/style,node_modules/@def.codes\""
+    "watch": "bash -c './watch.sh'"
   },
   "repository": {
     "type": "git",
@@ -51,7 +48,6 @@
   },
   "devDependencies": {
     "@types/ws": "6.0.3",
-    "live-server": "1.2.1",
     "prettier": "1.18.2",
     "rollup": "1.16.3",
     "stylus": "0.54.5",
