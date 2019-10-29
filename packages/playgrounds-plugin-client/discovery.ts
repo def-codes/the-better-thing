@@ -144,7 +144,7 @@ const process_messages: GeneratorProcess = function* process_messages(
   messages: Channel
 ) {
   for (;;) {
-    const message = yield this.take(messages);
+    const message: any = yield this.take(messages);
     if (message.emit && message.path) {
       const file = path(message.emit, "outputFiles", 0);
       if (!file) continue;
