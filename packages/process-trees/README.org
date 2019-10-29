@@ -1,0 +1,241 @@
+#+TITLE:Watchable streams
+
+Forget process trees for a moment.  Let's consider what it would look like to be
+able to watch a single subscribable as a "thing."
+
+* prerequisites and mechanisms for stream watching
+
+Let's suppose that you want to watch just a single subscription.
+
+What do you expect to see?  And can you build a view of this with rstream
+subscriptions as-is?
+
+1. when a new value arrives (to indicate activity)
+   - yes (via subscribe)
+2. the last value to have arrived (to indicate its "state")
+   - yes (via deref)
+3. each value as it arrives (for a more detailed activity view)
+   - yes (via next) (same as 1 essentially)
+4. when the subscription goes into closed state (which can have bubbled)
+   - yes, BUT...
+5. when the subscription goes into error state (which can have bubbled)
+   - yes, BUT...
+6. knowledge of subscription's assigned id
+   - yes (via the id property)
+7. knowledge of the current state of the stream (to indicate state)
+   - yes (via the getState method)
+8. knowledge of when the current state changes
+9. knowledge of any applicable transducer?
+10. knowledge of any parent?
+11. knowledge of any subscribers (at a given time)
+12. knowledge of any change in subscribers (arrival or departure)
+
+There is a complication in #4 & #5.
+
+It's a "Heisenberg" problem: watching the thing affects its behavior.  For the
+case of a closed subscription, explicitly closed subscriptions will work as
+expected.  However, if you are observing the =next= value, then what /would have
+been/ a transitive closing of the stream, which occurs only when it no longer has
+subscribers.
+
+In the past (pre-@thi.ng), I have considered the notion of a "passive"
+subscriber, which is like any other subscriber except that it is not considered
+when determining whether a subscription should auto-close because of having no
+subscriptions left.  If this were a option built into the subscription model,
+then it would be possible to construct (more of) the view of a subscription
+using idiomatic mechanisms.
+
+Absent that option, however, how could we view a given subscribable in such a
+way that it would still automatically close when it has no /other/ subscribers
+besides the mechanism which is viewing it.
+
+This would be possible by wrapping the subscribable.
+
+The wrapper could emulate the "passive" property.
+
+The same could also be accomplished by making it possible to track the
+subscribers as they change in any way, which would satisfy #11 and #12, which
+are not currently possible with rstream's public API.
+
+* processes
+
+We talk about a notion of /processes/.  A process is an abstraction.
+
+In JavaScript terms, a process is any organized, exclusive sequence of
+invocations over time.
+
+By "organized" we mean that the invocations can all be programmed against from a
+single mechanism.
+
+We consider a subscription to be partially a kind of process:
+1. all invocations go through the subscription object
+2. subscriptions "die" by going into an unrecoverable closed state
+
+Another property of processes needed by a watchable system is a formal way of
+creating new processes, or at least creating links between the lifecycles of
+processes.
+
+A metastream is one of the mechanisms in rstream that level-crosses in this kind
+of way.  It transforms incoming values into subscriptions rather than values.
+
+However, a process can have more than one child process.  In this way, it's
+somewhat like a pubsub, the difference being that topics (sub processes) would
+be processes (subscriptions) rather than values.
+
+** example scenarios
+
+A process tree can be just a set of relationships added to an existing dataflow.
+
+Imagine overlaying a process tree in such a case.
+
+How would the process tree change, and would these changes affect the dataflow?
+I.e. would nodes be removed because of the death of "processes"?
+
+This raises the question, what are the operations on a process tree?
+
+A process tree node must be linked to exactly one input stream.  The node
+subscribes to this stream and transforms each incoming values into a description
+of the child process nodes that it requires.
+
+The sticking point has been, what is the form of that output?  Is it a stream
+(possibly new, but for the present example assumed to be pre-existing), or is it
+another process node, in which case it would require a mapping function like the
+one that yielded this description.
+
+Either way, there is a new dataflow node formed by the tree node's own
+subscription.
+
+Note that when a process node spec (said mapping function) is connected to a
+stream, whether it becomes /active/ immediately may depend on whether or not the
+returned subscribables are streams or subscriptions.  I believe this would be
+similar to a meta stream.
+
+Would the answer depend on what's actually needed at that point?  If a sub-sub
+process may be needed, then the node must itself be a process description.
+Whereas if it's known to be a terminal node, then it would make no sense for
+there to be such a mapping?
+
+Regardless, you /always/ need a stream.  So it seems to me you need to return a
+(selected or created) subscribable and optionally a mapping function.  If a
+mapping function is provided, then this is a subprocess node.  Does the
+mechanism create a new process node in all cases, though (i.e. using some
+default empty mapping function)?  What happens in either case at the point when
+the original mapping has been evaluated?  Even the most minimal mechanism would
+have to "diff and cleanup" this set of children against any previous set of
+children.  Nodes that describe processes must be diffed in a way that includes
+both their input stream and their mapping function, presumably by identity in
+both cases.
+
+Note that while this concept may be generalizable from process trees to process
+graphs, the restriction to a tree qualitatively changes the problem by ensuring
+that child nodes have no more than one owner (parent), preventing conflicts
+between multiple nodes having an interest in a given lifecycle.
+
+So the mapping function returns a dictionary of objects that each include a hard
+reference to an input source and possibly a mapping function.
+
+Going back to the question of what operations are supported by process tree?
+And who performs them?
+
+The following events can occur in the context of a process tree.
+
+*** a new value arrives at a node
+
+This isn't controlled by the tree itself; these input streams can come from
+anywhere.
+
+This precipitates an evaluation of the incoming value against the node's
+subprocess mapping function (if any).
+
+If there is not a subprocess mapping function... you may still need to diff and
+update.
+
+*** a node has now defined a set of child processes
+
+This follows immediately (synchronously) upon the arrival of a value and
+evaluation of the mapping function.
+
+First you have to determine what, if any /updates/ need to be made based on any
+previous /state/.
+
+There are three cases:
+- keys that were not in previous state are /created/
+- keys that were in previous state but not in this one are /destroyed/
+- keys that were in both states are /updated/
+
+*** a subprocess is created
+
+A subprocess is created by binding a 
+
+*** a subprocess is destroyed
+
+
+
+*** a subprocess is updated
+
+A naive implementation of updating a process would be to destroy the old one and
+create a new one.  While it may be possible in some cases to preserve more of
+the state (for example to retain the input source if it is identical to the
+previous one), components/authors should not count on an implementation more
+refined than the naive one.
+
+
+** process trees
+
+We talk about a notion of /process trees/.  A process tree is a collection of
+processes that form a tree in which parent-child relationships form a lifecycle
+relationship.  Specifically, the invariants maintained by a process tree are
+that:
+
+1. The death of a parent process results in the transitive killing of all of its
+   descendant processes.
+2. The parent process can redefine what should comprise its child processes at a
+   given time.  When such redefinition occurs, the child processes which are no
+   longer in the definition are torn down as if the parent process had been
+   removed.
+
+This implies that we have a way to compare two (sub) processes and determine
+whether they are functionally equivalent.
+
+*** /versus/ subscribers
+
+We distinguish between /child processes/ and /subscribers/.  The subscriber (and
+parent) relationships form a graph.  rstream does not include a notion of a
+tree.
+
+In some ways, the transitive closing of subscribers resembles the first
+invariant noted above.
+
+Subscriptions propagate closing "upstream" in a kind of many-to-one way; that
+is, when a node's many children have /all/ unsubscribed (possibly because they
+themselves have closed), then the parent stream is automatically unsubscribed
+from its parent (if any) and closed.
+
+Processes (as described above) work the inverse way: when a process dies, this
+triggers a transitive process of tearing down child processes.  This is
+orthogonal to any subscription relationships.
+
+* update
+
+This has changed somewhat.  I'm considering the idea of adding an optional
+target node to the spec, that, when provided, would write to the specified
+output.
+
+Yes, this raises questions:
+- Are outputs limited to process /references/, as opposed to descriptions?
+  - how would we distinguish references from descriptions?
+- If it is a reference, what if it doesn't exist yet?
+  - how do we know when it's created?
+
+The knowledge-base approach answers all of these questions.  But I'm still
+resistant to going all in on that for this mechanism.
+
+However, it does not strike me as too much to provide an input, a transform, and
+an output in a single description.  When you /don't/ do this, you leave it up to
+other processes to know about the existence of the created child processes and
+subscribe them (as inputs at other nodes).
+
+There is a similarity between the dom process and this:
+- nodes identified by paths
+- need alert to mounting/creation of things
+- decouples and centralizes association of nodes with other data

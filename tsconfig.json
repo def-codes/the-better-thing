@@ -18,6 +18,7 @@
     {"path": "packages/playgrounds-plugin-client" },
     {"path": "packages/polymorphic-functions" },
     {"path": "packages/polymorphic-hdom" },
+    {"path": "packages/process-trees" },
     {"path": "packages/rdf-data-model" },
     {"path": "packages/rdf-expressions" },
     {"path": "packages/rdf-expressions-test" },

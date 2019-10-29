@@ -25,6 +25,7 @@ const modules = [
   ["playgrounds-plugin-client"],
   ["polymorphic-functions"],
   ["polymorphic-hdom"],
+  ["process-trees"],
   ["rdf-data-model"],
   ["rdf-expressions"],
   ["rdf-expressions-test"],
