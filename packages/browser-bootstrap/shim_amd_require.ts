@@ -143,7 +143,7 @@ function init_hot_loading({ keep_cold }) {
       });
       return new Function("define", "require", code)(fake, fake);
     })
-      .catch(e => console.error("Problem getting new module", id, e))
+      .catch(e => console.error("Problem getting new module", id, e, code))
       .then(cold => hotwire(window.requirejs.toUrl(id), cold))
       .catch(e => console.error("Problem injecting new module", id, e));
 

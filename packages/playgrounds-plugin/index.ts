@@ -56,8 +56,44 @@ function init(modules: { typescript: typeof ts_module }) {
       sink_ouput: message => log("REFLECTION: " + message),
     });
 
+    const set_compiler_options = () => {
+      info.project.setCompilerOptions({
+        ...info.project.getCompilerOptions(),
+        // The remaining settings will override the project's settings.
+
+        // Ensure a browser-friendly module format, regardless of project setting.
+        module: ts.ModuleKind.AMD, // header is smaller and simpler than UMD
+
+        // Optimizations.  It appears that these don't impact the watcher output.
+        removeComments: true,
+        inlineSourceMap: false,
+        declaration: false,
+
+        // Both of these are category 1, which is error.  Not sure that either
+        // should prevent emit.
+
+        // 2345
+        // Argument of type '() => IterableIterator<any>' is not assignable to parameter of type 'Iterable<any>'.
+
+        // 2324
+        // Property '[Symbol.iterator]' is missing in type '() => IterableIterator<any>'.
+
+        // Even if the “actual” module emit is targeting ES5, development mode
+        // generally assumes a modern browser.  Don't bother downleveling.
+        target: ts_module.ScriptTarget.ES2015,
+
+        // Ignore errors that don't prevent meaningful output.
+        noUnusedLocals: false,
+        noUnusedParameters: false,
+        allowUnreachableCode: true,
+        allowUnusedLabels: true,
+      });
+    };
     const get_emit = (fileName: string) => {
       const program = info.project.getLanguageService().getProgram();
+
+      // Does this need to happen on each time?
+      set_compiler_options();
 
       if (!program) throw new Error("Language service provided no program.");
 
@@ -125,33 +161,8 @@ function init(modules: { typescript: typeof ts_module }) {
       node_modules_root,
     });
     log("started reflection system");
-
-    info.project.setCompilerOptions({
-      ...info.project.getCompilerOptions(),
-      // The remaining settings will override the project's settings.
-
-      // Optimizations.  It appears that these don't impact the watcher output.
-      removeComments: true,
-      module: ts.ModuleKind.AMD, // header is smaller and simpler than UMD
-      inlineSourceMap: false,
-
-      // Both of these are category 1, which is error.  Not sure that either
-      // should prevent emit.
-
-      // 2345
-      // Argument of type '() => IterableIterator<any>' is not assignable to parameter of type 'Iterable<any>'.
-
-      // 2324
-      // Property '[Symbol.iterator]' is missing in type '() => IterableIterator<any>'.
-
-      // Even if the “actual” module emit is targeting ES5, development mode
-      // generally assumes a modern browser.  Don't bother downleveling.
-      target: ts_module.ScriptTarget.ES2015,
-
-      // Ignore errors that don't prevent meaningful output.
-      noUnusedLocals: false,
-      noUnusedParameters: false,
-    });
+    // Seems this needs to happen before emit
+    // set_compiler_options();
 
     const sink = message => {
       log(util.format(message));

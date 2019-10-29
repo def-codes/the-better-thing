@@ -143,10 +143,15 @@ function* create_site_server(
     </script>
     <script src="/modules/requirejs/require.js"></script>
     <script>
+console.log("loading bootstrap");
       require(['@def.codes/browser-bootstrap'], bootstrap => {
+console.log("loaded bootstrap, shimming require", bootstrap);
         bootstrap.shim_amd_require();
+console.log("shimmed require, loading plugin client");
         window.require(['@def.codes/playgrounds-plugin-client'], playgrounds => {
+console.log("loaded plugin client, initializing discovery", playgrounds);
           playgrounds.discovery_init()
+console.log("initialized discovery");
         });
       });
     </script>

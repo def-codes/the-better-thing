@@ -1,0 +1,6 @@
+{
+  "extends": "../tsconfig-base",
+  "compilerOptions": {
+    "plugins": [{ "name": "@def.codes/playgrounds-plugin" }]
+  }
+}
