@@ -4,7 +4,7 @@
 import * as WebSocket from "ws";
 import * as _path from "path";
 
-import { serialize_query } from "@def.codes/simple-http-server";
+import { serialize_query, Handler } from "@def.codes/simple-http-server";
 import { identity, delayed } from "@thi.ng/compose";
 
 import {
@@ -28,6 +28,7 @@ import {
   with_constant,
   with_path_mount,
   with_static_files,
+  with_node_modules,
 } from "@def.codes/simple-http-server";
 import {
   broadcast_as_json, // For the socket server
@@ -55,12 +56,13 @@ export interface ReflectionServerOptions extends ts_module.PluginImport {
   ) => { diagnostics?: any; emit?: EmitOutput; path?: string } | undefined;
   plugin_root: string;
   project_root: string;
+  node_modules_root: string;
 }
 
 const emit_handler = (
   project_root: string,
   get_emit: ReflectionServerOptions["get_emit"]
-) => request => {
+): Handler => request => {
   // The request may include any extension, but it will be ignored.
   const source_path = _path.join(project_root, request.path);
   const result = get_emit(source_path);
@@ -85,13 +87,15 @@ function* create_site_server(
   port: number,
   plugin_root: string,
   project_root: string,
+  modules_root: string,
   plugin_info: ts.server.PluginCreateInfo,
   get_emit: ReflectionServerOptions["get_emit"]
 ) {
   const handler = with_path_mount({
     mappings: [
       // At `emit`, serve module source directly from the languages server.
-      { path: "emit", handler: emit_handler(project_root, get_emit) },
+      // if this is base url for require, then how can it also work for absolute module id's?
+      { path: "modules/emit", handler: emit_handler(project_root, get_emit) },
       // Provide a way to execute code against the plugin
       { path: "plugin", handler: plugin_dispatch_service(plugin_info) },
       // The consuming project's files are mounted at `project`.
@@ -101,22 +105,7 @@ function* create_site_server(
       // you could do require.resolve("requirejs"), but that's for the node module
       // ultimately, we're going to use our own (def.codes) require
       { path: "project", handler: with_static_files({ root: project_root }) },
-      // fixed location to wherever requirejs is installed (probably temp)
-      {
-        path: "@def.codes",
-        handler: with_static_files({
-          // TEMP, works from *this* project, but downloaded packages would have
-          // additional nesting.  (using arbitrary example
-          root: _path.dirname(require.resolve("@def.codes/playgrounds-plugin")),
-        }),
-      },
-      {
-        path: "requirejs",
-        handler: with_static_files({
-          // Node resolves require to {dir}/bin/r.js, but we want {dir}
-          root: _path.dirname(_path.dirname(require.resolve("requirejs"))),
-        }),
-      },
+      { path: "modules", handler: with_node_modules({ root: modules_root }) },
       // Convert Graphviz Dot code to graphic formats.
       { path: "graphviz", handler: graphviz_service() },
       // Putting this here for now, in case site root is different...
@@ -144,29 +133,19 @@ function* create_site_server(
     <pre id="test"></pre>
     <script>
       var require = {
-      // A “virtual” path which serves the current emit for source modules in
-      // the project consuming the plugin.
-      baseUrl: "/emit",
-      paths: {
-			  // Ditto note below about requirejs.
-        "tslib": "/project/node_modules/tslib/tslib",
-        "browser-bootstrap": "/@def.codes/browser-bootstrap",
-        "reflection-constants": "/dist/playgrounds/server/umd/reflection-constants",
-        
-        // Use the mindgrub bundles instead of individual modules
-        // (e.g. /dist/core/umd/index) because their imports are relative to
-        // themselves, and we need the base path to be the consuming project's.
-        "mindgrub/graphviz": "/dist/graphviz/mindgrub-graphviz",
-        "mindgrub/playgrounds": "/dist/playgrounds/client",
-        "mindgrub": "/dist/core/mindgrub"
-      }
+        // A “virtual” path which serves the current emit for source modules in
+        // the project consuming the plugin.
+        baseUrl: "/modules",
+        paths: {
+          "tslib": "tslib/tslib"
+        }
       };
     </script>
-    <script src="/requirejs/require.js"></script>
+    <script src="/modules/requirejs/require.js"></script>
     <script>
-      require(['browser-bootstrap'], bootstrap => {
+      require(['@def.codes/browser-bootstrap'], bootstrap => {
         bootstrap.shim_amd_require();
-        window.require(['mindgrub/playgrounds'], playgrounds => {
+        window.require(['@def.codes/playgrounds-plugin-client'], playgrounds => {
           playgrounds.discovery_init()
         });
       });
@@ -225,6 +204,7 @@ const reflection_server_main: GeneratorProcess = function*(
     site_port,
     options.plugin_root,
     options.project_root,
+    options.node_modules_root,
     options.info,
     options.get_emit,
   ]);
@@ -234,9 +214,9 @@ const reflection_server_main: GeneratorProcess = function*(
   const params = { [reflection.SOCKET_PORT_KEY]: socket_port };
   const query = serialize_query(params);
   const reflection_site_address = `http://localhost:${site_port}?${query}`;
-  const not_dts = s => !/\.d\.ts$/.test(s);
+  const DTS = /\.d\.ts$/;
+  const not_dts = s => !DTS.test(s);
   const no_src = s => s.replace(/(^\/src\/|\.ts$)/g, "");
-  // @ts-ignore: WIP
   const get_graph = ({ graph }) => {
     const pruned = Object.create(null);
     for (let key of Object.keys(graph).filter(not_dts)) {

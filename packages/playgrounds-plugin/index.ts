@@ -35,9 +35,14 @@ function init(modules: { typescript: typeof ts_module }) {
     const resolved_plugin_module = require.resolve(
       "@def.codes/playgrounds-plugin"
     );
-    const resolved_plugin_module_dir = path.dirname(resolved_plugin_module);
-    // If this happened to be resolved there...
-    const plugin_root = resolved_plugin_module_dir; // `${project_root}/node_modules/@def.codes/playgrounds-plugin`;
+
+    // TEMP: This is the @def.codes root, since (when in this project itself)
+    // there is not an extra nesting level as with installed packages.
+    const plugin_root = path.dirname(resolved_plugin_module);
+    log(`plugin_root: ${plugin_root}`);
+
+    const node_modules_root = path.dirname(plugin_root);
+    log(`node_modules_root: ${node_modules_root}`);
 
     // But suppose you want to set an alternate location for the site?
     // You need a way to ensure that the node_modules that you depend on
@@ -117,6 +122,7 @@ function init(modules: { typescript: typeof ts_module }) {
       info,
       plugin_root,
       project_root,
+      node_modules_root,
     });
     log("started reflection system");
 

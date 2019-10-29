@@ -44,11 +44,15 @@ export const create_server = (options: Partial<Options>) => {
           res.setHeader(key, response.headers[key]);
 
       const content = response.content || response.message || "";
+      const buffer =
+        typeof content === "string" ? new Buffer(content, "utf8") : content;
 
       // Set this regardless of what handler says.
-      res.setHeader("Content-length", content.length);
+      res.setHeader("Content-length", buffer.length);
+      // Should append charset to Content-type if it isn't utf8 (or maybe even
+      // if it is)?
 
-      res.end(content);
+      res.end(buffer);
     };
 
     read_to_end(req)

@@ -2,8 +2,7 @@
  * around. */
 
 import { delayed } from "@thi.ng/compose";
-import { deserialize_query } from "@def.codes/simple-http-server";
-import { path } from "@def.codes/helpers";
+import { path, is_object } from "@def.codes/helpers";
 import {
   SystemSink,
   Multicast,
@@ -19,8 +18,6 @@ import { encode_text } from "./xml-helpers";
 
 // DUPLICATED: this is in both client and server because it's not worth
 // modifying build to share just this; see also note in `README`.
-
-const is_object = (x): x is object => x !== null && typeof x === "object";
 
 const reflection = {
   SOCKET_PORT_KEY: "reflection_port",
@@ -162,10 +159,10 @@ const process_messages: GeneratorProcess = function* process_messages(
 
 // This is essentially an async process, but it's not managed.
 async function attempt_to_contact_reflection_server(messages: Channel) {
-  const query = deserialize_query(window.location.search);
+  const query = new URLSearchParams(window.location.search);
   const reflection_host = window.location.hostname;
   const reflection_port =
-    query[reflection.SOCKET_PORT_KEY] || reflection.DEFAULT_SOCKET_PORT;
+    query.get(reflection.SOCKET_PORT_KEY) || reflection.DEFAULT_SOCKET_PORT;
   const reflection_socket_address = `ws://${reflection_host}:${reflection_port}`;
   for (;;) {
     await socket_connection(reflection_socket_address, event => {

@@ -1,5 +1,5 @@
 import * as Dot from "@def.codes/graphviz-format";
-import { has_items } from "@def.codes/helpers";
+import { has_items, is_object } from "@def.codes/helpers";
 
 /** Arbitrarily-keyed map with O(1) equals-based membership test and lookup. */
 
@@ -24,9 +24,6 @@ interface TraversalMemberNode extends TraversalRootItem {
   parent: object;
 }
 export type TraversalNode = TraversalRootItem | TraversalMemberNode;
-
-// Deal with JavaScript bug.
-const is_object = (x): x is object => x !== null && typeof x === "object";
 
 function* enumerate_members<T>(
   sequence: Iterable<T>
