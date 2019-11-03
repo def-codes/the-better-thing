@@ -21,6 +21,7 @@ const modules = [
   ["meld-core"],
   ["meld-demo"],
   ["meld-process"],
+  ["node-web-presentation", { node_only: true }],
   ["playgrounds-plugin", { node_only: true }],
   ["playgrounds-plugin-client"],
   ["polymorphic-functions"],

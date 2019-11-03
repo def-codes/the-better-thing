@@ -8,7 +8,9 @@ export const happy = {
 };
 
 export const foo = {
+  nested: [[[["buttercup"]]]],
   version: 6,
-  banana: "republic",
-  ages: "once upon a time there was a wonderful boy".split(" "),
+  banana: "beanbags",
+  banana2: "beanbags",
+  ages: "array".split(" "),
 };

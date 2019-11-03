@@ -1,5 +1,5 @@
 import { with_path_mount, STATUS } from "@def.codes/simple-http-server";
-import { shell_command } from "./node-utils/shell_command";
+import { shell_command } from "../node-utils/shell_command";
 
 const dot_to_svg = dot =>
   shell_command("dot", ["-Tsvg"], dot).then(_ => _.stdout.toString("utf-8"));

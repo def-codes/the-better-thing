@@ -1,0 +1,6 @@
+{
+  "extends": "../tsconfig-base",
+  "references": [
+    { "path": "../simple-http-server" }
+  ]
+}

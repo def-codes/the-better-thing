@@ -1,11 +1,12 @@
 import * as Dot from "@def.codes/graphviz-format";
-import { SinkLog } from "../reflection/temp.api";
-import { Channel } from "@def.codes/meld-process";
+
+// TEMP
+type SinkLogEntry = { pid; message; channel?: number };
+type SinkLog = SinkLogEntry[];
 
 /** Tools for converting a process's message log to GraphViz format. */
 
 // Do substring then escape to avoid breaking in the middle of an escape sequence
-// @ts-ignore: WIP
 const dot_safe = o =>
   o == null
     ? "(null/undefined)"

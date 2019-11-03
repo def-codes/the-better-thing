@@ -1,8 +1,6 @@
 import * as dot from "@def.codes/graphviz-format";
 
-// @ts-ignore: WIP
-import { object_graph_to_dot } from "./general-object-to-graphviz";
-import { system_log_to_dot } from "./system_graphviz_utils";
+import { system_log_to_dot } from "@def.codes/node-web-presentation";
 //const bearitones_that = x => {};
 // set up a subscriber to the main subsystem for this context
 // @ts-ignore: WIP

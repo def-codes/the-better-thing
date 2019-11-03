@@ -31,14 +31,13 @@ import {
   with_node_modules,
 } from "@def.codes/simple-http-server";
 import {
-  broadcast_as_json, // For the socket server
-} from "./node-utils/socket_utils";
-// For launching the browser
-import { shell_open } from "./node-utils/shell_open";
+  shell_open, // For launching the browser
+  broadcast_as_json, // for the socket server
+} from "@def.codes/node-web-presentation";
 // For module graph discovery
 // import { fork_process } from "mindgrub-node";
 import { plugin_dispatch_service } from "./plugin_dispatch_service";
-import { graphviz_service } from "./graphviz_service";
+import { graphviz_service } from "@def.codes/node-web-presentation";
 
 // For visualizing module dependencies
 //import { modules_to_digraph } from "../graphviz/module_graphviz_utils";
