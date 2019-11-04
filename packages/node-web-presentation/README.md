@@ -44,6 +44,7 @@ The expectation is that
 - programs can be visualized by
   - referencing and using this package directly
   - being loaded *by* this package indirectly 
+  - being connected to over an exposed message channel using a defined protocol
 
 Processes implementing a given interface 
 

@@ -1,6 +1,7 @@
 {
   "extends": "../tsconfig-base",
   "references": [
+    { "path": "../process-trees" },
     { "path": "../simple-http-server" }
   ]
 }

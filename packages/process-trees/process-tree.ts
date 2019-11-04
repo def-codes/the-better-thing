@@ -10,10 +10,11 @@ import { equivObject } from "@thi.ng/equiv";
 import { ProcessTreeSpec, ProcessTree, ProcessMapping } from "./api";
 import { LazyCall } from "./lazy-call";
 
-function* iterate_to_root(node: ProcessTree) {
-  while (node.location) {
-    yield node.location;
-    node = node.location.parent;
+function* iterate_to_root(location: ProcessTree["location"]) {
+  while (location) {
+    yield location;
+    // @ts-ignore
+    location = location.parent;
   }
 }
 
@@ -34,7 +35,7 @@ export const make_process_tree = <A, B>(
   const children_sub = subscription<typeof children, typeof children>();
   const state = { children };
 
-  const path = () => [...iterate_to_root(this_node)].map(_ => _.key).reverse();
+  const path = () => [...iterate_to_root(location)].map(_ => _.key).reverse();
 
   const equals = (spec1: ProcessTreeSpec, spec2: ProcessTreeSpec) =>
     spec1 &&
@@ -64,7 +65,7 @@ export const make_process_tree = <A, B>(
   };
   const subscriber = {
     error(error) {
-      console.log(`FAIL`, path().join("/"), error);
+      console.error(`FAIL`, path().join("/"), error);
     },
     done() {
       // TODO: add property to spec for end-of-input process
