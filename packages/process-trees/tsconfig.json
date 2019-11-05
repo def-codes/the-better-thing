@@ -1,6 +1,6 @@
 {
   "extends": "../tsconfig-composite",
   "compilerOptions": {
-    "lib": ["DOM"]
+    "lib": [ "ES2015.Iterable", "es2017", "dom" ]
   }
 }

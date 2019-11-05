@@ -13,7 +13,7 @@ export function dictionary_from<
   get_key: (t: TIn, index: number) => K = x => (<unknown>x) as K
 ): Record<K, TOut> {
   const _get_value = get_value || identity;
-  const dict = Object.create(null);
+  const dict: any = {};
   let index = 0;
   for (const key of inputs) {
     dict[get_key(key, index)] = _get_value(key, index);

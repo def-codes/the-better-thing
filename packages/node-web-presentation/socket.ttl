@@ -1,0 +1,28 @@
+# Spitballin'
+@base <http://def.codes/meld/socket/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix meld: <http://def.codes/meld/1/> .
+
+# Use IRI for source?  Or an IRI property?
+SocketClient
+# WHEN IN ACTIVE STATE can be construed as a source/ingress
+# WHEN IN ACTIVE STATE can be construed as a sink/egress
+    rdfs:subclassOf meld:Stream ;
+    rdfs:label "Socket Client"@en ;
+    rdfs:comment """A mechanism that connects to a Web Socket host and acts as both source of incoming messages from that host and a sink for messages to send to that host.  `SocketClient` is environment-agnostic.  Implementations should use whatever mechanism is suitable in the relevant environment."""@en
+    .
+
+
+socketClientOf rdfs:domain SocketClient .
+
+# EXAMPLES
+@prefix : <http://example.com/> .
+
+:Claude socketClientOf <ws://localhost:4000> .
+
+
+
+:Alice a WebSocketServer .
+
+# Does that mean anything though?
+# Does that imply that Alice should be instantiated?

@@ -1,7 +1,26 @@
-import { ProcessTree } from "@def.codes/process-trees";
+import {
+  ProcessTree,
+  ProcessTreeSpec,
+  LazyCall,
+} from "@def.codes/process-trees";
 // TEMP: don't actually depend on this (if possible)
 import * as rs from "@thi.ng/rstream";
+import { map_object, dictionary_from } from "@def.codes/helpers";
 // eh, but prob going to need channels to debounce messages
+
+const stringify_function = (fn: Function) => fn.name || fn.toString();
+
+// jsonify
+const datafy_binding = ({ fn, args }: LazyCall<any>) => ({
+  fn: stringify_function(fn),
+  args,
+});
+
+const datafy_spec = ({ source, xform, process }: ProcessTreeSpec) => ({
+  source: typeof source === "string" ? source : datafy_binding(source),
+  ...(xform ? { xform: datafy_binding(xform) } : {}),
+  ...(process ? { process: stringify_function(process) } : {}),
+});
 
 type MessageFor<T extends string, More = {}> = Readonly<
   More & {
@@ -12,7 +31,9 @@ type MessageFor<T extends string, More = {}> = Readonly<
 
 interface MessageTypes {
   value: { value: any };
-  children: { names: readonly string[] };
+  // children: { names: readonly string[] };
+  // value is "datafied" process tree spec
+  children: { specs: Record<string, object> };
 }
 
 type ProcessSinkMessage<K = keyof MessageTypes> = K extends keyof MessageTypes
@@ -24,7 +45,7 @@ interface ProcessSink extends rs.ISubscribableSubscriber<ProcessSinkMessage> {}
 interface ProcessObserverStream extends rs.Stream<ProcessSinkMessage> {}
 
 // i.e. stream from process tree
-const observer = (node: ProcessTree): ProcessObserverStream =>
+export const observer_of = (node: ProcessTree): ProcessObserverStream =>
   rs.stream<ProcessSinkMessage>(sub => {
     const path = node.path();
 
@@ -32,7 +53,15 @@ const observer = (node: ProcessTree): ProcessObserverStream =>
 
     const children_watcher = node.children.subscribe({
       next(children) {
-        sub.next({ type: "children", path, names: Object.keys(children) });
+        // Why is a map used for children, anyway?
+        // Could get the specs from the values... but can we print them?
+        sub.next({
+          type: "children",
+          path,
+          specs: dictionary_from(children.keys(), name =>
+            datafy_spec(children.get(name).spec)
+          ),
+        });
       },
     });
 
@@ -42,46 +71,8 @@ const observer = (node: ProcessTree): ProcessObserverStream =>
       },
     });
 
-    // const child_watchers = () => {
-    //   //
-    // };
-
     return () => {
       children_watcher.unsubscribe();
       source_watcher.unsubscribe();
     };
   });
-
-//////////////////////////// 1st draft
-const observer0 = (node: ProcessTree, sink: ProcessSink) => {
-  const path = node.path();
-  const children_watcher = node.children.subscribe({
-    next(children) {
-      sink.next({ type: "children", path, names: Object.keys(children) });
-    },
-  });
-
-  const source_watcher = node.source.subscribe({
-    next(value) {
-      sink.next({ type: "value", path, value });
-    },
-  });
-
-  return {
-    kill() {
-      children_watcher.unsubscribe();
-      source_watcher.unsubscribe();
-    },
-  };
-};
-//////////////////////////////////////////
-
-export const observe_system = (system: ProcessTree): ProcessObserverStream => {
-  // const sink = rs.subscription<ProcessSinkMessage, ProcessSinkMessage>();
-  return observer(system);
-};
-
-// console.log(
-//   `CHILDREN of ${node.path()}: ${[...children.keys()].join(", ")}`
-// );
-// console.log(`VALUE of ${node.path()}: ${JSON.stringify(value)}`);

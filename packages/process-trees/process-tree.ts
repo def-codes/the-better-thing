@@ -97,23 +97,14 @@ export const make_process_tree = <A, B>(
       : spec.source.fn(...spec.source.args);
   const transform = spec.xform && spec.xform.fn(...spec.xform.args);
 
-  // Admirably, this infers as Subscription<A, B> | Subscription<A, A>
-  // but see below
-  const source = transform
-    ? base.subscribe(subscriber, transform)
-    : // prettier-ignore
-      // @ts-ignore
-      base.subscribe(subscriber) as Subscription<A, B>;
-
-  const target = spec.output
-    ? source.subscribe(resolve(spec.output))
-    : undefined;
-
-  const this_node = {
+  // @ts-ignore.  this thing is a mess
+  // Without this ordering/mutation madness, you somehow get `this_node`
+  // referenced before initialized
+  const this_node: ProcessTree<A, B> = {
     spec,
     location,
-    source,
-    target,
+    // source,
+    // target,
     children: children_sub,
     path,
     die() {
@@ -122,6 +113,20 @@ export const make_process_tree = <A, B>(
       for (const key of state.children.keys()) kill(key);
     },
   };
+
+  // Admirably, this infers as Subscription<A, B> | Subscription<A, A>
+  // but see below
+  // @ts-ignore, yes, I marked this as read-only
+  const source = (this_node.source = transform
+    ? base.subscribe(subscriber, transform)
+    : // prettier-ignore
+      // @ts-ignore
+      base.subscribe(subscriber) as Subscription<A, B>);
+
+  // @ts-ignore, yes, I marked this as read-only
+  this_node.target = spec.output
+    ? source.subscribe(resolve(spec.output))
+    : undefined;
 
   // @ts-ignore TEMP: see note above, how to tell it that B = A when xform is null?
   // Also, when using resolver you just can't know
