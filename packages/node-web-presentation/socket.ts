@@ -2,6 +2,7 @@
 
 import * as WebSocket from "ws";
 // import * as rs from "@thi.ng/rstream";
+import { IDispose } from "./process-api";
 
 function socket_client_wrapper(client: WebSocket): IDispose {
   // The process dies if the client closes on its own

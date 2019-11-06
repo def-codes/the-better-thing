@@ -2,7 +2,7 @@
 import { IWatch, INotify } from "@thi.ng/api";
 
 // Is this something you'd call directly, i.e. separately from lifecycle?
-interface IDispose {
+export interface IDispose {
   dispose(): void;
 }
 
