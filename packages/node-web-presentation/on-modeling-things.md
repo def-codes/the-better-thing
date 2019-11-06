@@ -202,3 +202,33 @@ machinery of events related to the child definitions.
 
 But of course, is there any value in asserting that those things *aren't* going
 to change?  You never really know that.
+
+## Contingent processes
+
+We consider one process *contingent* on another if it cannot live without that
+process and will thus die on its termination.
+
+We can *reflect* the fact that, according to information reported by a pair of
+processes, one of them (A) is contingent on the other (B).  We would expect to
+see this fact borne out by reality: if B dies, then so does A.
+
+We can also *assert* that one process is contingent on another, in which case it
+becomes the responsibility of an outside entity to reify this assertion by
+killing A when B dies.
+
+This is not the same as a parent-child relationship among processes because it
+is possible for a process to be orphaned (its parent dies but it remains alive).
+
+How is this different than a process being *dependent* on another?  It's close.
+But “dependent” suggests that the one receives some kind of continual or regular
+succor from the other.  A process can be *independent* during its lifetime while
+its lifetime is yet contingent on the existence of the other process.
+
+*Coterminal* might be a more precise term in that regard.  However, this term
+doesn't carry directionality.  One process being “coterminal” with another
+suggests that the death of either one implies the death of the other.  This is
+not the case for a contingent process, which may die without affecting the
+process on which it is contingent.
+
+*Predicated* might be an alternative term.  It does somewhat suggest more of a
+truth-value dependency, versus a dependency on existence.

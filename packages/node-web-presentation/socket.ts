@@ -3,8 +3,7 @@
 import * as WebSocket from "ws";
 // import * as rs from "@thi.ng/rstream";
 
-function socket_client_wrapper(client: WebSocket) {
-  // Actually in this case you *could* use rstream.fromEvent, right?
+function socket_client_wrapper(client: WebSocket): IDispose {
   // The process dies if the client closes on its own
   const onclose = () => {
     // die, this process
@@ -18,12 +17,15 @@ function socket_client_wrapper(client: WebSocket) {
   };
 }
 
-export function socket_server_wrapper(host: string, port: number) {
+export function socket_server_wrapper(host: string, port: number): IDispose {
   const instance = new WebSocket.Server({ host, port });
 
   const connection_listener = (client: WebSocket) => {
     const wrapped_client = socket_client_wrapper(client);
-    // Now... what??
+    // the client is a process contingent on this process
+    // whether we say so or not
+    // Do we need to name this thing?
+    // Give a blank node id?
   };
   instance.on("connection", connection_listener);
 

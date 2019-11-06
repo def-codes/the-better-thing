@@ -1,0 +1,8 @@
+digraph {
+	node [shape = "circle"]
+	connecting -> open [label = "open"]
+	open -> closing [label = "close"]
+	closing -> closed
+	/* Is this a thing? */
+	connecting -> closing [label = "?"]
+}
