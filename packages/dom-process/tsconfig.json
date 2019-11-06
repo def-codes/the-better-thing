@@ -1,0 +1,6 @@
+{
+  "extends": "../tsconfig-composite",
+  "compilerOptions": {
+    "lib": ["dom"]
+  }
+}
