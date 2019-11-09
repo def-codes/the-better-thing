@@ -14,7 +14,7 @@ function concat_buffers(buffers: Iterable<Buffer>) {
   return out;
 }
 
-interface ShellCommandResult {
+export interface ShellCommandResult {
   status: number;
   stdout: Buffer;
   stderr: Buffer;

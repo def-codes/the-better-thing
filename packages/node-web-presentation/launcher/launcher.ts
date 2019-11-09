@@ -9,11 +9,11 @@
 //   - runs a designated method, or
 //   - scans global namespace
 //     - could even proxy this to detect changes
-const rs = require("@thi.ng/rstream");
-const { rstream_dot_updater } = require("./rstream-viewer");
-const [, , module_name, ...args] = process.argv;
+import * as rs from "@thi.ng/rstream";
+import * as path from "path";
+import { rstream_dot_updater } from "./rstream-viewer";
 
-function fail_with(message) {
+function fail_with(message: string) {
   process.stderr.write(`${message}\n`);
   process.exit(1);
 }
@@ -22,12 +22,16 @@ function fail_usage() {
   fail_with("usage: launcher <module> [method]");
 }
 
-(async function() {
+export async function launch() {
+  const [, , module_name, ...args] = process.argv;
+
   if (!module_name) fail_usage();
 
-  let it;
+  let it: any;
   try {
-    it = require(module_name);
+    // it = require(module_name);
+    // Resolve relative to pwd
+    it = require(path.join(process.cwd(), module_name));
   } catch (error) {
     fail_with(`abort: failed to load module ${module_name}: ${error}`);
   }
@@ -58,4 +62,4 @@ function fail_usage() {
     }
     step();
   }
-})();
+}

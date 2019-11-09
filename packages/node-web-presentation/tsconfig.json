@@ -1,6 +1,7 @@
 {
-  "extends": "../tsconfig-base",
+  "extends": "../tsconfig-composite",
   "references": [
+    { "path": "../graphviz-format" },
     { "path": "../process-trees" },
     { "path": "../simple-http-server" }
   ]

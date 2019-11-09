@@ -8,17 +8,10 @@ export interface IDispose {
 
 // Is anything common to all processes?
 interface IProcess<TState = any> extends IWatch<TState>, INotify {
-  // If a process is watchable (which seems ineviable), what is it that gets
-  // watched? state? the datafication (description)?
+  // notify of messages about the process
+  // and they have an id
   //
-  // is describable a separate interface?  isn't it identical to datafy?  Which
-  // is in turn identical to unreify?
-  //
-  // if a process supports event listeners (notify), what does it notify
-  // about?  the INotify interface requires identified events (which is good)
-  // but not typed events (which is probably fine)
-  //
-  // state machine on life cycle? (alive -> dead)
+  // watch
 }
 
 // I mean, @thi.ng already has this, and if the thing is also datafiable,

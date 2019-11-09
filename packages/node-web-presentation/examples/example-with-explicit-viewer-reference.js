@@ -1,4 +1,7 @@
-const { rstream_dot_updater } = require("./rstream-viewer");
+const blah = require("@def.codes/node-web-presentation");
+console.log(`blah`, blah);
+
+const { rstream_dot_updater } = blah;
 const rs = require("@thi.ng/rstream");
 const tx = require("@thi.ng/transducers");
 

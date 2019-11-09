@@ -1,10 +1,10 @@
 // doen't clean up after itself
-const os = require("os");
-const path = require("path");
-const { writeFileSync, mkdtempSync } = require("fs");
+import * as os from "os";
+import * as path from "path";
+import { writeFileSync, mkdtempSync } from "fs";
 
-function make_image_polling_viewer(
-  image_name,
+export function make_image_polling_viewer(
+  image_name: string,
   dir = mkdtempSync(`${os.tmpdir()}${path.sep}polling-viewer`)
 ) {
   const html_file = path.join(dir, "polling-viewer.html");
@@ -34,5 +34,3 @@ update();
   const image_file = path.join(dir, image_name);
   return { html_file, image_file };
 }
-
-module.exports = { make_image_polling_viewer };

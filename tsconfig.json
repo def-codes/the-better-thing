@@ -14,6 +14,7 @@
     {"path": "packages/meld-core" },
     {"path": "packages/meld-demo" },
     {"path": "packages/meld-process" },
+    {"path": "packages/node-viewer-cli" },
     {"path": "packages/node-web-presentation" },
     {"path": "packages/playgrounds-plugin" },
     {"path": "packages/playgrounds-plugin-client" },
