@@ -3,7 +3,5 @@
   "compilerOptions": {
     "downlevelIteration": true
   },
-  "references": [
-    { "path": "../helpers" },
-  ]
+  "references": [{ "path": "../helpers" }]
 }

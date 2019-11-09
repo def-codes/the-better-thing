@@ -1,6 +1,4 @@
 {
   "extends": "../tsconfig-composite",
-  "references": [
-    { "path": "../helpers" }
-  ]
+  "references": [{ "path": "../helpers" }]
 }

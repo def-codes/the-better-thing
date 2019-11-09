@@ -72,7 +72,10 @@ export function show_example(model_id) {
   });
   // do something with messages
   messages
-    .transform(tx.filter(_ => _.type === "error"), tx.sideEffect(console.error))
+    .transform(
+      tx.filter(_ => _.type === "error"),
+      tx.sideEffect(console.error)
+    )
     .subscribe(catchall("message-display"));
 
   //================================== HOST DATAFLOW INTEROP

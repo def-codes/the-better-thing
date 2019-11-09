@@ -1,7 +1,5 @@
 {
   "extends": "../tsconfig-base",
-  "compilerOptions": {
-  },
   "references": [
     { "path": "../helpers" },
     { "path": "../meld-process" },

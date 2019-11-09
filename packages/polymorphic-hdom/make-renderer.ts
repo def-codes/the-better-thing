@@ -86,7 +86,11 @@ const compute_all_traits = (
   thing: any
 ): Trait[] => [
   ...tx.iterator(
-    tx.comp(tx.map(query => query(thing, context)), truthy, tx.flatten()),
+    tx.comp(
+      tx.map(query => query(thing, context)),
+      truthy,
+      tx.flatten()
+    ),
     queries
   ),
 ];

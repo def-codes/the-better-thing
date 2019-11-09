@@ -4,8 +4,8 @@ const render_child = (child: Child) =>
   typeof child === "string"
     ? child
     : Array.isArray(child)
-      ? child.map(render_child)
-      : render(child);
+    ? child.map(render_child)
+    : render(child);
 
 /** Essentially a macroexpand for component expressions. */
 export const render = ({

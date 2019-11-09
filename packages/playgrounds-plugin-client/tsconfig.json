@@ -1,8 +1,8 @@
 {
   "extends": "../tsconfig-base",
   "compilerOptions": {
-    "lib": [ "ES2015.Iterable", "es2017", "DOM" ],
-    "noImplicitAny": false,
+    "lib": ["ES2015.Iterable", "es2017", "DOM"],
+    "noImplicitAny": false
   },
   "references": [
     { "path": "../meld-process" },

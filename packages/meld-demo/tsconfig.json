@@ -8,6 +8,6 @@
     { "path": "../meld-core" },
     { "path": "../expression-reader" },
     { "path": "../rdf-data-model" },
-    { "path": "../polymorphic-hdom" },
+    { "path": "../polymorphic-hdom" }
   ]
 }

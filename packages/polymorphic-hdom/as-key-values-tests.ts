@@ -7,19 +7,41 @@ export const test_cases: readonly [string, any, [any, any][]][] = [
   [
     "Array",
     [38, 4, 999, "once upon a time"],
-    [[0, 38], [1, 4], [2, 999], [3, "once upon a time"]],
+    [
+      [0, 38],
+      [1, 4],
+      [2, 999],
+      [3, "once upon a time"],
+    ],
   ],
   [
     "Map",
-    new Map([["alpha", "male"], ["beta", "blocker"]]),
-    [["alpha", "male"], ["beta", "blocker"]],
+    new Map([
+      ["alpha", "male"],
+      ["beta", "blocker"],
+    ]),
+    [
+      ["alpha", "male"],
+      ["beta", "blocker"],
+    ],
   ],
   [
     "Set",
     new Set([88, true, "floof"]),
-    [[null, 88], [null, true], [null, "floof"]],
+    [
+      [null, 88],
+      [null, true],
+      [null, "floof"],
+    ],
   ],
-  ["Object", { alpha: 3, boring: 54 }, [["alpha", 3], ["boring", 54]]],
+  [
+    "Object",
+    { alpha: 3, boring: 54 },
+    [
+      ["alpha", 3],
+      ["boring", 54],
+    ],
+  ],
   ["String", "hi", []],
   ["null", null, []],
 ];
