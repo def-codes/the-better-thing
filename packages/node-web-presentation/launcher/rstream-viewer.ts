@@ -1,10 +1,8 @@
-import { fileURLToPath, pathToFileURL } from "url";
+import { pathToFileURL } from "url";
 import * as rsd from "@thi.ng/rstream-dot";
-import { shell_open, shell_command } from "../node-utils/index";
+import { shell_open } from "../node-utils/index";
 import { make_image_polling_viewer } from "./viewer";
-
-const dot_to_svg_file = (dot, file) =>
-  shell_command("dot", ["-Tsvg", "-o", file], dot);
+import { dot_to_svg_file } from "./dot-viewer";
 
 const exists = x => x != null;
 

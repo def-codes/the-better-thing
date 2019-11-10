@@ -11,7 +11,9 @@
 //     - could even proxy this to detect changes
 import * as rs from "@thi.ng/rstream";
 import * as path from "path";
+import { dot_updater } from "./dot-viewer";
 import { rstream_dot_updater } from "./rstream-viewer";
+import * as Dot from "@def.codes/graphviz-format";
 
 function fail_with(message: string) {
   process.stderr.write(`${message}\n`);
@@ -61,5 +63,10 @@ export async function launch() {
       setTimeout(step, 250);
     }
     step();
+  }
+
+  if (Dot.is_graph(result)) {
+    const updater = dot_updater();
+    updater.go(result);
   }
 }
