@@ -15,7 +15,7 @@ function main() {
   }
 
   go();
-  return root;
+  return [root];
 }
 
 module.exports = { main };

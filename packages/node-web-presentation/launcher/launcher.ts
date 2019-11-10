@@ -55,7 +55,10 @@ export async function launch() {
 
   const result = method();
 
-  if (result instanceof rs.Subscription) {
+  if (
+    Array.isArray(result) &&
+    result.every(_ => _ instanceof rs.Subscription)
+  ) {
     const updater = rstream_dot_updater(result);
     // without a notifier of changes, we just have to poll
     function step() {
