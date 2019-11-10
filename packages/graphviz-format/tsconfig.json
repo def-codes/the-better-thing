@@ -1,4 +1,7 @@
 {
   "extends": "../tsconfig-composite",
-  "references": [{ "path": "../polymorphic-functions" }]
+  "references": [
+    { "path": "../helpers" },
+    { "path": "../polymorphic-functions" },
+  ]
 }

@@ -12,8 +12,7 @@ import {
   GeneratorProcess,
 } from "@def.codes/meld-process";
 
-import { serialize_dot } from "@def.codes/graphviz-format";
-import { object_graph_to_dot } from "./general-object-to-graphviz";
+import { serialize_dot, object_graph_to_dot } from "@def.codes/graphviz-format";
 import { encode_text } from "./xml-helpers";
 
 // DUPLICATED: this is in both client and server because it's not worth
