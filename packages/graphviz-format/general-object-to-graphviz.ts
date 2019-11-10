@@ -45,11 +45,9 @@ export const is_reference_type = (value: any) =>
   value !== null && (typeof value === "object" || typeof value === "function");
 
 export function* depth_first_walk(start: any): IterableIterator<TraversalNode> {
-  const indices = new Map<object, number>();
+  const indices = new Map<object, number>([[start, 0]]);
   const index_of = (o: object) =>
-    indices.has(o)
-      ? (indices.get(o) as number)
-      : indices.set(o, indices.size + 1).size;
+    indices.get(o) ?? indices.set(o, indices.size).size - 1;
   const traversed = new Set();
 
   const queue: TraversalNode[] = [{ value: start, index: 0 }];
