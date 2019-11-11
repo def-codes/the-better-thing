@@ -65,7 +65,7 @@ export const observer_of = (node: ProcessTree): ProcessObserverStream =>
       },
     });
 
-    const source_watcher = node.source.subscribe({
+    const source_watcher = node.output.subscribe({
       next(value) {
         sub.next({ type: "value", path, value });
       },
