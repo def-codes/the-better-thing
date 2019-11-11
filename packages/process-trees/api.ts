@@ -41,7 +41,7 @@ export interface ProcessTreeSpec<A = unknown, B = A> {
   readonly xform?: LazyCall<tx.Transducer<A, B>>;
 
   // Optionally identify an output node
-  readonly output?: string;
+  readonly forward_to?: string;
 
   /** Describe the child processes for a given node state. */
   readonly process?: ProcessMapping<B>;
@@ -54,15 +54,16 @@ export interface ProcessTree<A = unknown, B = A> extends IProcess {
   /** The blueprint used to create this process tree. */
   readonly spec: ProcessTreeSpec<A, B>;
 
-  // The actual subscription created by this node... in the event that there is a process?
-  // SO this is not the source, this is the OUTPUT
-  readonly source: rs.ISubscribable<B>;
+  /* The value stream at this node, wtih any transform applied. */
+  readonly output: rs.ISubscribable<B>;
 
   // If this outputs to another node, the subscription that forwards the values
-  readonly target?: rs.ISubscribable<B>;
+  // SHOULD this even be exposed by the interface?  I would think not.
+  // readonly target?: rs.ISubscribable<B>;
 
   readonly location: null | {
     /** The process to whose life cycle this one's is tied. */
+    // HAVING this pointer complicates impl and is currently only used for path
     readonly parent: ProcessTree;
 
     /** The key of this process with respect to its parent. */

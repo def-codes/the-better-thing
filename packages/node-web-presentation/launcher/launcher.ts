@@ -10,9 +10,11 @@
 //   - scans global namespace
 //     - could even proxy this to detect changes
 import * as rs from "@thi.ng/rstream";
+import { delayed } from "@thi.ng/compose";
 import * as path from "path";
 import { dot_updater } from "./dot-viewer";
 import { rstream_dot_updater } from "./rstream-viewer";
+import { host } from "../persistence/host";
 import * as Dot from "@def.codes/graphviz-format";
 
 function fail_with(message: string) {
@@ -28,6 +30,8 @@ export async function launch() {
   const [, , module_name, ...args] = process.argv;
 
   if (!module_name) fail_usage();
+
+  if (module_name === "host") return host(args[0]);
 
   let it: any;
   try {
@@ -53,9 +57,31 @@ export async function launch() {
   if (typeof method !== "function")
     fail_with(`abort: expected ${module_name}.${method_name} to be a function`);
 
-  const result = method();
+  let result;
+  try {
+    result = method();
+  } catch (error) {
+    fail_with(
+      `abort: error running ${method_name} in ${module_name}: ${error}`
+    );
+  }
 
-  if (
+  // dotify all the things
+  if (true) {
+    const updater = dot_updater();
+    // without a notifier of changes, we just have to poll
+    (async function() {
+      while (true) {
+        updater.go(Dot.dotify(result));
+        await delayed(true, 250);
+      }
+    })();
+    // function step() {
+    //   updater.go(Dot.dotify(result));
+    //   setTimeout(step, 250);
+    // }
+    // step();
+  } else if (
     Array.isArray(result) &&
     result.every(_ => _ instanceof rs.Subscription)
   ) {
@@ -66,9 +92,7 @@ export async function launch() {
       setTimeout(step, 250);
     }
     step();
-  }
-
-  if (Dot.is_graph(result)) {
+  } else if (Dot.is_graph(result)) {
     const updater = dot_updater();
     updater.go(result);
   }

@@ -31,6 +31,7 @@ const modules = [
   ["rdf-data-model"],
   ["rdf-expressions"],
   ["rdf-expressions-test"],
+  ["runtime-reflection"],
   ["simple-http-server", { node_only: true }],
 ];
 
