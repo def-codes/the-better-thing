@@ -1,0 +1,31 @@
+#+TITLE:scopes
+
+* the idea
+
+A knowledge-based runtime will require a notion of "scopes" even for the
+simplest cases.
+
+What is a scope?
+
+In RDF terms, you can think of a scope as a named graph with a special
+entailment rule applied.  This entailment rule lets you state that graph A
+entails graph B.  The effect of this is that all facts that are true in B are
+true in A.
+
+But in not-RDF terms, you can think of a scope as a namespace.  What
+distinguishes the things in a scope is that they have a common /owner/, and by
+extension a common provenance.
+
+Note that if all sources are monotonic (increasing only), then constituents can
+be comingled without the need for scopes (though note that there may be no way
+to track the provenance of facts).  If a source may /stop/ contributing a
+particular item, scopes provide a way to isolate each set of contributions so
+that multiple contributors can contribute the same fact independently.
+
+An outcome of scopes /should/ be that there are certain things which can never
+collide, but note that this contradicts the previous point (that multiple scopes
+can refer to "the same" fact).
+
+Scopes become useful only if they partition a system into exclusive subsystems
+(in a way that is non-overlapping), where the boundaries represent lines of
+communication.
