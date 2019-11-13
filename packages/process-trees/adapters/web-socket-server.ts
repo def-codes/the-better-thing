@@ -9,7 +9,9 @@
 //     - starts in pending state and goes (at most once) into open state
 //     - can go (unrecoverably) into closed state
 //   - what else does this create in its own right?
-import { ISubsystemAdapter, IDispose } from "./api";
+// ENTAILS
+//   - connected child processes (reflected, WebSocketClient)
+import { ISubsystemAdapter } from "./api";
 import { web_socket_client_adapter } from "./web-socket-client";
 import * as WebSocket from "ws";
 

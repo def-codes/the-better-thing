@@ -1,9 +1,17 @@
 // A toy server, I made it so it can work however I want
 // REFLECT
 //   - I don't remember how this works
-// CREATES
+//   - the node server is actually a thing
+//   - the interface is *really* hairy
+//   - to processify it you need to make up something
+//     - like the async handler we have, or better, iterator like WSGI
+// ENTAILS
 //   - INGRESS (incoming requests)
-// REIFY
+//   - really 2 things, and all async process based
+//   - better suited to CSP (transient channels) than event/react
+//   - request/response handler is purely functional (but async)
+//   - network adapter has ingress but not really a separate egress
+//     - i.e. you can't just send things outside of the context of a request
 import { ISubsystemAdapter } from "./api";
 import {
   create_server,

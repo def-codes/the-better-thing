@@ -5,7 +5,12 @@ export interface IDispose {
 }
 
 // TBD
-export interface IProcess extends Partial<IDispose> {}
+export interface IProcess extends Partial<IDispose> {
+  // report entailed processes/things
+  //
+  // Does entailment happen in capacity as a process or as a thing?
+  // is there any meaningful difference?
+}
 
 // `B` is the “blueprint” type: properties needed to construct
 export interface IReify<B extends object> {

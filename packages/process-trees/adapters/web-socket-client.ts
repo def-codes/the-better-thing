@@ -9,14 +9,17 @@
 //     - can emit errors (multiple times, doesn't go into error state, right?)
 //   - like a state machine in that
 //     - can go (unrecoverably) into closed state
-//   - creates TWO things
-//     - an INGRESS (SINK) for receiving (buffer or encoded text) messages
-//     - an EGRESS (EVENT/SOURCE) for sending messages
-import { ISubsystemAdapter, IDispose } from "./api";
+// ENTAILS
+//   - an INGRESS (SINK) for receiving (buffer or encoded text) messages
+//   - an EGRESS (EVENT/SOURCE) for sending messages
+import { ISubsystemAdapter } from "./api";
 import * as WebSocket from "ws";
 
 interface WebSocketClientBlueprint {
   address: string;
+  // ws supports a bunch of client options.
+  // They are mostly pure data.  Could support if needed.
+  // options?: WebSocket.ClientOptions;
 }
 
 export const web_socket_client_adapter: ISubsystemAdapter<WebSocketClientBlueprint> = {
@@ -24,19 +27,31 @@ export const web_socket_client_adapter: ISubsystemAdapter<WebSocketClientBluepri
   type_iri: "https://www.w3.org/TR/websockets/#WebSocketClient",
   can_create_contingent_processes: false,
 
-  // But isn't the whole point that you don't want to return an instance?
-  // yet isn't doing this going to just cause a bunch of boilerplate?
   reify: blueprint => {
-    const instance = new WebSocket(blueprint.address);
-    // processify...
-    return {};
-  },
-  // @ts-ignore
-  wrap_instance(client: WebSocket): IDispose {
+    const client = new WebSocket(blueprint.address);
     // The process dies if the client closes on its own
     const onclose = () => {
       // die, this process
     };
+
+    // provide this to super mechanism as sink
+    // but special error/close handling here?
+    const entailed_ingress = subscription({
+      next(message) {
+        client.send(message);
+      },
+    });
+
+    // provide this to super mechanism as source
+    // essentially, from event
+    const entailed_egress = sub => {
+      client.on("message", data => sub.next(data));
+      return () => {
+        // Should do this here?
+        client.close();
+      };
+    };
+
     client.addEventListener("close", onclose);
     return {
       dispose() {

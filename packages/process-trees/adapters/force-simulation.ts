@@ -3,10 +3,12 @@
 // REIFY:
 //   - see meld demo.  I've done this several times over
 //   - same goes for forces, which can be considered a different kind of thing
-// CREATES:
-//   - as *I* use it, this just creates a stateful thing with a tick command
-//     - i.e. the sim is pull-based & doesn't have its own timer
+// ENTAILS:
+//   - tick (input port)
+//     - unlike idiomatic d3 usage. this is pull-based & doesn't run its own timer
 //   - takes other messages, like add/remove node/force (hasNode/hasForce)
+//     - nodes (state port)
+//     - forces (state port)
 import { ISubsystemAdapter } from "./api";
 import * as d3_force from "d3-force";
 

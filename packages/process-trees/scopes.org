@@ -248,6 +248,35 @@ And why would you want to?
 
 Can this be done through protocol implementations?
 
+* decision log
+
+** transforms are processes
+
+Even though every subscription (in rstream) can support its own transducer,
+allowing transforms in point-to-point IPC would undermine some of the invariants
+we want to maintain (discussed elsewhere).
+
+Transducers can be not only stateful but fully side-effecting in their own
+right.  A transform must be implemented as a child process.  This allows special
+transducers to be treated as subsystems where necessary.  In this respect, the
+fact that it's "still just a transducer" is irrelevant, if not untrue.
+
+It is still trivial to connect two points through a transform by adding a
+(named) child process based on the transform and then adding the (anonymous)
+point-to-point connections.
+
+* ports
+
+Suppose that we created a process around a "plain object."  We treat its methods
+(function properties) as ports (assuming single arity), and we treat its value
+properties as streams.  To support properties-as-streams where the keys are
+known, we'd need to wrap the object using getters and setters.  If the keys are
+not known /a priori/ then this can be accomplished by using a =Proxy=.
+
+We see that an object can effectively provide an arbitrary set of "ports"
+without /actually/ creating a new process for each one.  That is, a single
+dispatcher can handle requests to all ports.
+
 * ports, IPC, and facts /versus/ values
 
 Note that the object graph gives you an idea of (some of) the possible lines of
@@ -375,3 +404,60 @@ operation.  In terms of processes (nodes), we can either add a node or remove a
 node.  This means that there are 2N possibilities for the next graph where N is
 the number of nodes prior to the operation.
 
+...continue
+
+** communication
+
+Leaving aside the question of representing dynamism, there remains the matter of
+communication.
+
+Suppose that all IPC lines may be considered as point-to-point wires (I want to
+reserve the term "channels" for CSP usage) and can thus be described using from
+and to identifiers.
+
+We introduce the notion of a /port/.  A port is essentially a subscription.  It's
+a process from which you can read values, and to which you can write values.
+
+Like other processes in a system, ports are identifiable by way of their
+location in the subsystem hierarchy.
+
+We may talk about a port as "belonging to" its containing subsystem.  We may say
+the same of other such process.  But ports are special in that they can be
+addressed for IPC purposes.  So we come to the matter of, what /isn't/ a port?
+And since those things can also be addressed, what can one do with such
+addresses, and how can we tell the difference?
+
+Take a websocket client for example.  A websocket client entails two ports.
+
+Suppose that we have a subsystem located at =/users/user1=.
+
+Now suppose that the =user1= process introduces a web socket client and calls it
+=chat=.
+
+Note that =chat= is itself a process.
+
+By the above definition, the two communication ports entailed by the =chat=
+process would have to be named.
+
+It might be more intuitive to suppose that you could write directly to =chat= to
+send messages and read directly from =chat= to listen to messages.
+
+But we must point out several things here.
+
+1. it may be necessary to communicate with the =chat= process itself.  In
+   particular to send a message saying that it should be closed.
+2. the =chat= process may emit information other than the messages, particularly
+   =error= messages
+3. there is nothing to stop us from writing directly to the chat's input or
+   reading from its output.  This is just the way that subscriptions work and it
+   can be useful for various reasons (e.g. to simulate messages, or monitor
+   output)
+4. as an implementation matter, the message ingress will likely be a stream
+   source, meaning that an event listener will not be created until the port has
+   at least one subscriber.  It is therefore possible to send output messages
+   without creating a message listener.  In other words, they're two different
+   things.
+
+Therefore, it is necessary to name the incoming and outgoing message channels.
+
+But more than that---is it necessary to target =next= within the port?

@@ -2,11 +2,11 @@
 //   - this is a claim store
 //   - but I'm not going to use TripleStore directly
 //     - need to make various adaptations (for to use RDF terms, etc)
-// CREATES
+// IT IS
 //   - a stateful thing
 //   - that mutates its state based on incoming messages
-// REIFY:
-//   - type is essentially (non-named) rdf graph
+// IT ENTAILS
+//   - query processes (out ports) created on-demand
 // COMPONENT
 //   - has its own internal dataflow that you could inspect (i.e. reflect)
 //     - these are really implementation details and you shouldn't mess with them
@@ -29,6 +29,7 @@ import { TripleStore } from "@thi.ng/rstream-query";
 export interface TripleStoreBlueprint {}
 
 export const triple_store_adapter: ISubsystemAdapter<TripleStoreBlueprint> = {
+  // not exactly an RDF graph
   type_iri: "http://thi.ng/rstream-query#TripleStore",
   // but creates them “on demand”, from a request that must be (?) IPC-based?
   can_create_contingent_processes: true,
