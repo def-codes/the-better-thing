@@ -17,6 +17,7 @@ export interface MultiWaveBlueprint {
 }
 
 export const multiwave_adapter: ISubsystemAdapter<MultiWaveBlueprint> = {
+  type_iri: "http://morningstarcorp.com/interop/models/MultiWave",
   // in its capacity as a... port map
   can_create_contingent_processes: true,
   reify() {

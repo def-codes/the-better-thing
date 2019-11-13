@@ -15,6 +15,8 @@ export interface ForceSimulationBlueprint {
 }
 
 export const force_simulation_adapter: ISubsystemAdapter<ForceSimulationBlueprint> = {
+  // See also modeling/force/forces
+  type_iri: "https://github.com/d3/d3-force#ForceSimulation",
   can_create_contingent_processes: false,
   reify(blueprint) {
     const sim = d3_force.forceSimulation();

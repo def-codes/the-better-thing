@@ -19,6 +19,7 @@ export interface WebSocketServerBlueprint {
 }
 
 export const web_socket_server_adapter: ISubsystemAdapter<WebSocketServerBlueprint> = {
+  type_iri: "https://tools.ietf.org/html/rfc6455#WebSocketServer",
   // the things (instances) come directly from mechanism.  need to be wrapped
   can_create_contingent_processes: true,
 
@@ -28,6 +29,7 @@ export const web_socket_server_adapter: ISubsystemAdapter<WebSocketServerBluepri
     const connection_listener = (client: WebSocket) => {
       // processify
       // and report up the chain of command
+      // @ts-ignore
       const wrapped_client = web_socket_client_adapter.wrap(client);
       // the client is a process contingent on this process
       // whether we say so or not

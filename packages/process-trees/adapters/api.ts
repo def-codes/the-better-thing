@@ -13,5 +13,6 @@ export interface IReify<B extends object> {
 }
 
 export interface ISubsystemAdapter<B extends object> extends IReify<B> {
+  type_iri: string;
   can_create_contingent_processes: boolean;
 }

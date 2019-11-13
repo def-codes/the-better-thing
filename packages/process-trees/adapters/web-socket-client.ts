@@ -20,6 +20,8 @@ interface WebSocketClientBlueprint {
 }
 
 export const web_socket_client_adapter: ISubsystemAdapter<WebSocketClientBlueprint> = {
+  // https://www.w3.org/TR/websockets/
+  type_iri: "https://www.w3.org/TR/websockets/#WebSocketClient",
   can_create_contingent_processes: false,
 
   // But isn't the whole point that you don't want to return an instance?

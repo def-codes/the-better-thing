@@ -29,6 +29,7 @@ import { TripleStore } from "@thi.ng/rstream-query";
 export interface TripleStoreBlueprint {}
 
 export const triple_store_adapter: ISubsystemAdapter<TripleStoreBlueprint> = {
+  type_iri: "http://thi.ng/rstream-query#TripleStore",
   // but creates them “on demand”, from a request that must be (?) IPC-based?
   can_create_contingent_processes: true,
   reify() {

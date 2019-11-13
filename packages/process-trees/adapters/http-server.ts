@@ -14,6 +14,7 @@ import {
 export interface HttpServerBlueprint extends HttpServerOptions {}
 
 export const http_server_adapter: ISubsystemAdapter<HttpServerBlueprint> = {
+  type_iri: "http://meld/subsystem/WebServer",
   // I'm not 100% sure about this
   //  - incoming requests are mapped to handlers and handled asynchronously
   //    - but is a promise a process?

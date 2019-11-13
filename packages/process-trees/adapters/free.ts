@@ -5,6 +5,7 @@ import { ISubsystemAdapter } from "./api";
 interface FreeBlueprint {}
 
 export const free_adapter: ISubsystemAdapter<FreeBlueprint> = {
+  type_iri: "def.codes/meld/subsystem/FreeSubsystem",
   can_create_contingent_processes: true,
   reify(blueprint) {
     return {};

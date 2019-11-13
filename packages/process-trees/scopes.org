@@ -248,3 +248,130 @@ And why would you want to?
 
 Can this be done through protocol implementations?
 
+* ports, IPC, and facts /versus/ values
+
+Note that the object graph gives you an idea of (some of) the possible lines of
+communication in a program.  Where this breaks down is that you don't know what
+references are embedded in closures.  Opaque closures really complicate
+everything in metaprogramming.  (Private fields will soon add to this
+debasement.)
+
+We propose a runtime knowledge base in order to produce software artifacts with
+traits that are essential for humans.
+
+The knowledge base is not an end in its own right.  That is, the knowledge base
+does not need to be all-knowing.  Some facts belong in the knowledge base
+because they are of immediate importance to humans.  Some facts act as mediators
+of knowlege: they make it possible to locate other information that does not
+need to be in the knowledge base at all times.  Some facts---such as low-level
+implementation details---may be knowable in userland but are of no interest.
+Such facts we allow to remain as they have always been, subterranean.
+
+We consider a distinction between this first tier (facts belonging in the
+knowledge base) and the second tier (facts that are merely reachable).  Arguably
+this group includes facts implied by, e.g. ontological or other rules.  With the
+help of a backward-chaining engine (which we haven't implemented yet), such
+facts could be reachable without being materialized.
+
+But that isn't exactly what I mean here.  Maybe this is the wrong way to state
+it.  What I mean is the difference between "the dataflow" and "the data."
+
+Since a model with open semantics can represent any kind of entity, I'm wary of
+making "dataflow" first-class from the outset.  Nevertheless, since it is
+already possible for /static/ RDF graphs to talk about arbitrary domains in fixed
+terms, we may as well at least consider the domain of /dynamic/ entities
+(including dynamic graphs themselves) as a specially relevant to the modeling of
+runtime activity.  This requires us to adopt at least one fundamental construct
+for describing such activity.  There's a good point here, but I'm not quite
+hitting it.  Anyway, it's a sideline in this context.
+
+The notion of systems and processes which communicate through message passing is
+basic.  Dataflow graphs are a construct that trades arbitrary message passing
+for something more organized.  This tradeoff strongly favors the human.  Is it
+the /only/ such tradeoff?  Perhaps not, but in any case the difficulty is not with
+static dataflow.
+
+If dataflow graphs take us from the unwieldy prospect of arbitrary message
+passing into a more tractable space, it's clear that we need to take the next
+step to make /arbitrarily changing/ dataflow similarly more tractable.
+
+So it's worth asking how dataflow graphs achieve this win.  Message passing
+occurs between identifiable entities (processes, actors, whatever).  Arbitrary
+message passing means that any actor can send a message to any other actor at
+any time.  Taking the processes as its nodes, a dataflow graph says that
+messages may only be passed along its edges, which are usually directed.  In all
+non-trivial systems, this greatly constrains how processes may interact.  The
+question of what can influence what, for example, can be answered by common
+graph analysis tools.  With unconstrained communication, such questions are
+unanswerable.  Likewise, clustering algorithms can be used to identify
+subsystems, etc.  Not to mention that graphs can be visualized in various ways.
+Dataflow graphs "improve on" the general message passing situation by vastly
+reducing the space of possibilities, and doing so in a way that is congruent
+with a familiar and well-studied construct.
+
+Now for the question of changes.  I downloaded a bunch of papers about dynamic
+graph algorithms.  I haven't read them.  Though I'd note that they weren't about
+dynamic graph /models/.  I suspect that most of the literature is in the realm of
+dynamic graphs that simply report their state, rather than models that describe
+how the graph changes.  Rather than stopping to read these papers, in any case,
+I'm going to think through the problem as I see it.
+
+Having said that, I should also note that /parts/ of... wait.  I was going to say
+that parts of the dataflow graph in a system will be merely reflected rather
+than reified.  This is true of nodes (think websocket clients), but I'm not sure
+that it's true of edges.  All "wiring" between processes should well be able to
+go through the system.
+
+Going back to the point earlier, we can say that the dataflow graph (i.e. lines
+of communication), being a set of facts essential to the system.
+
+So yeah I forgot about this.  Over the summer I took the position that the
+question of whether a fact belonged in the knowledge base was equivalent to the
+question of whether it would need to be included for the purpose of transporting
+the model.  This itself begs the question somewhat, because you can define what
+is "essential" to the the model in different ways.  Sometimes a model's essence
+is independent of its particular state.  But you can imagine cases in which you
+can't convey the thing separately from the "transient" state of its processes.
+
+Yet another way to distinguish the dataflow from the data is by rate of change:
+we assume that the rate of dataflow is greater than the rate of change in the
+dataflow structure itself.  It would seem in these cases that the graph is
+failing at its intended purpose, though I haven't put my finger on exactly how.
+
+Somewhat further to the earlier point about the "essence" of the model, we could
+say that the dataflow's properties are asserted--- that they are "spoken"
+somehow, while the model says nothing about the values.  The space of values is
+infinite and generally orthogonal to the communication structure.
+
+But the point here is that the values are not /always/ orthogonal to the
+structure.  That is, changes in a dynamic dataflow /must/ be driven by the values
+in the dataflow itself (or at least in /some/ dataflow), since the structure
+itself is unchanging.
+
+We are talking about a relationship between values and the /next/ state of the
+graph.
+
+Moving from open communication to a dataflow graph called for the introduction
+of a new concept: lines of communication.
+
+Moving from a graph that changes completely unpredictably to a graph that
+changes more predictably must also call for the introuction of a new concept.
+
+Suppose that you view the live (and unconstrained) communication taking place
+among a set of actors.  This communication will insinuate a graph.  In practice,
+the edges of the graph will be sparse.  That is, there will be pairs of nodes
+that simply never communicate directly.  It is essentially the omission of these
+potential edges that makes the explicit graph more readable and more telling
+than the (dense) graph of /possible/ communication.
+
+So let us consider the space of /possible/ changes to a graph, i.e. all possible
+next graphs (next message send, in other example).  Unlike with the
+communication channels, we don't have a natural bound on the set of ultimate
+possibilities.  In that case, we reach a fix point when all possible edges have
+been identified.
+
+But suppose that we only consider the space of possibilities for a single
+operation.  In terms of processes (nodes), we can either add a node or remove a
+node.  This means that there are 2N possibilities for the next graph where N is
+the number of nodes prior to the operation.
+
