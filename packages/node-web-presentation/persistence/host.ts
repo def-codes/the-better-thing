@@ -5,7 +5,7 @@ import * as vm from "vm";
 import * as fs from "fs";
 import { join } from "path";
 import * as rs from "@thi.ng/rstream";
-import { filesystem_watcher_source } from "../file-system-watcher/filesystem-watcher-source";
+import { filesystem_watcher_source } from "@def.codes/process-trees";
 
 export const host = (module_name: string) => {
   console.log(`module_name`, module_name);

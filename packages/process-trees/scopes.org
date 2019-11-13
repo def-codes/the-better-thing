@@ -2,6 +2,19 @@
 
 * the idea
 
+*UPDATE*: this is about (sub)systems.  Which among other things is a scope.
+Particularly, a subsystem provides a way for (contingent) processes to name
+things freely while still comprising a larger system where each thing has a
+unique, non-conflicting name.
+
+In yet other words, a subsystem is a live namespace.
+
+Can something be a live namespace without being a subsystem?  If it is not a
+creator of processes.  Are there such things?  It depends on what you mean by
+live namespace.  Something like the multiwave (which is a kind of port resolver)
+does create (or at least provide) subscribables corresponding to a set of names,
+and minting them (for later binding) if necessary.
+
 A knowledge-based runtime will require a notion of "scopes" even for the
 simplest cases.
 
@@ -29,3 +42,209 @@ can refer to "the same" fact).
 Scopes become useful only if they partition a system into exclusive subsystems
 (in a way that is non-overlapping), where the boundaries represent lines of
 communication.
+
+* entailment
+
+A subsystem /entails/ its constituents.
+
+A subsystem acts like a claim store that entails the claims of those subsystems
+within its scope.
+
+
+* composition
+
+Subsystem can be implemented in "branch" and "leaf" ways.
+
+It must be possible to create branch types that act as "components," that is,
+systems of other things that can act as though self-contained.
+
+While it must be possible to "chunk" components (treat them as a unit), it must
+also be possible to inspect them when they use sub processes.
+
+On the face of it, it would appear that a hard hierarchy of scopes would be too
+constraining for many practical purposes.  The difference here is that the
+system supports arbitrary lines of communication between nodes.  It is true that
+values passed along those lines may cause changes in the process graph elsewhere
+in the tree, but such changes are always done by the immediate parent of the
+processes (if they choose to do so).
+
+Creating a "component" MUST NOT require creating a subclass.  It must be
+possible to do using data only.
+
+* chunking and oblique communication
+
+The fact that communication lines may be set up between any two locations in the
+system breaks encapsulation.  We're considering this okay, part of the tradeoff.
+
+More than that, though... I guess is the following channel issue.
+
+* IPC and buffered communication
+
+So far, the discussion of IPC has centered on reactive (event-driven) dataflow.
+This allows us to make certain assumptions, particularly that
+- message passing is non-blocking
+- message receipt is non-destructive to the sender
+
+However, there are situations where this doesn't work.
+
+When a data-processing step is asynchronous, a node cannot continue to receive
+messages and still guarantee a consistent output order.  There may also be a
+limit on the number of requests that a thing can concurrently handle.
+
+Buffering is the typical way to handle this.
+
+However, buffers have limits.  When inputs are faster than outputs, one option
+is to selectively drop values when the buffer is at its configured capacity.
+
+However, this is not always acceptable, either.  In such cases, nodes should be
+able to /block writes/.
+
+Combined with the ability of an upstream writer to non-destructively query
+whether a channel is able to accept a new value, systems offer a way to signal
+backpressure.
+
+These properties (buffering and blocking) have many consequences for 
+
+* invariants
+
+A scope acts as a namespace.
+
+Every scope itself lives in a context.
+
+Each scope may contain zero or more scopes.
+
+Each scope contained by a scope has a name.
+
+Is a scope itself a process?  Yes.
+
+Who decides what change take place in a scope?
+
+The owner.  The scope "itself," which is a process.  That's the whole point.
+
+Don't you want scopes to prevent reference leakage?  Yes, I'm talking about
+encapsulation.
+
+There are two kinds of scopes: reified and reflected.
+
+In a reified scope, child processes are driven by facts that are turned into
+child processes.  In a reflected system, child processes are not determined as
+such but created directly.
+
+How can a reified subsystem be the child of a reflected subsystem, or vice
+versa?
+
+* subsystems
+
+A subsystem is a process that can spawn other processes.
+
+A subsystem MUST NOT leak references to the things it creates.
+
+A subsystem MUST hide references to any underlying mechanims (same point as
+above).
+
+A subsystem MUST support non-monotonic, declarative, stream-based inter-process
+communication:
+
+- declarative :: using data-based descriptions (not concrete mechanisms)
+
+- stream-based :: targeting a specific dataflow (stream & transform) interface
+
+- non-monotonic :: communication channels can be added and removed
+
+PROVISIONAL There are two disjunct types of subsystem:
+
+- reified subsystem :: assertions drive the creating and updating of things
+- reflected subsystem :: things drive the claims
+
+** spawn
+
+Each thing spawned by a subsystem must have a unique name within that subsystem.
+
+Does it know its name?
+Does it know about its supersystem (containing system)?
+
+* sketch
+
+Interface or implementation?
+
+Implementers would be anything that can't be composed from smaller bits.
+Generally they will be wrappers for a built-in or third-party mechanism.
+
+There comes a time in the life of every subsystem when
+- it is born
+  - with certain fixed, invariant, portable (data-based) properties
+- it finds out that a new thing has been created
+- it decides to create a new thing
+- it finds out that it's time to die
+  - e.g. web socket closed
+    - but does this mean you're *gone* or just in that state?
+- it finds out that one of its children died
+  - how does this work for reified systems?
+    - can be expected?  considered an error?
+    - can/should recreate the thing?
+- it is asked (by its parent) to die
+- it is asked to set up some IPC?
+- the process "itself" has messages to broadcast?
+- the process "itself" has ports become available?
+
+* inter-process communication (IPC)
+
+We have talked about inter-process communication (IPC) as a separate layer on
+top of the spawn layer, subject to a different set of invariants.
+
+If we think of processes as nodes and communication channels as (the exclusive
+form of) edges in a dataflow, then we can say that without IPC, there is no
+dataflow.  We can say that, although nodes are facts, and although edges would
+also be facts (when they are present), that the dataflow cannot have a /state/
+until there are edges to propagate values through it.  Ingresses may be an
+exception to this.  An ingress can recieve values without there being an edge
+connected to any other node.  In practice, though, most ingresses will be
+implemented as streams, in which case a subscription (edge) /would/ be needed to
+initiate activity.
+
+What messaging can take place /outside/ of IPC?
+- must be sufficient to support creation and destruction of processes
+
+Do parents and children get comunication lines "for free" for that purpose?
+
+The objective to avoid direct object references between systems supports the
+notion that communication takes place through channels.
+
+Note that IPC will require references between instances (at least for idiomatic
+usage), and this subs/parent navigation is useful to see (when you have a way to
+see it).
+
+But won't some API's require direct references between instances?  i.e. there
+are some methods that require an instance as an argument?  Outside of DOM, I
+can't think of any offhand.
+
+Spawn must be a direct, on-site operation.  (Sort of---even that can be mediated
+through system if we have constructable descriptions).
+
+
+
+
+** ports
+
+We can consider that the endpoints of communication channels are associated with
+- the process itself
+- a (named) port associated with that process
+
+It's possible to devise declarative IPC that targets either or both of those.
+
+* questions
+
+In a reflected system, isn't it possible for a process to die without its child
+processes dying?  If so, could you maintain the "contingent" invariant by
+reassigning it to an ancestor reified process (assuming the root is always one)?
+
+Isn't it true that
+- reify needs to be based around RDF @type
+- reflect needs to be based around instance (class or @type)
+
+So you can't really do both in the "same thing".
+
+And why would you want to?
+
+Can this be done through protocol implementations?
+

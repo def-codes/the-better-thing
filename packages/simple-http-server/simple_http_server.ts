@@ -16,20 +16,20 @@ const read_to_end = (stream: Readable) =>
     stream.on("error", reject);
   });
 
-interface Options {
+export interface HttpServerOptions {
   port: number;
   handler: Handler;
 }
-export type StaticServerOptions = Options;
+export type StaticServerOptions = HttpServerOptions;
 
-const DEFAULT: Options = {
+const DEFAULT: HttpServerOptions = {
   port: 8800,
   handler: () => STATUS.OK,
 };
 
 const trim_slashes = s => s.replace(/^\/+|\/+$/, "");
 
-export const create_server = (options: Partial<Options>) => {
+export const create_server = (options: Partial<HttpServerOptions>) => {
   const { port, handler } = { ...DEFAULT, ...options };
 
   const handle = with_error_boundary({ handler });

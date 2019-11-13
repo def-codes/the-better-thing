@@ -1,8 +1,6 @@
 const rs = require("@thi.ng/rstream");
 const tx = require("@thi.ng/transducers");
-const {
-  filesystem_watcher_source,
-} = require("@def.codes/node-web-presentation");
+const { filesystem_watcher_source } = require("@def.codes/process-trees");
 
 const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
 

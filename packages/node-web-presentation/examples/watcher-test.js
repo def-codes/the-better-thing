@@ -1,7 +1,5 @@
 const rs = require("@thi.ng/rstream");
-const {
-  filesystem_watcher_source,
-} = require("@def.codes/node-web-presentation");
+const { filesystem_watcher_source } = require("@def.codes/process-trees");
 
 rs.stream(
   filesystem_watcher_source(".", { recursive: true, persistent: false })

@@ -1,3 +1,7 @@
 {
-  "extends": "../tsconfig-composite"
+  "extends": "../tsconfig-composite",
+  "references": [
+    /* TEMP */
+    { "path": "../simple-http-server" },
+  ]
 }
