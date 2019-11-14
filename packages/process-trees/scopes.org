@@ -374,6 +374,72 @@ The "device interface" in the MultiWave functions somewhat like this.
 
 Processes can behave like state machines in various ways.
 
+State machines are a useful abstraction for chunking dynamic systems.
+
+We distinguish between a state machine and a state machine spec.
+
+A /state machine spec/ describes a space of discrete, identifiable states and
+labeled transitions between them.
+
+A /state machine/ is a thing that can be interpreted according to a state machine
+spec.
+
+States can be designated as terminal.  States with no outbound transitions may
+be seen as implicitly terminal.  In an open system, however, it cannot be known
+that later assertions will not define transitions from such states.  It is
+therefore preferable to explicitly mark terminal states as such.
+
+The possible space of state machines is itself extensive.  UML includes a
+formalization of a state machine language that includes conditional and
+composite structures, entry and exit events, and other extended features.
+
+But at essence, a state machine spec is a labeled, directed graph.  Sound
+familiar?
+
+** state transition diagrams
+
+Resources
+- https://en.wikipedia.org/wiki/State_diagram
+- https://www.cs.unc.edu/~stotts/145/CRC/state.html
+- https://github.com/NimaGhaedsharafi/VAS
+- https://www.cs.usfca.edu/~jbovet/vas.html (403)
+- https://martin-thoma.com/how-to-draw-a-finite-state-machine/
+- http://nifi.ir/ (blocked by firewall)
+
+** all processes are state machines
+
+All processes are mortal.
+
+Even processes that do not die willfully, can be killed by external means.
+
+Therefore, all processes can be seen as implementing at least a simple state
+machine:
+
+#+begin_src dot :file state-machine-live-dead.svg
+digraph {
+  rankdir = LR
+  node [shape = circle]
+  dead [shape = doublecircle]
+  alive -> dead
+  
+}
+#+end_src
+
+#+RESULTS:
+[[file:state-machine-live-dead.svg]]
+
+
+** state machines and process lifecycle
+
+If we can understand a thing in terms of a state machine spec, this knowledge
+can be integrated to advantage into the thing's adapter.
+
+Specifically, a process can synchronize its "death" event with its terminal
+states.
+
+
+
+
 * ports, IPC, and facts /versus/ values
 
 Note that the object graph gives you an idea of (some of) the possible lines of
