@@ -78,6 +78,16 @@ system breaks encapsulation.  We're considering this okay, part of the tradeoff.
 
 More than that, though... I guess is the following channel issue.
 
+* point-to-point communication
+
+The system provides a way to specify point-to-point connections between
+communication points (ports, or whatever you want to call them).
+
+The requirement is that it will maintain all of the specified connections even
+as actual backing things come and go.  If you say that =A= listens to =B=, the
+system will ensure that all messages to =A= are forwarded to =B= whenever =A= and =B=
+exist.  Actual processes at =A= and =B= may come and go at any time.
+
 * IPC and buffered communication
 
 So far, the discussion of IPC has centered on reactive (event-driven) dataflow.
@@ -350,6 +360,15 @@ not known /a priori/ then this can be accomplished by using a =Proxy=.
 We see that an object can effectively provide an arbitrary set of "ports"
 without /actually/ creating a new process for each one.  That is, a single
 dispatcher can handle requests to all ports.
+
+If communication takes place between ports, then ports need to be identifiable.
+
+If we want to retain the ability to say A.listensTo.B (which we do), then said
+ports need to be addressable via IRI's.
+
+** port maps
+
+The "device interface" in the MultiWave functions somewhat like this.
 
 * state machines
 
