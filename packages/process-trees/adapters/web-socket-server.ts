@@ -2,9 +2,6 @@
 // INVARIANT 2. it MUST close the server when the process dies
 // INVARIANT 3. it MUST die when the server is closed
 
-// REFLECT
-//   - can implement for WebSocketServer
-//   - options are in fact available on WebSocketServer object
 // MESSAGES
 //   - can emit errors (multiple times, doesn't go into error state, right?)
 // STATE MACHINE:
@@ -13,11 +10,32 @@
 import { ISubsystemAdapter, ISystemCalls } from "./api";
 import { Subsystem } from "./subsystem";
 import * as WebSocket from "ws";
+import { datafy_protocol } from "@def.codes/datafy-nav";
+
+const WEBSOCKET_SERVER_TYPE_IRI =
+  "https://tools.ietf.org/html/rfc6455#WebSocketServer";
 
 export interface WebSocketServerBlueprint {
   host: string;
   port: number;
 }
+
+// REFLECT
+interface WebSocketServerDescription extends WebSocketServerBlueprint {
+  "@type": typeof WEBSOCKET_SERVER_TYPE_IRI;
+  // TODO: "@context" or use IRI's for properties
+}
+datafy_protocol.extend(
+  WebSocket.Server,
+  (instance): WebSocketServerDescription => {
+    return {
+      "@type": WEBSOCKET_SERVER_TYPE_IRI,
+      host: instance.options.host,
+      port: instance.options.port,
+    };
+  }
+);
+/////
 
 interface WebSocketServerSubsystemState {
   readonly instance: WebSocket.Server;
@@ -76,7 +94,7 @@ export class WebSocketServerSubsystem extends Subsystem {
 }
 
 export const web_socket_server_adapter: ISubsystemAdapter<WebSocketServerBlueprint> = {
-  type_iri: "https://tools.ietf.org/html/rfc6455#WebSocketServer",
+  type_iri: WEBSOCKET_SERVER_TYPE_IRI,
   // the things (instances) come directly from mechanism.  need to be wrapped
   can_create_contingent_processes: true,
 };

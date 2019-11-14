@@ -1,8 +1,3 @@
-// REFLECT
-//   - can implement for WebSocket
-//   - not sure how much of constructor info is available
-//   - does it make sense to unreify with partial info given?
-//     - because WSS will have that
 // REIFY
 //   - take a description (target address, options)
 //   - general process stuff
@@ -15,6 +10,11 @@
 import { ISubsystemAdapter } from "./api";
 import * as WebSocket from "ws";
 import { StreamSource } from "@thi.ng/rstream";
+import { datafy_protocol } from "@def.codes/datafy-nav";
+
+// https://www.w3.org/TR/websockets/
+const WEBSOCKET_CLIENT_TYPE_IRI =
+  "https://www.w3.org/TR/websockets/#WebSocketClient";
 
 interface WebSocketClientBlueprint {
   address: string;
@@ -23,6 +23,22 @@ interface WebSocketClientBlueprint {
   // options?: WebSocket.ClientOptions;
 }
 
+// REFLECT
+interface WebSocketClientDescription extends WebSocketClientBlueprint {
+  "@type": typeof WEBSOCKET_CLIENT_TYPE_IRI;
+  // TODO: add "@context" or use IRI's for properties
+}
+datafy_protocol.extend(
+  WebSocket,
+  (instance): WebSocketClientDescription => {
+    return {
+      "@type": WEBSOCKET_CLIENT_TYPE_IRI,
+      address: instance.url,
+    };
+  }
+);
+
+// STATE MACHINE
 // you'd also want information about the states and transitions
 const EVENTS = ["open", "close"] as const;
 const as_state_machine = (
@@ -35,8 +51,7 @@ const as_state_machine = (
 };
 
 export const web_socket_client_adapter: ISubsystemAdapter<WebSocketClientBlueprint> = {
-  // https://www.w3.org/TR/websockets/
-  type_iri: "https://www.w3.org/TR/websockets/#WebSocketClient",
+  type_iri: WEBSOCKET_CLIENT_TYPE_IRI,
   can_create_contingent_processes: false,
 
   reify: blueprint => {
