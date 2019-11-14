@@ -249,6 +249,76 @@ And why would you want to?
 Can this be done through protocol implementations?
 
 * decision log
+** parent/child relationships are not edges as such
+
+A relationship obtains between a subprocess and its children.  This relationship
+can be thought of in various ways: ownership, contingency, entailment.
+
+But these relationships are /not/ represented directly by facts in the KB.
+Rather, they are implicit in the structure of the graph system.  Subsystems
+function like named graphs which are entailed by their supersystems.
+Information about these relationships is available and can in principle be used
+as the basis for inferrable facts about, e.g. provenance.  However, such
+information is not apparent in the projection of the graph.
+
+Note that, since assertions made by a process are limited to the scope in which
+they occur, this arrangement also makes it impossible for subsystems to assert
+these parent-child relationships about other subsystems.  This is essential to
+the invariant that subsystems retain exclusive control over their immediate
+children.
+
+** channels are processes
+
+Even unbuffered channels (a.k.a. rendez-vous), which have to hang onto promises.
+
+Channels also implement state machine, in a couple of ways.
+
+Like streams, they can go unrecoverably into close/done/end/dead state.
+
+But channels with fixed buffers can also go temporarily into blocking states:
+- blocking write : when buffer is full (or no pending reader for unbuffered)
+- blocking read : when buffer is empty (or no pending writer for unbuffered)
+
+Those are mutually exclusive states.  They do become irrelevant when the thing
+closes, so perhaps they don't really form a completely separate state machine.
+
+#+begin_src dot :file fixed-buffer-channel-states.svg
+digraph {
+	label = "fixed-buffer channel"
+	compound = true
+	node [shape = circle width = "1.5" style = filled]
+	
+	subgraph cluster_open {
+		style="rounded"
+		{
+			rank = same
+			empty [
+				   color = red
+				   shape = doublecircle
+				   label="empty -\nblocking\nread"]
+			full [
+				  color = darkgreen
+				  label="full - \nblocking\nwrite"]
+		}
+		readable_writable [color = yellow label = "readable\n&\nwritable"]
+	
+		empty -> full [label = "+, count = size"]
+		empty -> readable_writable [label = "+"]
+		full -> empty [label = "-, count = 0"]
+		full -> readable_writable [label = "-"]
+		readable_writable -> empty [label = "-, count = 0"]
+		readable_writable -> full [label = "+ count = size"]
+		readable_writable -> readable_writable [label = "+"]
+		readable_writable -> readable_writable [label = "-"]
+	}
+	
+	closed
+	readable_writable -> closed [label="close" ltail="cluster_open"]
+}
+#+end_src
+
+#+RESULTS:
+[[file:fixed-buffer-channel-states.svg]]
 
 ** transforms are processes
 
@@ -265,6 +335,10 @@ It is still trivial to connect two points through a transform by adding a
 (named) child process based on the transform and then adding the (anonymous)
 point-to-point connections.
 
+** ports are not first-class
+
+Ports are just contingent processes.  They are addressed by name.
+
 * ports
 
 Suppose that we created a process around a "plain object."  We treat its methods
@@ -276,6 +350,10 @@ not known /a priori/ then this can be accomplished by using a =Proxy=.
 We see that an object can effectively provide an arbitrary set of "ports"
 without /actually/ creating a new process for each one.  That is, a single
 dispatcher can handle requests to all ports.
+
+* state machines
+
+Processes can behave like state machines in various ways.
 
 * ports, IPC, and facts /versus/ values
 
@@ -461,3 +539,327 @@ But we must point out several things here.
 Therefore, it is necessary to name the incoming and outgoing message channels.
 
 But more than that---is it necessary to target =next= within the port?
+
+* idea: message output port
+
+Like a logging output.  Something you can use generally on processes.  But from
+where?  Like, it hijacks console.log?
+
+* observation: KB and subsystems
+
+In the current proposal, every subsystem functions like a named graph and in
+which the root claim store is therefore derivative.
+
+As such, every subsystem /could/ be serviced by a claim store mechanism.
+
+However, I expect that most subsystems will not need to be treated like an
+independent claim store most of the time.
+
+This starts to speak to the question of how to bridge this divide between the
+parts of the system that rely on a KB versus those that don't.  The latter are
+"closer to the metal," and although it should be possible to use a KB-based
+system to view and interact with them, they can also be used independently
+through the native platform interfaces.
+
+In fact, this implies that /most/ of the work takes place without a KB dependency.
+
+* open questions
+
+** DONE Why do we need the notion of ports?
+- State "DONE"       from              [2019-11-13 Wed 22:00]
+
+*UPDATE*: we don't need the notion of ports.
+
+When we talk about communication between processes, we first note that messages
+can take all shapes and sizes.  That remains the case even if we strive to keep
+direct references to other processes out of message streams.
+
+When we talk about communication between two things, we ultimately use
+identifiers.  We may express what we mean in terms of patterns or queries, but
+these must ultimately be resolved to identifiers, which we can always use
+directly.
+
+The final, unambiguous global identifier of a thing in a system is based on its
+location in the process tree.  We may think of the process tree as an entailment
+tree.  All things known to the system are in this tree somewhere.
+
+(This can clearly work, especially if the system provides resolution mechanisms
+for other types of identification schemes.  The only thing that bugs me about it
+is that the resulting identifiers are themselves so "situated."  I say that they
+are semantically consistent, yet it seems unlikely that they will be meaningful
+once e.g. bootstrap & root processes are included.  We'll see.)
+
+Going back to the point about message shape and size.  Some messages may look
+like the kind that are sent to interceptor buses, which include a message type
+and payload.  Such messages could be considered isomorphic with multiple streams
+that are connected to ports (or even subprocesses) corresponding to each message
+type.  It should be trivial to construct nodes that transform from one type to
+the other.
+
+It's clear that processes need /at least/ one... inlet where they can recieve
+messages.  Suppose that to keep things simple we said that they could have
+/exactly/ one such inlet.  In that case, the kind of "mutli-port" messaging scheme
+just described could be achieved using interceptors-style messages (or an
+equivalent object-based approach).  However, taking the opposite approach---that
+the process can receive the messages independently from multiple
+streams---requires that we introduce a first-class construct that allows us to
+represent and support multiple named inlets.  This has implications in a number
+of places:
+- how we describe IPC connections
+- the minimal process interface
+
+That said, /not/ introducing first-class ports means that we must use existing
+constructs to support the described usage.  The role of pseudo-ports would then
+fall to subprocesses, which are named, addressable constructs that can act as
+message targets (via their one inlet).
+
+When would that approach be a problem?  You want to avoid unnecessary lookup and
+dispatching in cases where the most obvious thing is to connect a line
+"directly" to e.g. a method call.  Again, it's trivial to transform a value into
+the necesary form.
+
+What about messages targeting the process "itself"?  Is there a message protocol
+that we expect to be recognized by all processes?
+
+
+
+** DONE How do you address processes "directly"?
+
+- State "DONE"       from              [2019-11-13 Wed 23:15]
+*UPDATE*: There is no generally-available process-qua-process.
+
+Meaning, how do you talk to a process /qua/ process, i.e. in terms of its
+lifecycle.  Such messages would be handled through its process interface.
+
+What messages do you have in mind?  Die?  But no one can say that to the process
+except for the parent.
+
+What about a transducer with early termination?
+
+That will end the subscription, but do we really want the default behavior of
+bubbling this up to other subscriptions?  I don't have a real visceral sense of
+what that (or the alternative) is like.
+
+
+
+
+
+** are "ingress" and "egress" first-class?
+
+** What is the process lifecycle?
+
+** Can process lifecycle take advantage of stream termination semantics?
+
+Especially since this is integrated with both rstream and csp.
+
+** Tell me more about how things can be one or more state machines
+
+** How would blocking be represented?
+
+It must have to do with process state.
+
+
+
+** what does it look like when "free" processes update based on messages?
+
+This turned into a question about collections.
+
+** how would "collection processes" work?
+
+All "changeable" values are modeled as reactive variables, which are implemented
+as processes.  Using them is very similar to using any other dataflow.  You
+subscribe to the value, and the channel emits a message every time there's a new
+value.
+
+They are (they must be) stateful processes that can respond to messages asking
+for direct mutations, not always asserting a whole new collection, right?
+
+Do such processes not have e.g. error, done, or the putative "message" channel?
+
+Are those channels available at sub paths?
+
+Do you need to attach to "next" to get the value itself?
+
+You could send add/remove messages by key (for keyed collections) or by value
+(for value-keyed collections).
+
+Does this not break down for fact stores?  That is, don't you have to deal with
+the contents of claims stores all at once?  It's the same problem that exists in
+the aggregate graph.  When someone says to "unassert" something, you don't know
+who's saying that.  In particular, you don't know that multiple parties aren't
+giving conflicting messages about whether a given fact should exist.  Remember,
+"retract" is not the same thing as asserting a negative.
+
+Be that as it may, you have to work with collections at some point, and if you
+aren't making modifications, then how do you make composite things?
+
+An alternative---one I considered over the summer but never implemented---was to
+define collections in terms of persistent set operations.  So if you want
+collection =A= to include item =x=, you can create a value stream with the value =x=
+and assert that =A= contains it.  These assertions are bundled (by a driver that
+handles the =includes= property) such that the resulting value enumerates all
+those things.  The same can be done for =isSupersetOf= to subsume entire
+collections.
+
+However, that approach depends on a full KB implementation.
+
+In the meantime, I don't see any technical reason why mutable collection
+(ad-hoc, non-computed, whatever) collections can't be implemented as stateful
+things that respond to messages and the devil take any inconsistencies.
+
+
+** DONE If an IPC edge points to a path in the subsystem tree, what does it do?
+- State "DONE"       from              [2019-11-13 Wed 23:17]
+
+*UPDATE*: it writes to that process's message inlet.
+
+Let's say that we have the path =/app= which is the governor for all of the main
+processes in a MultiWave UI app.  One of those child processes is
+=/app/multiwave=, representing a MultiWave interface on the default host.
+
+(I was using the example of =/devices/multiwave=, but on consideration I see no
+reason why the /subprocess tree/ should be organized that way.)
+
+So let's suppose that we want to bind something to the voltage reading.  You
+would expect to write that like:
+
+=X listensTo /app/multiwave/voltage=
+
+You would expect this to forward the actual voltage values from the interface to
+=X=, whatever that is.
+
+And maybe that is what it would do.
+
+Does that mean that voltage is a port?
+
+What happens if that stream ends?  i.e. that process dies?
+
+** DONE does persistent point-to-point communication mean that process death is meaningless?
+
+- State "DONE"       from              [2019-11-13 Wed 23:20]
+*UPDATE*: No.  P2P IPC is still in the realm of static dataflow.  Lifecycle is in
+the dynamic realm.
+
+We've said that a connection from =A= to =B= is maintained by the system regardless
+of the existence or state of =A= and =B=.  i.e. that the line of communication is
+not contingent.  This has the obvious advantage that you can treat it as an
+invariant.  You don't have to worry about saying, "If =A= dies, please
+re-establish this connection as and when =A= is available again," which is
+probably what you want in the vast majority of cases.
+
+This means that IPC as currently described exists at a level somehow "above"
+that of the process lifecycles.
+
+This is intuitive if you think about it like a patch cable.  A p2p spec says,
+"plug this into that and leave it plugged in until I tell you otherwise."
+
+Whatever's going on inside the machine, the line keeps those two points
+connected.
+
+This does not, however, mean that "process death is meaningless."
+
+If you want to talk about transient things, there must be a different way to do
+that.
+
+** how do you model things that naturally have request-response semantics?
+
+A synchronous example: here is a query desc, I want a triple store to give me
+the process associated with it (meaning its results).
+
+An asynchronous example: HTTP request
+
+Can promises be subsumed into a model that allows us to talk about process
+lifecycle?  (i.e. like a process that completes when it resolves ("settles") one
+way or the other). (moved to adapters/promise.ts)
+
+I would start by saying that most things that we'd now treat as request-response
+can be reformulated to be expressed in terms of streams and, where necessary,
+state machines.
+
+For the query example, suppose that you have a triple store =K=.
+
+Any process can produce a (data-based) query description /q/.
+
+It's easy to suppose that we send =K= a message containing /q/.
+
+=K= might react by reifying a process =Q= that implements the query /q/.
+
+But the sender cannot tell =K= what the result should be called.  So how would it
+later be addressed?  We can't beg the question by supposing that =K= will respond
+with the name of =Q=.  The objective is not just to avoid reference leakage, but
+also to avoid request-response flows.
+
+I would contend that messaging is /not a good way/ to accomplish this.  Messaging
+still comes from the imperative world.  What you really want is to /assert/ that
+the query exists and reference it by some name where it will be when it's ready.
+
+The problem in this case is that
+- the requesting process (let's call it =R=) cannot make assertions about what =K=
+  entails
+- but we also cannot make =R= entail =Q= because it is inherently contingent on =K=.
+  Indeed, =R= should not have access to =K= to create the query.
+
+Would it matter if =K= were an ancestor of =R=?  What if descendant processes were
+able to influence the composition of processes in the same superscope?  As
+opposed to oblique processes.  I don't see why such exceptions should be made,
+though.
+
+Something's not right here.
+
+The declarative approach is to say that, as long as =R= is entailed by =G= (which
+let's call the root graph, where the reification rules are in effect), then a
+query asserted by =R= to be associated (somehow) with =K=, then the query should be
+reified, and any alias associated with it can be used by =R= (or, theoretically,
+other processes).  It seems the missing piece is in that association: how would
+=R= assert that /q/ is to be connected with =K=?
+
+It would be easy to say that the association is made via a simple fact.  But
+this would be exactly the kind of fact that it should not be possible for
+processes to assert about other processes, right?
+
+I may be confusing this kind of association with directly asserting the
+parent-child relationship.  This is about a specific kind of fact that only
+/indirectly/ asserts the existence of a process.
+
+If the fact thus asserted can bubble into =K='s scope, then =K= can decide "on its
+own" to reify /q/.  But this doesn't make sense, either, because there is no
+reason that =R= would be (or need be) with =K='s own scope.
+
+(In the specific case of a knowledge base, it may in fact be that most processes
+reside under its scope.  But this is just an example and the same questions
+apply to other types of process.)
+
+Another possibility is that "the system" is responsible for all of the
+reification, where "the system" is the scope at which reification is applied.
+Indeed, this would seem to be necessary.  Consider that a consistent reification
+can only be done at the level where all of the relevant facts are known.  For
+example, if you have a scope =/A= that is asserting a fact about resource =/A/B= and
+a scope =/P/Q= that is also asserting a fact about =/A/B=, then it is not possible
+for =/A= to reify =/A/B= using only its aggregated facts.  I mean, it's possible for
+=/A= to reify it, it will just not be consistent with the global description of
+the resource.
+
+This sounds like quite a departure in some sense from the direction things have
+been going (with these isolated adapters and mechanisms).  However, it has been
+assumed that IPC would be centrally managed, since it can be used to connect any
+two points.  So it is already assumed that the system has (or can get) access to
+all of the things.
+
+Now... I have supposed that it would be possible to attach reification at other
+levels if you /wanted/ to.  If all resource management is being done centrally,
+then it's not as clear how that would work.  But then again, it's not clear how
+this would work, either.
+
+At any rate, suppose that the system /does/ do all management centrally.  And the
+adapters only know about their own thing and they report all reflected children
+to the system immediately.  How would that solve the case in question?
+
+It would be possible for =G= to reify /q/ against =K=.  The fact of /q/ remains entailed
+by =R=.  What remains is
+- whether the resulting =Q= is in =K='s scope
+- how to make =Q= contingent on =K=
+
+Unless the system somehow constructs the instance /through/ =K=.  It would be in
+effect as if =K= did it.
+
+** can a channel be seen as an async iterable? (from a reader's pov?)

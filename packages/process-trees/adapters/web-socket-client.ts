@@ -14,6 +14,7 @@
 //   - an EGRESS (EVENT/SOURCE) for sending messages
 import { ISubsystemAdapter } from "./api";
 import * as WebSocket from "ws";
+import { StreamSource } from "@thi.ng/rstream";
 
 interface WebSocketClientBlueprint {
   address: string;
@@ -21,6 +22,17 @@ interface WebSocketClientBlueprint {
   // They are mostly pure data.  Could support if needed.
   // options?: WebSocket.ClientOptions;
 }
+
+// you'd also want information about the states and transitions
+const EVENTS = ["open", "close"] as const;
+const as_state_machine = (
+  client: WebSocket
+): StreamSource<WebSocket["readyState"]> => sub => {
+  const report_state = () => sub.next(client.readyState);
+  report_state();
+  EVENTS.forEach(event => client.on(event, report_state));
+  return () => EVENTS.forEach(event => client.off(event, report_state));
+};
 
 export const web_socket_client_adapter: ISubsystemAdapter<WebSocketClientBlueprint> = {
   // https://www.w3.org/TR/websockets/

@@ -1,0 +1,32 @@
+digraph {
+	label = "fixed-buffer channel"
+	compound = true
+	node [shape = circle width = "1.5" style = filled]
+	
+	subgraph cluster_open {
+		style="rounded"
+		{
+			rank = same
+			empty [
+				   color = red
+				   shape = doublecircle
+				   label="empty -\nblocking\nread"]
+			full [
+				  color = darkgreen
+				  label="full - \nblocking\nwrite"]
+		}
+		readable_writable [color = yellow label = "readable\n&\nwritable"]
+	
+		empty -> full [label = "+, count = size"]
+		empty -> readable_writable [label = "+"]
+		full -> empty [label = "-, count = 0"]
+		full -> readable_writable [label = "-"]
+		readable_writable -> empty [label = "-, count = 0"]
+		readable_writable -> full [label = "+ count = size"]
+		readable_writable -> readable_writable [label = "+"]
+		readable_writable -> readable_writable [label = "-"]
+	}
+	
+	closed
+	readable_writable -> closed [label="close" ltail="cluster_open"]
+}

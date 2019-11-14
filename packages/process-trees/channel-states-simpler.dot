@@ -1,0 +1,28 @@
+digraph {
+	label = "fixed-buffer channel"
+	node [shape = circle width="1" style = filled]
+	{
+		rank = same
+		empty [
+			   color = red
+			   shape = doublecircle
+			   xlabel = "blocking\nread"
+			   label="empty"]
+		full [
+			  color = darkgreen
+			  xlabel = "blocking\nwrite"
+			  label="full"]
+	}
+	readable_writable [color = yellow label = "readable\n&\nwritable"]
+
+	
+	empty -> full [label = "write\nlast"]
+	empty -> readable_writable [label = "write"]
+	full -> empty [label = "read\nlast"]
+	full -> readable_writable [label = "read"]
+	readable_writable -> empty [label = "read\nlast"]
+	readable_writable -> full [label = "write\nlast"]
+	readable_writable -> readable_writable [label = "write"]
+	readable_writable -> readable_writable [label = "read"]
+	
+}

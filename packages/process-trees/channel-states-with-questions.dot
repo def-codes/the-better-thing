@@ -1,0 +1,45 @@
+digraph {
+	label = "fixed-buffer channel"
+	node [shape = circle]
+	{
+		node [style = filled]
+		{
+			rank = same
+			empty [
+				   color = red
+				   shape = doublecircle
+				   xlabel = "blocking\nread"
+				   label="empty"]
+			full [
+				  color = darkgreen
+				  xlabel = "blocking\nwrite"
+				  label="full"]
+		}
+		readable_writable [color = yellow label = "readable\n&\nwritable"]
+	}
+	{
+		rank = same
+		is_buffer_full [shape = diamond label = "is\nbuffer\nfull?"]
+		is_buffer_empty [shape = diamond label = "is\nbuffer\nempty?"]
+	}
+	
+	{
+		{
+			edge [color = green]
+			empty -> is_buffer_full [label = "write"]
+			readable_writable -> is_buffer_full [label = "write"]
+		}
+		{
+			edge [color = red]
+			full -> is_buffer_empty [label = "read"]
+			readable_writable -> is_buffer_empty [label = "read"]
+		}
+	}
+	{
+		edge [color = gray]
+		is_buffer_full -> full [label = "yes"]
+		is_buffer_full -> readable_writable [label = "no"]
+		is_buffer_empty -> empty [label = "yes"]
+		is_buffer_empty -> readable_writable [label = "no"]
+	}
+}
