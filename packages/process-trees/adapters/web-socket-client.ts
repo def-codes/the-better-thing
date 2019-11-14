@@ -1,9 +1,15 @@
+// INVARIANT 1. it MUST entail incoming message ingress as `in`
+// INVARIANT 2. it MUST entail outgoing message egress as `out`
+// INVARIANT 3. it MUST die if the connection closes
+// INVARIANT 4. it MUST close the connection of the process dies
+
 // REIFY
 //   - take a description (target address, options)
 //   - general process stuff
-//     - can emit errors (multiple times, doesn't go into error state, right?)
-//   - like a state machine in that
-//     - can go (unrecoverably) into closed state
+// MESSAGES
+//   - can emit errors (multiple times, doesn't go into error state, right?)
+// STATE MACHINE
+//   - can go (unrecoverably) into closed state
 // ENTAILS
 //   - an INGRESS (SINK) for receiving (buffer or encoded text) messages
 //   - an EGRESS (EVENT/SOURCE) for sending messages
@@ -37,6 +43,7 @@ datafy_protocol.extend(
     };
   }
 );
+/////
 
 // STATE MACHINE
 // you'd also want information about the states and transitions
@@ -49,6 +56,11 @@ const as_state_machine = (
   EVENTS.forEach(event => client.on(event, report_state));
   return () => EVENTS.forEach(event => client.off(event, report_state));
 };
+/////
+
+// REIFY
+// Okay, so... this is a subsystem because it has entailed processes (input and output)
+// but it can't entail just *anything*... only those things... right?
 
 export const web_socket_client_adapter: ISubsystemAdapter<WebSocketClientBlueprint> = {
   type_iri: WEBSOCKET_CLIENT_TYPE_IRI,
