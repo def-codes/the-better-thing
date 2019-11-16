@@ -16,6 +16,7 @@ import { dot_updater } from "./dot-viewer";
 import { rstream_dot_updater } from "./rstream-viewer";
 import { host } from "../persistence/host";
 import * as Dot from "@def.codes/graphviz-format";
+import * as pt from "@def.codes/process-trees";
 
 function fail_with(message: string) {
   process.stderr.write(`${message}\n`);
@@ -66,8 +67,26 @@ export async function launch() {
     );
   }
 
+  if (typeof result.get_state_machine_spec === "function") {
+    const updater = dot_updater();
+    const sms = result.get_state_machine_spec();
+    const dot = pt.state_machine_spec_to_dot(sms);
+    updater.go(dot);
+    if (typeof result.addListener === "function") {
+      result.addListener("state", state => {
+        // console.log(`state`, state);
+        const dot = pt.state_machine_spec_to_dot(sms);
+        dot!.statements.push({
+          type: "node",
+          id: state.value,
+          attributes: { style: "filled", color: "red" },
+        });
+        updater.go(dot);
+      });
+    }
+  }
   // if it's already dot, show directly
-  if (Dot.is_graph(result)) {
+  else if (Dot.is_graph(result)) {
     const updater = dot_updater();
     updater.go(result);
   }

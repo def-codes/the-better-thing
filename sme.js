@@ -1,6 +1,5 @@
 // a standalone state machine
 const { INotifyMixin } = require("@thi.ng/api");
-const pt = require("@def.codes/process-trees");
 
 const sms = {
   states: {
@@ -21,6 +20,9 @@ const ExampleStateMachine = INotifyMixin(
   class ExampleStateMachine {
     constructor() {
       this.set_state(sms.initial_state);
+    }
+    get_state_machine_spec() {
+      return sms;
     }
     make_move(transition) {
       const moves = sms.transitions.filter(
@@ -50,25 +52,27 @@ const ExampleStateMachine = INotifyMixin(
 
 const e = new ExampleStateMachine();
 
-e.addListener("state", (...args) => {
-  console.log(`STATE LISTENER SAY`, ...args);
-});
+const TRANSITIONS = [
+  "lock",
+  "unlock",
+  "unlock",
+  "close",
+  "open",
+  "close",
+  "lock",
+];
 
-e.notify({ id: "not-state", value: "bar" });
+const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-e.lock();
-e.unlock();
-e.unlock();
-e.close();
-e.open();
-e.close();
-e.lock();
-
-console.log(`e`, e);
+(async function() {
+  for (const x of TRANSITIONS) {
+    await timeout(500);
+    e.make_move(x);
+  }
+})();
 
 module.exports = {
   main() {
-    const dot = pt.state_machine_spec_to_dot(sms);
-    return dot;
+    return e;
   },
 };
