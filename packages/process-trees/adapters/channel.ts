@@ -52,9 +52,9 @@ export const fixed_buffer_state_machine: StateMachineSpec = {
     ["full", "close", "done"],
     ["normal", "close", "done"],
     // same for error?
-    ["empty", "error", "done"],
-    ["full", "error", "done"],
-    ["normal", "error", "done"],
+    ["empty", "error", "error"],
+    ["full", "error", "error"],
+    ["normal", "error", "error"],
   ],
   initial_state: "empty",
 };

@@ -12,11 +12,7 @@ export function dot_updater(image_name = "dot.svg") {
   shell_open(pathToFileURL(html_file) + "#" + encodeURIComponent(image_name));
 
   return {
-    go: (graph: Dot.Graph) => {
-      const dot = Dot.serialize_dot(graph);
-      console.log(`dot`, dot);
-
-      return dot_to_svg_file(dot, image_file);
-    },
+    go: (graph: Dot.Graph) =>
+      dot_to_svg_file(Dot.serialize_dot(graph), image_file),
   };
 }
