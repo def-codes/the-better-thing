@@ -3,3 +3,9 @@
 // with some common aspects of a process lifecycle
 // it is a kind of special case of an asynchronous event stream
 // that fires only one time
+//
+// STATE MACHINE
+// states:
+// - pending (initial)
+// - done (terminal)
+// - error (terminal)

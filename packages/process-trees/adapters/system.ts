@@ -7,6 +7,7 @@ import { Subsystem } from "./subsystem";
 export class System /* extends Subsystem */ {
   bind_system_calls(subsystem: Subsystem): ISystemCalls {
     return {
+      reflect() {},
       spawn(name, description) {
         this.spawn(subsystem, name, description);
       },
@@ -15,7 +16,7 @@ export class System /* extends Subsystem */ {
 
   // a thing wants to have a baby.
   // chicken/egg here... this will be called on syscalls
-  spawn(subsystem: Subsytem, name: string, description) {
+  spawn(subsystem: Subsystem, name: string, description) {
     // now reify
     // construct special system calls bound to that instance
     // and register

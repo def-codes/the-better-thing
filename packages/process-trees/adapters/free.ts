@@ -23,8 +23,9 @@ export const free_adapter: ISubsystemAdapter<FreeBlueprint> = {
   can_create_contingent_processes: true,
   reify(blueprint) {
     return {
-      receive_message(message: CreateChildProcessMessage) {
-        if (message.type === "createChildProcess") {
+      dispose() {},
+      receive_message(message: AssertChildProcessMessage) {
+        if (message.type === "assertChildProcess") {
           const {} = message;
         }
       },

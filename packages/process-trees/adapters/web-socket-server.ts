@@ -10,7 +10,6 @@
 import { ISubsystemAdapter, ISystemCalls } from "./api";
 import { Subsystem } from "./subsystem";
 import * as WebSocket from "ws";
-import { datafy_protocol } from "@def.codes/datafy-nav";
 
 const WEBSOCKET_SERVER_TYPE_IRI =
   "https://tools.ietf.org/html/rfc6455#WebSocketServer";
@@ -21,6 +20,7 @@ export interface WebSocketServerBlueprint {
 }
 
 // REFLECT
+import { datafy_protocol } from "@def.codes/datafy-nav";
 interface WebSocketServerDescription extends WebSocketServerBlueprint {
   "@type": typeof WEBSOCKET_SERVER_TYPE_IRI;
   // TODO: "@context" or use IRI's for properties
@@ -95,6 +95,9 @@ export class WebSocketServerSubsystem extends Subsystem {
 
 export const web_socket_server_adapter: ISubsystemAdapter<WebSocketServerBlueprint> = {
   type_iri: WEBSOCKET_SERVER_TYPE_IRI,
+  reify(blueprint) {
+    return {};
+  },
   // the things (instances) come directly from mechanism.  need to be wrapped
   can_create_contingent_processes: true,
 };

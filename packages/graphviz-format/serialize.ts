@@ -53,8 +53,9 @@ const serialize_attribute = (
 
 function* serialize_attributes(attributes: {}, target?: AttributeContext) {
   yield `${target ? target + " " : " "}[`;
+  // Ignore null or undefined because it's convenient for conditional expressions
   for (let [key, value] of Object.entries(attributes))
-    yield serialize_attribute(key, value, target);
+    if (value != null) yield serialize_attribute(key, value, target);
   yield "]";
 }
 

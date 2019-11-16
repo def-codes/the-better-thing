@@ -66,8 +66,13 @@ export async function launch() {
     );
   }
 
+  // if it's already dot, show directly
+  if (Dot.is_graph(result)) {
+    const updater = dot_updater();
+    updater.go(result);
+  }
   // dotify all the things
-  if (true) {
+  else if (true) {
     const updater = dot_updater();
     // without a notifier of changes, we just have to poll
     (async function() {
@@ -92,8 +97,5 @@ export async function launch() {
       setTimeout(step, 250);
     }
     step();
-  } else if (Dot.is_graph(result)) {
-    const updater = dot_updater();
-    updater.go(result);
   }
 }

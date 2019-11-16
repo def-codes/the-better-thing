@@ -35,6 +35,12 @@ interface FileSystemWatcherDescription extends FileSystemWatcherBlueprint {
 }
 /////
 
+// STATE MACHINE
+// Should it even be necessary to say this, then?
+import { ESSENTIAL_PROCESS_MACHINE_SPEC } from "./process";
+export const file_system_watcher_state_machine = ESSENTIAL_PROCESS_MACHINE_SPEC;
+/////
+
 export const file_system_watcher_adapter: ISubsystemAdapter<FileSystemWatcherBlueprint> = {
   type_iri: WATCHER_TYPE,
   can_create_contingent_processes: false,

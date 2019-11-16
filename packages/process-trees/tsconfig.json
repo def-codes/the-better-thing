@@ -3,6 +3,7 @@
   "references": [
     { "path": "../datafy-nav" },
     /* TEMP */
+    { "path": "../graphviz-format" },
     { "path": "../simple-http-server" },
   ]
 }

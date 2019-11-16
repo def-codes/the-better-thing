@@ -28,6 +28,7 @@
   "author": "Gavin Cannizzaro <gcannizzaro@mindgrub.com>",
   "license": "BSD-3-Clause",
   "dependencies": {
+    "@thi.ng/csp": "1.1.6",
     "@thi.ng/dcons": "2.1.5",
     "@thi.ng/defmulti": "1.1.4",
     "@thi.ng/hdom": "9.0.0-alpha1",

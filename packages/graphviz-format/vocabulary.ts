@@ -1,4 +1,4 @@
-import { Graph } from "./api";
+import { Graph, Subgraph } from "./api";
 
 // Just making something up
 export const GRAPH_TYPE = "http://graphviz.org/doc/info#Graph";
@@ -10,5 +10,12 @@ export const is_graph = (x: any): x is Graph =>
 export const graph = (spec: Partial<Graph>): Graph => ({
   "@type": GRAPH_TYPE,
   type: "graph",
+  ...spec,
+});
+
+export const subgraph = (spec: Partial<Subgraph>): Subgraph => ({
+  // Should be a separate type for this?
+  "@type": GRAPH_TYPE,
+  type: "subgraph",
   ...spec,
 });

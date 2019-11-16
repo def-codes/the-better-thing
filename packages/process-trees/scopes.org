@@ -396,6 +396,27 @@ composite structures, entry and exit events, and other extended features.
 But at essence, a state machine spec is a labeled, directed graph.  Sound
 familiar?
 
+** invariants
+
+State machines for this purpose are considered as /static/ for the lifetime of the
+associated process.  It is possible that knowledge about a state machine spec
+could be accrued monotonically while it is in use, as long as such knowledge did
+not affect the set of terminal states.  However, such growth is not currently
+under consideration.
+
+Proceses are associated with /exactly one/ state machine.  It is true that
+processes can implement multiple state machines, in that they may concurrently
+have several concrete or derived discrete properties that behave according to a
+static transition scheme.  But for the purpose of modeling a process's
+lifecycle, only one such scheme may be considered authoritative.  Meanwhile, no
+less than one will suffice to distinguish the quick from the dead.
+
+
+
+
+
+
+
 ** state transition diagrams
 
 Resources
@@ -437,6 +458,34 @@ can be integrated to advantage into the thing's adapter.
 Specifically, a process can synchronize its "death" event with its terminal
 states.
 
+Using the extended features of state machine specs (such as those described by
+UML), we can link together state machines into more complex systems.
+
+** reflected state machines /versus/ reified state machines
+
+A /reified/ state machine is a model that you control by sending messages
+corresponding to its transitions, which causes it to advance from one state to
+the next.
+
+A /reflected/ state machine is one whose state is governed by an internal
+mechanism and cannot be explicitly controlled from userland.  Most built-in
+API's with state are this way, including HTTP requests.
+
+In reflected state machines, we find out the current state from the entity, but
+we do not control it.  We do not always know what transition occurred.  In this
+respect, transitions on reflected state machines are more informational than
+they are functional.
+
+** specifying state machines
+
+State machine specs can be written as general directed, labeled graphs.  The
+minimum required annotations include the designation of terminal states.
+
+For the time being any such format will suffice.  A separate subproject will be
+undertaken to find and adopt the most suitable vocabulary, ideally one derived
+from UML.
+
+** integrating state machines with the process model
 
 
 

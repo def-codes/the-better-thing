@@ -21,6 +21,11 @@ import {
 // can datafy handlers?
 export interface HttpServerBlueprint extends HttpServerOptions {}
 
+// STATE MACHINE
+// Has normal states (alive dead)
+// Maybe a connecting state
+/////
+
 export const http_server_adapter: ISubsystemAdapter<HttpServerBlueprint> = {
   type_iri: "http://meld/subsystem/WebServer",
   // I'm not 100% sure about this

@@ -15,8 +15,7 @@
 //   - an EGRESS (EVENT/SOURCE) for sending messages
 import { ISubsystemAdapter } from "./api";
 import * as WebSocket from "ws";
-import { StreamSource } from "@thi.ng/rstream";
-import { datafy_protocol } from "@def.codes/datafy-nav";
+import { StreamSource, subscription } from "@thi.ng/rstream";
 
 // https://www.w3.org/TR/websockets/
 const WEBSOCKET_CLIENT_TYPE_IRI =
@@ -30,6 +29,7 @@ interface WebSocketClientBlueprint {
 }
 
 // REFLECT
+import { datafy_protocol } from "@def.codes/datafy-nav";
 interface WebSocketClientDescription extends WebSocketClientBlueprint {
   "@type": typeof WEBSOCKET_CLIENT_TYPE_IRI;
   // TODO: add "@context" or use IRI's for properties
