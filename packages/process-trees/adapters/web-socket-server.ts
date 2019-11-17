@@ -15,7 +15,7 @@ import { ISubsystemAdapter, ISystemCalls } from "./api";
 import { Subsystem } from "./subsystem";
 import * as WebSocket from "ws";
 
-const WEBSOCKET_SERVER_TYPE_IRI =
+export const WEBSOCKET_SERVER_TYPE_IRI =
   "https://tools.ietf.org/html/rfc6455#WebSocketServer";
 
 export interface WebSocketServerBlueprint {
