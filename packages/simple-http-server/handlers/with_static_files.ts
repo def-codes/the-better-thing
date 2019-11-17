@@ -1,5 +1,5 @@
-import { Handler } from "./api";
-import { STATUS } from "./constants";
+import { Handler } from "../api";
+import { STATUS } from "../constants";
 import * as fs from "fs";
 import * as _path from "path";
 

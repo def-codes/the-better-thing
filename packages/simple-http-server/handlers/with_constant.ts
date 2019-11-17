@@ -1,5 +1,5 @@
-import { Handler, Response } from "./api";
-import { STATUS } from "./constants";
+import { Handler, Response } from "../api";
+import { STATUS } from "../constants";
 
 interface Options {
   /** The fixed response to always use for this request. */

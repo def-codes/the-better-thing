@@ -1,5 +1,5 @@
-import { Handler } from "./api";
-import { STATUS } from "./constants";
+import { Handler } from "../api";
+import { STATUS } from "../constants";
 
 interface Options {
   handler: Handler;

@@ -2,7 +2,7 @@ import * as http from "http";
 import { parse as parse_url } from "url";
 import { Request, Response, Handler } from "./api";
 import { STATUS } from "./constants";
-import { with_error_boundary } from "./with_error_handler";
+import { with_error_boundary } from "./handlers/with_error_handler";
 import { Readable } from "stream";
 import { deserialize_query } from "./url-query";
 

@@ -4,8 +4,8 @@
 // on path?  Because path is in fact treated specially, in that the handler sees
 // a path value relative to the mounted path.  As such, handlers are not aware
 // of any other context.
-import { Handler } from "./api";
-import { STATUS } from "./constants";
+import { Handler } from "../api";
+import { STATUS } from "../constants";
 
 type HandlerMapping = { path: string; handler: Handler };
 
