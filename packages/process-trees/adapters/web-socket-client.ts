@@ -1,16 +1,18 @@
+// LABEL: web socket client
+//
 // INVARIANT 1. it MUST entail incoming message ingress as `in`
 // INVARIANT 2. it MUST entail outgoing message egress as `out`
 // INVARIANT 3. it MUST die if the connection closes
 // INVARIANT 4. it MUST close the connection of the process dies
-
-// REIFY
+//
+// REIFY:
 //   - take a description (target address, options)
 //   - general process stuff
-// MESSAGES
+//
+// MESSAGES:
 //   - can emit errors (multiple times, doesn't go into error state, right?)
-// STATE MACHINE
-//   - can go (unrecoverably) into closed state
-// ENTAILS
+//
+// ENTAILS:
 //   - an INGRESS (SINK) for receiving (buffer or encoded text) messages
 //   - an EGRESS (EVENT/SOURCE) for sending messages
 import { ISubsystemAdapter } from "./api";
@@ -46,12 +48,37 @@ datafy_protocol.extend(
 /////
 
 // STATE MACHINE
-// you'd also want information about the states and transitions
+// https://github.com/websockets/ws/blob/HEAD/doc/ws.md#class-websocket
+/*
+CONNECTING 	0 	The connection is not yet open.
+OPEN 	1 	The connection is open and ready to communicate.
+CLOSING 	2 	The connection is in the process of closing.
+CLOSED 	3 	The connection is closed.
+*/
+import { StateMachineSpec } from "./state-machines";
+const STATES = ["connecting", "open", "closing", "closed"] as const;
+type WebSocketClientStateCode<
+  T = typeof STATES
+> = T extends readonly (infer E)[] ? E : never;
+export const web_socket_client_state_machine: StateMachineSpec = {
+  states: {
+    connecting: { label: "The connection is not yet open." },
+    open: { label: "The connection is open and ready to communicate." },
+    closing: { label: "The connection is in the process of closing." },
+    closed: { label: "The connection is closed." },
+  },
+  transitions: [
+    ["connecting", "open?", "open"],
+    ["open", "close?", "closing"],
+    ["closing", "closed?", "closed"],
+  ],
+  initial_state: "connecting",
+};
 const EVENTS = ["open", "close"] as const;
 const as_state_machine = (
   client: WebSocket
-): StreamSource<WebSocket["readyState"]> => sub => {
-  const report_state = () => sub.next(client.readyState);
+): StreamSource<WebSocketClientStateCode> => sub => {
+  const report_state = () => sub.next(STATES[client.readyState]);
   report_state();
   EVENTS.forEach(event => client.on(event, report_state));
   return () => EVENTS.forEach(event => client.off(event, report_state));

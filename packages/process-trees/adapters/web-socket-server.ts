@@ -4,9 +4,13 @@
 
 // MESSAGES
 //   - can emit errors (multiple times, doesn't go into error state, right?)
-// STATE MACHINE:
-//   - starts in pending state and goes (at most once) into open state
-//   - can go (unrecoverably) into closed state
+//
+// STDIN:
+// broadcast?
+//
+// STDOUT:
+// ?
+//
 import { ISubsystemAdapter, ISystemCalls } from "./api";
 import { Subsystem } from "./subsystem";
 import * as WebSocket from "ws";
@@ -35,6 +39,24 @@ datafy_protocol.extend(
     };
   }
 );
+/////
+
+// STATE MACHINE:
+//   - starts in pending state and goes (at most once) into open state
+//   - can go (unrecoverably) into closed state
+import { StateMachineSpec } from "./state-machines";
+export const web_socket_server_state_machine: StateMachineSpec = {
+  states: {
+    opening: {},
+    listening: {},
+    closed: { terminal: true },
+  },
+  transitions: [
+    ["opening", "open", "listening"],
+    ["listening", "close", "closed"],
+  ],
+  initial_state: "opening",
+};
 /////
 
 interface WebSocketServerSubsystemState {

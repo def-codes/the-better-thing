@@ -1,7 +1,11 @@
-// maybe this will be folded into something more basic (because it is built-in)
-//
 // promise is like a special case of an async event stream that fires only once
 //
+// STDIN
+// none
+//
+// STDOUT
+// resolved value (one time)
+
 // STATE MACHINE
 // Using terminology from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
 import { StateMachineSpec } from "./state-machines";
@@ -27,38 +31,38 @@ export const promise_state_machine: StateMachineSpec = {
 // the native mechanism.  You can't tell from a Promise whether or not it's been
 // settled.
 //
-// Wow, you can actually hack the prototype
 import { INotify, INotifyMixin } from "@thi.ng/api";
 
-// @ts-ignore Yeah well it does now
-// Promise.prototype.notify = function notify(...args) {
-//   console.log("NOTIFY!", ...args);
-// };
-
+// hack the prototype
 INotifyMixin(Promise);
 
-const old_then = Promise.prototype.then;
+Promise.prototype["get_state_machine_spec"] = function() {
+  return promise_state_machine;
+};
+
+// Note though that these only take effect if `then` or `catch` handlers are
+// added.  So state is not accurate unless you can be sure that handlers were
+// added.
+
+const { then: _then } = Promise.prototype;
 Promise.prototype.then = function then<T>(
   this: Promise<T> & INotify,
   ...args: any[]
 ) {
-  // console.error("DONE!", ...args);
   this.notify({ id: "state", value: "done" });
-  return old_then.apply(this, args);
+  return _then.apply(this, args);
 };
 
-const old_catch = Promise.prototype.catch;
+const { catch: _catch } = Promise.prototype;
 Promise.prototype.catch = function<T>(
   this: Promise<T> & INotify,
   ...args: any[]
 ) {
-  // console.error("CAUGHT!", ...args);
   this.notify({ id: "state", value: "error" });
-  return old_catch.apply(this, args);
+  return _catch.apply(this, args);
 };
 
 /* alt
-const { then: _then, catch: _catch } = Promise.prototype;
 Object.assign(Promise.prototype, {
   then<T>(this: Promise<T>, args: any[]) {
     // hook

@@ -1,3 +1,18 @@
+// INVARIANTS?
+//different buffers are almost like different types
+// - Fixed buffer is what is described here
+// - unbuffered (rendez-vous) is I think not supported in @thi.ng
+// - windowing buffer (sliding, dropping) is non-blocking
+
+// STDIN
+// - like any input port except that it can block with writer waiting for free space
+
+// STDOUT
+// - an async value sequence, but unlike subscriptions
+//   - needs a reader
+//   - can block with reader waiting for value
+//   - values only go to one reader
+
 // CSP channel
 import { Channel } from "@thi.ng/csp";
 

@@ -1,5 +1,9 @@
+// LABEL: general subsystem
+//
+// COMMENT:
 // A freeform subsytem.  That is not responsible for anything but creating other
 // processes.
+
 import { ISubsystemAdapter } from "./api";
 
 interface FreeBlueprint {}

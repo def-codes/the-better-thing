@@ -1,23 +1,35 @@
-// ENTAILS
+// LABEL: triple store
+//
+// QUESTIONS:
+// - is a query a subsystem?
+//   - its values can drive assert -> construct
+//     - but this is through transform, which must be done elsewhere
+//     - the things thus created are in a different scope
+//
+// INVARIANTS?
+//
+// ENTAILS:
 //   - query processes (out ports) created on-demand
 //   - SEE scopes.org for discussion
 //   - triples COLLECTIONS
 //   - queries CONTINGENT PROCESSES providing results collections
 //     - a query spec is thus a separate thing, right?
-// MESSAGES
+//
+// MESSAGES:
 //   - assert?
 //   - retract?
+//
+// STDIN:
+// must be messages
+//
+// STDOUT:
+// copy of stdin?
+// fact collection as value?
+//
 // COMPONENT
 //   - has its own internal dataflow that you could inspect (i.e. reflect)
 //     - these are really implementation details and you shouldn't mess with them
 //     - but it should still be possible to see how it's working internally
-//
-//
-// QUESTIONS
-// - is a query a subsystem?
-//   - its values can drive assert -> construct
-//     - but this is through transform, which must be done elsewhere
-//     - the things thus created are in a different scope
 import { ISubsystemAdapter } from "./api";
 import { TripleStore } from "@thi.ng/rstream-query";
 

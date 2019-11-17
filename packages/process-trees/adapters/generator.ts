@@ -1,21 +1,40 @@
-// synchronous sequence
+// LABEL: generator
+//
+// COMMENT:
+// stateful, synchronous sequence
 // pull-based stream
+// like a synchronous ingress (a value provider)
 // a generator is not a process as such, in that it can't do anything on its own
 // i.e. it's not a call site for events that can occur at any time
-// (though with yield I'm not so sure)
-// but it certainly is stateful
-// and resembles other basic things in some ways
-// it has an input port, i.e. it can be fed.  this causes its output to go
-// I mean it's kinda like a stateful transducer, maybe that doesn't need a seed value
-// or rather, it ignores the input *value* and just gets triggered
+//
+// MESSAGES:
+// sequence values
+//
+// STDIN:
+// next(value).
+// sends value to `yield` expressions and next yielded value to stdout
+//
+// STDOUT:
+// yielded values
+//
+// CONTINGENT/ENTAILED PROCESSES:
+// none
 //
 // STATE MACHINE
-// states:
-// - alive (initial)
-// - error (terminal?)
-// - done (terminal)
-// transitions:
-// - alive --next--> alive
-// - alive --next--> done
-// - alive --error--> error
-// - alive --done--> done
+// see also async-iterable
+import { StateMachineSpec } from "./state-machines";
+export const async_iterable_state: StateMachineSpec = {
+  states: {
+    normal: {},
+    done: { terminal: true },
+    error: { terminal: true },
+  },
+  transitions: [
+    ["normal", "next", "normal"],
+    // transition is return?
+    ["normal", "next", "done"],
+    ["normal", "throw", "error"],
+  ],
+  initial_state: "normal",
+};
+/////

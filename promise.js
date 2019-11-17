@@ -3,21 +3,12 @@ const pt = require("@def.codes/process-trees");
 const timeout = (ms, value) =>
   new Promise(resolve => setTimeout(resolve(value), ms));
 
-const blah = timeout(100, "abc");
-const blahproto = Object.getPrototypeOf(blah);
-// const blahconstr = blah.constructor;
-// const blahconstrproto = blahconstr.prototype;
+const thing = timeout(2000, "abc");
 
-console.log(`blah`, blah);
-console.log(`blahproto`, blahproto);
-// console.log(`blahconstr`, blahconstr);
-// console.log(`blahconstrproto`, blahconstrproto);
+thing.then(value => console.log(`HAAAAY !value`, value));
 
-// console.log(`blahconstrproto.notify`, blahconstrproto.notify);
-console.log(`Promise`, Promise.prototype.notify);
-
-blah.addListener("state", state => {
-  console.log(`YO process state is `, state);
-});
-
-blah.then(value => console.log(`HAAAAY !value`, value));
+module.exports = {
+  main() {
+    return thing;
+  },
+};

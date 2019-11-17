@@ -1,9 +1,6 @@
 // INVARIANT 1. it MUST close the watcher when the process dies
 // INVARIANT 2. it MUST die when the watcher closes
 
-// REFLECT
-//   FSWatcher is the type in node
-//   however, it can't be fully reflected since the constructor info is lost
 // ENTAILS:
 // - an ingress (stream source)
 //   - that cleans up when the stream is *canceled*
@@ -40,6 +37,15 @@ interface FileSystemWatcherDescription extends FileSystemWatcherBlueprint {
 import { ESSENTIAL_PROCESS_MACHINE_SPEC } from "./process";
 export const file_system_watcher_state_machine = ESSENTIAL_PROCESS_MACHINE_SPEC;
 /////
+
+// STDIN:
+// none.  This is an INGRESS
+
+// STDOUT:
+// change messages
+
+// MESSAGES:
+// only change messages (stdout)
 
 export const file_system_watcher_adapter: ISubsystemAdapter<FileSystemWatcherBlueprint> = {
   type_iri: WATCHER_TYPE,
