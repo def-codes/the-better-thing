@@ -3,8 +3,6 @@
 
 // ENTAILS:
 // - an ingress (stream source)
-//   - that cleans up when the stream is *canceled*
-//   That is already a minimal interface
 import { ISubsystemAdapter } from "./api";
 // TEMP: this doesn't belong here, process-trees shouldn't have a node dependency
 import {
@@ -47,12 +45,21 @@ export const file_system_watcher_state_machine = ESSENTIAL_PROCESS_MACHINE_SPEC;
 // MESSAGES:
 // only change messages (stdout)
 
+// REIFY
+import { reify_protocol } from "../reify/index";
+reify_protocol.extend(
+  WATCHER_TYPE,
+  (system, { path, options }: FileSystemWatcherBlueprint) => {
+    // NEED wrapper/helper to make process based on stream source
+    const stream = filesystem_watcher_source(path, options);
+    return {
+      dispose() {},
+    };
+  }
+);
+/////
+
 export const file_system_watcher_adapter: ISubsystemAdapter<FileSystemWatcherBlueprint> = {
   type_iri: WATCHER_TYPE,
   can_create_contingent_processes: false,
-  reify(blueprint) {
-    const stream = filesystem_watcher_source(blueprint.path, blueprint.options);
-    // Make a stream from this and processify it...
-    return {};
-  },
 };

@@ -44,7 +44,7 @@ export interface IProcess extends Partial<IDispose> {
 
 // `B` is the “blueprint” type: properties needed to construct
 export interface IReify<B extends object> {
-  reify(blueprint: B): IProcess;
+  // reify(blueprint: B): IProcess;
 }
 
 export interface ISubsystemAdapter<B extends object> extends IReify<B> {

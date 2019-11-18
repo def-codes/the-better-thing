@@ -54,14 +54,21 @@ datafy_protocol.extend(
 );
 /////
 
+// REIFY
+import { reify_protocol } from "../reify/index";
+reify_protocol.extend(TRIPLE_STORE_TYPE_IRI, (system, description) => {
+  const instance = new TripleStore();
+  return {
+    dispose() {
+      // disconnect queries?
+    },
+  };
+});
+/////
+
 export const triple_store_adapter: ISubsystemAdapter<TripleStoreBlueprint> = {
   // not exactly an RDF graph
   type_iri: TRIPLE_STORE_TYPE_IRI,
   // but creates them “on demand”, from a request that must be (?) IPC-based?
   can_create_contingent_processes: true,
-  reify() {
-    const instance = new TripleStore();
-    // processify...
-    return {};
-  },
 };

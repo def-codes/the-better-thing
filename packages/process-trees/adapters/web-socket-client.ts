@@ -5,10 +5,6 @@
 // INVARIANT 3. it MUST die if the connection closes
 // INVARIANT 4. it MUST close the connection of the process dies
 //
-// REIFY:
-//   - take a description (target address, options)
-//   - general process stuff
-//
 // MESSAGES:
 //   - can emit errors (multiple times, doesn't go into error state, right?)
 //
@@ -88,13 +84,11 @@ const as_state_machine = (
 // REIFY
 // Okay, so... this is a subsystem because it has entailed processes (input and output)
 // but it can't entail just *anything*... only those things... right?
-
-export const web_socket_client_adapter: ISubsystemAdapter<WebSocketClientBlueprint> = {
-  type_iri: WEBSOCKET_CLIENT_TYPE_IRI,
-  can_create_contingent_processes: false,
-
-  reify: blueprint => {
-    const client = new WebSocket(blueprint.address);
+import { reify_protocol } from "../reify/index";
+reify_protocol.extend(
+  WEBSOCKET_CLIENT_TYPE_IRI,
+  (system, description: WebSocketClientBlueprint) => {
+    const client = new WebSocket(description.address);
     // The process dies if the client closes on its own
     const onclose = () => {
       // die, this process
@@ -125,5 +119,11 @@ export const web_socket_client_adapter: ISubsystemAdapter<WebSocketClientBluepri
         client.close();
       },
     };
-  },
+  }
+);
+/////
+
+export const web_socket_client_adapter: ISubsystemAdapter<WebSocketClientBlueprint> = {
+  type_iri: WEBSOCKET_CLIENT_TYPE_IRI,
+  can_create_contingent_processes: false,
 };

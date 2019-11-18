@@ -115,11 +115,18 @@ export class WebSocketServerSubsystem extends Subsystem {
   }
 }
 
+// REIFY
+import { reify_protocol } from "../reify/index";
+reify_protocol.extend(WEBSOCKET_SERVER_TYPE_IRI, (system, description) => {
+  return new WebSocketServerSubsystem(
+    system,
+    description as WebSocketServerDescription
+  );
+});
+/////
+
 export const web_socket_server_adapter: ISubsystemAdapter<WebSocketServerBlueprint> = {
   type_iri: WEBSOCKET_SERVER_TYPE_IRI,
-  reify(blueprint) {
-    return {};
-  },
   // the things (instances) come directly from mechanism.  need to be wrapped
   can_create_contingent_processes: true,
 };

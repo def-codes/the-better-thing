@@ -18,6 +18,8 @@ import {
   HttpServerOptions,
 } from "@def.codes/simple-http-server";
 
+const HTTP_SERVER_TYPE_IRI = "http://meld/subsystem/WebServer";
+
 // can datafy handlers?
 export interface HttpServerBlueprint extends HttpServerOptions {}
 
@@ -26,15 +28,24 @@ export interface HttpServerBlueprint extends HttpServerOptions {}
 // Maybe a connecting state
 /////
 
+// REIFY:
+//   - see meld demo.  I've done this several times over
+//   - same goes for forces, which is a different kind of thing
+import { reify_protocol } from "../reify/index";
+reify_protocol.extend(
+  HTTP_SERVER_TYPE_IRI,
+  (system, description: HttpServerBlueprint) => {
+    const server = create_server(description);
+    // processify...
+    return {};
+  }
+);
+/////
+
 export const http_server_adapter: ISubsystemAdapter<HttpServerBlueprint> = {
-  type_iri: "http://meld/subsystem/WebServer",
+  type_iri: HTTP_SERVER_TYPE_IRI,
   // I'm not 100% sure about this
   //  - incoming requests are mapped to handlers and handled asynchronously
   //    - but is a promise a process?
   can_create_contingent_processes: true,
-  reify(blueprint) {
-    const server = create_server(blueprint);
-    // processify...
-    return {};
-  },
 };

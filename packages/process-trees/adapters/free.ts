@@ -6,6 +6,8 @@
 
 import { ISubsystemAdapter } from "./api";
 
+const FREE_SUBSYSTEM_TYPE_IRI = "def.codes/meld/subsystem/FreeSubsystem";
+
 interface FreeBlueprint {}
 
 interface AssertChildProcessMessage {
@@ -20,12 +22,13 @@ interface What {
   type: "what";
 }
 
-export const free_adapter: ISubsystemAdapter<FreeBlueprint> = {
-  type_iri: "def.codes/meld/subsystem/FreeSubsystem",
-  // ENTAILS
-  // - whatever it says
-  can_create_contingent_processes: true,
-  reify(blueprint) {
+// REIFY:
+//   - see meld demo.  I've done this several times over
+//   - same goes for forces, which is a different kind of thing
+import { reify_protocol } from "../reify/index";
+reify_protocol.extend(
+  FREE_SUBSYSTEM_TYPE_IRI,
+  (system, description: FreeBlueprint) => {
     return {
       dispose() {},
       receive_message(message: AssertChildProcessMessage) {
@@ -34,5 +37,13 @@ export const free_adapter: ISubsystemAdapter<FreeBlueprint> = {
         }
       },
     };
-  },
+  }
+);
+/////
+
+export const free_adapter: ISubsystemAdapter<FreeBlueprint> = {
+  type_iri: FREE_SUBSYSTEM_TYPE_IRI,
+  // ENTAILS
+  // - whatever it says
+  can_create_contingent_processes: true,
 };
