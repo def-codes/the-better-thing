@@ -9,11 +9,12 @@
 // broadcast?
 //
 // STDOUT:
-// ?
+// client connection dict?
 //
 import { ISubsystemAdapter, ISystemCalls } from "./api";
 import { Subsystem } from "./subsystem";
 import * as WebSocket from "ws";
+import { StreamSource, stream, Stream, Subscription } from "@thi.ng/rstream";
 
 export const WEBSOCKET_SERVER_TYPE_IRI =
   "https://tools.ietf.org/html/rfc6455#WebSocketServer";
@@ -57,6 +58,18 @@ export const web_socket_server_state_machine: StateMachineSpec = {
   ],
   initial_state: "opening",
 };
+const lifecycle_state_source = (
+  server: WebSocket.Server
+): StreamSource<string> => sub => {
+  const report_state = state => sub.next(state);
+  const handlers = Object.entries({
+    listening: () => report_state("listening"),
+    closed: () => report_state("closed"),
+  });
+  handlers.forEach(([name, hook]) => server.on(name, hook));
+  report_state("opening");
+  return () => handlers.forEach(([name, hook]) => server.off(name, hook));
+};
 /////
 
 interface WebSocketServerSubsystemState {
@@ -65,6 +78,7 @@ interface WebSocketServerSubsystemState {
   readonly connection_listener: (client: WebSocket) => void;
   // INVARIANT 3. it MUST die when the server is closed
   readonly closed_listener: () => void;
+  readonly state_stream: Subscription<string, string>;
 }
 
 export class WebSocketServerSubsystem extends Subsystem {
@@ -76,6 +90,15 @@ export class WebSocketServerSubsystem extends Subsystem {
   ) {
     super(system);
     const instance = new WebSocket.Server(blueprint);
+
+    // You have to cancal this thing too
+    const state_stream = stream(lifecycle_state_source(instance)).subscribe({
+      // event id should be namespaced, lifecycle state or something
+      next: value => {
+        // @ts-ignore.  see parent class
+        this.notify({ id: "state", value });
+      },
+    });
 
     // INVARIANT 1. it MUST reflect connections as contingent (entailed) processes
     const connection_listener = (client: WebSocket) => {
@@ -92,7 +115,12 @@ export class WebSocketServerSubsystem extends Subsystem {
     instance.on("close", closed_listener);
     /////
 
-    this.state = { instance, connection_listener, closed_listener };
+    this.state = {
+      instance,
+      connection_listener,
+      closed_listener,
+      state_stream,
+    };
   }
 
   // INVARIANT 2. it MUST close the server when the process dies
@@ -112,6 +140,9 @@ export class WebSocketServerSubsystem extends Subsystem {
 
     // INVARIANT 2. it MUST close the server when the process dies
     instance.close();
+
+    // Will this also cancel stream?
+    this.state.state_stream?.unsubscribe();
   }
 }
 

@@ -9,4 +9,7 @@ const a_web_socket_server = {
 // Now assert that the thing described there exists
 const fake_system = {};
 const thing_itself = pt.reify(a_web_socket_server, fake_system);
-console.log(`thing_itself`, thing_itself);
+// console.log(`thing_itself`, thing_itself);
+thing_itself.addListener("state", state => {
+  console.log(`state`, state.value);
+});
