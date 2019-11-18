@@ -67,9 +67,9 @@ export async function launch() {
     );
   }
 
-  if (typeof result.get_state_machine_spec === "function") {
+  if (result.hasLifecycle) {
     const updater = dot_updater();
-    const sms = result.get_state_machine_spec();
+    const sms = result.hasLifecycle;
     const dot = pt.state_machine_spec_to_dot(sms);
     updater.go(dot);
     if (typeof result.addListener === "function") {

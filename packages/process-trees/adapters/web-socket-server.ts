@@ -84,7 +84,7 @@ interface WebSocketServerSubsystemState {
 export class WebSocketServerSubsystem extends Subsystem {
   readonly state: WebSocketServerSubsystemState;
 
-  get_state_machine_spec() {
+  get hasLifecycle() {
     return web_socket_server_state_machine;
   }
 

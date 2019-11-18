@@ -36,9 +36,7 @@ import { INotify, INotifyMixin } from "@thi.ng/api";
 // hack the prototype
 INotifyMixin(Promise);
 
-Promise.prototype["get_state_machine_spec"] = function() {
-  return promise_state_machine;
-};
+Promise.prototype["hasLifecycle"] = promise_state_machine;
 
 // Note though that these only take effect if `then` or `catch` handlers are
 // added.  So state is not accurate unless you can be sure that handlers were
