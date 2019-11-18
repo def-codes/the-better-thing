@@ -87,7 +87,7 @@ const as_state_machine = (
 import { reify_protocol } from "../reify/index";
 reify_protocol.extend(
   WEBSOCKET_CLIENT_TYPE_IRI,
-  (system, description: WebSocketClientBlueprint) => {
+  (description: WebSocketClientBlueprint, system) => {
     const client = new WebSocket(description.address);
     // The process dies if the client closes on its own
     const onclose = () => {

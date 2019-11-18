@@ -28,7 +28,7 @@ interface What {
 import { reify_protocol } from "../reify/index";
 reify_protocol.extend(
   FREE_SUBSYSTEM_TYPE_IRI,
-  (system, description: FreeBlueprint) => {
+  (description: FreeBlueprint, system) => {
     return {
       dispose() {},
       receive_message(message: AssertChildProcessMessage) {

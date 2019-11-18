@@ -37,7 +37,7 @@ export interface ForceSimulationBlueprint {
 import { reify_protocol } from "../reify/index";
 reify_protocol.extend(
   FORCE_SIMULATION_TYPE_IRI,
-  (system, description: ForceSimulationBlueprint) => {
+  (description: ForceSimulationBlueprint, system) => {
     const sim = d3_force.forceSimulation();
     return {
       // No cleanup I think.

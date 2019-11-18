@@ -117,12 +117,15 @@ export class WebSocketServerSubsystem extends Subsystem {
 
 // REIFY
 import { reify_protocol } from "../reify/index";
-reify_protocol.extend(WEBSOCKET_SERVER_TYPE_IRI, (system, description) => {
-  return new WebSocketServerSubsystem(
-    system,
-    description as WebSocketServerDescription
-  );
-});
+reify_protocol.extend(
+  WEBSOCKET_SERVER_TYPE_IRI,
+  (description: WebSocketServerBlueprint, system) => {
+    return new WebSocketServerSubsystem(
+      system,
+      description as WebSocketServerDescription
+    );
+  }
+);
 /////
 
 export const web_socket_server_adapter: ISubsystemAdapter<WebSocketServerBlueprint> = {

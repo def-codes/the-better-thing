@@ -34,7 +34,7 @@ export interface HttpServerBlueprint extends HttpServerOptions {}
 import { reify_protocol } from "../reify/index";
 reify_protocol.extend(
   HTTP_SERVER_TYPE_IRI,
-  (system, description: HttpServerBlueprint) => {
+  (description: HttpServerBlueprint, system) => {
     const server = create_server(description);
     // processify...
     return {};

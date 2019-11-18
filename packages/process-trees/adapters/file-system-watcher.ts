@@ -49,7 +49,7 @@ export const file_system_watcher_state_machine = ESSENTIAL_PROCESS_MACHINE_SPEC;
 import { reify_protocol } from "../reify/index";
 reify_protocol.extend(
   WATCHER_TYPE,
-  (system, { path, options }: FileSystemWatcherBlueprint) => {
+  ({ path, options }: FileSystemWatcherBlueprint, system) => {
     // NEED wrapper/helper to make process based on stream source
     const stream = filesystem_watcher_source(path, options);
     return {

@@ -56,14 +56,17 @@ datafy_protocol.extend(
 
 // REIFY
 import { reify_protocol } from "../reify/index";
-reify_protocol.extend(TRIPLE_STORE_TYPE_IRI, (system, description) => {
-  const instance = new TripleStore();
-  return {
-    dispose() {
-      // disconnect queries?
-    },
-  };
-});
+reify_protocol.extend(
+  TRIPLE_STORE_TYPE_IRI,
+  (description: TripleStoreBlueprint, system) => {
+    const instance = new TripleStore();
+    return {
+      dispose() {
+        // disconnect queries?
+      },
+    };
+  }
+);
 /////
 
 export const triple_store_adapter: ISubsystemAdapter<TripleStoreBlueprint> = {
