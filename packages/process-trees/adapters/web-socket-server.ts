@@ -64,7 +64,7 @@ const lifecycle_state_source = (
   const report_state = state => sub.next(state);
   const handlers = Object.entries({
     listening: () => report_state("listening"),
-    closed: () => report_state("closed"),
+    close: () => report_state("closed"),
   });
   handlers.forEach(([name, hook]) => server.on(name, hook));
   report_state("opening");
@@ -83,6 +83,10 @@ interface WebSocketServerSubsystemState {
 
 export class WebSocketServerSubsystem extends Subsystem {
   readonly state: WebSocketServerSubsystemState;
+
+  get_state_machine_spec() {
+    return web_socket_server_state_machine;
+  }
 
   constructor(
     readonly system: ISystemCalls,

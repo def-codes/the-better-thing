@@ -26,11 +26,20 @@ thing_itself.addListener("state", state => {
 
 const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
 (async function() {
-  for (let x = 0; x < 5; x++) {
+  for (let x = 0; x < 0; x++) {
     // connect to the server
     const client = new WebSocket("ws://localhost:1234");
     console.log(`client`, client);
 
     await timeout(2000);
   }
+  await timeout(2000);
+  // cheating, etc
+  thing_itself.state.instance.close();
 })();
+
+module.exports = {
+  main() {
+    return thing_itself;
+  },
+};
