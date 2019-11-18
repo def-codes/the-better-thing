@@ -34,12 +34,14 @@ interface WebSocketClientDescription extends WebSocketClientBlueprint {
 }
 datafy_protocol.extend(
   WebSocket,
-  (instance): WebSocketClientDescription => {
-    return {
-      "@type": WEBSOCKET_CLIENT_TYPE_IRI,
-      address: instance.url,
-    };
-  }
+  (instance): WebSocketClientDescription => ({
+    "@type": WEBSOCKET_CLIENT_TYPE_IRI,
+    // https://github.com/websockets/ws/blob/HEAD/doc/ws.md#websocketurl
+    // > The URL of the WebSocket server. Server clients don't have this
+    // > attribute.
+    // Indeed, this is coming back as undefined in my tests.
+    address: instance.url,
+  })
 );
 /////
 

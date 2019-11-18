@@ -99,11 +99,22 @@ export class WebSocketServerSubsystem extends Subsystem {
         this.notify({ id: "state", value });
       },
     });
-
     // INVARIANT 1. it MUST reflect connections as contingent (entailed) processes
     const connection_listener = (client: WebSocket) => {
+      // `address` returns something like
+      //     { address: '0.0.0.0', family: 'IPv4', port: 1234 }
+      // the types don't reflect that
+      const { address, port } = instance.address() as {
+        address: string;
+        port: number;
+      };
+      // and it's not available initially.
+      // I mean, yeah, we should know both of these *a priori* from the server options
+      const url = `ws://${address}:${port}`;
+
       // the client is a process contingent on this process
-      this.system.reflect(client);
+      // see note to client, address is not always available on reflection
+      this.system.reflect(client, { address: url });
     };
     instance.on("connection", connection_listener);
     /////
