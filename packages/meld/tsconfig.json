@@ -1,0 +1,7 @@
+{
+  "extends": "../tsconfig-base",
+  "references": [
+    { "path": "../datafy-nav" },
+    { "path": "../expression-reader" },
+  ]
+}
