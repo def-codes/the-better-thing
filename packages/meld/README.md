@@ -60,12 +60,99 @@ This leaves undefined:
 
 There is no time in thinguage.  At the top level, it's strictly declarative.
 
-## other points
+## Invariants
+
+The actual system and things do not require proxies.  The whole
+reader/interpreter is just syntax that constructs objects that could be
+constructed directly.
+
+Structurally, a thing appears as an object in which every property (or at least
+every enumerable property) is an entailment.
+
+All things are entailed by exactly one other thing (except the root).  No
+cycles.
+
+Each thing *itself* has
+- embedded system reference (what does embedded mean if the thing is not a
+  proxy?)
+- creator (or path + system ref)
+- stdin (message sink)
+  - this is what's connected when it's the target of IPC
+- stdout (message emitter)
+  - this is what's connected when it's the source of IPC
+
+Common thing properties:
+- rdf inspired
+  - id (global?)
+  - type(s)
+  - label
+  - comment
+- meld-inspired
+  - state machine spec
+    - and associated state
+  - error channel/state
+  
+What's missing here?
+
+Somewhere the thing has to be able to like, handle messages, right?  That makes
+sense in some cases (esp like interceptors), but not for like, self-contained
+things.
+
+What about things that aren't like subscriptions?  Like the websocket server.
+It still has to do something with messages (like to close).
+
+What about messages for creating new entailments?
+
+What about collections?
+
+
+
+
+## the system is a thing
 
 Remember that the whole thing is a scope, a system, which is a thing.  What
 applies to things should apply to it.  That is, you should be able to take the
 "whole thing" and see it as a kind of component.  It's a process, it can have
 states and ports of its own, etc.
+
+When you write in this context, you're creating a description of a thing.
+
+When you define something in that (direct) scope, you've created an entailment.
+
+Think of an object where every property (that's visible on the interface) is an
+entailment.
+
+That doesn't mean that each property must be a thing.  Properties can have
+values.
+
+What if you want to set a property to refer to something in another scope?  In
+that case, it's not entailed and can't be treated as such.
+
+In that case, we would need a way to distinguish, but note that we are still
+entailing the *fact*.
+
+But it may also be that such references are not in scope.
+
+Or.... that kind of assignment is an implicit "listens to".
+
+Mmmm... sounds nice, but it's also dicey.
+
+Yet... you'd be doing the same thing when saying x = y.map(f).  There's just an
+extra (sub) thing implied.
+
+Right, but that's an internal.  Still, it would be the same as saying
+resolve('/some/thing').map(foo).
+
+And you have to be able to tell what something "is", like, to get a
+(not-exactly-thing) mechanism.  *Those* things are not supposed to be extensible
+as such.  Things wrap around them.
+
+FWIW, the system can tell the difference in this context.
+
+What does the result look like?
+
+What if you make multiple assignments to something?
+
 
 ## questions: essence and entailment and communication.
 
