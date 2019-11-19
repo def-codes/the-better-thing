@@ -18,6 +18,7 @@ const modules = [
   ["function-testing"],
   ["graphviz-format"],
   ["helpers"],
+  ["meld", { node_only: true }],
   ["meld-core"],
   ["meld-demo"],
   ["meld-process"],

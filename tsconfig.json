@@ -11,6 +11,7 @@
     {"path": "packages/function-testing" },
     {"path": "packages/graphviz-format" },
     {"path": "packages/helpers" },
+    {"path": "packages/meld" },
     {"path": "packages/meld-core" },
     {"path": "packages/meld-demo" },
     {"path": "packages/meld-process" },
