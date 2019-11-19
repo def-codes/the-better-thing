@@ -2,6 +2,9 @@
   "extends": "../tsconfig-base",
   "references": [
     { "path": "../datafy-nav" },
+    { "path": "../node-web-presentation" },
+    { "path": "../process-trees" },
+    { "path": "../graphviz-format" },
     { "path": "../expression-reader" },
   ]
 }
