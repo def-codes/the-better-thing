@@ -5,10 +5,12 @@ import { object_graph_to_dot } from "@def.codes/graphviz-format";
 import { dot_updater } from "@def.codes/node-web-presentation";
 import { filesystem_watcher_source } from "@def.codes/process-trees";
 import * as rs from "@thi.ng/rstream";
+import { interpret } from "./interpreter";
 
 function main() {
   const [, , module_name] = process.argv;
   const filename = path.join(process.cwd(), `${module_name}.js`);
+  const context = {};
 
   if (!fs.existsSync(filename)) {
     console.error(`No such module ${module_name}`);
@@ -29,7 +31,14 @@ function main() {
       statements = { error, when: "reading-code" };
     }
 
-    updater.go(object_graph_to_dot(statements));
+    let result;
+    try {
+      result = interpret(statements, context);
+    } catch (error) {
+      result = { error, when: "interpreting-statements" };
+    }
+
+    updater.go(object_graph_to_dot({ statements, result }));
   }
 
   // Watch
