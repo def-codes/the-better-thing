@@ -35,6 +35,7 @@ const record_field = (field: Dot.RecordLabel) =>
 const record_fields = (fields: Dot.RecordFields): string =>
   fields.map(record_field).join(" | ");
 
+// https://www.graphviz.org/doc/info/shapes.html#record
 const record_label = (value: Dot.RecordLabel) =>
   // The outermost array is not wrapped in braces.
   Array.isArray(value) ? record_fields(value) : record_field(value);
@@ -61,8 +62,10 @@ function* serialize_attributes(attributes: {}, target?: AttributeContext) {
 
 const serialize_node_id = (id: Dot.NodeId) =>
   typeof id === "string"
-    ? `"${id}"`
-    : `"${id.id}":${id.port}${id.compass ? ":" + id.compass : ""}`;
+    ? `"${escape_string(id)}"`
+    : `"${escape_string(id.id)}":"${escape_string(id.port)}"${
+        id.compass ? ":" + id.compass : ""
+      }`;
 
 function* serialize_node(node: Dot.Node) {
   yield serialize_node_id(node.id);
