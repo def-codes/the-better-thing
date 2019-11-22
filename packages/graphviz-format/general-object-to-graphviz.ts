@@ -124,9 +124,15 @@ function* object_graph_to_dot_statements(
           ]),
         },
       };
+    else if (typeof node.value === "function")
+      yield {
+        type: "node",
+        id: `n${node.index}`,
+        attributes: { label: safe_tostring(node.value) },
+      };
 
     if (is_member_node(node))
-      if (is_value(node.key) && is_object(node.value))
+      if (is_value(node.key) && is_reference_type(node.value))
         yield {
           type: "edge",
           from: { id: `n${node.container}`, port: node.key.value },
