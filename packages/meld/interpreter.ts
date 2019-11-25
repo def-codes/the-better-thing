@@ -26,10 +26,7 @@ const is_assign = (x: ExprNode): x is AssignmentNode => "assign" in x;
 
 const as_stream_expression = (node: ExprNode) => {};
 
-const interpret_statement = (
-  node: readonly ExprNode[],
-  context: InterpreterContext
-) => {
+const interpret_statement = (node: ExprNode, context: InterpreterContext) => {
   if (Array.isArray(node)) {
     // const result = interpret_term_sequence(node, {depth: context.depth+1})
     // term chain
@@ -38,13 +35,14 @@ const interpret_statement = (
     const { term, value } = node.assign;
     if (value) {
       const stream_expression = as_stream_expression(value);
-      context.assert(term, stream_expression);
+      // context.assert(term, stream_expression);
     }
   } else {
     node;
   }
 };
 
-export const interpret = (statements: readonly ExprNode[][], context) => {
-  for (const statement of statements) interpret_statement(statement, context);
+export const interpret = (exprs: readonly ExprNode[][], context) => {
+  for (const statements of exprs)
+    for (const statement of statements) interpret_statement(statement, context);
 };

@@ -1,14 +1,16 @@
 import * as fs from "fs";
 import * as path from "path";
 import { read } from "@def.codes/expression-reader";
-import { object_graph_to_dot } from "@def.codes/graphviz-format";
+import { object_graph_to_dot, serialize_dot } from "@def.codes/graphviz-format";
 import { dot_updater } from "@def.codes/node-web-presentation";
 import { filesystem_watcher_source } from "@def.codes/process-trees";
 import * as rs from "@thi.ng/rstream";
 import { interpret } from "./interpreter";
 
-function main() {
-  const [, , module_name] = process.argv;
+const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function main() {
+  const [, , module_name, op = "interpret"] = process.argv;
   const filename = path.join(process.cwd(), `${module_name}.js`);
   const context = {};
 
@@ -18,6 +20,17 @@ function main() {
   }
 
   const updater = dot_updater();
+
+  function graph_it(thing: any) {
+    const graph = object_graph_to_dot(thing);
+
+    // Hold on just a little while longer...
+    // console.log(`graph`, graph);
+    // const dot = serialize_dot(graph);
+    // console.log(`dot`, dot);
+
+    updater.go(graph);
+  }
 
   function do_interpret() {
     const code = fs.readFileSync(filename, "utf8");
@@ -38,17 +51,32 @@ function main() {
       result = { error, when: "interpreting-statements" };
     }
 
-    updater.go(object_graph_to_dot({ statements, result }));
+    graph_it({ statements, result });
+  }
+
+  function show_exports() {
+    let exported;
+    try {
+      delete require.cache[require.resolve(filename)];
+      exported = require(filename);
+      console.log(`exported`, exported);
+    } catch (error) {
+      exported = { error, when: "loading-code" };
+    }
+
+    graph_it({ exported });
   }
 
   // Watch
+  await timeout(1000);
+  const fn = op === "exports" ? show_exports : do_interpret;
   rs.stream(filesystem_watcher_source(filename)).subscribe({
     next: msg => {
-      if (msg.type === "change") do_interpret();
+      if (msg.type === "change") fn();
     },
   });
 
-  do_interpret();
+  fn();
 }
 
 main();

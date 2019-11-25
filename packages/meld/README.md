@@ -66,6 +66,8 @@ The actual system and things do not require proxies.  The whole
 reader/interpreter is just syntax that constructs objects that could be
 constructed directly.
 
+# anatomy of a thing
+
 Structurally, a thing appears as an object in which every property (or at least
 every enumerable property) is an entailment.
 

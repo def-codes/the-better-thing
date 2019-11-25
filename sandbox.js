@@ -1,9 +1,9 @@
 // let's look at the diffs in a file as it changes
 // but also interpret it as expressions
 
-a = watch("some/file.js");
+file_events = watch("some/file.js");
 
-changes = a.filter(_ => _.type === "change");
+changes = file_events.filter(_ => _.type === "change");
 
 filename = changes.map(_ => _.path);
 // you could make this implicit, at least for map
