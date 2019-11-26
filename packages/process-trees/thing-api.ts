@@ -7,13 +7,15 @@ export interface ThingDescription {
   };
 }
 
+interface Instruction<T extends string> {
+  readonly operation: T;
+  readonly key: string;
+}
+
 export type ThingUpdateInstruction =
-  | { readonly operation: "delete"; readonly key: string }
-  | {
-      readonly operation: "add" | "update";
-      readonly key: string;
-      readonly description: ThingDescription;
-    };
+  | Instruction<"delete">
+  | (Instruction<"add"> & { readonly description: ThingDescription })
+  | (Instruction<"update"> & { readonly description: ThingDescription });
 
 export interface ThingChildrenSpec {
   readonly [key: string]: ThingDescription;

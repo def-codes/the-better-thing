@@ -1,6 +1,11 @@
 // alt, transducer-based version of thing diffing
-import { iterator, filter, map, comp, concat } from "@thi.ng/transducers";
-import { ThingChildrenSpec, ThingUpdateInstruction } from "./thing-api";
+import { iterator, filter, map, keep, comp, concat } from "@thi.ng/transducers";
+import {
+  ThingChildrenSpec,
+  ThingUpdateInstruction,
+  ThingDescription,
+} from "./thing-api";
+import { same_thing } from "./thing";
 const { keys, entries } = Object;
 
 // more declarative version but harder to type
@@ -16,15 +21,17 @@ export const diff_children1 = (
       ),
       keys(d1)
     ),
-    map(
-      ([key, description]) =>
-        //key in d2 ? {operation:"add", key, description} : {operation: "update", key, description}
-        ({
-          // But you should skip the update if the values are equivalent
-          operation: key in d2 ? "add" : "update",
-          key,
-          description,
-        } as const),
+    iterator<[string, ThingDescription], ThingUpdateInstruction>(
+      comp(
+        map(([key, description]) =>
+          key in d2
+            ? same_thing(d1[key], description)
+              ? undefined
+              : { operation: "update", key, description }
+            : { operation: "add", key, description }
+        ),
+        keep()
+      ),
       entries(d2)
     )
   );

@@ -9,7 +9,10 @@ import { assert_unreachable } from "@def.codes/graphviz-format/assert_unreachabl
 
 const { keys, entries } = Object;
 
-const same_thing = (a: ThingDescription, b: ThingDescription): boolean => {
+export const same_thing = (
+  a: ThingDescription,
+  b: ThingDescription
+): boolean => {
   return a && b && equivObject(a, b);
 };
 
@@ -35,7 +38,7 @@ function apply_instruction(instruction: ThingUpdateInstruction, thing: Thing) {
     thing.add_child(key, instruction.description);
   else if (instruction.operation === "update")
     thing.update_child(key, instruction.description);
-  else assert_unreachable(instruction.operation, "operation");
+  else assert_unreachable(instruction, "instruction");
 }
 
 function apply_description(
