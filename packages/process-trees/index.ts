@@ -5,6 +5,7 @@ export * from "./process-tree";
 export * from "./stream-expressions";
 export * from "./sugar";
 export * from "./transducer-expressions";
+export * from "./thing"; // provisional
 export * from "./reify/index"; // hmm, maybe
 export * from "./adapters/index"; // hmm, maybe
 export * from "./file-system-watcher/index"; // temp, doesn't belong here either
