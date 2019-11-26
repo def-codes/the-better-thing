@@ -1,53 +1,17 @@
 // Container (or possibly mixin) for things
-import { iterator, filter, map, comp, concat } from "@thi.ng/transducers";
+import {
+  ThingChildrenSpec,
+  ThingDescription,
+  ThingUpdateInstruction,
+} from "./thing-api";
 import { equivObject } from "@thi.ng/equiv";
-
-interface FunctionRef {}
-interface ThingDescription {
-  origin: { type: "constructor" | "prototype"; value: FunctionRef };
-  // children spec
-  // this is really going to be a *function* that returns the child descriptions, right?
-}
-
-type ThingUpdateInstruction =
-  | { operation: "delete"; key: string }
-  | { operation: "add" | "update"; key: string; description: ThingDescription };
-
-interface ThingChildrenSpec {
-  [key: string]: ThingDescription;
-}
+import { assert_unreachable } from "@def.codes/graphviz-format/assert_unreachable";
 
 const { keys, entries } = Object;
 
 const same_thing = (a: ThingDescription, b: ThingDescription): boolean => {
   return a && b && equivObject(a, b);
 };
-
-// more declarative version but harder to type
-const diff_children1 = (
-  d1: ThingChildrenSpec,
-  d2: ThingChildrenSpec
-): Iterable<ThingUpdateInstruction> =>
-  concat(
-    iterator(
-      comp(
-        filter(key => !(key in d2)),
-        map(key => ({ operation: "delete", key } as ThingUpdateInstruction))
-      ),
-      keys(d1)
-    ),
-    map(
-      ([key, description]) =>
-        //key in d2 ? {operation:"add", key, description} : {operation: "update", key, description}
-        ({
-          // But you should skip the update if the values are equivalent
-          operation: key in d2 ? "add" : "update",
-          key,
-          description,
-        } as const),
-      entries(d2)
-    )
-  );
 
 // imperative but easier typing
 function* diff_children(
@@ -64,4 +28,27 @@ function* diff_children(
     } else yield { operation: "add", key, description };
 }
 
-export class Thing {}
+function apply_instruction(instruction: ThingUpdateInstruction, thing: Thing) {
+  const { key } = instruction;
+  if (instruction.operation === "delete") thing.remove_child(instruction.key);
+  else if (instruction.operation === "add")
+    thing.add_child(key, instruction.description);
+  else if (instruction.operation === "update")
+    thing.update_child(key, instruction.description);
+  else assert_unreachable(instruction.operation, "operation");
+}
+
+function apply_description(
+  d1: ThingChildrenSpec,
+  d2: ThingChildrenSpec,
+  instance: Thing
+) {
+  for (const instruction of diff_children(d1, d2))
+    apply_instruction(instruction, instance);
+}
+
+export class Thing {
+  add_child(key: string, description: ThingDescription) {}
+  update_child(key: string, description: ThingDescription) {}
+  remove_child(key: string) {}
+}
