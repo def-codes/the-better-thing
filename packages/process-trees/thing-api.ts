@@ -1,9 +1,9 @@
 export interface ThingDescription {
-  origin: {
+  readonly extends: {
     // how to reference this?  is this resolved already, or a term?
-    readonly ctor: string;
-    // or rather, any comparable
-    arguments: readonly any[];
+    readonly ctor: Function;
+    // or preferably, any comparable
+    readonly args: readonly any[];
   };
 }
 
@@ -17,6 +17,6 @@ export type ThingUpdateInstruction =
   | (Instruction<"add"> & { readonly description: ThingDescription })
   | (Instruction<"update"> & { readonly description: ThingDescription });
 
-export interface ThingChildrenSpec {
+export interface ChildrenSpec {
   readonly [key: string]: ThingDescription;
 }

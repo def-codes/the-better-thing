@@ -1,5 +1,5 @@
 import * as Dot from "./api";
-import { assert_unreachable } from "./assert_unreachable";
+import { assert_unreachable } from "@def.codes/helpers";
 
 const is_subgraph = (o: any): o is Dot.Subgraph => o && o.type === "subgraph";
 

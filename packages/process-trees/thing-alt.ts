@@ -1,7 +1,7 @@
 // alt, transducer-based version of thing diffing
 import { iterator, filter, map, keep, comp, concat } from "@thi.ng/transducers";
 import {
-  ThingChildrenSpec,
+  ChildrenSpec,
   ThingUpdateInstruction,
   ThingDescription,
 } from "./thing-api";
@@ -10,8 +10,8 @@ const { keys, entries } = Object;
 
 // more declarative version but harder to type
 export const diff_children1 = (
-  d1: ThingChildrenSpec,
-  d2: ThingChildrenSpec
+  d1: ChildrenSpec,
+  d2: ChildrenSpec
 ): Iterable<ThingUpdateInstruction> =>
   concat(
     iterator(

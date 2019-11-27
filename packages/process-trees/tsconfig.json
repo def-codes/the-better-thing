@@ -4,6 +4,7 @@
     "experimentalDecorators": true
   },
   "references": [
+    { "path": "../helpers" },
     { "path": "../datafy-nav" },
     /* TEMP */
     { "path": "../graphviz-format" },
