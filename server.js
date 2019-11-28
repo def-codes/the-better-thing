@@ -11,6 +11,57 @@
 // This actually doesn't throw.  Mayyyyybe special-case this for interpreter?
 const { port } = arguments;
 
+// A = model(args => {
+//   b = timer(args.interval);
+//   c = factorial(b);
+//   B = model(() => {
+//     whatever = etc;
+//   });
+// });
+
+A = model => {
+  b = timer(args.interval);
+  c = factorial(b);
+  B = model => {
+    whatever = etc;
+  };
+};
+
+/*
+A = model({
+  b: timer(_arguments.interval),
+  c: factorial(b),
+  B: model({
+    whatever: etc,
+  }),
+});
+
+A = model(
+  (b = timer(_arguments.interval)),
+  (c = factorial(b)),
+  (B = model((whatever = etc)))
+);
+
+
+model(A);
+b = timer(arguments.interval);
+c = factorial(b);
+*/
+// with (B) {
+//   whatever = etc;
+// }
+
+/*
+A = class {
+  b = timer(_arguments.interval);
+  c = factorial(b);
+  B = class {
+    whatever;
+  };
+};
+*/
+a = b(1000);
+/*
 server = WebSocketServer({ port });
 client1 = WebSocket("ws://localhost:1234");
 
@@ -35,3 +86,4 @@ server.listening;
 server.connection;
 server.error;
 server.close;
+*/

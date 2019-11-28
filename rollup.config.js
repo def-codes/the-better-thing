@@ -34,6 +34,8 @@ const modules = [
   ["rdf-expressions-test"],
   ["runtime-reflection"],
   ["simple-http-server", { node_only: true }],
+  ["simple-interpreter"],
+  ["simple-interpreter-test"],
 ];
 
 // Unfortunately, rollup doesn't support wildcards for specifying externals.

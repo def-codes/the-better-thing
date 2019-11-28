@@ -26,6 +26,8 @@
     {"path": "packages/rdf-expressions" },
     {"path": "packages/rdf-expressions-test" },
     {"path": "packages/runtime-reflection" },
+    {"path": "packages/simple-interpreter" },
+    {"path": "packages/simple-interpreter-test" },
     {"path": "packages/simple-http-server" }
   ]
 }
