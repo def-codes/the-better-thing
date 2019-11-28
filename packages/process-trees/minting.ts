@@ -1,9 +1,8 @@
-// Descriptive layer providing a basis for new object construction
-//
-// This is a low-level layer for semi-data-based recipes.
+// Representation layer for low-level creation methods.
 //
 // Two recipes can be compared for equality to tell whether they represent the
-// “same” recipe.  This depends on maintaining reference equality.
+// “same” recipe, to the extent that reference equality is maintained between
+// their non-primitive elements.
 import { assert_unreachable } from "@def.codes/helpers";
 
 // General binding types
@@ -30,12 +29,14 @@ interface PrototypeSpec {
   readonly proto: object;
 }
 
-type Spec = ConstructorSpec<any[]> | FunctionSpec<any[]> | PrototypeSpec;
+export type MintSpec =
+  | ConstructorSpec<any[]>
+  | FunctionSpec<any[]>
+  | PrototypeSpec;
 
-// expectation? could be anything, but should at least implement some interface
-export const make = (spec: Spec): any => {
+export const mint = (spec: MintSpec): any => {
   if (spec.type === "constructor") return new spec.ctor(...spec.args);
   if (spec.type === "function") return spec.fn(...spec.args);
   if (spec.type === "prototype") return Object.create(spec.proto);
-  assert_unreachable(spec, "recipe");
+  assert_unreachable(spec, "mint");
 };
