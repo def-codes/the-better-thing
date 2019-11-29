@@ -10,7 +10,7 @@ export interface LiteralNode {
 
 export interface ApplyExpression {
   readonly type: "apply";
-  readonly fn: Function;
+  readonly fn: Expression;
   readonly args: readonly Expression[];
 }
 
@@ -33,4 +33,8 @@ export type Expression =
   | LiteralNode
   | ApplyExpression
   | AccessExpression;
-export type Statement = AssignStatement;
+
+// Not currently used
+// export type Statement = AssignStatement;
+
+export type Context = Record<string, Expression>;

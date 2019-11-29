@@ -26,4 +26,5 @@ evaluation.  Alas, JavaScript is not Lisp.  This package does the minimum needed
 to provide those facilities in userland over JavaScript.
 
 The supported expression structures are a small subset of those expressible in
-JavaScript.
+JavaScript.  It's largely an inverse of the constructs recognized by `Proxy`
+traps.
