@@ -16,6 +16,26 @@ const is_closed = (expression: Expression): expression is ClosedExpression => {
   return false;
 };
 
+// Resolve all terms in an expression against a given context.
+const close = (expression: Expression, context: Context): ClosedExpression => {
+  if (expression.type === "literal") return expression;
+
+  if (expression.type === "term")
+    return close(context[expression.term], context);
+
+  if (expression.type === "access")
+    return { ...expression, base: close(expression.base, context) };
+
+  if (expression.type === "apply")
+    return {
+      ...expression,
+      base: close(expression.base, context),
+      args: expression.args.map(arg => close(arg, context)),
+    };
+
+  return assert_unreachable(expression, "expression");
+};
+
 const evaluate_closed = (expression: ClosedExpression): any => {
   if (expression.type === "literal") return expression.value;
 

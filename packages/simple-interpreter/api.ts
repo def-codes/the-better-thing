@@ -36,7 +36,11 @@ export type ClosedExpression =
   | AccessExpression<ClosedExpression>;
 
 // Expressions that may have open variables.
-export type Expression = ClosedExpression | TermNode;
+export type Expression =
+  | LiteralNode
+  | ApplyExpression<Expression>
+  | AccessExpression<Expression>
+  | TermNode;
 
 // Not currently used
 // export type Statement = AssignStatement;
