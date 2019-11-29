@@ -1,9 +1,7 @@
 import { assert_unreachable } from "@def.codes/helpers";
 import { Expression, Context } from "./api";
 
-// Is there a place for a function that just fills out & doesn't actually evaluate?
-// Or maybe an iterative (stepwise) evaluate?
-// In which you can see intermediate values, etc
+// TBD: iterative (stepwise) evaluate where you can see intermediate values, etc
 
 export const evaluate = (expression: Expression, context: Context): any => {
   if (expression.type === "literal") return expression.value;
@@ -16,7 +14,7 @@ export const evaluate = (expression: Expression, context: Context): any => {
 
   if (expression.type === "apply")
     return evaluate(
-      expression.fn,
+      expression.base,
       context
     )(...expression.args.map(arg => evaluate(arg, context)));
 

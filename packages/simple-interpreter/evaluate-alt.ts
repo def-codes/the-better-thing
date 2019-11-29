@@ -15,7 +15,10 @@ const EVALS: {
   term: (expr, context) => evaluate(context[expr.term], context),
   access: (expr, context) => evaluate(expr, context)[expr.key],
   apply: (expr, context) =>
-    evaluate(expr.fn, context)(...expr.args.map(arg => evaluate(arg, context))),
+    evaluate(
+      expr.base,
+      context
+    )(...expr.args.map(arg => evaluate(arg, context))),
 };
 
 export const evaluate = (expression: Expression, context: Context): any =>

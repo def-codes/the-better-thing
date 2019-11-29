@@ -15,7 +15,7 @@ const EVALUATE_CASES = [
     [
       {
         type: "apply",
-        fn: { type: "term", term: "f" },
+        base: { type: "term", term: "f" },
         args: [{ type: "term", term: "x" }],
       },
       {
@@ -24,6 +24,27 @@ const EVALUATE_CASES = [
       },
     ],
     25,
+  ],
+  [
+    [
+      {
+        type: "apply",
+        base: { type: "term", term: "f" },
+        args: [
+          {
+            type: "apply",
+            base: { type: "term", term: "g" },
+            args: [{ type: "term", term: "x" }],
+          },
+        ],
+      },
+      {
+        f: { type: "literal", value: n => n * n },
+        g: { type: "literal", value: n => n * 2 },
+        x: { type: "literal", value: 5 },
+      },
+    ],
+    100,
   ],
 ] as const;
 

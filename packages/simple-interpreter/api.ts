@@ -8,15 +8,15 @@ export interface LiteralNode {
   readonly value: any;
 }
 
-export interface ApplyExpression {
+export interface ApplyExpression<E = Expression> {
   readonly type: "apply";
-  readonly fn: Expression;
-  readonly args: readonly Expression[];
+  readonly base: E;
+  readonly args: readonly E[];
 }
 
-export interface AccessExpression {
+export interface AccessExpression<E = Expression> {
   readonly type: "access";
-  readonly base: Expression;
+  readonly base: E;
   // Note that we *cannot* take expressions for index access
   readonly key: string;
 }
@@ -28,11 +28,15 @@ export interface AssignStatement {
 }
 
 // technically assignment statements are also expressions but leaving this out
-export type Expression =
-  | TermNode
+
+// Expressions with no open variables.  They can be evaluated without a context.
+export type ClosedExpression =
   | LiteralNode
-  | ApplyExpression
-  | AccessExpression;
+  | ApplyExpression<ClosedExpression>
+  | AccessExpression<ClosedExpression>;
+
+// Expressions that may have open variables.
+export type Expression = ClosedExpression | TermNode;
 
 // Not currently used
 // export type Statement = AssignStatement;
