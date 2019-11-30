@@ -52,12 +52,25 @@ const serialize_attribute = (
   return `${key}="${escape_string(item)}"`;
 };
 
-function* serialize_attributes(attributes: {}, target?: AttributeContext) {
-  yield `${target ? target + " " : " "}[`;
-  // Ignore null or undefined because it's convenient for conditional expressions
-  for (let [key, value] of Object.entries(attributes))
-    if (value != null) yield serialize_attribute(key, value, target);
-  yield "]";
+function* serialize_attributes(
+  attributes: object | undefined,
+  target?: AttributeContext
+) {
+  if (attributes)
+    // Ignore null or undefined because it's convenient for conditional expressions
+    for (let [key, value] of Object.entries(attributes))
+      if (value != null) yield serialize_attribute(key, value, target) + "\n";
+}
+
+function* serialize_attribute_block(
+  attributes: object | undefined,
+  target?: AttributeContext
+) {
+  if (attributes) {
+    yield (target || "") + " [";
+    yield* serialize_attributes(attributes);
+    yield "]";
+  }
 }
 
 const serialize_node_id = (id: Dot.NodeId) =>
@@ -69,16 +82,16 @@ const serialize_node_id = (id: Dot.NodeId) =>
 
 function* serialize_node(node: Dot.Node) {
   yield serialize_node_id(node.id);
-  if (node.attributes) yield* serialize_attributes(node.attributes);
+  yield* serialize_attribute_block(node.attributes);
 }
 
 function* serialize_subgraph(
   subgraph: Dot.Subgraph,
   options?: Dot.SerializeOptions
 ): IterableIterator<string> {
-  yield `subgraph ${subgraph.id ? subgraph.id + " " : ""}{\n`;
-  if (subgraph.statements)
-    yield* serialize_statements(subgraph.statements, options);
+  yield "subgraph " + (subgraph.id ? '"' + subgraph.id + '" ' : "") + "{\n";
+  yield* serialize_attributes(subgraph.attributes);
+  yield* serialize_statements(subgraph.statements, options);
   yield "}";
 }
 
@@ -94,7 +107,7 @@ function* serialize_edge(edge: Dot.Edge, options?: Dot.SerializeOptions) {
   yield* serialize_edge_ref(edge.from, options);
   yield options && options.directed ? " -> " : " -- ";
   yield* serialize_edge_ref(edge.to, options);
-  if (edge.attributes) yield* serialize_attributes(edge.attributes);
+  yield* serialize_attribute_block(edge.attributes);
 }
 
 function* serialize_statement(
@@ -104,15 +117,15 @@ function* serialize_statement(
   switch (statement.type) {
     case "node":
       yield* serialize_node(statement);
-      yield ";\n";
+      yield "\n";
       return;
     case "edge":
       yield* serialize_edge(statement, options);
-      yield ";\n";
+      yield "\n";
       return;
     case "subgraph":
       yield* serialize_subgraph(statement, options);
-      yield ";\n";
+      yield "\n";
       return;
   }
 
@@ -120,37 +133,27 @@ function* serialize_statement(
 }
 
 function* serialize_statements(
-  statements: Dot.StatementList,
+  statements: Dot.StatementList | undefined,
   options?: Dot.SerializeOptions
 ) {
-  for (const statement of statements)
-    yield* serialize_statement(statement, options);
-}
-
-function* as_statement<T>(sequence: Iterable<T>) {
-  yield* sequence;
-  yield ";\n";
+  if (statements)
+    for (const statement of statements)
+      yield* serialize_statement(statement, options);
 }
 
 function* serialize_lines(graph: Dot.Graph, options?: Dot.SerializeOptions) {
-  yield `${graph.strict ? "strict " : ""}${graph.directed ? "di" : ""}graph ${
-    graph.id ? graph.id + " " : ""
-  }{\n`;
-  if (graph.attributes)
-    for (let [key, value] of Object.entries(graph.attributes))
-      yield* as_statement(serialize_attribute(key, value));
+  yield (graph.strict ? "strict " : "") +
+    (graph.directed ? "digraph " : "graph ") +
+    (graph.id ? graph.id + " " : "") +
+    "{\n";
 
-  // Are these effectively different than the graph's own attributes?
-  if (graph.graph_attributes)
-    yield* as_statement(serialize_attributes(graph.graph_attributes, "graph"));
+  yield* serialize_attributes(graph.attributes, "graph");
 
-  if (graph.node_attributes)
-    yield* as_statement(serialize_attributes(graph.node_attributes, "node"));
+  yield* serialize_attribute_block(graph.graph_attributes, "graph");
+  yield* serialize_attribute_block(graph.node_attributes, "node");
+  yield* serialize_attribute_block(graph.edge_attributes, "edge");
 
-  if (graph.edge_attributes)
-    yield* as_statement(serialize_attributes(graph.edge_attributes, "edge"));
-
-  if (graph.statements) yield* serialize_statements(graph.statements, options);
+  yield* serialize_statements(graph.statements, options);
   yield "}";
 }
 

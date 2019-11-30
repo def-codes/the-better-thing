@@ -76,12 +76,15 @@ export async function launch() {
       result.addListener("state", state => {
         // console.log(`state`, state);
         const dot = pt.state_machine_spec_to_dot(sms);
-        dot!.statements.push({
-          type: "node",
-          id: state.value,
-          attributes: { style: "filled", color: "red" },
-        });
-        updater.go(dot);
+        const statements = [
+          ...dot.statements,
+          {
+            type: "node" as const,
+            id: state.value,
+            attributes: { style: "filled", color: "red" },
+          },
+        ];
+        updater.go({ ...dot, statements });
       });
     }
   }

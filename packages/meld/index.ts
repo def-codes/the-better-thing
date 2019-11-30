@@ -2,13 +2,14 @@ import * as fs from "fs";
 import * as path from "path";
 import { read } from "@def.codes/expression-reader";
 import {
-  object_graph_to_dot,
-  serialize_dot,
+  Subgraph,
+  object_graph_to_dot_subgraph,
   depth_first_walk,
   graph,
 } from "@def.codes/graphviz-format";
 import { dot_updater } from "@def.codes/node-web-presentation";
 import { filesystem_watcher_source } from "@def.codes/process-trees";
+import { getIn } from "@thi.ng/paths";
 import * as rs from "@thi.ng/rstream";
 import { interpret } from "./interpreter";
 
@@ -20,7 +21,7 @@ export const flatten = <T>(arrays: readonly (readonly T[])[]): readonly T[] =>
 const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 interface Sketch {
-  field?: string;
+  path?: string; // supports a.b.c notation
   as?: "walk" | "dot" | "graph";
 }
 
@@ -37,24 +38,35 @@ async function main() {
   const updater = dot_updater();
 
   function graph_it(thing: any, view?: Sketch | Sketch[]) {
-    if (!view) view = { as: "graph" };
+    if (!view)
+      view = Object.keys(thing)
+        .filter(key => key !== "view")
+        .map(path => ({ path, as: "graph" }));
 
-    const to_graph = (sketch: Sketch) => {
-      const value = sketch.field ? thing[sketch.field] : thing;
+    const to_subgraph_special = (sketch: Sketch): Subgraph => {
+      const value = sketch.path ? getIn(thing, sketch.path) : thing;
       const interpreter = sketch.as || "graph";
 
       if (interpreter === "walk")
-        return object_graph_to_dot(depth_first_walk(value));
+        return object_graph_to_dot_subgraph(depth_first_walk(value));
 
       if (interpreter === "dot")
-        return object_graph_to_dot(object_graph_to_dot(value));
+        return object_graph_to_dot_subgraph(
+          object_graph_to_dot_subgraph(value)
+        );
 
-      if (interpreter === "graph") return object_graph_to_dot(value);
+      if (interpreter === "graph") return object_graph_to_dot_subgraph(value);
     };
 
-    const statements = Array.isArray(view)
-      ? flatten(view.map(to_graph).map(_ => _.statements))
-      : to_graph(view).statements;
+    const to_subgraph = (sketch: Sketch): Subgraph => ({
+      ...to_subgraph_special(sketch),
+      id: `cluster_${sketch.path ? sketch.path.replace(".", "_") : "anon"}`,
+      attributes: {
+        label: sketch.path ?? "anon",
+      },
+    });
+
+    const statements = (Array.isArray(view) ? view : [view]).map(to_subgraph);
 
     // Hold on just a little while longer...
     // console.log(`graph`, graph);
@@ -62,8 +74,12 @@ async function main() {
     // console.log(`dot`, dot);
     // If you must do that ^ then just add as:`text` interpreter
 
-    const g = graph({ statements, graph_attributes: { rankdir: "LR" } });
-    updater.go(g);
+    const g = graph({
+      statements,
+      directed: true,
+      attributes: { rankdir: "LR" },
+    });
+    updater.go(g, true);
   }
 
   function do_interpret() {
@@ -98,7 +114,7 @@ async function main() {
       exported = { error, when: "loading-code" };
     }
 
-    graph_it({ exported }, exported.view);
+    graph_it(exported, exported.view);
   }
 
   // Watch

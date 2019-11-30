@@ -148,3 +148,9 @@ export const object_graph_to_dot = (o: any): Dot.Graph => ({
   //node_attributes: { fillcolor: "#990000", style: "filled,rounded" },
   statements: [...object_graph_to_dot_statements(o)],
 });
+
+// For composing into larger contexts.
+export const object_graph_to_dot_subgraph = (o: any): Dot.Subgraph => ({
+  type: "subgraph",
+  statements: [...object_graph_to_dot_statements(o)],
+});
