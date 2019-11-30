@@ -54,3 +54,5 @@ export const results = EVALUATE_CASES.map(([args, expected]) => {
   const pass = equiv(expected, got);
   return { expr, context, expected, got, pass };
 });
+
+export const view = [{ field: "statements", as: "dot" }];

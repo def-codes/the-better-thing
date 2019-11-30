@@ -24,7 +24,7 @@ export type NodeId =
 
 export type Statement = Node | Edge | Subgraph;
 
-export type StatementList = Array<Statement>;
+export type StatementList = readonly Statement[];
 
 export interface GraphBase {
   "@type"?: typeof GRAPH_TYPE;

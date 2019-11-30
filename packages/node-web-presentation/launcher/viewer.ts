@@ -20,8 +20,16 @@ document.body.appendChild(img);
 // I'd like to do this but (on Windows at least) query and hash are dropped in shell open
 // const image_file = decodeURIComponent(location.search.slice(1));
 const image_file = "${image_name}";
+let fit = false;
 function update() {
   img.src = image_file + '#' + new Date().getTime();
+  const set_fit = () => {
+    img.style.maxHeight = fit ? "100vh" : "";
+    img.style.maxWidth = fit ? "100vw" : "";
+  }
+  img.style.cssText = "display: block;";
+  set_fit();
+  img.onclick = () => { fit = !fit; set_fit() };
   setTimeout(update, 250);
 }
 update();
