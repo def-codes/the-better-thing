@@ -14,9 +14,9 @@ const is_member_node = (node: TraversalNode): node is TraversalMemberNode =>
   node !== null && "container" in node;
 
 function* object_graph_to_dot_statements(
-  o: any
+  roots: readonly object[]
 ): IterableIterator<Dot.Statement> {
-  for (const node of depth_first_walk(o)) {
+  for (const node of depth_first_walk(roots)) {
     let label: Dot.NodeLabel = "";
     // @ts-ignore: WIP
     let more = {};
@@ -74,16 +74,18 @@ function* object_graph_to_dot_statements(
   }
 }
 
-export const object_graph_to_dot = (o: any): Dot.Graph => ({
+export const object_graph_to_dot = (roots: readonly object[]): Dot.Graph => ({
   type: "graph",
   attributes: { rankdir: "LR" },
   directed: true,
   //node_attributes: { fillcolor: "#990000", style: "filled,rounded" },
-  statements: [...object_graph_to_dot_statements(o)],
+  statements: [...object_graph_to_dot_statements(roots)],
 });
 
 // For composing into larger contexts.
-export const object_graph_to_dot_subgraph = (o: any): Dot.Subgraph => ({
+export const object_graph_to_dot_subgraph = (
+  roots: readonly object[]
+): Dot.Subgraph => ({
   type: "subgraph",
-  statements: [...object_graph_to_dot_statements(o)],
+  statements: [...object_graph_to_dot_statements(roots)],
 });

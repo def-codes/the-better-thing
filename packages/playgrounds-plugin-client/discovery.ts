@@ -97,7 +97,7 @@ async function render_value(value, key) {
 
   // Display objects as Graphviz graphs
   if (is_object(value)) {
-    const body = serialize_dot(object_graph_to_dot(value));
+    const body = serialize_dot(object_graph_to_dot([value]));
     const request = fetch("/graphviz/dot", { method: "POST", body });
     return fix_svg(await (await request).text());
   }

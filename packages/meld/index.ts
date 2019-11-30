@@ -48,14 +48,14 @@ async function main() {
       const interpreter = sketch.as || "graph";
 
       if (interpreter === "walk")
-        return object_graph_to_dot_subgraph(depth_first_walk(value));
+        return object_graph_to_dot_subgraph([...depth_first_walk([value])]);
 
       if (interpreter === "dot")
-        return object_graph_to_dot_subgraph(
-          object_graph_to_dot_subgraph(value)
-        );
+        return object_graph_to_dot_subgraph([
+          object_graph_to_dot_subgraph([value]),
+        ]);
 
-      if (interpreter === "graph") return object_graph_to_dot_subgraph(value);
+      if (interpreter === "graph") return object_graph_to_dot_subgraph([value]);
     };
 
     const to_subgraph = (sketch: Sketch): Subgraph => ({

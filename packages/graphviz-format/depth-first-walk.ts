@@ -45,13 +45,15 @@ export function members_of(o: object): Iterable<[any, any]> {
 export const is_reference_type = (value: any) =>
   value !== null && (typeof value === "object" || typeof value === "function");
 
-export function* depth_first_walk(start: any): IterableIterator<TraversalNode> {
-  const indices = new Map<object, number>([[start, 0]]);
+export function* depth_first_walk(
+  roots: readonly object[]
+): IterableIterator<TraversalNode> {
+  const queue: TraversalNode[] = roots.map((v, i) => ({ value: v, index: i }));
+  const indices = new Map<object, number>(queue.map(_ => [_.value, _.index]));
   const index_of = (o: object) =>
     indices.get(o) ?? indices.set(o, indices.size).size - 1;
   const traversed = new Set();
 
-  const queue: TraversalNode[] = [{ value: start, index: 0 }];
   while (has_items(queue)) {
     const node = queue.pop();
     yield node;
@@ -70,4 +72,5 @@ export function* depth_first_walk(start: any): IterableIterator<TraversalNode> {
   }
 }
 
-export const walk_object = o => Array.from(depth_first_walk(o));
+export const walk_object_graph = (roots: readonly object[]) =>
+  Array.from(depth_first_walk(roots));
