@@ -31,10 +31,11 @@ interface Sketch {
 
 async function main() {
   const [, , module_name, op = "interpret"] = process.argv;
-  const filename = path.join(process.cwd(), `${module_name}.js`);
+  const resolve_options = { paths: [process.cwd()] };
+  const module_file = require.resolve(module_name, resolve_options);
   const context = {};
 
-  if (!fs.existsSync(filename)) {
+  if (!fs.existsSync(module_file)) {
     console.error(`No such module ${module_name}`);
     process.exit(0);
   }
@@ -94,7 +95,7 @@ async function main() {
   }
 
   function do_interpret() {
-    const code = fs.readFileSync(filename, "utf8");
+    const code = fs.readFileSync(module_file, "utf8");
 
     let statements;
     try {
@@ -115,14 +116,29 @@ async function main() {
     graph_it({ statements, result });
   }
 
+  const encountered_dependencies = new Set();
+
+  const _require = id => {
+    const resolved = require.resolve(id, resolve_options);
+    encountered_dependencies.add(resolved);
+    console.log(`encountered_dependencies`, encountered_dependencies);
+
+    delete require.cache[resolved];
+    return require(resolved);
+  };
+
+  const vm_context = vm.createContext({
+    require: _require,
+  });
+
+  const fake_require = id => {
+    return vm.runInNewContext(`require("${module_name}")`, vm_context);
+  };
+
   function show_exports() {
     let exported;
     try {
-      const fullpath = require.resolve(filename);
-      delete require.cache[fullpath];
-      // convert slashes for Windows
-      const code = `require("${fullpath.replace(/\\/g, "/")}")`;
-      exported = vm.runInNewContext(code, { require });
+      exported = fake_require(module_name);
     } catch (error) {
       console.log(`error`, error);
 
@@ -135,7 +151,7 @@ async function main() {
   // Watch
   await timeout(1000);
   const fn = op === "exports" ? show_exports : do_interpret;
-  rs.stream(filesystem_watcher_source(filename)).subscribe({
+  rs.stream(filesystem_watcher_source(module_file)).subscribe({
     next: msg => {
       if (msg.type === "change") fn();
     },
@@ -144,4 +160,6 @@ async function main() {
   fn();
 }
 
-main();
+if (process.argv.includes("temp")) main();
+
+export * from "./module-streams/index";
