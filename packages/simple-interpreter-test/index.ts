@@ -59,5 +59,5 @@ export const view = [
   // { path: "results" },
   { path: "results.0", as: "graph" },
   { path: "results.1", as: "graph" },
-  { path: "results.3", as: "dot" },
+  { path: "results.3", as: "graph" },
 ];

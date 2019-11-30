@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import * as vm from "vm";
 import * as path from "path";
 import { read } from "@def.codes/expression-reader";
 import {
@@ -16,8 +17,10 @@ import { interpret } from "./interpreter";
 
 // HELPER
 /** Flatten an array to one level. */
+/* not used.  see also /playgrounds-plugin-client/dom/render.ts
 export const flatten = <T>(arrays: readonly (readonly T[])[]): readonly T[] =>
   Array.prototype.concat(...arrays);
+*/
 
 const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -115,10 +118,14 @@ async function main() {
   function show_exports() {
     let exported;
     try {
-      delete require.cache[require.resolve(filename)];
-      exported = require(filename);
-      // console.log(`exported`, exported);
+      const fullpath = require.resolve(filename);
+      delete require.cache[fullpath];
+      // convert slashes for Windows
+      const code = `require("${fullpath.replace(/\\/g, "/")}")`;
+      exported = vm.runInNewContext(code, { require });
     } catch (error) {
+      console.log(`error`, error);
+
       exported = { error, when: "loading-code" };
     }
 
