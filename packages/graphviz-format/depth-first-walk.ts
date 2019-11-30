@@ -23,6 +23,11 @@ export interface TraversalMemberNode extends TraversalRootItem {
 }
 export type TraversalNode = TraversalRootItem | TraversalMemberNode;
 
+export interface TraversalState {
+  indices: Map<object, number>;
+  traversed: Set<object>;
+}
+
 export const is_value = (vr: ValueOrReference): vr is Value =>
   vr !== null && typeof vr === "object" && "value" in vr;
 
@@ -45,14 +50,19 @@ export function members_of(o: object): Iterable<[any, any]> {
 export const is_reference_type = (value: any) =>
   value !== null && (typeof value === "object" || typeof value === "function");
 
+export const empty_traversal_state = (): TraversalState => ({
+  indices: new Map<object, number>(),
+  traversed: new Set(),
+});
+
 export function* depth_first_walk(
-  roots: readonly object[]
+  roots: readonly object[],
+  { indices, traversed } = empty_traversal_state()
 ): IterableIterator<TraversalNode> {
-  const queue: TraversalNode[] = roots.map((v, i) => ({ value: v, index: i }));
-  const indices = new Map<object, number>(queue.map(_ => [_.value, _.index]));
+  const queue: TraversalNode[] = [];
   const index_of = (o: object) =>
     indices.get(o) ?? indices.set(o, indices.size).size - 1;
-  const traversed = new Set();
+  for (const value of roots) queue.push({ value, index: index_of(value) });
 
   while (has_items(queue)) {
     const node = queue.pop();

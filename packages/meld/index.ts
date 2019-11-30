@@ -5,6 +5,7 @@ import {
   Subgraph,
   object_graph_to_dot_subgraph,
   depth_first_walk,
+  empty_traversal_state,
   graph,
 } from "@def.codes/graphviz-format";
 import { dot_updater } from "@def.codes/node-web-presentation";
@@ -43,19 +44,26 @@ async function main() {
         .filter(key => key !== "view")
         .map(path => ({ path, as: "graph" }));
 
+    const state = empty_traversal_state();
+
     const to_subgraph_special = (sketch: Sketch): Subgraph => {
       const value = sketch.path ? getIn(thing, sketch.path) : thing;
       const interpreter = sketch.as || "graph";
 
       if (interpreter === "walk")
-        return object_graph_to_dot_subgraph([...depth_first_walk([value])]);
+        return object_graph_to_dot_subgraph(
+          [...depth_first_walk([value])],
+          state
+        );
 
       if (interpreter === "dot")
-        return object_graph_to_dot_subgraph([
-          object_graph_to_dot_subgraph([value]),
-        ]);
+        return object_graph_to_dot_subgraph(
+          [object_graph_to_dot_subgraph([value], state)],
+          state
+        );
 
-      if (interpreter === "graph") return object_graph_to_dot_subgraph([value]);
+      if (interpreter === "graph")
+        return object_graph_to_dot_subgraph([value], state);
     };
 
     const to_subgraph = (sketch: Sketch): Subgraph => ({
