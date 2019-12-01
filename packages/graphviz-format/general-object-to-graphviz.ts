@@ -9,7 +9,13 @@ import {
 } from "./depth-first-walk";
 
 const safe_tostring = (x: any) =>
-  x === null ? "null" : x === undefined ? "undefined" : x.toString();
+  x === null
+    ? "null"
+    : x === undefined
+    ? "undefined"
+    : // Escape backslashes.  I don't know that this won't break real escape
+      // sequences, though.
+      x.toString().replace(/\\/g, "\\\\");
 
 const is_member_node = (node: TraversalNode): node is TraversalMemberNode =>
   node !== null && "container" in node;
@@ -23,7 +29,7 @@ function* object_graph_to_dot_statements(
     // @ts-ignore: WIP
     let more = {};
     if (!is_reference_type(node.value)) {
-      label = safe_tostring(node.value).substring(0, 50);
+      label = safe_tostring(node.value).substring(0, 70);
       if (/^http/.test(label as string))
         more = {
           href: node.value,
