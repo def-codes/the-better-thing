@@ -6,6 +6,7 @@ import {
   is_reference_type,
   depth_first_walk,
   empty_traversal_state,
+  default_traversal_options,
 } from "./traversal/index";
 
 const safe_tostring = (x: any) =>
@@ -22,9 +23,9 @@ const is_member_node = (node: TraversalNode): node is TraversalMemberNode =>
 
 function* object_graph_to_dot_statements(
   roots: readonly object[],
-  state = empty_traversal_state()
+  options = default_traversal_options()
 ): IterableIterator<Dot.Statement> {
-  for (const node of depth_first_walk(roots, state)) {
+  for (const node of depth_first_walk(roots, options)) {
     let label: Dot.NodeLabel = "";
     // @ts-ignore: WIP
     let more = {};
@@ -93,8 +94,8 @@ export const object_graph_to_dot = (roots: readonly object[]): Dot.Graph => ({
 // For composing into larger contexts.
 export const object_graph_to_dot_subgraph = (
   roots: readonly object[],
-  state = empty_traversal_state()
+  options = default_traversal_options()
 ): Dot.Subgraph => ({
   type: "subgraph",
-  statements: [...object_graph_to_dot_statements(roots, state)],
+  statements: [...object_graph_to_dot_statements(roots, options)],
 });

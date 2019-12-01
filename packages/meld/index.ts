@@ -6,8 +6,8 @@ import {
   Subgraph,
   object_graph_to_dot_subgraph,
   depth_first_walk,
-  empty_traversal_state,
   graph,
+  default_traversal_options,
 } from "@def.codes/graphviz-format";
 import { dot_updater } from "@def.codes/node-web-presentation";
 import { filesystem_watcher_source } from "@def.codes/process-trees";
@@ -48,7 +48,7 @@ async function main() {
         .filter(key => key !== "view")
         .map(path => ({ path, as: "graph" }));
 
-    const state = empty_traversal_state();
+    const options = default_traversal_options();
 
     const to_subgraph_special = (sketch: Sketch): Subgraph => {
       const value = sketch.path ? getIn(thing, sketch.path) : thing;
@@ -57,17 +57,18 @@ async function main() {
       if (interpreter === "walk")
         return object_graph_to_dot_subgraph(
           [...depth_first_walk([value])],
-          state
+          options
         );
 
       if (interpreter === "dot")
         return object_graph_to_dot_subgraph(
-          [object_graph_to_dot_subgraph([value], state)],
-          state
+          // if you were to override spec, I don't think you'd want to apply it here too...
+          [object_graph_to_dot_subgraph([value], options)],
+          options
         );
 
       if (interpreter === "graph")
-        return object_graph_to_dot_subgraph([value], state);
+        return object_graph_to_dot_subgraph([value], options);
     };
 
     const to_subgraph = (sketch: Sketch): Subgraph => ({
@@ -160,6 +161,4 @@ async function main() {
   fn();
 }
 
-if (process.argv.includes("temp")) main();
-
-export * from "./module-streams/index";
+main();

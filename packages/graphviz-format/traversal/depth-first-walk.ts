@@ -1,4 +1,13 @@
-import { Value, ValueOrReference, TraversalNode, TraversalState } from "./api";
+// Probably can re-frame as just a spec.
+
+import {
+  Value,
+  ValueOrReference,
+  TraversalNode,
+  TraversalState,
+  LabeledSyncTraversalSpec,
+  TraversalOptions,
+} from "./api";
 import { has_items, is_object } from "@def.codes/helpers";
 
 export const is_value = (vr: ValueOrReference): vr is Value =>
@@ -28,10 +37,22 @@ export const empty_traversal_state = (): TraversalState => ({
   traversed: new Set(),
 });
 
-export function* depth_first_walk(
+export const default_traversal_spec = (): LabeledSyncTraversalSpec<object> => ({
+  id: x => x,
+  links_from: members_of,
+});
+
+export const default_traversal_options = (): TraversalOptions => ({
+  spec: default_traversal_spec(),
+  state: empty_traversal_state(),
+});
+
+export function* depth_first_walk<T, I, L>(
   roots: readonly object[],
-  { indices, traversed } = empty_traversal_state()
-): IterableIterator<TraversalNode> {
+  options: TraversalOptions<T, I, L> = default_traversal_options()
+): IterableIterator<TraversalNode<T>> {
+  const spec = options?.spec ?? default_traversal_spec();
+  const { indices, traversed } = options?.state ?? empty_traversal_state();
   const queue: TraversalNode[] = [];
   const index_of = (o: object) =>
     indices.get(o) ?? indices.set(o, indices.size).size - 1;
