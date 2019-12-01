@@ -19,9 +19,23 @@ Traversal is a necessary prerequisite to representing any composition.
 
 Essentially everything is a composition (composite).
 
+### See level
+
+At higher abstraction levels, explicit traversals may not often be necessary.
+
 The traversals here are currently oriented towards in-memory object graphs.
 
 In-memory object graphs are inherently invisible.
+
+For those working “below see level” , this invisibility is crippling.
+
+At some level, you need to directly follow object-to-object references.
+
+### Selection
+
+Unconditional traversals are trivial to implement.
+
+
 
 
 

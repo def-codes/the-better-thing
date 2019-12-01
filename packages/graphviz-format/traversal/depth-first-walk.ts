@@ -20,7 +20,7 @@ function* enumerate_members<T>(
   for (const value of sequence) yield [i++, value];
 }
 
-export function members_of(o: object): Iterable<[any, any]> {
+export function members_of(o: any): Iterable<[any, any]> {
   if (o instanceof Map) return o.entries();
   // @ts-ignore: Guard doesn't convince TS it's an Iterable.
   if (Symbol.iterator in o) return enumerate_members(o);
@@ -37,23 +37,29 @@ export const empty_traversal_state = (): TraversalState => ({
   traversed: new Set(),
 });
 
-export const default_traversal_spec = (): LabeledSyncTraversalSpec<object> => ({
+export const default_traversal_spec = (): LabeledSyncTraversalSpec => ({
   id: x => x,
   links_from: members_of,
 });
 
-export const default_traversal_options = (): TraversalOptions => ({
+export const default_traversal_options = () => ({
   spec: default_traversal_spec(),
   state: empty_traversal_state(),
 });
 
-export function* depth_first_walk<T, I, L>(
-  roots: readonly object[],
-  options: TraversalOptions<T, I, L> = default_traversal_options()
+const identity = <T>(t: T): T => t;
+
+export function* depth_first_walk<T extends object, I, L>(
+  roots: readonly T[],
+  options: Partial<TraversalOptions<T, I, L>> = default_traversal_options()
 ): IterableIterator<TraversalNode<T>> {
   const spec = options?.spec ?? default_traversal_spec();
-  const { indices, traversed } = options?.state ?? empty_traversal_state();
-  const queue: TraversalNode[] = [];
+  const get_id = spec?.id ?? identity;
+  const links_from = spec?.links_from ?? members_of;
+  const state = options?.state ?? empty_traversal_state();
+  const indices = state?.indices || new Map<T, number>();
+  const traversed = state?.traversed || new Set<I>();
+  const queue: TraversalNode<T>[] = [];
   const index_of = (o: object) =>
     indices.get(o) ?? indices.set(o, indices.size).size - 1;
   for (const value of roots) queue.push({ value, index: index_of(value) });
@@ -61,8 +67,9 @@ export function* depth_first_walk<T, I, L>(
   while (has_items(queue)) {
     const node = queue.pop();
     yield node;
-    if (is_object(node.value) && !traversed.has(node.value))
-      for (const [key, value] of members_of(node.value)) {
+    const id = get_id(node.value);
+    if (is_object(node.value) && !traversed.has(id))
+      for (const [key, value] of links_from(node.value)) {
         const is_reference_key = is_reference_type(key);
         if (is_reference_key) queue.push({ value: key, index: index_of(key) });
         queue.push({
@@ -72,7 +79,7 @@ export function* depth_first_walk<T, I, L>(
           container: node.index,
         });
       }
-    traversed.add(node.value);
+    traversed.add(id);
   }
 }
 
