@@ -1,32 +1,5 @@
+import { Value, ValueOrReference, TraversalNode, TraversalState } from "./api";
 import { has_items, is_object } from "@def.codes/helpers";
-
-interface Value {
-  value: any;
-}
-interface Reference {
-  reference: number;
-}
-export type ValueOrReference = Value | Reference;
-
-// Every item (except the root) will also have something indicating its
-// relationship to its parent.
-interface TraversalRootItem {
-  value: any;
-  index?: number;
-}
-
-export interface TraversalMemberNode extends TraversalRootItem {
-  container: number;
-  key: ValueOrReference;
-  /** An actual runtime reference to the containing object. */
-  parent: object;
-}
-export type TraversalNode = TraversalRootItem | TraversalMemberNode;
-
-export interface TraversalState {
-  indices: Map<object, number>;
-  traversed: Set<object>;
-}
 
 export const is_value = (vr: ValueOrReference): vr is Value =>
   vr !== null && typeof vr === "object" && "value" in vr;

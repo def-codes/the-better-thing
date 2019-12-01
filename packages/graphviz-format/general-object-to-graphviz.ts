@@ -6,7 +6,7 @@ import {
   is_reference_type,
   depth_first_walk,
   empty_traversal_state,
-} from "./traversal/depth-first-walk";
+} from "./traversal/index";
 
 const safe_tostring = (x: any) =>
   x === null
