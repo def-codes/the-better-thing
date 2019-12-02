@@ -1,5 +1,7 @@
 {
   "extends": "../tsconfig-composite",
   "references": [
+    /* For file system watcher, which should be elsewhere */
+    { "path": "../process-trees" }
   ]
 }

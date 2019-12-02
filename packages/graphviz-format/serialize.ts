@@ -19,7 +19,7 @@ const escape_field_string = (s: string) => s.replace(BRACES, "\\$&");
 
 // Mainly to ensure that strings are not excessively long
 const field_string = (s: string | number) =>
-  escape_field_string(s.toString().substring(0, 20));
+  escape_field_string(s.toString().substring(0, 50));
 
 // Certain characters just cannot be used in fields id's.  The regexp includes
 // the ones I've come across so far.  This can produce collisions in some keys,

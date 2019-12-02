@@ -1,13 +1,13 @@
 import * as fs from "fs";
 import * as vm from "vm";
-import * as path from "path";
 import { read } from "@def.codes/expression-reader";
 import {
   Subgraph,
   object_graph_to_dot_subgraph,
   depth_first_walk,
   graph,
-  default_traversal_options,
+  empty_traversal_state,
+  default_traversal_spec,
 } from "@def.codes/graphviz-format";
 import { dot_updater } from "@def.codes/node-web-presentation";
 import { filesystem_watcher_source } from "@def.codes/process-trees";
@@ -48,7 +48,13 @@ async function main() {
         .filter(key => key !== "view")
         .map(path => ({ path, as: "graph" }));
 
-    const options = default_traversal_options();
+    const state = empty_traversal_state();
+    const spec = default_traversal_spec();
+    // const spec: LabeledSyncTraversalSpec = {
+    //   id: x => x,
+    //   links_from: x => [...members_of(x)].slice(0, 3),
+    // };
+    const options = { spec, state };
 
     const to_subgraph_special = (sketch: Sketch): Subgraph => {
       const value = sketch.path ? getIn(thing, sketch.path) : thing;
@@ -73,7 +79,13 @@ async function main() {
 
     const to_subgraph = (sketch: Sketch): Subgraph => ({
       ...to_subgraph_special(sketch),
-      id: `cluster_${sketch.path ? sketch.path.replace(".", "_") : "anon"}`,
+      id: `cluster_${
+        Array.isArray(sketch.path)
+          ? sketch.path.join("_")
+          : sketch.path
+          ? sketch.path.replace(".", "_")
+          : "anon"
+      }`,
       attributes: {
         label: sketch.path ?? "anon",
       },
@@ -92,7 +104,7 @@ async function main() {
       directed: true,
       attributes: { rankdir: "LR" },
     });
-    updater.go(g, true);
+    updater.go(g, false); // trace
   }
 
   function do_interpret() {

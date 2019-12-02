@@ -1,13 +1,27 @@
-export interface LiveRequireCallback {
-  (pair: { module_id: string; dependency: string }): void;
+import { ISubscribable } from "@thi.ng/rstream";
+
+// Once more...
+// invalidated (transitive)
+// define invalidates (but doesn't push)
+
+export interface DependencyDescription {
+  readonly module_id: string;
+  readonly dependency: string;
 }
 
-export interface LiveRequireConstructor {
-  // callback is for notifying of new dependencies
-  (callback: LiveRequireCallback): LiveRequire;
+export interface DefinitionDescription {
+  readonly module_id: string;
+  readonly exports: any;
+}
+
+export interface LiveRequireFunction {
+  (module_id: string): LiveRequire;
 }
 
 export interface LiveRequire {
   // sink for new definitions of a given module
   define(module_id: string, code: string): void;
+
+  readonly required: ISubscribable<DependencyDescription>;
+  readonly defined: ISubscribable<DefinitionDescription>;
 }
