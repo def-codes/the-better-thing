@@ -10,13 +10,7 @@ import {
 } from "./traversal/index";
 
 const safe_tostring = (x: any) =>
-  x === null
-    ? "null"
-    : x === undefined
-    ? "undefined"
-    : // Escape backslashes.  I don't know that this won't break real escape
-      // sequences, though.
-      x.toString().replace(/\\/g, "\\\\");
+  x === null ? "null" : x === undefined ? "undefined" : x.toString();
 
 const is_member_node = (node: TraversalNode): node is TraversalMemberNode =>
   node !== null && "container" in node;
