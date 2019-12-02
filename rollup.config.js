@@ -22,6 +22,7 @@ const modules = [
   ["meld-core"],
   ["meld-demo"],
   ["meld-process"],
+  ["node-live-require", { node_only: true }],
   ["node-viewer-cli", { node_only: true }],
   ["node-web-presentation", { node_only: true }],
   ["playgrounds-plugin", { node_only: true }],
