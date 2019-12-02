@@ -2,6 +2,8 @@
 
 This package extends Node's module system to provide a live dependency graph.
 
+Towards a virtual module system (stream-oriented, and separated from physical).
+
 ## Motivation
 
 Interaction systems are more powerful than functional systems.  By creating a

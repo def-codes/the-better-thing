@@ -1,17 +1,18 @@
 import * as tx from "@thi.ng/transducers";
 import { depth_first_walk } from "@def.codes/graphviz-format";
 
-// Node doesn't export this as such.  Was using this to do an instance check in
-// below traversal, but it should only cover Module (aka NodeModule) instances.
-//
-// const Module = Object.getPrototypeOf(module).constructor;
+type NodeRequireCache = Record<string, NodeModule>;
+
+// Was using this to do an instance check in below traversal, but it should only
+// cover Module (aka NodeModule) instances.
+// const { Module } = require("module");
 
 const id = (_: NodeModule) => _.filename;
 
 /** Get the id's of all modules downstream from the given module. */
 export const transitive_dependencies = (
   filename: string,
-  cache: Record<string, NodeModule> = require.cache
+  cache: NodeRequireCache = require.cache
 ): Set<string> =>
   tx.transduce(
     tx.map(_ => _.value.filename),
@@ -24,7 +25,7 @@ export const transitive_dependencies = (
 /** Get the id's of all modules downstream from the given module. */
 export const transitive_dependents = (
   filename: string,
-  cache: Record<string, NodeModule> = require.cache
+  cache: NodeRequireCache = require.cache
 ): Set<string> => {
   // reverse index for traversal
   const index: Record<string, string[]> = {};

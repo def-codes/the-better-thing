@@ -4,16 +4,10 @@ const tx = require("@thi.ng/transducers");
 const {
   transitive_dependencies,
   transitive_dependents,
+  transitive_invalidate,
 } = require("@def.codes/node-live-require");
 // const { map_object } = require("@def.codes/helpers");
 // const pt = require("@def.codes/graphviz-format");
-
-const id = _ => _.filename;
-
-const transitive_invalidate = (id, cache = require.cache) => {
-  // const dependents =
-  delete cache[id];
-};
 
 const longest_common_prefix = ([first, ...rest]) => {
   let i = 0;
