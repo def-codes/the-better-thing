@@ -77,7 +77,9 @@ const TEST_CASES = {
 const run_test = ([name, test]) => {
   const defined = new Set();
 
-  const resolve = module_id => path.join(process.cwd(), module_id + ".js");
+  // Use this instead of `require.resolve` because that actually needs the file
+  // to exist, while this is used before writing the file.
+  const resolve = module_id => path.join(__dirname, module_id + ".js");
 
   function define(id, code) {
     fs.writeFileSync(resolve(id), code);
