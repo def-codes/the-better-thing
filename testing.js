@@ -1,22 +1,27 @@
 const { join, basename, dirname } = require("path");
+// const { depth_first_walk } = require("@def.codes/graphviz-format");
+const tx = require("@thi.ng/transducers");
+const { transitive_dependencies } = require("@def.codes/node-live-require");
 // const { map_object } = require("@def.codes/helpers");
-const pt = require("@def.codes/graphviz-format");
+// const pt = require("@def.codes/graphviz-format");
 
-// this is just an exhaustive walk, but unfortunately arrows point the wrong way
-function* transitive_dependencies(
-  filename,
-  cache = require.cache,
-  visited = new Set()
-) {
-  visited.add(filename);
-  const entry = cache[filename];
-  if (entry)
-    for (const child of entry.children)
-      if (!visited.has(child.filename)) {
-        yield child.filename;
-        yield* transitive_dependencies(child.filename, cache, visited);
-      }
+// if the arrows pointer the other way, this would just be an exhaustive walk
+function* transitive_dependents(filename, cache = require.cache) {
+  // reverse index & do traversal
 }
+
+// [
+//       ...depth_first_walk([require.cache[require.resolve("ws")]], {
+//         spec: { links_from: _ => _.children.map((x, i) => [i, x]) },
+//       }),
+//     ]
+//       .filter(x => x.value instanceof Module)
+//       .map(x => x.value.filename)
+
+const transitive_invalidate = (id, cache = require.cache) => {
+  // const dependents =
+  delete cache[id];
+};
 
 const longest_common_prefix = ([first, ...rest]) => {
   let i = 0;
@@ -70,10 +75,24 @@ const view = [
   ...Object.keys(deps).map(key => ({ path: ["deps", key] })),
 ];
 
-const filename = require.resolve("./testing");
+// const filename = require.resolve("./testing");
+const filename = require.resolve("ws");
 const example = {
   filename: normalize(filename),
-  deps: [...transitive_dependencies(filename)].map(normalize),
+  deps: [...transitive_dependencies(filename)].map(normalize).sort(),
 };
 
-module.exports = { deps, example, view };
+module.exports = {
+  deps,
+  view,
+  example,
+  // stuff: {
+  //   and_stuff: [
+  //     ...depth_first_walk([require.cache[require.resolve("ws")]], {
+  //       spec: { links_from: _ => _.children.map((x, i) => [i, x]) },
+  //     }),
+  //   ]
+  //     .filter(x => x.value instanceof Module)
+  //     .map(x => x.value.filename),
+  // },
+};

@@ -8,6 +8,8 @@ export interface LabeledSyncTraversalSpec<T = any, I = T, L = any> {
 
   /** Get the outbound edges from a given node, incuding “label” and target. */
   // Would this take thing or ID?
+  // also... should reverse these
+  // also... use  object wrapper v tuple?
   links_from(thing: T): Iterable<[L, T]>;
 }
 
@@ -20,18 +22,17 @@ export interface Reference {
 }
 export type ValueOrReference = Value | Reference;
 
-// Every item (except the root) will also have something indicating its
-// relationship to its parent.
 interface TraversalRootItem<T = any> {
   value: T;
   index?: number;
 }
 
+// Every item (except the root) will also have something indicating its
+// relationship to its parent.
 export interface TraversalMemberNode<T = any> extends TraversalRootItem<T> {
+  /** Index (in this traversal) of the first node that linked to this node. */
   container: number;
   key: ValueOrReference;
-  /** An actual runtime reference to the containing object. */
-  parent: object;
 }
 export type TraversalNode<T = any> =
   | TraversalRootItem<T>

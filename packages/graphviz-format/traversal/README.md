@@ -31,6 +31,8 @@ For those working “below see level” , this invisibility is crippling.
 
 At some level, you need to directly follow object-to-object references.
 
+In-memory object graphs don't have explicit node id's, just reference tests.
+
 ### Selection
 
 Unconditional traversals are trivial to implement.
