@@ -53,11 +53,15 @@ const serialize_attribute = (
   _context?: AttributeContext
 ) => {
   let item = value;
-  // Should include `context === "node" &&` But context is only for the group,
-  // so currently you don't know what item is being processed.
-  // Um, also should only apply when shape is Mrecord??
-  // Or at least when label itself is structured.
-  if (key === "label") item = record_label(value);
+  // Graphviz interprets label as record type whenever the node's shape is
+  // Mrecord.  Even if we had access to the rest of the attributes object here
+  // (which we could), we couldn't know what the *effective* shape will be,
+  // since this node can have attributes elsewhere.  So if you want to use
+  // literal strings for record-type labels, you have to escape it yourself.
+  //
+  // Also, this should only apply to nodes.  But we also don't know what type of
+  // element this is for (`context` is only used for general attribute groups.)
+  if (key === "label" && typeof value !== "string") item = record_label(value);
   return `${key}=${quoted_string(item)}`;
 };
 
