@@ -10,7 +10,7 @@ const longest_common_prefix = ([first, ...rest]) => {
 };
 
 // make a dot-friendly version of current module dependency graph
-exports.modules_subgraph = (options, cache = require.cache) => {
+const modules_subgraph = (options, cache = require.cache) => {
   const prefix = longest_common_prefix(Object.keys(cache));
 
   // convert back into (what was probably) the original module id
@@ -41,3 +41,5 @@ exports.modules_subgraph = (options, cache = require.cache) => {
 
   return dot.object_graph_to_dot_subgraph([...Object.values(graph)], options);
 };
+
+module.exports = { longest_common_prefix, modules_subgraph };

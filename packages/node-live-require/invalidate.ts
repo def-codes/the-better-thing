@@ -15,11 +15,7 @@ export const transitive_invalidate = (
   filename: string,
   cache: NodeRequireCache = require.cache
 ): void => {
-  // The module id currently happens to be listed among its dependents, but
-  // perhaps it should not.
   invalidate(filename, cache);
-
-  const dependents = transitive_dependents(filename, cache);
-
-  for (const dependent of dependents) invalidate(dependent, cache);
+  for (const dependent of transitive_dependents(filename, cache))
+    invalidate(dependent, cache);
 };

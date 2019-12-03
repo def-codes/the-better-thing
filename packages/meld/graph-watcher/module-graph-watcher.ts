@@ -45,7 +45,11 @@ export const module_graph_watcher = (
         return good;
       }),
       tx.map(_ => join(_.context, _.path)),
-      tx.filter(filename => filename in require.cache),
+      // If an invalidated module fails to load on the next attempt, it's no
+      // longer in the graph and so this would prevent changes from triggering
+      // an update.  We happen to know about the main module *a priori* so we
+      // include it.  But isn't this still broken for other modules?
+      // tx.filter(file => file === filename || file in require.cache),
       tx.throttle<string>(debounce(delay))
     )
   );
