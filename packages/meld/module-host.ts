@@ -51,16 +51,17 @@ export async function module_host(module_name: string, op = "exports") {
 
   const watcher = module_graph_watcher(module_file);
 
-  watcher.any_invalidated.subscribe({
-    next(module_id) {
-      console.log("SOMETHING INVALIDATED!!", module_id);
-      // show_exports();
-    },
-  });
+  // this was just for debug, doesn't do anything
+  // watcher.any_invalidated.subscribe({
+  //   next(module_id) {
+  //     console.log("SOMETHING INVALIDATED!!", module_id);
+  //     // show_exports();
+  //   },
+  // });
 
   watcher.main_invalidated.subscribe({
     next() {
-      console.log("MAIN INVALIDATED!!");
+      // console.log("MAIN INVALIDATED!!");
       show_exports();
     },
   });
