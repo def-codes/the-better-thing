@@ -1,7 +1,6 @@
+import { NodeRequireCache } from "./api";
 import * as tx from "@thi.ng/transducers";
 import { depth_first_walk } from "@def.codes/graphviz-format";
-
-type NodeRequireCache = Record<string, NodeModule>;
 
 // Was using this to do an instance check in below traversal, but it should only
 // cover Module (aka NodeModule) instances.

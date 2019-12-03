@@ -37,7 +37,7 @@ const TEST_CASES = {
     define(name1, "module.exports = {version: 1}");
     assert.deepStrictEqual(require(name1), { version: 1 });
 
-    invalidate(name1, require);
+    invalidate(require.resolve(name1));
 
     define(name1, "module.exports = {version: 2}");
     assert.deepStrictEqual(require(name1), { version: 2 });
@@ -68,7 +68,7 @@ const TEST_CASES = {
     define(name2, `module.exports = {version: 101}`);
     assert.deepStrictEqual(require(name1), { version: 1, subversion: 100 });
 
-    transitive_invalidate(name2, require);
+    transitive_invalidate(require.resolve(name2));
 
     assert.deepStrictEqual(require(name1), { version: 1, subversion: 101 });
   },

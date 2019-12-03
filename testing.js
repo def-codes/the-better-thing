@@ -1,5 +1,4 @@
 const some_lib = require("./some-lib");
-const { filesystem_watcher_source } = require("@def.codes/process-trees");
 const { join, basename, dirname } = require("path");
 const { depth_first_walk } = require("@def.codes/graphviz-format");
 const rs = require("@thi.ng/rstream");
@@ -22,42 +21,6 @@ const longest_common_prefix = ([first, ...rest]) => {
 };
 
 const prefix = longest_common_prefix(Object.keys(require.cache));
-
-const watcher = rs.stream(
-  filesystem_watcher_source(prefix, { recursive: true })
-);
-
-const JS = /\.js$/gi;
-
-const delay = 100;
-
-watcher
-  .transform(
-    tx.filter(_ => {
-      const good = typeof _.path === "string";
-      if (!good) console.warn("Unexpected value for path:", _.path);
-      return good;
-    }),
-    // tx.trace("BOUNCE"),
-    tx.map(_ => join(_.context, _.path)),
-    tx.filter(filename => filename in require.cache),
-    tx.throttle(() => {
-      // Adapted from throttle time to debounce only for identical values
-      // at least I think that's what this does
-      let last_time = 0,
-        last_value;
-      return v => {
-        const t = Date.now();
-        return last_value !== v && t - last_time >= delay
-          ? (((last_time = t), (last_value = v)), true)
-          : false;
-      };
-    }),
-    tx.sideEffect(filename => {
-      transitive_invalidate(filename, require);
-    })
-  )
-  .subscribe(rs.trace("INVALIDATED!!"));
 
 // convert back into (what was probably) the original module id
 const normalize = s => {
@@ -98,6 +61,7 @@ const example = {
 };
 
 console.log(`some_lib`, some_lib);
+console.log(`line 102`);
 
 module.exports = {
   graph,

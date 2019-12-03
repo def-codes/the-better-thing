@@ -2,6 +2,7 @@
   "extends": "../tsconfig-composite",
   "references": [
     { "path": "../datafy-nav" },
+    { "path": "../node-live-require" },
     { "path": "../node-web-presentation" },
     { "path": "../process-trees" },
     { "path": "../graphviz-format" },

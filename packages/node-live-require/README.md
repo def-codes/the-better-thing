@@ -94,6 +94,26 @@ closure that puts a reference to the internal `require` in scope.
 Unlike (current-day) browser environments, Node does provide a way to execute
 code in a controlled environment.
 
+### Incidentally
+
+Note that while it's okay to use the locally-available version of require.cache,
+it's *not* okay to use the local require.resolve, since it depends on the
+original path to which its `require` was bound.  In other words:
+
+```
+> const other = require('module').createRequire(process.cwd()))
+undefined
+> require === other
+false
+> require.cache === other.cache
+true
+> require.resolve === other.resolve
+false
+```
+
+This is just the way require works.  I'm not sure why I feel the need to
+document it.
+
 ## Roadmap
 
 Eventually this will be incorporated into MELD's TypeScript plugin, for an

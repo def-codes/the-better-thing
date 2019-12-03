@@ -1,5 +1,9 @@
 import { ISubscribable } from "@thi.ng/rstream";
 
+export type NodeRequireCache = Record<string, NodeModule>;
+
+// Everything below is crap
+
 // Once more...
 // invalidated (transitive)
 // define invalidates (but doesn't push)
