@@ -1,5 +1,5 @@
 {
-  "extends": "../tsconfig-base",
+  "extends": "../tsconfig-composite",
   "references": [
     { "path": "../datafy-nav" },
     { "path": "../node-web-presentation" },

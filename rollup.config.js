@@ -19,6 +19,7 @@ const modules = [
   ["graphviz-format"],
   ["helpers"],
   ["meld", { node_only: true }],
+  ["meld-cli", { node_only: true }],
   ["meld-core"],
   ["meld-demo"],
   ["meld-process"],
