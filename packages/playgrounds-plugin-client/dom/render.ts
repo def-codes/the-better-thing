@@ -1,4 +1,5 @@
-const flatten = <T>(arrays): T[] => Array.prototype.concat(...arrays);
+const flatten = <T>(arrays: readonly (readonly T[])[]): readonly T[] =>
+  Array.prototype.concat(...arrays);
 
 const render_child = (child: Child) =>
   typeof child === "string"

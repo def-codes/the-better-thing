@@ -1,136 +1,22 @@
 import * as fs from "fs";
 import * as vm from "vm";
-import { read } from "@def.codes/expression-reader";
-import {
-  Subgraph,
-  object_graph_to_dot_subgraph,
-  depth_first_walk,
-  graph,
-  empty_traversal_state,
-  default_traversal_spec,
-} from "@def.codes/graphviz-format";
-import { dot_updater } from "@def.codes/node-web-presentation";
 import { filesystem_watcher_source } from "@def.codes/process-trees";
-import { getIn } from "@thi.ng/paths";
 import * as rs from "@thi.ng/rstream";
-import { interpret } from "./interpreter";
 
-// HELPER
-/** Flatten an array to one level. */
-/* not used.  see also /playgrounds-plugin-client/dom/render.ts
-export const flatten = <T>(arrays: readonly (readonly T[])[]): readonly T[] =>
-  Array.prototype.concat(...arrays);
-*/
+const timeout = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
-
-interface Sketch {
-  path?: string; // supports a.b.c notation
-  as?: "walk" | "dot" | "graph";
-}
-
-export async function module_host(module_name, op = "exports") {
+export async function module_host(module_name: string, op = "exports") {
+  const encountered_dependencies = new Set();
   const resolve_options = { paths: [process.cwd()] };
   const module_file = require.resolve(module_name, resolve_options);
-  const context = {};
 
+  // Assume for now that we need to module file to exist up front.
   if (!fs.existsSync(module_file)) {
     console.error(`No such module ${module_name}`);
     process.exit(0);
   }
 
-  const updater = dot_updater();
-
-  function graph_it(thing: any, view?: Sketch | Sketch[]) {
-    if (!view)
-      view = Object.keys(thing)
-        .filter(key => key !== "view")
-        .map(path => ({ path, as: "graph" }));
-
-    const state = empty_traversal_state();
-    const spec = default_traversal_spec();
-    // const spec: LabeledSyncTraversalSpec = {
-    //   id: x => x,
-    //   links_from: x => [...members_of(x)].slice(0, 3),
-    // };
-    const options = { spec, state };
-
-    const to_subgraph_special = (sketch: Sketch): Subgraph => {
-      const value = sketch.path ? getIn(thing, sketch.path) : thing;
-      const interpreter = sketch.as || "graph";
-
-      if (interpreter === "walk")
-        return object_graph_to_dot_subgraph(
-          [...depth_first_walk([value])],
-          options
-        );
-
-      if (interpreter === "dot")
-        return object_graph_to_dot_subgraph(
-          // if you were to override spec, I don't think you'd want to apply it here too...
-          [object_graph_to_dot_subgraph([value], options)],
-          options
-        );
-
-      if (interpreter === "graph")
-        return object_graph_to_dot_subgraph([value], options);
-    };
-
-    const to_subgraph = (sketch: Sketch): Subgraph => ({
-      ...to_subgraph_special(sketch),
-      id: `cluster_${
-        Array.isArray(sketch.path)
-          ? sketch.path.join("_")
-          : sketch.path
-          ? sketch.path.replace(".", "_")
-          : "anon"
-      }`,
-      attributes: {
-        label: sketch.path ?? "anon",
-      },
-    });
-
-    const statements = (Array.isArray(view) ? view : [view]).map(to_subgraph);
-
-    // Hold on just a little while longer...
-    // console.log(`graph`, graph);
-    // const dot = serialize_dot(graph);
-    // console.log(`dot`, dot);
-    // If you must do that ^ then just add as:`text` interpreter
-
-    const g = graph({
-      statements,
-      directed: true,
-      attributes: { rankdir: "LR" },
-    });
-    updater.go(g, false); // trace
-  }
-
-  function do_interpret() {
-    const code = fs.readFileSync(module_file, "utf8");
-
-    let statements;
-    try {
-      // We *could* use a VM with a Proxy as context, but expression reader
-      // isn't factored for that and this works fine.
-      statements = read(code);
-    } catch (error) {
-      statements = { error, when: "reading-code" };
-    }
-
-    let result;
-    try {
-      result = interpret(statements, context);
-    } catch (error) {
-      result = { error, when: "interpreting-statements" };
-    }
-
-    graph_it({ statements, result });
-  }
-
-  const encountered_dependencies = new Set();
-
-  const _require = id => {
+  const _require = (id: string) => {
     const resolved = require.resolve(id, resolve_options);
     encountered_dependencies.add(resolved);
     console.log(`encountered_dependencies`, encountered_dependencies);
@@ -143,12 +29,16 @@ export async function module_host(module_name, op = "exports") {
     require: _require,
   });
 
-  const fake_require = id => {
+  const fake_require = (_id: string) => {
     return vm.runInNewContext(`require("${module_name}")`, vm_context);
   };
 
+  // This doesn't *have* to be an egress, but for the moment we're not
+  // interested in exports.  That is, it's not a way that the module can use to
+  // communicate with the system.  Rather, the module can import interpreters
+  // directly.
   function show_exports() {
-    let exported;
+    let exported: any;
     try {
       exported = fake_require(module_name);
     } catch (error) {
@@ -157,12 +47,17 @@ export async function module_host(module_name, op = "exports") {
       exported = { error, when: "loading-code" };
     }
 
-    graph_it(exported, exported.view);
+    // What to do with this?  Or do we even care about exports?
+    // Right.  No, we don't
+    // We can't, this has to be an egress.
+
+    // graph_it(exported, exported.view);
   }
 
   // Watch
   await timeout(1000);
-  const fn = op === "exports" ? show_exports : do_interpret;
+  // disable interpret for now
+  const fn = op === "exports" ? show_exports : () => {}; // do_interpret;
   rs.stream(filesystem_watcher_source(module_file)).subscribe({
     next: msg => {
       if (msg.type === "change") fn();

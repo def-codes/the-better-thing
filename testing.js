@@ -29,11 +29,6 @@ const watcher = rs.stream(
 
 const JS = /\.js$/gi;
 
-// watcher
-//   .transform(tx.filter(_ => JS.test(_.path)))
-//   .transform(tx.map(_ => _.path))
-//   .subscribe(rs.trace("BLAH DEE BLAH"));
-
 const delay = 100;
 
 watcher

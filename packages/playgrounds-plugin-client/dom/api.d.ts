@@ -14,7 +14,7 @@ interface AnyProps {
 interface ElementTree {
   tag: string;
   attributes?: object;
-  children?: (string | ElementTree)[];
+  children?: readonly (string | ElementTree)[];
 }
 
 /** A function that maps a dictionary into a component tree. */
