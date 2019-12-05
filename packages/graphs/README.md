@@ -21,8 +21,23 @@ This package is about graphs and traversals
 Networkx allows “any hashable object.”  But JavaScript doesn't have hashing
 built in.  Thus i'm still in favor of restricting ID's to number and string.
 
+### Support both strings and numbers as ID's in the same graphs?
+
+This is just for TypeScript, not considering dynamic restrictions
+
+the distinction is out-of-band in most contexts
+i.e. you can't tell 1 from "1" by looking at the stringified output
+js also collapses these when used as object keys
+- that should be incidental
+  - but in practice would affect serialization of constructed graphs when
+    object is reduction target
+could support one *or* the other across a graph
+if I had to pick one it would be number, but string would be convenient
+
+
 ### Support primitive data values for nodes and edges?
 
 Networkx uses dictionaries for “attributes” on all nodes and edges.
 
 Current impl is still open to primitives/undefined as node/edge values.
+

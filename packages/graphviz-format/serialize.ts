@@ -104,6 +104,12 @@ function* serialize_subgraph(
 ): IterableIterator<string> {
   yield "subgraph " + (subgraph.id ? '"' + subgraph.id + '" ' : "") + "{\n";
   yield* serialize_attributes(subgraph.attributes);
+
+  // This is now fairly duplicative with graph serialize
+  yield* serialize_attribute_block(subgraph.graph_attributes, "graph");
+  yield* serialize_attribute_block(subgraph.node_attributes, "node");
+  yield* serialize_attribute_block(subgraph.edge_attributes, "edge");
+
   yield* serialize_statements(subgraph.statements, options);
   yield "}";
 }

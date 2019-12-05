@@ -5,8 +5,9 @@
 // E is for any metadata associated with an edge. ditto
 
 export interface IGraphIterator<ID, N, E> {
-  // What about the metadata? see also below
   nodes(): IterableIterator<ID>;
+  // name?
+  nodes_with_data(): IterableIterator<[ID, N]>;
   edges(): IterableIterator<[ID, ID, E]>;
 }
 
@@ -41,6 +42,7 @@ export type GraphFact<ID, N, E> =
   | { subject: ID; object: ID; data?: E };
 
 export interface IGraphFacts<ID, N, E> {
+  // This is same type as traversal would provide
   facts(): IterableIterator<GraphFact<ID, N, E>>;
 }
 
