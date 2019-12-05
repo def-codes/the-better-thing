@@ -16,6 +16,7 @@ const modules = [
   ["datafy-node", { node_only: true }],
   ["expression-reader"],
   ["function-testing"],
+  ["graphs"],
   ["graphviz-format"],
   ["helpers"],
   ["meld", { node_only: true }],

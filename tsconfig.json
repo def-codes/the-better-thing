@@ -9,6 +9,7 @@
     {"path": "packages/datafy-node" },
     {"path": "packages/expression-reader" },
     {"path": "packages/function-testing" },
+    {"path": "packages/graphs" },
     {"path": "packages/graphviz-format" },
     {"path": "packages/helpers" },
     {"path": "packages/meld" },

@@ -57,7 +57,10 @@ export const module_graph_watcher = (
   // TS: this one works with comp but not with transform overloads
   const any_invalidated = file_changes.transform(
     tx.comp(
-      tx.map(filename => transitive_dependents(filename, require.cache)),
+      tx.map(filename => [
+        filename,
+        ...transitive_dependents(filename, require.cache),
+      ]),
       tx.flatten(),
       tx.sideEffect(filename => {
         invalidate(filename);
