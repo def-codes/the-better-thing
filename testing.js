@@ -1,5 +1,6 @@
 const tx = require("@thi.ng/transducers");
-const { Graph } = require("@def.codes/graphs");
+const { Graph, from_facts } = require("@def.codes/graphs");
+const { map_object } = require("@def.codes/helpers");
 const { display } = require("@def.codes/node-web-presentation");
 const {
   transitive_dependencies,
@@ -17,6 +18,44 @@ const nextid = () => `n${count++}`;
 
 const walker_state = dot.empty_traversal_state();
 const options = { state: walker_state };
+
+//////////////////////////////////
+// we don't want to think in graphviz terms per se
+// the point here is to group things independently
+function cluster_from(graph, spec, name, more) {
+  // how do we know whether the thing is already a graph?
+  // and does that matter?
+  // look. this is already not hard
+  return {
+    type: "subgraph",
+    id: `cluster_${name || nextid()}`,
+    statements: [...dot.statements_from_graph(graph, spec)],
+    ...(more ? more : {}),
+  };
+}
+///////////////////////////////////
+
+//////////////////////// for module
+// put a thing through a sequence of processing steps
+// in which you can view each, or only the last
+// this is towards a general thing but for right now is graphviz oriented
+// fns can be an array, but a dict (ordered) might be better
+// so you can reference points in the pipeline
+function* view_pipeline(fns, val) {
+  let acc = val;
+  for (const fn of fns) {
+  }
+
+  // at *each* stage we must apply graphviz
+  // in order to
+  // we might want to look at the graphvi
+  // stages:
+  // first: plain object, nothing known about it
+  //
+  // last: result of transformation
+  // const processing_steps
+}
+/////////////////////
 
 function* example_sequence() {
   for (let i = 0; i < 10; i++) yield { i };
@@ -172,33 +211,75 @@ const spec2 = {
   },
 };
 
+// a graph mapping that prepends the given string to each id in a graph stream.
+const prefix_keys = prefix =>
+  map_object((value, key) =>
+    key === "subject" || key === "object" ? `${prefix}${value}` : value
+  );
+
+// return tx.map(({ subject, object, ...rest }) =>
+//   object == null
+//     ? {
+//         subject: `${prefix}${subject}`,
+//         ...rest,
+//       }
+//     : {
+//         subject: `${prefix}${subject}`,
+//         object: `${prefix}${object}`,
+//         ...rest,
+//       }
+// );
+// return tx.map(the => ({
+//   ...the,
+//   subject: `${prefix}${the.subject}`,
+//   ...(the.object == null ? {} : { object: `${prefix}${the.object}` }),
+// }));
+
 const graph = dot.graph({
   directed: true,
-  attributes: { rankdir: "LR" },
+  //  attributes: { rankdir: "LR", },
   statements: [
+    // cluster_from(test_graph_2, spec2, "test2", {
+    //   node_attributes: { shape: "circle" },
+    // }),
+    // cluster_from(test_graph_2, null, "test2", {
+    //   node_attributes: { shape: "circle" },
+    // }),
+
     {
       type: "subgraph",
-      id: "cluster_testing_2",
-      statements: [...dot.statements_from_graph(test_graph_2)],
-      node_attributes: { shape: "circle" },
-    },
-    Object.assign(
-      dot.object_graph_to_dot_subgraph(
-        [
-          ///...test_graph.facts()
-          test_graph_2._nodes,
-        ],
-        options
-      ),
-      {
-        id: `cluster_${nextid()}`,
-      }
-    ),
-    {
-      type: "subgraph",
-      id: "cluster_testing",
+      id: `cluster_test1`,
       statements: [...dot.statements_from_graph(test_graph_2, spec2)],
+      // node_attributes: { shape: "circle" },
     },
+    {
+      type: "subgraph",
+      id: `cluster_test2`,
+      statements: [
+        ...dot.statements_from_graph(
+          from_facts(tx.map(prefix_keys("help-"), test_graph_2.facts())),
+          spec2
+        ),
+      ],
+    },
+    {
+      type: "subgraph",
+      id: `cluster_test3`,
+      statements: [
+        ...dot.statements_from_graph(
+          from_facts(
+            tx.map(prefix_keys("potato salad "), test_graph_2.facts())
+          ),
+          spec2
+        ),
+      ],
+    },
+
+    ///...test_graph.facts()
+    Object.assign(
+      dot.object_graph_to_dot_subgraph([test_graph_2._nodes], options),
+      { id: `cluster_${nextid()}` }
+    ),
     Object.assign(
       dot.object_graph_to_dot_subgraph(
         dot.statements_from_graph(test_graph_2, spec2),

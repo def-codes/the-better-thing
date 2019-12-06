@@ -1,4 +1,4 @@
-import { IGraph } from "./api";
+import { IGraph, GraphFact, is_link } from "./api";
 
 export class Graph<ID, N, E> implements IGraph<ID, N, E> {
   _nodes: Map<ID, { value: N; edges: Map<ID, E> }> = new Map();
@@ -58,5 +58,10 @@ export class Graph<ID, N, E> implements IGraph<ID, N, E> {
 
   delete_edge(from: ID, to: ID) {
     this._nodes.get(from)?.edges.delete(to);
+  }
+
+  accept_fact(fact: GraphFact<ID, N, E>) {
+    if (is_link(fact)) this.add_edge(fact.subject, fact.object, fact.data);
+    else this.add_node(fact.subject, fact.value);
   }
 }
