@@ -136,7 +136,7 @@ function deps(options) {
   };
   return dot.object_graph_to_dot_subgraph([example], options);
 }
-
+/*
 const test_graph = new Graph();
 test_graph.add_node(3);
 test_graph.add_node(5);
@@ -146,6 +146,7 @@ test_graph.add_edge(5, 3);
 test_graph.add_edge(3, 7);
 test_graph.add_edge(5, 7);
 test_graph.add_edge(7, 5);
+*/
 
 const test_graph_2 = new Graph();
 test_graph_2.add_node(13);
@@ -153,13 +154,21 @@ test_graph_2.add_node(15);
 test_graph_2.add_node(17);
 test_graph_2.add_edge(13, 15);
 test_graph_2.add_edge(15, 13);
-test_graph_2.add_edge(113, 117);
+test_graph_2.add_edge(113, 117, { birthday: "today" });
 test_graph_2.add_edge(15, 17);
 test_graph_2.add_edge(17, 15);
 
 const spec2 = {
   describe_node: id => {
     if (id > 4) return { style: "filled", color: "red", fontcolor: "white" };
+  },
+  describe_edge: p => {
+    console.log(`p`, p);
+
+    const [from, to, data] = p;
+    if (data && data.birthday === "today")
+      return { color: "blue", penwidth: 5 };
+    if (from >= 4) return { color: "green", label: "no!" };
   },
 };
 
@@ -173,35 +182,54 @@ const graph = dot.graph({
       statements: [...dot.statements_from_graph(test_graph_2)],
       node_attributes: { shape: "circle" },
     },
+    Object.assign(
+      dot.object_graph_to_dot_subgraph(
+        [
+          ///...test_graph.facts()
+          test_graph_2._nodes,
+        ],
+        options
+      ),
+      {
+        id: `cluster_${nextid()}`,
+      }
+    ),
     {
       type: "subgraph",
       id: "cluster_testing",
-      statements: [...dot.statements_from_graph(test_graph, spec2)],
+      statements: [...dot.statements_from_graph(test_graph_2, spec2)],
     },
+    Object.assign(
+      dot.object_graph_to_dot_subgraph(
+        dot.statements_from_graph(test_graph_2, spec2),
+        options
+      ),
+      { id: `cluster_${nextid()}` }
+    ),
+
     //deps(options),
     // modules_subgraph(options),
     // ...directory(options),
     // dot.object_graph_to_dot_subgraph([module], options),
 
-    Object.assign(
-      dot.object_graph_to_dot_subgraph(
-        tx.iterator(
-          tx.comp(
-            tx.map(({ value, ...obj }) => obj),
-            tx.take(6)
-          ),
-          dot.depth_first_walk([
-            // require.cache
-            // hello: "world",
-            // an_array: "things and stuff".split(" "),
-            module,
-          ])
-        ),
-
-        options
-      ),
-      { id: `cluster_${nextid()}` }
-    ),
+    // Object.assign(
+    //   dot.object_graph_to_dot_subgraph(
+    //     tx.iterator(
+    //       tx.comp(
+    //         tx.map(({ value, ...obj }) => obj),
+    //         tx.take(6)
+    //       ),
+    //       dot.depth_first_walk([
+    //         // require.cache
+    //         // hello: "world",
+    //         // an_array: "things and stuff".split(" "),
+    //         module,
+    //       ])
+    //     ),
+    //     options
+    //   ),
+    //   { id: `cluster_${nextid()}` }
+    // ),
     // { type: "node", id: "foo" },
   ],
 });

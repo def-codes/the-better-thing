@@ -49,10 +49,11 @@ const record_label = (value: Dot.RecordLabel) =>
 
 const serialize_attribute = (
   key: string,
-  value: any,
+  value: unknown,
   _context?: AttributeContext
-) => {
+): string => {
   let item = value;
+  if (item == null) return "";
   // Graphviz interprets label as record type whenever the node's shape is
   // Mrecord.  Even if we had access to the rest of the attributes object here
   // (which we could), we couldn't know what the *effective* shape will be,
@@ -61,8 +62,9 @@ const serialize_attribute = (
   //
   // Also, this should only apply to nodes.  But we also don't know what type of
   // element this is for (`context` is only used for general attribute groups.)
-  if (key === "label" && typeof value !== "string") item = record_label(value);
-  return `${key}=${quoted_string(item)}`;
+  if (key === "label" && typeof value !== "string")
+    item = record_label(value as Dot.RecordLabel);
+  return `${key}=${quoted_string(item.toString())}`;
 };
 
 function* serialize_attributes(
