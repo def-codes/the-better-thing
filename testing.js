@@ -41,19 +41,35 @@ function cluster_from(graph, spec, name, more) {
 // this is towards a general thing but for right now is graphviz oriented
 // fns can be an array, but a dict (ordered) might be better
 // so you can reference points in the pipeline
-function* view_pipeline(fns, val) {
-  let acc = val;
-  for (const fn of fns) {
-  }
+// but what?  a graph?  or an arbitrary value?  either, obviously
+// but the question is, at what point do you invoke the graphviz interpreter?
+// at *each* stage we must apply graphviz
+// in order to
+// we might want to look at the graphvi
+// stages:
+// first: plain object, nothing known about it
+//
+// last: result of transformation
 
-  // at *each* stage we must apply graphviz
-  // in order to
-  // we might want to look at the graphvi
-  // stages:
-  // first: plain object, nothing known about it
-  //
-  // last: result of transformation
-  // const processing_steps
+// make fns an object of fns?  (for name)
+function* pipeline(fns, val) {
+  let acc = val;
+  for (const fn of fns) yield [fn, (acc = fn(acc))];
+}
+function* view_pipeline(input, results) {
+  yield Object.assign(dot.object_graph_to_dot_subgraph([{ input }], options), {
+    id: `cluster_${nextid()}`,
+    attributes: { label: "input" },
+  });
+  for (const [fn, acc] of results) {
+    const id = nextid();
+    const label = fn.name || id;
+    // still using this for now
+    yield Object.assign(dot.object_graph_to_dot_subgraph([acc], options), {
+      id: `cluster_${id}`,
+      attributes: { label },
+    });
+  }
 }
 /////////////////////
 
@@ -175,17 +191,27 @@ function deps(options) {
   };
   return dot.object_graph_to_dot_subgraph([example], options);
 }
-/*
-const test_graph = new Graph();
-test_graph.add_node(3);
-test_graph.add_node(5);
-test_graph.add_node(7);
-test_graph.add_edge(3, 5);
-test_graph.add_edge(5, 3);
-test_graph.add_edge(3, 7);
-test_graph.add_edge(5, 7);
-test_graph.add_edge(7, 5);
-*/
+
+const workflow = new Graph();
+// workflow.add_node("input", "value");
+// workflow.add_node("fn1", "function");
+// workflow.add_node("fn2", "function");
+// workflow.add_node("result1", "value");
+workflow.add_edge("input", "fn1");
+workflow.add_edge("fn1", "result1");
+workflow.add_edge("result1", "fn2");
+
+workflow.add_edge("value", "graph?");
+workflow.add_edge("graph?", "graph", "yes");
+workflow.add_edge("graph?", "traversal", "no");
+workflow.add_edge("traversal", "graph", "graph\nreducer");
+workflow.add_edge("graph", "dot", "graph-dot\nspec");
+const workflow_spec = {
+  describe_edge: ([, , label]) => label && { label },
+  describe_node: (id, type) =>
+    (/\?/.test(id) && { shape: "diamond" }) ||
+    ((id.startsWith("fn") || type === "function") && { shape: "square" }),
+};
 
 const test_graph_2 = new Graph();
 test_graph_2.add_node(13);
@@ -212,28 +238,11 @@ const spec2 = {
 };
 
 // a graph mapping that prepends the given string to each id in a graph stream.
+// but you end up seeing this as the key.  rather want to see the label
 const prefix_keys = prefix =>
   map_object((value, key) =>
     key === "subject" || key === "object" ? `${prefix}${value}` : value
   );
-
-// return tx.map(({ subject, object, ...rest }) =>
-//   object == null
-//     ? {
-//         subject: `${prefix}${subject}`,
-//         ...rest,
-//       }
-//     : {
-//         subject: `${prefix}${subject}`,
-//         object: `${prefix}${object}`,
-//         ...rest,
-//       }
-// );
-// return tx.map(the => ({
-//   ...the,
-//   subject: `${prefix}${the.subject}`,
-//   ...(the.object == null ? {} : { object: `${prefix}${the.object}` }),
-// }));
 
 const graph = dot.graph({
   directed: true,
@@ -242,10 +251,20 @@ const graph = dot.graph({
     // cluster_from(test_graph_2, spec2, "test2", {
     //   node_attributes: { shape: "circle" },
     // }),
-    // cluster_from(test_graph_2, null, "test2", {
-    //   node_attributes: { shape: "circle" },
-    // }),
-
+    cluster_from(workflow, workflow_spec),
+    ...view_pipeline({ hello: "world" }, [
+      ...pipeline(
+        [
+          function box(value) {
+            return { value };
+          },
+          function enumerate(value) {
+            return Object.entries(value);
+          },
+        ],
+        { hello: "world" }
+      ),
+    ]),
     {
       type: "subgraph",
       id: `cluster_test1`,
