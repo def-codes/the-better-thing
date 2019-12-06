@@ -7,11 +7,19 @@ const { pipeline } = require("./lib/pipeline");
 const { prefix_keys } = require("./lib/clustering");
 const { visit_all_factors, visit_prime_factors } = require("./lib/factorize");
 
-const input = { something: ["non", "trivial"] };
+const some_object_graph = {
+  something: ["non", "trivial"],
+  nested: [4, 5, 6, 3, 5, 9, 888],
+  foo: new Map([
+    [3, 0],
+    [{ blah: "blahhh" }, "BLAH"],
+  ]),
+};
 
 const EMPTY_ARRAY = [];
 const DEFAULT_MOVES_FROM = () => EMPTY_ARRAY;
 const DEFAULT_VALUE_OF = () => {};
+const DEFAULT_ID_OF = x => x;
 
 function* traverse1(starts, spec, state) {
   state = state || {};
@@ -20,16 +28,20 @@ function* traverse1(starts, spec, state) {
   const visited = state.visited || (state.visited = new Set());
   const moves_from = spec.moves_from || DEFAULT_MOVES_FROM;
   const value_of = spec.value_of || DEFAULT_VALUE_OF;
+  const id_of = spec.id_of || DEFAULT_ID_OF;
   for (const start of starts) queue.push(start);
 
   while (has_items(queue)) {
-    const subject = queue.pop();
+    const raw = queue.pop();
+    const subject = id_of(raw);
+    const value = value_of(raw);
     // conditional yield?
-    yield { subject, value: value_of(subject) };
+    yield { subject, value };
     if (!visited.has(subject))
-      for (const [object, data] of moves_from(subject)) {
+      for (const [o, data] of moves_from(subject, value)) {
+        const object = id_of(o);
         yield { subject, object, data };
-        queue.push(object);
+        queue.push(o);
       }
     visited.add(subject);
   }
@@ -38,8 +50,41 @@ function* traverse1(starts, spec, state) {
 // this is a sequence you could iterate through
 const N = 1184;
 
-const traversal_spec = visit_all_factors;
-const traversed = [...traverse1([N], traversal_spec)];
+const make_indexer = () => {
+  const indices = new Map();
+  const index_of = o =>
+    // indices.get(o) ?? indices.set(o, indices.size).size - 1;
+    indices.get(o) || indices.set(o, indices.size).size - 1;
+  return index_of;
+};
+
+const make_walk_object_spec = (id_of = make_indexer()) => ({
+  id_of,
+  value_of: x => x,
+  moves_from: (_, thing) =>
+    tx.map(([key, value]) => [value, key], dot.members_of(thing)),
+});
+
+const dot_spec_edge_label = {
+  describe_edge: ([, , label]) => label && { label },
+};
+
+const obj_walk_dot_spec = {
+  describe_node(id, value) {
+    if (value) return { label: JSON.stringify(value) };
+  },
+  describe_edge([from, to, data]) {
+    if (data) return { label: JSON.stringify(data) };
+  },
+};
+
+const walk_object_spec = make_walk_object_spec();
+
+const input = some_object_graph; // N
+const traversal_spec = walk_object_spec; // visit_all_factors;
+const dot_spec = obj_walk_dot_spec;
+
+const traversed = [...traverse1([input], traversal_spec)];
 // const constructed = from_facts(tx.map(prefix_keys("NN"), traversed));
 const constructed = from_facts(traversed);
 
@@ -54,11 +99,7 @@ const graph = dot.graph({
     {
       type: "subgraph",
       node_attributes: { shape: "circle" },
-      statements: [
-        ...dot.statements_from_graph(constructed, {
-          describe_edge: ([, , label]) => label && { label },
-        }),
-      ],
+      statements: [...dot.statements_from_graph(constructed, dot_spec)],
     },
 
     // {

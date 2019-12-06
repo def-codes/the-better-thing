@@ -21,6 +21,7 @@ function* enumerate_members<T>(
 }
 
 export function members_of(o: any): Iterable<[any, any]> {
+  if (typeof o !== "object") return [];
   if (o instanceof Map) return o.entries();
   // @ts-ignore: Guard doesn't convince TS it's an Iterable.
   if (Symbol.iterator in o) return enumerate_members(o);
