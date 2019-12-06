@@ -42,13 +42,13 @@ export class Graph<ID, N, E> implements IGraph<ID, N, E> {
   }
 
   add_node(id: ID, value: N = undefined) {
-    this._nodes.set(id, { value, edges: new Map() });
+    if (!this._nodes.has(id)) this._nodes.set(id, { value, edges: new Map() });
   }
 
   // Implicitly adds both source and target nodes if they don't exist.
   add_edge(from: ID, to: ID, data?: E) {
-    if (!this._nodes.has(from)) this.add_node(from);
-    if (!this._nodes.has(to)) this.add_node(to);
+    this.add_node(from);
+    this.add_node(to);
     this._nodes.get(from).edges.set(to, data);
   }
 

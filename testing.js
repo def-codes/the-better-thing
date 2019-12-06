@@ -1,64 +1,142 @@
 const tx = require("@thi.ng/transducers");
 const { Graph, from_facts } = require("@def.codes/graphs");
-const { map_object } = require("@def.codes/helpers");
+const { has_items } = require("@def.codes/helpers");
 const { display } = require("@def.codes/node-web-presentation");
 const dot = require("@def.codes/graphviz-format");
+const { pipeline } = require("./lib/pipeline");
+const { prefix_keys } = require("./lib/clustering");
 
-let count = 0;
-const nextid = () => `n${count++}`;
+const input = { something: ["non", "trivial"] };
 
-const walker_state = dot.empty_traversal_state();
-const options = { state: walker_state };
+const shallow_clone = o => (Array.isArray(o) ? [...o] : { ...o });
+const deep_clone = o => JSON.parse(JSON.stringify(o));
 
-// a graph mapping that prepends the given string to each id in a graph stream.
-// but you end up seeing this as the key.  rather want to see the label
-const prefix_keys = prefix =>
-  map_object((value, key) =>
-    key === "subject" || key === "object" ? `${prefix}${value}` : value
-  );
+const EMPTY_ARRAY = [];
+const DEFAULT_MOVES_FROM = () => EMPTY_ARRAY;
+const DEFAULT_VALUE_OF = () => {};
 
-//////////////////////// for module
-function* pipeline(fns, val) {
-  let acc = val;
-  for (const fn of fns) yield [fn, (acc = fn(acc))];
+function* prime_factors(n) {
+  if (n < 3) return;
+  let count = 0,
+    m = n,
+    i = 2,
+    h = Math.ceil(n / 2);
+  do {
+    while (m % i === 0) {
+      count++;
+      yield i;
+      m /= i;
+    }
+    i++;
+  } while (i <= h);
+  // prime... but there's got to be a better way
+  if (count === 0) yield n;
 }
-function* view_pipeline(input, results) {
-  yield Object.assign(dot.object_graph_to_dot_subgraph([{ input }], options), {
-    id: `cluster_${nextid()}`,
-    attributes: { label: "input" },
-  });
-  for (const [fn, acc] of results) {
-    const id = nextid();
-    const label = fn.name || id;
-    // still using this for now
-    yield Object.assign(dot.object_graph_to_dot_subgraph([acc], options), {
-      id: `cluster_${id}`,
-      attributes: { label },
-    });
+
+function* all_factors(n) {
+  let count = 0,
+    m = n,
+    i = 2,
+    h = Math.ceil(n / 2);
+  do {
+    while (m % i === 0) {
+      count++;
+      // yield [i, n / i];
+      // yield [n / i, i];
+      yield [m, n / m];
+      yield [n / m, m];
+      m /= i;
+    }
+    i++;
+  } while (i <= h);
+  // if (count === 0) yield [n, 1];
+}
+
+const factorize = n => [...prime_factors(n)];
+const all_factorize = n => [...all_factors(n)];
+
+function* traverse1(starts, factor_spec, state) {
+  state = state || {};
+  factor_spec = factor_spec || {};
+  const queue = state.queue || (state.queue = []);
+  const visited = state.visited || (state.visited = new Set());
+  const moves_from = factor_spec.moves_from || DEFAULT_MOVES_FROM;
+  const value_of = factor_spec.value_of || DEFAULT_VALUE_OF;
+  for (const start of starts) queue.push(start);
+
+  while (has_items(queue)) {
+    const subject = queue.pop();
+    // conditional yield?
+    yield { subject, value: value_of(subject) };
+    if (!visited.has(subject))
+      for (const [object, data] of moves_from(subject)) {
+        yield { subject, object, data };
+        queue.push(object);
+      }
+    visited.add(subject);
   }
 }
-/////////////////////
+
+const N = 10000;
+const prime_factor_spec = { moves_from: n => factorize(n).map(n => [n]) };
+const factor_spec = { moves_from: all_factorize };
+
+const traversed = [...traverse1([N], factor_spec)];
+// const constructed = from_facts(tx.map(prefix_keys("NN"), traversed));
+const constructed = from_facts(traversed);
 
 const graph = dot.graph({
-  directed: true,
+  directed: false,
   attributes: {
-    // rankdir: "LR"
+    rankdir: "LR",
+    layout: "circo",
+    // splines: false,
   },
   statements: [
-    ...view_pipeline({ hello: "world" }, [
-      ...pipeline(
-        [
-          function box(value) {
-            return { value };
-          },
-          function enumerate(value) {
-            return Object.entries(value);
-          },
-        ],
-        { hello: "world" }
-      ),
-    ]),
+    {
+      type: "subgraph",
+      node_attributes: { shape: "circle" },
+      statements: [
+        ...dot.statements_from_graph(constructed, {
+          describe_edge: ([, , label]) => label && { label },
+        }),
+      ],
+    },
+
+    // {
+    //   type: "subgraph",
+    //   statements: [
+    //     dot.object_graph_to_dot_subgraph([
+    //       tx.map(prefix_keys("B"), traverse1([N], factor_spec)),
+    //     ]),
+    //   ],
+    // },
+
+    // ...pipeline(32, [all_factorize]),
+
+    // ...pipeline(32, [
+    //   // factorize,
+    //   function traverse(n) {
+    //     return [...traverse1([n], factor_spec)].filter(_ => _.object);
+    //   },
+    //   from_facts,
+    //   function graphviz(graph) {
+    //     return [...dot.statements_from_graph(graph)];
+    //   },
+    // ]),
   ],
 });
+const { inspect } = require("util");
+//console.log(`graph`, inspect(graph, { depth: 8 }));
 
 display(graph);
+
+// from_facts,
+// function box(value) {
+//   return { value };
+// },
+// function enumerate(value) {
+//   return Object.entries(value);
+// },
+// shallow_clone,
+// deep_clone,

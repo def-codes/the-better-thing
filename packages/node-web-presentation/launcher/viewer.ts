@@ -30,7 +30,7 @@ function update() {
   img.style.cssText = "display: block;";
   set_fit();
   img.onclick = () => { fit = !fit; set_fit() };
-  setTimeout(update, 250);
+  setTimeout(update, 1000);
 }
 update();
 </script>
