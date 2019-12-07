@@ -169,7 +169,7 @@ function* serialize_lines(graph: Dot.Graph, options?: Dot.SerializeOptions) {
     "{\n";
 
   yield* serialize_attributes(graph.attributes, "graph");
-
+  yield "node [color=blue]\n";
   yield* serialize_attribute_block(graph.graph_attributes, "graph");
   yield* serialize_attribute_block(graph.node_attributes, "node");
   yield* serialize_attribute_block(graph.edge_attributes, "edge");
