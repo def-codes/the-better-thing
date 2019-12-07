@@ -1,7 +1,7 @@
 const tx = require("@thi.ng/transducers");
 const { Graph, from_facts } = require("@def.codes/graphs");
 const { has_items } = require("@def.codes/helpers");
-const { display } = require("@def.codes/node-web-presentation");
+const { make_display } = require("@def.codes/node-web-presentation");
 const dot = require("@def.codes/graphviz-format");
 const { pipeline } = require("./lib/pipeline");
 const { prefix_keys } = require("./lib/clustering");
@@ -128,7 +128,9 @@ const graph = dot.graph({
 const { inspect } = require("util");
 //console.log(`graph`, inspect(graph, { depth: 8 }));
 
-display(graph);
+console.log(`state`, state);
+
+(state.display || (state.display = make_display())).graph(graph);
 
 // from_facts,
 // function box(value) {

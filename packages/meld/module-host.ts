@@ -3,7 +3,11 @@ import * as vm from "vm";
 import * as rs from "@thi.ng/rstream";
 import { module_graph_watcher } from "./graph-watcher/module-graph-watcher";
 
-export async function module_host(module_name: string, op = "exports") {
+export async function module_host(
+  module_name: string,
+  op = "exports",
+  state: object = {}
+) {
   // const encountered_dependencies = new Set();
   const resolve_options = { paths: [process.cwd()] };
   const module_file = require.resolve(module_name, resolve_options);
@@ -32,7 +36,7 @@ export async function module_host(module_name: string, op = "exports") {
     return vm.runInNewContext(`require("${module_name}")`, vm_context);
   };
 */
-
+  globalThis.state = state;
   // This doesn't *have* to be an egress, but for the moment we're not
   // interested in exports.  That is, it's not a way that the module can use to
   // communicate with the system.  Rather, the module can import interpreters

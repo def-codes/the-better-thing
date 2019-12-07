@@ -1,4 +1,0 @@
-{
-  "extends": "../tsconfig-base",
-  "references": [{ "path": "../node-web-presentation" }]
-}
