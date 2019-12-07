@@ -10,6 +10,8 @@ const { visit_all_factors, visit_prime_factors } = require("./lib/factorize");
 const some_object_graph = {
   something: ["non", "trivial"],
   nested: [4, 5, 6, 3, 5, 9, 888],
+
+  "a set": new Set([{ expository: "dialogue" }]),
   foo: new Map([
     [3, 0],
     [{ blah: "blahhh" }, "BLAH"],

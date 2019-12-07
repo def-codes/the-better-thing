@@ -7,22 +7,29 @@ const html = (ws_port: number) => `<!DOCTYPE html>
 <head><meta charset="utf-8" /><title>polling viewer</title></head>
 <body>
 <script>
-const svg = document.createElement("svg");
-document.body.appendChild(svg);
-let fit = false;
-function update() {
-  const set_fit = () => {
-    svg.style.maxHeight = fit ? "100vh" : "";
-    svg.style.maxWidth = fit ? "100vw" : "";
+const container = document.createElement("div");
+document.body.appendChild(container);
+let fit = true;
+const set_fit = (svg) => {
+  svg.style.maxHeight = fit ? "100vh" : "";
+  svg.style.maxWidth = fit ? "100vw" : "";
+}
+function update(code) {
+  container.innerHTML = code;
+  // TIL https://www.w3.org/TR/selectors-3/#univnmsp
+  const svg = container.querySelector('*|svg');
+  if (svg) {
+    svg.onclick = () => { fit = !fit; set_fit(svg) };
+    // Remove explicit width and height from SVG
+    svg.removeAttribute("width");
+    svg.removeAttribute("height");
+    svg.style.cssText = "display: block;";
+    set_fit(svg);
   }
-  svg.style.cssText = "display: block;";
-  set_fit();
-  svg.innerHTML = "<svg><text>asdf</text></svg>"
-  svg.onclick = () => { fit = !fit; set_fit() };
+}
+function init() {
   const client = new WebSocket("ws://" + window.location.hostname + ":${ws_port}")
-  client.onopen = event => {
-    console.log("open!!", event);
-  };
+  client.onopen = event => console.log("socket connected")
   client.onmessage = event => {
     let message;
     try {
@@ -31,12 +38,10 @@ function update() {
       console.error("Error parsing message JSON", event.data);
       return;
     }
-    if (message.svg) {
-      svg.innerHTML = message.svg
-    }
+    if (message.svg) update(message.svg)
   };
 }
-update();
+init();
 </script>
 </body>
 </html>
