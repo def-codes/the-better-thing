@@ -8,10 +8,28 @@ const { pipeline } = require("./lib/pipeline");
 const { prefix_keys } = require("./lib/clustering");
 const { visit_all_factors, visit_prime_factors } = require("./lib/factorize");
 
+const is_reference_type = x =>
+  x && (typeof x === "object" || typeof x === "function");
+const is_primitive = x => !is_reference_type(x);
+const is_leaf_object = o =>
+  isPlainObject(o) && Object.values(o).every(is_primitive);
+
+const B = {};
+const A = { a: 1, b: B };
+B.A = A;
+const simple_record = { name: "Joe", age: 89, children: ["Hunter", "Bo"] };
+const ac1 = { voltage: 44.4, current: 0.1 };
+const ac2 = { voltage: 39.0, current: 1.1 };
+const nested_dict = { ac1, ac2 };
+const cycle = { B };
+const examples = { simple_record, cycle };
+const subject = cycle; //{ examples };
+
 const some_object_graph = {
+  nested_dict,
   something: ["non", "trivial"],
-  "a record": { name: "flannery", age: 109 },
-  "a record with nesting": {
+  a_record: { name: "flannery", age: 109 },
+  a_record_with_nesting: {
     name: "moishe",
     age: 112,
     children: { jonah: 44, preston: 29 },
@@ -19,8 +37,8 @@ const some_object_graph = {
   nested: [4, 5, 6, 3, 5, 9, 888],
   nested2: [["james", "jimmy"]],
 
-  "a set": new Set([{ expository: "dialogue" }]),
-  foo: new Map([
+  a_set: new Set([{ expository: "dialogue" }]),
+  a_map: new Map([
     [3, 0],
     [{ blah: "blahhh" }, "BLAH"],
   ]),
@@ -71,6 +89,14 @@ const obj_walk_dot_spec = {
         label: value.map((v, i) => [i, v]),
       };
 
+    if (is_leaf_object(value))
+      return {
+        style: "filled",
+        color: "lightblue",
+        shape: "Mrecord",
+        label: Object.entries(value),
+      };
+
     if (isPlainObject(value)) {
       const label = object_record(value);
       console.log(`label`, label);
@@ -102,36 +128,60 @@ const factors = {
   input: N,
 };
 
+const get_it = () => traverse1([subject], walk_object_spec);
+const before_transform = get_it();
+const after_transform = tx.map(x => x, get_it());
+const walker_state = dot.empty_traversal_state();
+const opts = { state: walker_state };
+
+let i = 0;
+
+const old_view = o => ({
+  type: "subgraph",
+  id: `cluster_${i++}`,
+  statements: [dot.object_graph_to_dot_subgraph([o], opts)],
+});
+
+const old_graph = o => ({
+  type: "subgraph",
+  id: `cluster_${i++}`,
+  statements: [
+    dot.object_graph_to_dot_subgraph(
+      [[...tx.map(({ value, ...r }) => r, o)]],
+      opts
+    ),
+  ],
+});
+
 const bundles = [factors, objects];
 const bundle = bundles[1];
 
-const { input, traversal_spec, dot_spec } = bundle;
-const traversed = [...traverse1([input], traversal_spec)];
-// const constructed = from_facts(tx.map(prefix_keys("NN"), traversed));
-const constructed = from_facts(traversed);
+const new_view = bundle => {
+  const { input, traversal_spec, dot_spec } = bundle;
+  const traversed = [...traverse1([input], traversal_spec)];
+  // const constructed = from_facts(tx.map(prefix_keys("NN"), traversed));
+  const constructed = from_facts(traversed);
+
+  return {
+    type: "subgraph",
+    node_attributes: { shape: "circle" },
+    statements: [...dot.statements_from_graph(constructed, dot_spec)],
+  };
+};
 
 const graph = dot.graph({
   directed: true,
   attributes: {
     rankdir: "LR",
+    newrank: true,
     // layout: "circo",
     // splines: false,
   },
   statements: [
-    {
-      type: "subgraph",
-      node_attributes: { shape: "circle" },
-      statements: [...dot.statements_from_graph(constructed, dot_spec)],
-    },
-
-    // {
-    //   type: "subgraph",
-    //   statements: [
-    //     dot.object_graph_to_dot_subgraph([
-    //       tx.map(prefix_keys("B"), traverse1([N], factor_spec)),
-    //     ]),
-    //   ],
-    // },
+    new_view(bundle),
+    // old_view(nested_dict),
+    // old_graph(before_transform),
+    // old_graph(after_transform),
   ],
 });
 const { inspect } = require("util");
