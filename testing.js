@@ -1,4 +1,5 @@
 const tx = require("@thi.ng/transducers");
+const { isPlainObject } = require("@thi.ng/checks");
 const { traverse1 } = require("./lib/traverse");
 const { Graph, from_facts } = require("@def.codes/graphs");
 const { make_display } = require("@def.codes/node-web-presentation");
@@ -9,7 +10,14 @@ const { visit_all_factors, visit_prime_factors } = require("./lib/factorize");
 
 const some_object_graph = {
   something: ["non", "trivial"],
+  "a record": { name: "flannery", age: 109 },
+  "a record with nesting": {
+    name: "moishe",
+    age: 112,
+    children: { jonah: 44, preston: 29 },
+  },
   nested: [4, 5, 6, 3, 5, 9, 888],
+  nested2: [["james", "jimmy"]],
 
   "a set": new Set([{ expository: "dialogue" }]),
   foo: new Map([
@@ -21,28 +29,56 @@ const some_object_graph = {
 // this is a sequence you could iterate through
 const N = 1184;
 
-const make_indexer = () => {
-  const indices = new Map();
-  const index_of = o =>
-    // indices.get(o) ?? indices.set(o, indices.size).size - 1;
-    indices.get(o) || indices.set(o, indices.size).size - 1;
-  return index_of;
-};
+const make_indexer = (indices = new Map()) => o =>
+  indices.get(o) || /* ?? */ indices.set(o, indices.size).size - 1;
 
 const make_walk_object_spec = (id_of = make_indexer()) => ({
   id_of,
   value_of: x => x,
   moves_from: (_, thing) =>
-    tx.map(([key, value]) => [value, key], dot.members_of(thing)),
+    tx.map(
+      ([key, value]) => [value, key],
+      tx.filter(
+        ([, value]) => dot.is_reference_type(value),
+        dot.members_of(thing)
+      )
+    ),
 });
 
 const dot_spec_edge_label = {
   describe_edge: ([, , label]) => label && { label },
 };
 
+// doesn't detect cycles
+const object_record = o =>
+  Object.entries(o).map(([key, value]) => [
+    key,
+    value == null
+      ? ""
+      : isPlainObject(value)
+      ? object_record(value)
+      : dot.is_reference_type(value)
+      ? "(ref)"
+      : value,
+  ]);
+
 const obj_walk_dot_spec = {
   describe_node(id, value) {
-    if (value) return { label: JSON.stringify(value) };
+    if (Array.isArray(value))
+      return {
+        shape: "Mrecord",
+        // style: "filled",
+        label: value.map((v, i) => [i, v]),
+      };
+
+    if (isPlainObject(value)) {
+      const label = object_record(value);
+      console.log(`label`, label);
+
+      return { shape: "Mrecord", label };
+    }
+
+    if (value) return { label: JSON.stringify(value, null, 2) };
   },
   describe_edge([from, to, data]) {
     if (data) return { label: JSON.stringify(data) };
@@ -75,10 +111,10 @@ const traversed = [...traverse1([input], traversal_spec)];
 const constructed = from_facts(traversed);
 
 const graph = dot.graph({
-  directed: false,
+  directed: true,
   attributes: {
     rankdir: "LR",
-    layout: "circo",
+    // layout: "circo",
     // splines: false,
   },
   statements: [
