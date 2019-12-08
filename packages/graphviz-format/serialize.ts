@@ -29,7 +29,7 @@ const escape_field_key = (s: string | number) =>
   escape_field_string(s.toString().replace(FIELD_DISALLOWED, "_"));
 
 const keyed_record_field = (field: Dot.KeyedRecordField) =>
-  (field.key ? `<${escape_field_key(field.key)}> ` : "") +
+  (field.key != null ? `<${escape_field_key(field.key)}> ` : "") +
   field_string(field.value);
 
 /** For labels that are inside of another label, i.e. not the topmost. */
@@ -77,7 +77,7 @@ function* serialize_attributes(
   if (attributes)
     // Ignore null or undefined because it's convenient for conditional expressions
     for (let [key, value] of Object.entries(attributes))
-      if (value != null) yield serialize_attribute(key, value, target) + "\n";
+      if (value != null) yield serialize_attribute(key, value, target) + " ";
 }
 
 function* serialize_attribute_block(
@@ -95,8 +95,8 @@ const serialize_node_id = (id: Dot.NodeId) =>
   typeof id === "string" || typeof id === "number"
     ? quoted_string(id.toString())
     : serialize_node_id(id.id) +
-      (id.port ? ":" + quoted_string(escape_field_key(id.port)) : "") +
-      (id.compass ? ":" + id.compass : "");
+      (id.port == null ? "" : ":" + quoted_string(escape_field_key(id.port))) +
+      (id.compass == null ? "" : ":" + id.compass);
 
 function* serialize_node(node: Dot.Node) {
   yield serialize_node_id(node.id);

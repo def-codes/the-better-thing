@@ -31,6 +31,6 @@ export function* statements_from_graph<ID extends string | number, N, E>(
       type: "edge",
       from: edge[0].toString(),
       to: edge[1].toString(),
-      ...(describe_edge ? describe_edge(edge) : {}),
+      ...(describe_edge ? { attributes: describe_edge(edge) } : {}),
     };
 }

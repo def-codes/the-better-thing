@@ -21,12 +21,19 @@ const simple_record = { name: "Joe", age: 89, children: ["Hunter", "Bo"] };
 const ac1 = { voltage: 44.4, current: 0.1 };
 const ac2 = { voltage: 39.0, current: 1.1 };
 const nested_dict = { ac1, ac2 };
+const array_of_objects = [
+  { name: "Gavin", age: 41 },
+  { name: "Kim", age: 39 },
+  { name: "Aria", age: 9 },
+  { name: "Tremé", age: 7 },
+];
 const cycle = { B };
 const examples = { simple_record, cycle };
 const subject = cycle; //{ examples };
 
 const some_object_graph = {
   nested_dict,
+  array_of_objects,
   something: ["non", "trivial"],
   a_record: { name: "flannery", age: 109 },
   a_record_with_nesting: {
@@ -64,7 +71,7 @@ const make_walk_object_spec = (id_of = make_indexer()) => ({
 });
 
 const dot_spec_edge_label = {
-  describe_edge: ([, , label]) => label && { attributes: { label } },
+  describe_edge: ([, , label]) => label && { label },
 };
 
 // doesn't detect cycles
@@ -86,39 +93,35 @@ const obj_walk_dot_spec = {
     if (Array.isArray(value))
       return {
         shape: "Mrecord",
-        // style: "filled",
-        label: value.map((v, i) => [i, v]),
+        tooltip: id,
+        label: value.map((value, key) => [
+          key,
+          { key, value: is_primitive(value) ? value : "" },
+        ]),
       };
 
-    if (is_leaf_object(value))
+    if (isPlainObject(value))
       return {
-        style: "filled",
-        color: "lightblue",
+        ...(is_leaf_object(value)
+          ? { style: "filled", color: "lightblue" }
+          : {}),
+        tooltip: id,
         shape: "Mrecord",
-        label: Object.entries(value),
+        label: Object.entries(value).map(([key, value]) => [
+          key,
+          { key, value: is_primitive(value) ? value : "" },
+        ]),
       };
-
-    if (isPlainObject(value)) {
-      //const label = object_record(value);
-      const label = Object.entries(value).map(([key, value]) => ({
-        key,
-        value: is_primitive(value) ? value : key, //"" /*"(ref)"*/,
-      }));
-      // console.log(`label`, label);
-      return { shape: "Mrecord", label };
-    }
 
     if (value) return { label: JSON.stringify(value, null, 2) };
   },
   describe_edge([from, to, data]) {
-    console.log(`from, to, data`, from, to, data);
-
-    if (data)
+    if (data != null)
       return {
-        from: { id: from, port: data },
-        to,
-        attributes: { label: "" },
-        // attributes: { label: JSON.stringify(data) },
+        tailport: `${data}:c`,
+        tailclip: false,
+        dir: "both",
+        arrowtail: "dot",
       };
   },
 };
