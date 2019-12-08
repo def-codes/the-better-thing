@@ -16,7 +16,8 @@ export const make_display = () => {
     graph: async (graph: Dot.Graph, trace?: boolean) => {
       const dot = Dot.serialize_dot(graph);
       // viewer.send({ dot });
-      // if (trace) console.log(dot);
+      // if (trace)
+      console.log(dot);
       const result = await dot_to_svg(dot);
       if (result) viewer().send({ svg: result.stdout.toString("utf8") });
     },

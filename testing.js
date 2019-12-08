@@ -64,21 +64,22 @@ const make_walk_object_spec = (id_of = make_indexer()) => ({
 });
 
 const dot_spec_edge_label = {
-  describe_edge: ([, , label]) => label && { label },
+  describe_edge: ([, , label]) => label && { attributes: { label } },
 };
 
 // doesn't detect cycles
 const object_record = o =>
-  Object.entries(o).map(([key, value]) => [
+  Object.entries(o).map(([key, value]) => ({
     key,
-    value == null
-      ? ""
-      : isPlainObject(value)
-      ? object_record(value)
-      : dot.is_reference_type(value)
-      ? "(ref)"
-      : value,
-  ]);
+    value:
+      value == null
+        ? ""
+        : isPlainObject(value)
+        ? object_record(value)
+        : dot.is_reference_type(value)
+        ? "(ref)"
+        : value,
+  }));
 
 const obj_walk_dot_spec = {
   describe_node(id, value) {
@@ -98,16 +99,27 @@ const obj_walk_dot_spec = {
       };
 
     if (isPlainObject(value)) {
-      const label = object_record(value);
-      console.log(`label`, label);
-
+      //const label = object_record(value);
+      const label = Object.entries(value).map(([key, value]) => ({
+        key,
+        value: is_primitive(value) ? value : key, //"" /*"(ref)"*/,
+      }));
+      // console.log(`label`, label);
       return { shape: "Mrecord", label };
     }
 
     if (value) return { label: JSON.stringify(value, null, 2) };
   },
   describe_edge([from, to, data]) {
-    if (data) return { label: JSON.stringify(data) };
+    console.log(`from, to, data`, from, to, data);
+
+    if (data)
+      return {
+        from: { id: from, port: data },
+        to,
+        attributes: { label: "" },
+        // attributes: { label: JSON.stringify(data) },
+      };
   },
 };
 
@@ -130,7 +142,9 @@ const factors = {
 
 const get_it = () => traverse1([subject], walk_object_spec);
 const before_transform = get_it();
-const after_transform = tx.map(x => x, get_it());
+const after_transform = tx.map(_ => {
+  if (_.subect && _.object) return false;
+}, get_it());
 const walker_state = dot.empty_traversal_state();
 const opts = { state: walker_state };
 
@@ -147,7 +161,17 @@ const old_graph = o => ({
   id: `cluster_${i++}`,
   statements: [
     dot.object_graph_to_dot_subgraph(
-      [[...tx.map(({ value, ...r }) => r, o)]],
+      [
+        [
+          ...tx.map(arg => {
+            if (arg) {
+              const { value, ...r } = arg;
+              return 1;
+            }
+            return { arg };
+          }, o),
+        ],
+      ],
       opts
     ),
   ],
@@ -181,7 +205,7 @@ const graph = dot.graph({
     new_view(bundle),
     // old_view(nested_dict),
     // old_graph(before_transform),
-    // old_graph(after_transform),
+    old_graph(after_transform),
   ],
 });
 const { inspect } = require("util");

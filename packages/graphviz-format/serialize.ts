@@ -92,11 +92,11 @@ function* serialize_attribute_block(
 }
 
 const serialize_node_id = (id: Dot.NodeId) =>
-  typeof id === "string"
-    ? quoted_string(id)
-    : `${quoted_string(id.id)}:${quoted_string(escape_field_key(id.port))}${
-        id.compass ? ":" + id.compass : ""
-      }`;
+  typeof id === "string" || typeof id === "number"
+    ? quoted_string(id.toString())
+    : serialize_node_id(id.id) +
+      (id.port ? ":" + quoted_string(escape_field_key(id.port)) : "") +
+      (id.compass ? ":" + id.compass : "");
 
 function* serialize_node(node: Dot.Node) {
   yield serialize_node_id(node.id);

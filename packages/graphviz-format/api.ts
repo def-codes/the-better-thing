@@ -20,7 +20,8 @@ export type CompassPoint =
 
 export type NodeId =
   | string
-  | { id: string; port: string; compass?: CompassPoint };
+  | number
+  | { id: string | number; port?: string; compass?: CompassPoint };
 
 export type Statement = Node | Edge | Subgraph;
 
