@@ -29,7 +29,8 @@ const escape_field_key = (s: string | number) =>
   escape_field_string(s.toString().replace(FIELD_DISALLOWED, "_"));
 
 const keyed_record_field = (field: Dot.KeyedRecordField) =>
-  `<${escape_field_key(field.key)}> ${field_string(field.value)}`;
+  (field.key ? `<${escape_field_key(field.key)}> ` : "") +
+  field_string(field.value);
 
 /** For labels that are inside of another label, i.e. not the topmost. */
 const record_field = (field: Dot.RecordLabel) =>
@@ -63,7 +64,9 @@ const serialize_attribute = (
   // Also, this should only apply to nodes.  But we also don't know what type of
   // element this is for (`context` is only used for general attribute groups.)
   if (key === "label" && typeof value !== "string")
-    item = record_label(value as Dot.RecordLabel);
+    // The variable parts of record labels are escaped individually.  So don't
+    // double escape.
+    return `label="${record_label(value as Dot.RecordLabel)}"`;
   return `${key}=${quoted_string(item.toString())}`;
 };
 
