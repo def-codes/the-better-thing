@@ -41,8 +41,13 @@ export class Graph<ID, N, E> implements IGraph<ID, N, E> {
       yield [object, data] as [ID, E];
   }
 
-  add_node(id: ID, value: N = undefined) {
+  // Also sets value on existing node with no value if one is provided now.
+  add_node(id: ID, value?: N) {
     if (!this._nodes.has(id)) this._nodes.set(id, { value, edges: new Map() });
+    else if (value !== undefined) {
+      const { value: existing, edges } = this._nodes.get(id);
+      if (existing === undefined) this._nodes.set(id, { value, edges });
+    }
   }
 
   // Implicitly adds both source and target nodes if they don't exist.
