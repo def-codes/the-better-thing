@@ -14,6 +14,15 @@ const {
 // this is a sequence you could iterate through
 const N = 1184;
 
+const longest_common_prefix = ([first, ...rest]) => {
+  let i = 0;
+  for (; i < first.length; i++) {
+    const char = first[i];
+    if (!rest.every(s => s[i] === char)) break;
+  }
+  return first.slice(0, i);
+};
+
 const dot_spec_edge_label = {
   describe_edge: ([, , label]) => label && { label },
 };
@@ -39,7 +48,6 @@ const objects = {
     traversal_spec: walk_object_spec,
     dot_spec: object_graph_dot_notation_spec,
   },
-  // now move this to default spec
   input: globalThis, // some_object_graph,
 };
 const factors = {
@@ -48,6 +56,29 @@ const factors = {
     dot_spec: dot_spec_edge_label,
   },
   input: N,
+};
+
+// convert back into (what was probably) the original module id
+const normalize = s => {
+  if (!s.startsWith(prefix)) throw `expected ${s} to start with ${prefix}`;
+  s = s
+    .slice(prefix.length)
+    .replace(/\\/g, "/")
+    .replace(/(^node_modules\/|(\/index)?\.js$)/g, "");
+  if (s.startsWith("@thi.ng")) s = s.replace(/\/lib/, "");
+  return s;
+};
+
+const all_modules = Object.values(require.cache);
+const prefix = longest_common_prefix(Object.keys(require.cache));
+const modules = {
+  traversal_spec: {
+    id_of: mod => normalize(mod.id),
+    value_of: mod => mod,
+    moves_from: (_, mod) => (mod ? mod.children.map(child => [child]) : []),
+  },
+  dot_spec: { describe_node: () => ({ shape: "none" }) },
+  inputs: Object.values(require.cache),
 };
 
 const get_it = () => traverse([some_object_graph.cycle], walk_object_spec);
@@ -87,12 +118,12 @@ const old_graph = o => ({
   ],
 });
 
-const bundles = [factors, objects];
+const bundles = [factors, objects, modules];
 const bundle = bundles[1];
 
 const new_view = bundle => {
-  const { input, traversal_spec, dot_spec } = bundle;
-  const traversed = [...traverse([input], traversal_spec)];
+  const { input, inputs, traversal_spec, dot_spec } = bundle;
+  const traversed = [...traverse(inputs || [input], traversal_spec)];
   // const constructed = from_facts(tx.map(prefix_keys("NN"), traversed));
   const constructed = from_facts(traversed);
 

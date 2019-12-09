@@ -51,17 +51,18 @@ export const object_graph_dot_notation_spec: NotationSpec<
     if (Array.isArray(value))
       return {
         shape: "Mrecord",
-        tooltip: id.toString(),
+        // tooltip: id.toString(),
         label: value.map((value, key) => [
           key,
-          { key, value: is_primitive(value) ? value.toString() : "" },
+          { key, value: is_primitive(value) ? (value || "").toString() : "" },
         ]),
       };
 
     // re globalThis... it has a strange prototype chain involving two
     // plain-looking objects.  But otherwise it is like an object.
     // should be visually distinguished in some way as root---but how?
-    if (isPlainObject(value) || value === globalThis)
+    // if (isPlainObject(value) || value === globalThis)
+    if (value && typeof value === "object")
       return {
         ...(is_leaf_object(value)
           ? { style: "filled", color: "lightblue" }
@@ -70,7 +71,7 @@ export const object_graph_dot_notation_spec: NotationSpec<
         shape: "Mrecord",
         label: Object.entries(value).map(([key, value]) => [
           key,
-          { key, value: is_primitive(value) ? value.toString() : "" },
+          { key, value: is_primitive(value) ? (value || "").toString() : "" },
         ]),
       };
 

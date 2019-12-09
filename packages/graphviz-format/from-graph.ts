@@ -22,7 +22,7 @@ export function* statements_from_graph<ID extends string | number, N, E>(
   for (const [id, value] of graph.nodes_with_data())
     yield {
       type: "node",
-      id: id.toString(),
+      id: (id || "").toString(),
       ...(describe_node ? { attributes: describe_node(id, value) } : {}),
     };
 
