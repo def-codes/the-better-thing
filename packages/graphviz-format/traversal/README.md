@@ -1,6 +1,8 @@
 # Traversals
 
-Maybe a package.  TBD.
+OBE: The actual code here is obsolete and shouldn't be used.  On the general
+idea of search-as-general-problem-solver, some validation has come from reading
+on UPML and its influence MZ.
 
 I'm not sure that this isn't just about coroutines.  Two stateful things driving
 each other.

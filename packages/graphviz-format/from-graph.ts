@@ -5,7 +5,7 @@ import { IGraph } from "@def.codes/graphs";
 // type DotGraph = IGraph<string, Dot.NodeAttributes, Dot.EdgeAttributes>
 
 // How to convert stuff
-interface Spec<ID, N, E> {
+export interface NotationSpec<ID, N, E> {
   // Do we need the id's?  Maybe reverse these
   // provide access to graph generally?
   describe_node(id: ID, value: N): Dot.NodeAttributes | undefined;
@@ -14,7 +14,7 @@ interface Spec<ID, N, E> {
 
 export function* statements_from_graph<ID extends string | number, N, E>(
   graph: IGraph<ID, N, E>,
-  spec?: Partial<Spec<ID, N, E>>
+  spec?: Partial<NotationSpec<ID, N, E>>
 ): IterableIterator<Dot.Statement> {
   const describe_node = spec?.describe_node;
   const describe_edge = spec?.describe_edge;

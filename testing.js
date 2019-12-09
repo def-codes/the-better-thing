@@ -1,17 +1,15 @@
 const tx = require("@thi.ng/transducers");
 const { isPlainObject } = require("@thi.ng/checks");
-const { traverse1 } = require("./lib/traverse");
-const { Graph, from_facts } = require("@def.codes/graphs");
-const { make_display } = require("@def.codes/node-web-presentation");
+const { Graph, from_facts, traverse } = require("@def.codes/graphs");
 const dot = require("@def.codes/graphviz-format");
 const { pipeline } = require("./lib/pipeline");
 const { prefix_keys } = require("./lib/clustering");
 const { visit_all_factors, visit_prime_factors } = require("./lib/factorize");
-const {
-  make_walk_object_spec,
-  obj_walk_dot_spec,
-} = require("./lib/object-graph");
 const { some_object_graph } = require("./lib/test-object-graph");
+const {
+  make_object_graph_traversal_spec,
+  object_graph_dot_notation_spec,
+} = require("@def.codes/node-web-presentation");
 
 // this is a sequence you could iterate through
 const N = 1184;
@@ -34,13 +32,14 @@ const object_record = o =>
         : value,
   }));
 
-const walk_object_spec = make_walk_object_spec();
+const walk_object_spec = make_object_graph_traversal_spec();
 
 const objects = {
   ...{
     traversal_spec: walk_object_spec,
-    dot_spec: obj_walk_dot_spec,
+    dot_spec: object_graph_dot_notation_spec,
   },
+  // now move this to default spec
   input: globalThis, // some_object_graph,
 };
 const factors = {
@@ -51,7 +50,7 @@ const factors = {
   input: N,
 };
 
-const get_it = () => traverse1([some_object_graph.cycle], walk_object_spec);
+const get_it = () => traverse([some_object_graph.cycle], walk_object_spec);
 const before_transform = get_it();
 const after_transform = tx.map(_ => {
   if (_.subect && _.object) return false;
@@ -93,7 +92,7 @@ const bundle = bundles[1];
 
 const new_view = bundle => {
   const { input, traversal_spec, dot_spec } = bundle;
-  const traversed = [...traverse1([input], traversal_spec)];
+  const traversed = [...traverse([input], traversal_spec)];
   // const constructed = from_facts(tx.map(prefix_keys("NN"), traversed));
   const constructed = from_facts(traversed);
 
@@ -113,14 +112,7 @@ const graph = dot.graph({
     // layout: "circo",
     // splines: false,
   },
-  statements: [
-    new_view(bundle),
-    // old_view(nested_dict),
-    // old_graph(before_transform),
-    // old_graph(after_transform),
-  ],
+  statements: [new_view(bundle)],
 });
-const { inspect } = require("util");
-//console.log(`graph`, inspect(graph, { depth: 8 }));
 
-(state.display || (state.display = make_display())).graph(graph);
+display.graph(graph);

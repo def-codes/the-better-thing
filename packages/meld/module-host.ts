@@ -2,12 +2,19 @@ import * as fs from "fs";
 import * as vm from "vm";
 import * as rs from "@thi.ng/rstream";
 import { module_graph_watcher } from "./graph-watcher/module-graph-watcher";
+import { make_display } from "@def.codes/node-web-presentation";
 
 export async function module_host(
   module_name: string,
   op = "exports",
   state: object = {}
 ) {
+  // transitional
+  const display = make_display();
+
+  // Not sure about including reference to state, just playing around
+  const meld = { hosted_module: { name: module_name, state } };
+
   // const encountered_dependencies = new Set();
   const resolve_options = { paths: [process.cwd()] };
   const module_file = require.resolve(module_name, resolve_options);
@@ -35,8 +42,9 @@ export async function module_host(
   const fake_require = (_id: string) => {
     return vm.runInNewContext(`require("${module_name}")`, vm_context);
   };
-*/
-  globalThis.state = state;
+  */
+  Object.assign(globalThis, { state, display, meld });
+
   // This doesn't *have* to be an egress, but for the moment we're not
   // interested in exports.  That is, it's not a way that the module can use to
   // communicate with the system.  Rather, the module can import interpreters
