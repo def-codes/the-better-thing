@@ -115,4 +115,4 @@ const graph = dot.graph({
   statements: [new_view(bundle)],
 });
 
-display.graph(graph);
+exports.display = { graph };

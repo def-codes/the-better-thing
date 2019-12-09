@@ -18,8 +18,8 @@ export interface TraversalState<ID, N> {
 
 export function* traverse<ID, N, E>(
   starts: Iterable<N>,
-  spec: Partial<TraversalSpec<ID, N, E>>,
-  state: Partial<TraversalState<ID, N>>
+  spec?: Partial<TraversalSpec<ID, N, E>>,
+  state?: Partial<TraversalState<ID, N>>
 ): IterableIterator<GraphFact<ID, N, E>> {
   const queue = state?.queue ?? [];
   const visited = state?.visited ?? new Set();

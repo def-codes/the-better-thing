@@ -3,6 +3,7 @@ import * as vm from "vm";
 import * as rs from "@thi.ng/rstream";
 import { module_graph_watcher } from "./graph-watcher/module-graph-watcher";
 import { make_display } from "@def.codes/node-web-presentation";
+import { default_thing } from "./default-thing";
 
 export async function module_host(
   module_name: string,
@@ -54,6 +55,16 @@ export async function module_host(
     try {
       // exported = fake_require(module_name);
       exported = require(module_file);
+      if (exported && Object.keys(exported).length) {
+        for (const [key, value] of Object.entries(exported)) {
+          const thing = globalThis[key];
+          if (thing)
+            for (const [method, arg] of Object.entries(value))
+              if (typeof thing[method] === "function") thing[method](arg);
+        }
+      } else {
+        default_thing(display);
+      }
     } catch (error) {
       console.log(`error`, error);
 
