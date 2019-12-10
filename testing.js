@@ -48,7 +48,7 @@ const objects = {
     traversal_spec: walk_object_spec,
     dot_spec: object_graph_dot_notation_spec,
   },
-  input: globalThis, // some_object_graph,
+  input: some_object_graph,
 };
 const factors = {
   ...{

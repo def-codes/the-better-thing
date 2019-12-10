@@ -103,19 +103,27 @@ function* serialize_node(node: Dot.Node) {
   yield* serialize_attribute_block(node.attributes);
 }
 
+// Serialize parts common to graph and subgraph
+function* serialize_graph_common(
+  graph: Dot.GraphBase,
+  options?: Dot.SerializeOptions
+) {
+  yield* serialize_attributes(graph.attributes);
+  yield* serialize_attribute_block(graph.graph_attributes, "graph");
+  yield "\n";
+  yield* serialize_attribute_block(graph.node_attributes, "node");
+  yield "\n";
+  yield* serialize_attribute_block(graph.edge_attributes, "edge");
+  yield "\n";
+  yield* serialize_statements(graph.statements, options);
+}
+
 function* serialize_subgraph(
   subgraph: Dot.Subgraph,
   options?: Dot.SerializeOptions
 ): IterableIterator<string> {
   yield "subgraph " + (subgraph.id ? '"' + subgraph.id + '" ' : "") + "{\n";
-  yield* serialize_attributes(subgraph.attributes);
-
-  // This is now fairly duplicative with graph serialize
-  yield* serialize_attribute_block(subgraph.graph_attributes, "graph");
-  yield* serialize_attribute_block(subgraph.node_attributes, "node");
-  yield* serialize_attribute_block(subgraph.edge_attributes, "edge");
-
-  yield* serialize_statements(subgraph.statements, options);
+  yield* serialize_graph_common(subgraph, options);
   yield "}";
 }
 
@@ -141,19 +149,18 @@ function* serialize_statement(
   switch (statement.type) {
     case "node":
       yield* serialize_node(statement);
-      yield "\n";
-      return;
+      break;
     case "edge":
       yield* serialize_edge(statement, options);
-      yield "\n";
-      return;
+      break;
     case "subgraph":
       yield* serialize_subgraph(statement, options);
-      yield "\n";
-      return;
+      break;
+    default:
+      assert_unreachable(statement, "dot statement");
   }
 
-  assert_unreachable(statement, "dot statement");
+  yield "\n";
 }
 
 function* serialize_statements(
@@ -165,18 +172,12 @@ function* serialize_statements(
       yield* serialize_statement(statement, options);
 }
 
-function* serialize_lines(graph: Dot.Graph, options?: Dot.SerializeOptions) {
+function* serialize_graph(graph: Dot.Graph, options?: Dot.SerializeOptions) {
   yield (graph.strict ? "strict " : "") +
     (graph.directed ? "digraph " : "graph ") +
     (graph.id ? graph.id + " " : "") +
     "{\n";
-
-  yield* serialize_attributes(graph.attributes, "graph");
-  yield* serialize_attribute_block(graph.graph_attributes, "graph");
-  yield* serialize_attribute_block(graph.node_attributes, "node");
-  yield* serialize_attribute_block(graph.edge_attributes, "edge");
-
-  yield* serialize_statements(graph.statements, options);
+  yield* serialize_graph_common(graph, options);
   yield "}";
 }
 
@@ -185,5 +186,5 @@ export const serialize_dot = (
   options?: Dot.SerializeOptions
 ) =>
   Array.from(
-    serialize_lines(graph, { directed: graph.directed, ...options })
+    serialize_graph(graph, { directed: graph.directed, ...options })
   ).join("");
