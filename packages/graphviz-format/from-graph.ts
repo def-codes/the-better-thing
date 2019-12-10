@@ -1,5 +1,6 @@
 import * as Dot from "./api";
-import { IGraph } from "@def.codes/graphs";
+import * as tx from "@thi.ng/transducers";
+import { IGraph, GraphFact, is_link } from "@def.codes/graphs";
 
 // Cool but that's not what we're doing.  also, doesn't capture graph/subgraph
 // type DotGraph = IGraph<string, Dot.NodeAttributes, Dot.EdgeAttributes>
@@ -12,6 +13,8 @@ export interface NotationSpec<ID, N, E> {
   describe_edge(edge: [ID, ID, E]): Dot.EdgeAttributes | undefined;
 }
 
+// See below... this could now be expressed in terms of below (though with
+// additional indirection)
 export function* statements_from_graph<ID extends string | number, N, E>(
   graph: IGraph<ID, N, E>,
   spec?: Partial<NotationSpec<ID, N, E>>
@@ -34,3 +37,31 @@ export function* statements_from_graph<ID extends string | number, N, E>(
       ...(describe_edge ? { attributes: describe_edge(edge) } : {}),
     };
 }
+
+const to_dot_mapping = <ID, N, E>(
+  spec?: Partial<NotationSpec<ID, N, E>>
+): ((fact: GraphFact<ID, N, E>) => Dot.Statement) => {
+  const node = spec?.describe_node;
+  const edge = spec?.describe_edge;
+
+  return the =>
+    is_link(the)
+      ? {
+          type: "edge",
+          from: the.subject.toString(),
+          to: the.object.toString(),
+          ...(edge
+            ? { attributes: edge([the.subject, the.object, the.data]) }
+            : {}),
+        }
+      : {
+          type: "node",
+          id: the.subject.toString(),
+          ...(node ? { attributes: node(the.subject, the.value) } : {}),
+        };
+};
+
+export const statements_from_traversal = <ID extends string | number, N, E>(
+  items: Iterable<GraphFact<ID, N, E>>,
+  spec?: Partial<NotationSpec<ID, N, E>>
+): IterableIterator<Dot.Statement> => tx.map(to_dot_mapping(spec), items);

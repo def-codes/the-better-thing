@@ -180,65 +180,118 @@ const graph = (function() {
       attributes: { ...attributes, color: "yellow" },
     }));
 
+  // move to package
   const traversal_spec_from_graph = graph => ({
     value_of: id => graph.get_node(id),
     moves_from: id => graph.edges_from(id),
   });
 
-  const reachable_from = n =>
+  // relies on intermediate graph construction
+  const reachable_from_0 = n =>
     dot.statements_from_graph(
       from_facts(traverse([n], traversal_spec_from_graph(constructed)))
     );
+
+  const facts_reachable_from = (graph, n) =>
+    traverse([n], traversal_spec_from_graph(graph));
+
+  const ids_reachable_from = (graph, n) =>
+    tx.map(_ => _.subject, traverse([n], traversal_spec_from_graph(graph)));
+
+  const graph_reachable_from = (graph, n, spec) =>
+    dot.statements_from_traversal(facts_reachable_from(graph, n), spec);
 
   // const new_trav = [...traverse([2], traversal_spec_from_graph(constructed))];
 
   const reachable_from_1 = tx.map(
     // identity,
     _ => ({ ..._, attributes: { color: "red" } }),
-    reachable_from(4)
+    graph_reachable_from(constructed, 4)
   );
 
-  const reachable_from_2 = reachable_from(2);
+  const reachable_from_2 = graph_reachable_from(constructed, 2);
 
-  const matching_predicate = (pred, attributes) =>
+  const select_matching_value = (facts, predicate) =>
+    tx.filter(_ => _.object == null && predicate(_.value), facts);
+
+  const select_ids_matching_value = (facts, predicate) =>
+    tx.map(_ => _.subject, select_matching_value(facts, predicate));
+
+  const mark_matching_value = (facts, predicate, attributes) =>
     tx.map(
       _ => ({ ..._, attributes }),
       dot.statements_from_graph(
-        from_facts(traversed.filter(_ => pred(_.value)))
+        from_facts(select_matching_value(facts, predicate, attributes))
       )
     );
 
-  const matching = matching_predicate(
-    [Array.isArray, x => x && Object.keys(x).length > 3][1],
+  // based on facts... why not use graph directly?
+  const outbound_edges_from_all = (facts, ids) =>
+    tx.filter(_ => _.object != null && ids.includes(_.subject), facts);
+
+  // creates intermediate graph... but this creates nodes based on edges, which
+  // is unwanted here
+  const mark_edges_0 = (facts, attributes) =>
+    tx.map(
+      _ => ({ ..._, attributes }),
+      dot.statements_from_graph(from_facts(facts))
+    );
+
+  const mark_edges = (facts, attributes) =>
+    dot.statements_from_traversal(facts, { describe_edge: () => attributes });
+
+  // const outs = outbound_edges_from_all(traversed, [2]);
+  const outs = outbound_edges_from_all(traversed, [
+    //...select_ids_matching_value(traversed, x => !Array.isArray(x)),
+    ...ids_reachable_from(constructed, 16),
+    ...ids_reachable_from(constructed, 17),
+  ]);
+  const marked_edges = mark_edges(outs, {
+    constraint: false,
+    penwidth: 2,
+    color: "blue",
+  });
+
+  const marked_arrays = mark_matching_value(
+    traversed,
+    [
+      x => false,
+      Array.isArray,
+      x => !Array.isArray(x),
+      x => x && Object.keys(x).length > 4,
+    ][1],
     {
       // shape: "none",
       // label: "",
-      color: "#AA0000",
+      color: "#DD0000",
       style: "filled",
       // fontcolor: "white",
     }
   );
 
   const more_statements = [
+    ...marked_arrays,
+    ...marked_edges,
     {
       type: "subgraph",
       id: "cluster input",
       attributes: { label: "input" },
       // this doesn't work
       // node_attributes: { color: "red" },
-      statements: reachable_from(2),
+      statements: graph_reachable_from(constructed, 2),
     },
     {
       type: "subgraph",
       id: "cluster output",
       attributes: { label: "output" },
-      statements: reachable_from(4),
+      statements: graph_reachable_from(constructed, 4),
     },
   ];
 
   return dot.graph({
-    strict: true, // because I'm doubling everything up there
+    strict: true, // because I'm doubling some edges to create clusters
     directed: true,
+    // edge_attributes: { constraint: false },
     attributes: {
       titie: "wuuuut", // title in svg is instead %3 for some reason
       // rankdir: "LR",
