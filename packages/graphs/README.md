@@ -14,6 +14,30 @@ This package is about graphs and traversals
 - facilities for lifting in-memory object graphs into portable representations
 - PROVISIONAL: coroutine specs for dynamic traversals (searches)
 
+## Concepts
+
+### Fact (traversal item)
+
+### Graph
+
+### Root nodes and start nodes
+
+A *start node* is an entrypoint given to a traversal.
+
+A *root node* is a node in a directed graph that has no inbound links.
+
+Nodes encountered during a traversal will by definition not be root nodes,
+assuming that movement occurs along edges.
+
+A start node is not necessarily a root node, since the traversal may encounter
+an edge pointing to it.
+
+In an acyclic graph, a start node will also be a root node.
+
+
+
+
+
 ## Decision log
 
 ### Support graph interfaces with non-primitive ID's?

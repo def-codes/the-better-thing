@@ -1,7 +1,7 @@
 const tx = require("@thi.ng/transducers");
 const diff = require("@thi.ng/diff");
 const { isPlainObject } = require("@thi.ng/checks");
-const { Graph, from_facts, traverse } = require("@def.codes/graphs");
+const { Graph, from_facts, traverse, roots } = require("@def.codes/graphs");
 const dot = require("@def.codes/graphviz-format");
 const { pipeline } = require("./lib/pipeline");
 const { prefix_keys } = require("./lib/clustering");
@@ -186,12 +186,6 @@ const graph = (function() {
     moves_from: id => graph.edges_from(id),
   });
 
-  // relies on intermediate graph construction
-  const reachable_from_0 = n =>
-    dot.statements_from_graph(
-      from_facts(traverse([n], traversal_spec_from_graph(constructed)))
-    );
-
   const facts_reachable_from = (graph, n) =>
     traverse([n], traversal_spec_from_graph(graph));
 
@@ -201,23 +195,14 @@ const graph = (function() {
   const graph_reachable_from = (graph, n, spec) =>
     dot.statements_from_traversal(facts_reachable_from(graph, n), spec);
 
-  // const new_trav = [...traverse([2], traversal_spec_from_graph(constructed))];
-
-  const reachable_from_1 = tx.map(
-    // identity,
-    _ => ({ ..._, attributes: { color: "red" } }),
-    graph_reachable_from(constructed, 4)
-  );
-
-  const reachable_from_2 = graph_reachable_from(constructed, 2);
-
   const select_matching_value = (facts, predicate) =>
     tx.filter(_ => _.object == null && predicate(_.value), facts);
 
   const select_ids_matching_value = (facts, predicate) =>
     tx.map(_ => _.subject, select_matching_value(facts, predicate));
 
-  const mark_matching_value = (facts, predicate, attributes) =>
+  // constructs intermediate graph
+  const mark_matching_value_0 = (facts, predicate, attributes) =>
     tx.map(
       _ => ({ ..._, attributes }),
       dot.statements_from_graph(
@@ -225,17 +210,20 @@ const graph = (function() {
       )
     );
 
-  // based on facts... why not use graph directly?
+  // if you're applying the same attributes to all nodes, you could also use a
+  // cluster with node_attributes.
+  const mark_matching_value = (facts, predicate, attributes) =>
+    dot.statements_from_traversal(
+      select_matching_value(facts, predicate, attributes),
+      { describe_node: () => attributes }
+    );
+
+  // based on facts; could also use graph directly
   const outbound_edges_from_all = (facts, ids) =>
     tx.filter(_ => _.object != null && ids.includes(_.subject), facts);
 
-  // creates intermediate graph... but this creates nodes based on edges, which
-  // is unwanted here
-  const mark_edges_0 = (facts, attributes) =>
-    tx.map(
-      _ => ({ ..._, attributes }),
-      dot.statements_from_graph(from_facts(facts))
-    );
+  const mark_nodes_by_id = (ids, attributes) =>
+    tx.map(id => ({ type: "node", id, attributes }), ids);
 
   const mark_edges = (facts, attributes) =>
     dot.statements_from_traversal(facts, { describe_edge: () => attributes });
@@ -246,11 +234,8 @@ const graph = (function() {
     ...ids_reachable_from(constructed, 16),
     ...ids_reachable_from(constructed, 17),
   ]);
-  const marked_edges = mark_edges(outs, {
-    constraint: false,
-    penwidth: 2,
-    color: "blue",
-  });
+
+  const marked_edges = mark_edges(outs, { constraint: false, color: "gray" });
 
   const marked_arrays = mark_matching_value(
     traversed,
@@ -268,9 +253,27 @@ const graph = (function() {
       // fontcolor: "white",
     }
   );
+  /*
+    This kind of extension doesn't work.  It does emit something like
+
+    subgraph { node [color="red"] "0" }
+
+    But that has no effect if `0` was defined previously.
+*/
+  /*
+  const marked_roots = [
+    {
+      type: "subgraph",
+      node_attributes: { color: "red" },
+      statements: tx.map(id => ({ type: "node", id }), roots(constructed)),
+    },
+  ];
+*/
+
+  const marked_roots = mark_nodes_by_id(roots(constructed), { color: "red" });
 
   const more_statements = [
-    ...marked_arrays,
+    // ...marked_arrays,
     ...marked_edges,
     {
       type: "subgraph",
@@ -278,7 +281,9 @@ const graph = (function() {
       attributes: { label: "input" },
       // this doesn't work
       // node_attributes: { color: "red" },
-      statements: graph_reachable_from(constructed, 2),
+      statements: graph_reachable_from(constructed, 2, {
+        // describe_edge: () => ({ color: "purple" }),
+      }),
     },
     {
       type: "subgraph",
@@ -286,6 +291,7 @@ const graph = (function() {
       attributes: { label: "output" },
       statements: graph_reachable_from(constructed, 4),
     },
+    ...marked_roots,
   ];
 
   return dot.graph({
