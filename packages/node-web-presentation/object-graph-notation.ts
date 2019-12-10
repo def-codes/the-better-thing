@@ -46,11 +46,11 @@ export const object_graph_dot_notation_spec: NotationSpec<
 > = {
   describe_node(id, value) {
     if (typeof value === "function")
-      return { shape: "none", label: get_function_name(value) };
+      return { shape: "box3d", label: get_function_name(value) };
 
     if (Array.isArray(value))
       return {
-        shape: "Mrecord",
+        shape: "record",
         // tooltip: id.toString(),
         label: value.map((value, key) => [
           key,
@@ -64,11 +64,11 @@ export const object_graph_dot_notation_spec: NotationSpec<
     // if (isPlainObject(value) || value === globalThis)
     if (value && typeof value === "object")
       return {
+        tooltip: id.toString(),
+        shape: "record",
         ...(is_leaf_object(value)
           ? { style: "filled", color: "lightblue" }
           : {}),
-        tooltip: id.toString(),
-        shape: "Mrecord",
         label: Object.entries(value).map(([key, value]) => [
           key,
           { key, value: is_primitive(value) ? (value || "").toString() : "" },
@@ -80,10 +80,11 @@ export const object_graph_dot_notation_spec: NotationSpec<
   describe_edge([, , data]) {
     if (data != null)
       return {
-        tailport: `${data}:c`,
+        // This might be set graph-wide, or perhaps in a subgraph for pointers
         tailclip: false,
         dir: "both",
         arrowtail: "dot",
+        tailport: `${data}:c`,
       };
   },
 };
