@@ -1,7 +1,14 @@
 const tx = require("@thi.ng/transducers");
 const diff = require("@thi.ng/diff");
 const { isPlainObject } = require("@thi.ng/checks");
-const { Graph, from_facts, traverse, roots } = require("@def.codes/graphs");
+const {
+  Graph,
+  from_facts,
+  traverse,
+  roots,
+  follow_path,
+  step,
+} = require("@def.codes/graphs");
 const dot = require("@def.codes/graphviz-format");
 const { pipeline } = require("./lib/pipeline");
 const { prefix_keys } = require("./lib/clustering");
@@ -268,7 +275,43 @@ const graph = (function() {
       statements: tx.map(id => ({ type: "node", id }), roots(constructed)),
     },
   ];
-*/
+  */
+
+  // test path
+  // works but can't drill into records
+  // would need html labels to support that
+  const step1 = key => step(data => data === key);
+  const path_predicates = keys => keys.map(step1);
+  // const predicates = path_predicates([0, "input", 1, 2, 1, 1]);
+  const predicates = path_predicates([0, "output", "linear", 8, 1]);
+  console.log(`predicates`, predicates);
+
+  const path1 = [...follow_path(constructed, 0, predicates)];
+  console.log(`path1`, path1);
+  // mark_nodes_by_id
+  const mark_path = (start, tuples, attributes) => mark_edges(attributes);
+  // mark_path(0, path1.map)
+  const path_ids = [0, ...tx.map(([id]) => id, path1)];
+  console.log(`path_ids`, path_ids);
+
+  const marked_end_of_path = {
+    type: "node",
+    id: path_ids[path_ids.length - 1],
+    attributes: { style: "filled", color: "orange" },
+  };
+
+  const partitioned = [...tx.partition(2, 1, path_ids)];
+  console.log(`partitioned`, partitioned);
+  const pairs = [
+    ...tx.map(([subject, object]) => ({ subject, object }), partitioned),
+  ];
+
+  const marked_path_segments = mark_edges(pairs, {
+    penwidth: 5,
+    color: "orange",
+  });
+
+  const marked_path = [...marked_path_segments, marked_end_of_path];
 
   const marked_roots = mark_nodes_by_id(roots(constructed), { color: "red" });
 
@@ -292,6 +335,7 @@ const graph = (function() {
       statements: graph_reachable_from(constructed, 4),
     },
     ...marked_roots,
+    ...marked_path,
   ];
 
   return dot.graph({

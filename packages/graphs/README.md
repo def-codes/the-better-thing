@@ -35,7 +35,18 @@ an edge pointing to it.
 In an acyclic graph, a start node will also be a root node.
 
 
+### Paths
 
+A path is a vector of moves through a state space.
+
+Paths can be defined as a sequence of node ids.
+
+In some traversals, it may be more significant to focus on “which move” was made
+from each state.  Such a path may be a vector of information whose meaning
+depends on the context in which it's made.
+
+For example, a path query in SPARQL can be expressed as a a sequence of property
+identifiers.  This sequence can be resolved against the node.
 
 
 ## Decision log

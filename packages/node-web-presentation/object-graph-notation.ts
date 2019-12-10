@@ -45,6 +45,8 @@ export const object_graph_dot_notation_spec: NotationSpec<
   string | number
 > = {
   describe_node(id, value) {
+    if (value === null) return { label: "∅" };
+    if (value === undefined) return { label: "⊥" };
     if (typeof value === "function")
       return { shape: "box3d", label: get_function_name(value) };
 

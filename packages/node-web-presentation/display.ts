@@ -62,7 +62,7 @@ export const make_display = () => {
       const dot = Dot.serialize_dot(graph);
       // viewer.send({ dot });
       // if (trace)
-      console.log(dot);
+      // console.log(dot);
       const result = await dot_to_svg(dot);
       if (result) viewer().send({ svg: result.stdout.toString("utf8") });
     },
