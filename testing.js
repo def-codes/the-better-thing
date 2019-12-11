@@ -18,6 +18,14 @@ const {
   make_object_graph_traversal_spec,
   object_graph_dot_notation_spec,
 } = require("@def.codes/node-web-presentation");
+const {
+  select_matching_value,
+  facts_reachable_from,
+  ids_reachable_from,
+  outbound_edges_from_all,
+} = require("./lib/selection");
+const { mark_edges, mark_nodes_by_id } = require("./lib/marking");
+const { mark_path } = require("./lib/path-marking");
 
 // this is a sequence you could iterate through
 const N = 1184;
@@ -187,28 +195,8 @@ const graph = (function() {
       attributes: { ...attributes, color: "yellow" },
     }));
 
-  // move to package
-  const traversal_spec_from_graph = graph => ({
-    value_of: id => graph.get_node(id),
-    moves_from: id => graph.edges_from(id),
-  });
-
-  const facts_reachable_from = (graph, n) =>
-    traverse([n], traversal_spec_from_graph(graph));
-
-  const ids_reachable_from = (graph, n) =>
-    tx.map(_ => _.subject, traverse([n], traversal_spec_from_graph(graph)));
-
-  const graph_reachable_from = (graph, n, spec) =>
-    dot.statements_from_traversal(facts_reachable_from(graph, n), spec);
-
-  const select_matching_value = (facts, predicate) =>
-    tx.filter(_ => _.object == null && predicate(_.value), facts);
-
-  const select_ids_matching_value = (facts, predicate) =>
-    tx.map(_ => _.subject, select_matching_value(facts, predicate));
-
   // constructs intermediate graph
+  /*
   const mark_matching_value_0 = (facts, predicate, attributes) =>
     tx.map(
       _ => ({ ..._, attributes }),
@@ -216,6 +204,10 @@ const graph = (function() {
         from_facts(select_matching_value(facts, predicate, attributes))
       )
     );
+  */
+
+  const graph_reachable_from = (graph, ids, spec) =>
+    dot.statements_from_traversal(facts_reachable_from(graph, ids), spec);
 
   // if you're applying the same attributes to all nodes, you could also use a
   // cluster with node_attributes.
@@ -225,19 +217,9 @@ const graph = (function() {
       { describe_node: () => attributes }
     );
 
-  // based on facts; could also use graph directly
-  const outbound_edges_from_all = (facts, ids) =>
-    tx.filter(_ => _.object != null && ids.includes(_.subject), facts);
-
-  const mark_nodes_by_id = (ids, attributes) =>
-    tx.map(id => ({ type: "node", id, attributes }), ids);
-
-  const mark_edges = (facts, attributes) =>
-    dot.statements_from_traversal(facts, { describe_edge: () => attributes });
-
   // const outs = outbound_edges_from_all(traversed, [2]);
   const outs = outbound_edges_from_all(traversed, [
-    //...select_ids_matching_value(traversed, x => !Array.isArray(x)),
+    // ...select_ids_matching_value(traversed, x => !Array.isArray(x)),
     ...ids_reachable_from(constructed, 16),
     ...ids_reachable_from(constructed, 17),
   ]);
@@ -252,13 +234,7 @@ const graph = (function() {
       x => !Array.isArray(x),
       x => x && Object.keys(x).length > 4,
     ][1],
-    {
-      // shape: "none",
-      // label: "",
-      color: "#DD0000",
-      style: "filled",
-      // fontcolor: "white",
-    }
+    { color: "#DD0000", style: "filled" }
   );
   /*
     This kind of extension doesn't work.  It does emit something like
@@ -266,8 +242,6 @@ const graph = (function() {
     subgraph { node [color="red"] "0" }
 
     But that has no effect if `0` was defined previously.
-*/
-  /*
   const marked_roots = [
     {
       type: "subgraph",
@@ -277,42 +251,14 @@ const graph = (function() {
   ];
   */
 
-  // test path
-  // works but can't drill into records
-  // would need html labels to support that
-  const step1 = key => step(data => data === key);
-  const path_predicates = keys => keys.map(step1);
-  // const predicates = path_predicates([0, "input", 1, 2, 1, 1]);
-  const predicates = path_predicates([0, "output", "linear", 8, 1]);
-  console.log(`predicates`, predicates);
-
-  const path1 = [...follow_path(constructed, 0, predicates)];
-  console.log(`path1`, path1);
-  // mark_nodes_by_id
-  const mark_path = (start, tuples, attributes) => mark_edges(attributes);
-  // mark_path(0, path1.map)
-  const path_ids = [0, ...tx.map(([id]) => id, path1)];
-  console.log(`path_ids`, path_ids);
-
-  const marked_end_of_path = {
-    type: "node",
-    id: path_ids[path_ids.length - 1],
-    attributes: { style: "filled", color: "orange" },
-  };
-
-  const partitioned = [...tx.partition(2, 1, path_ids)];
-  console.log(`partitioned`, partitioned);
-  const pairs = [
-    ...tx.map(([subject, object]) => ({ subject, object }), partitioned),
-  ];
-
-  const marked_path_segments = mark_edges(pairs, {
-    penwidth: 5,
-    color: "orange",
+  const marked_path = mark_path({
+    graph: constructed,
+    start: 0,
+    // path: [0, "output", "linear", 8, 1],
+    path: [0, "input", 1, 1],
+    edge_marking: { penwidth: 5, color: "orange" },
+    node_marking: { style: "filled", color: "orange" },
   });
-
-  const marked_path = [...marked_path_segments, marked_end_of_path];
-
   const marked_roots = mark_nodes_by_id(roots(constructed), { color: "red" });
 
   const more_statements = [
@@ -324,7 +270,7 @@ const graph = (function() {
       attributes: { label: "input" },
       // this doesn't work
       // node_attributes: { color: "red" },
-      statements: graph_reachable_from(constructed, 2, {
+      statements: graph_reachable_from(constructed, [2], {
         // describe_edge: () => ({ color: "purple" }),
       }),
     },
@@ -332,7 +278,7 @@ const graph = (function() {
       type: "subgraph",
       id: "cluster output",
       attributes: { label: "output" },
-      statements: graph_reachable_from(constructed, 4),
+      statements: graph_reachable_from(constructed, [4]),
     },
     ...marked_roots,
     ...marked_path,
