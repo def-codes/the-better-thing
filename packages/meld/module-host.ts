@@ -11,7 +11,9 @@ export async function module_host(
   state: object = {}
 ) {
   // transitional
-  const display = make_display();
+  const display = Object.assign(make_display(), {
+    thing: (thing: any) => default_thing(display, thing),
+  });
 
   // Not sure about including reference to state, just playing around
   const meld = { hosted_module: { name: module_name, state } };
