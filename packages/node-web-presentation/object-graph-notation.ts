@@ -6,6 +6,7 @@ import { isPlainObject } from "@thi.ng/checks";
 import { TraversalSpec } from "@def.codes/graphs";
 
 type Primitive = boolean | number | string | symbol | bigint;
+type Basic = undefined | null | Primitive;
 
 const identity = <T>(x: T): T => x;
 
@@ -14,6 +15,7 @@ const is_reference_type = (x: any): x is object =>
 
 const is_primitive = (x: any): x is Primitive => !is_reference_type(x);
 
+// This could apply to arrays, too
 const is_leaf_object = (o: any) =>
   isPlainObject(o) && Object.values(o).every(is_primitive);
 
@@ -39,25 +41,38 @@ export const make_object_graph_traversal_spec = (
     ),
 });
 
+const serialize_basic = (x: Basic): string => {
+  if (x === null) return "∅";
+  if (x === undefined) return "⊥";
+  return x.toString();
+};
+
+const is_basic = (x: any): x is Basic => x == null || is_primitive(x);
+
+const record_label = (x: object) =>
+  Object.entries(x).map(([key, value]) => [
+    key,
+    { key, value: is_basic(value) ? serialize_basic(value) : "{ }" },
+  ]);
+
 export const object_graph_dot_notation_spec: NotationSpec<
   number,
   any,
   string | number
 > = {
   describe_node(id, value) {
-    if (value === null) return { label: "∅" };
-    if (value === undefined) return { label: "⊥" };
+    if (is_basic(value)) return { label: serialize_basic(value) };
+
     if (typeof value === "function")
       return { shape: "box3d", label: get_function_name(value) };
 
     if (Array.isArray(value))
       return {
         shape: "record",
-        // tooltip: id.toString(),
-        label: value.map((value, key) => [
-          key,
-          { key, value: is_primitive(value) ? (value || "").toString() : "" },
-        ]),
+        // using `entries` for arrays means (1) indices come across as strings
+        // (2) any additional own props are included
+        label: record_label(value),
+        tooltip: id.toString(),
       };
 
     // re globalThis... it has a strange prototype chain involving two
@@ -66,15 +81,13 @@ export const object_graph_dot_notation_spec: NotationSpec<
     // if (isPlainObject(value) || value === globalThis)
     if (value && typeof value === "object")
       return {
-        tooltip: id.toString(),
         shape: "record",
+        label: record_label(value),
+        tooltip: id.toString(),
+        // could apply to arrays also... in which case obj and array would be same
         ...(is_leaf_object(value)
           ? { style: "filled", color: "lightblue" }
           : {}),
-        label: Object.entries(value).map(([key, value]) => [
-          key,
-          { key, value: is_primitive(value) ? (value || "").toString() : "" },
-        ]),
       };
 
     if (value) return { label: typeof value + " other??" };
