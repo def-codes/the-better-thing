@@ -44,6 +44,8 @@ export const make_object_graph_traversal_spec = (
 const serialize_basic = (x: Basic): string => {
   if (x === null) return "∅";
   if (x === undefined) return "⊥";
+  // Distinguish strings from stringified values
+  if (typeof x === "string") return `‘${x}’`;
   return x.toString();
 };
 

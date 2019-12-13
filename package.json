@@ -9,6 +9,7 @@
   "scripts": {
     "clean": "rm -rf build/ node_modules/@def.codes/",
     "format": "prettier --write 'packages/**/*.{ts,json}'",
+    "meld-test": "node node_modules/@def.codes/meld-cli ./testing",
     "test-format": "prettier --list-different 'packages/**/*.{ts,json}'",
     "build": "npm run build:script && npm run build:style",
     "build:script": "tsc --build",

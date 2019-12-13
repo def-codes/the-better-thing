@@ -54,10 +54,7 @@ const thing = [
   es.with_scanner(use),
   some_ast,
   evaluate_cases.map(([[x]]) => x),
-][2];
-
-exports.display = {
-  thing: {
+  {
     bits: [0, 0, 0, 0, 1, 0],
     array_of_falsy: [false, 0, "", null, undefined],
     null: null,
@@ -67,6 +64,7 @@ exports.display = {
     blank_string: "",
     false: false,
     true: true,
-  },
-};
-///exports.display = { thing };
+  }
+][2];
+
+exports.display = { thing };
