@@ -1,9 +1,10 @@
 import * as fs from "fs";
 import * as vm from "vm";
 import * as rs from "@thi.ng/rstream";
+import { IGraph, GraphFact } from "@def.codes/graphs";
 import { module_graph_watcher } from "./graph-watcher/module-graph-watcher";
 import { make_display } from "@def.codes/node-web-presentation";
-import { default_thing } from "./default-thing";
+import { default_thing, default_graph, default_facts } from "./default-thing";
 
 export async function module_host(
   module_name: string,
@@ -13,6 +14,9 @@ export async function module_host(
   // transitional
   const display = Object.assign(make_display(), {
     thing: (thing: any) => default_thing(display, thing),
+    facts: (facts: Iterable<GraphFact<string | number, any, any>>) =>
+      default_facts(display, facts),
+    graph: (graph: IGraph<any, any, any>) => default_graph(display, graph),
   });
 
   // Not sure about including reference to state, just playing around

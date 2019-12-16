@@ -58,7 +58,7 @@ export const make_display = () => {
       .viewer;
 
   return Object.assign((thing: any) => viewer().send(thing), {
-    graph: async (graph: Dot.Graph, trace?: boolean) => {
+    graphviz: async (graph: Dot.Graph, trace?: boolean) => {
       const dot = Dot.serialize_dot(graph);
       // viewer.send({ dot });
       // if (trace)

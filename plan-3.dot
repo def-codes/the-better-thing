@@ -1,0 +1,21 @@
+digraph {
+	compound = true
+	subgraph cluster_a {
+		label = a
+		a [label = "?"]
+	}
+	subgraph cluster_b {
+		label = b
+		b [label = "?"]
+	}
+	subgraph cluster_plus {
+		label = fn
+		plus [label = "f"]
+	}
+	subgraph cluster_a_plus_b {
+		result [label = "?"]
+	}
+	a -> plus [ltail = cluster_a lhead = cluster_plus headport="nw"/* headlabel=0 */]
+	b -> plus [ltail = cluster_b lhead = cluster_plus headport="ne"/* headlabel=1 */]
+	plus -> result [ltail = cluster_plus lhead=cluster_a_plus_b]
+}

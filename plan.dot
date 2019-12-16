@@ -1,0 +1,33 @@
+digraph {
+	compound = true
+	graph [style = rounded]
+	//layout = neato
+	subgraph cluster_a {
+		label = a
+		a -> x,y->  z
+	}
+	subgraph cluster_b {
+		label = b
+		b [shape = record label="a | b | <c> c"]
+		e [shape = box]
+		b:c -> e
+	}
+	subgraph cluster_plus {
+		label = fn
+		style = filled
+		color = black
+		fontcolor = white
+		node [style = filled color = white]
+		plus [label = "f"]
+	}
+	subgraph cluster_a_plus_b {
+		result -> result1
+		result [shape = Mrecord label="type | node"]
+		result1 [shape = Mrecord label="type | label"]
+	}
+	a -> plus [lhead=cluster_plus dir=both arrowtail = inv arrowhead = none
+			   ltail=cluster_a  headport="nw"]
+	b -> plus [lhead=cluster_plus dir=both arrowtail = inv arrowhead = none
+			   ltail=cluster_b  headport="ne"]
+	plus -> result [ltail = cluster_plus lhead=cluster_a_plus_b]
+}

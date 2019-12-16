@@ -1,0 +1,58 @@
+digraph {
+	compound = true
+	label = system
+	node [style = filled color = white]
+	subgraph cluster_ingresses {
+		label = "ingresses"
+		style = filled color = red
+		subgraph cluster_global {
+			label = "global (built-ins)"
+			pencolor = black
+			fs
+		}
+		subgraph cluster_host {
+			label = "MELD module host"
+			pencolor = black
+			lib [label = "lib/any"]
+			mod [label = "module A source"]
+		}
+	}
+	lib -> b
+	mod -> scan [lhead = cluster_read]
+	subgraph cluster_frame {
+		label = "computational frame"
+		subgraph cluster_read {
+			label = "read"
+			style = filled
+			scan
+		}
+		scan -> c [lhead = cluster_evaluate]
+		subgraph cluster_evaluate {
+			label = "evaluate"
+			style = filled color = green
+			node [xlabelcolor = white]
+			a [xlabel = "a" label = "literal obj"]
+			b [xlabel = "b" label = "imported fn"]
+			c [xlabel = "c" label = "literal fn"]
+			d [xlabel = "d" label = "result1"]
+			e [xlabel = "e" label = "result2"]
+			a,b -> d
+			a,c -> e
+		}
+		e -> trav_a [ltail = cluster_evaluate lhead = cluster_rep]
+		subgraph cluster_rep {
+			label = "representation of evaluation"
+			style = filled
+			trav_a [label = "traverse"]
+			notate_a [label = "notate"]
+			serialize_a [label = "serialize"]
+			trav_a -> notate_a -> serialize_a
+		}
+	}
+	subgraph cluster_egress {
+		label = "egress"
+		style = filled color = red
+		dot
+	}
+	serialize_a -> dot
+}

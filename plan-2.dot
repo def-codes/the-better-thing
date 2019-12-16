@@ -1,0 +1,10 @@
+digraph {
+	/* s/b bipartite */
+	a [label = "3" xlabel = a]
+	b [label = "2" xlabel = b]
+	"+" [shape = box]
+	ab [label = 5]
+	a -> "+" [headlabel = 0]
+	b -> "+" [headlabel = 1]
+	"+" -> ab
+}
