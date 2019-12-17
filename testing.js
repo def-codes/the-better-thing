@@ -1,6 +1,13 @@
 const es = require("@def.codes/expression-reader");
 const si = require("@def.codes/simple-interpreter");
-const dgraph = require("@thi.ng/dgraph");
+const dot = require("@def.codes/graphviz-format");
+const { traverse } = require("@def.codes/graphs");
+const {
+  make_object_graph_traversal_spec,
+  object_graph_dot_notation_spec,
+} = require("@def.codes/node-web-presentation");
+const { mark_nodes_matching } = require("./lib/marking");
+const { random_dgraph } = require("./lib/random-dgraph");
 const { some_ast } = require("./lib/some-ast");
 const { evaluate_cases } = require("./lib/evaluate-cases");
 const { empty_like_values } = require("./lib/test-object-graph");
@@ -53,10 +60,7 @@ define("traversed", ["input"], input => {
   // what spec to use?
 });
 
-const a = { type: "literal", value: 1 };
-const b = { type: "literal", value: 2 };
-
-const c = {
+const expression = {
   type: "apply",
   base: { type: "term", term: "plus" },
   args: [
@@ -79,42 +83,19 @@ function* traverse_dgraph(g) {
       yield { subject, object };
   }
 }
-const rand = n => Math.floor(n * Math.random());
 
-const dg = new dgraph.DGraph();
-const letters = "abcdefghijklmnopqrstuvwxyz";
-
-for (let x = rand(21); x > 0; x--) {
-  const sub = letters[rand(letters.length)];
-  dg.addNode(sub);
-  for (let y = rand(5); y > 0; y--) {
-    // const obj = letters[rand(letters.length)];
-    const obj = letters[x + rand(letters.length - x)];
-    try {
-      dg.addDependency(sub, obj);
-    } catch (error) {
-      // probably a circular dependency
-      console.log(`couldn't add dependency: ${sub} => ${obj}`, error);
-    }
-  }
-}
-
-// dg.addNode("a");
-// dg.addNode("b");
-// dg.addNode("c");
-// dg.addDependency("a", "c");
-// dg.addDependency("a", "b");
-
+const dg = random_dgraph(4, 4);
 const facts = traverse_dgraph(dg);
 
 const plus = (a, b) => a + b;
 const times = (a, b) => a * b;
-const result = si.evaluate(c, {
+const context = {
   a: { type: "literal", value: 14 },
   plus: { type: "literal", value: plus },
   times: { type: "literal", value: times },
-});
-const test_function_expression = { expr: c, result };
+};
+const result = si.evaluate(expression, context);
+const test_function_expression = { expression, context, result };
 
 const thing = [
   test_function_expression,
@@ -132,4 +113,16 @@ const facts = [
 ];
 */
 
-exports.display = { facts };
+const not = pred => (...args) => !pred(...args);
+
+const mark_thing = (thing, pred = () => true, attrs = { color: "red" }) => {
+  const facts = [...traverse([thing], make_object_graph_traversal_spec())];
+  return [
+    ...dot.statements_from_traversal(facts, object_graph_dot_notation_spec),
+    ...mark_nodes_matching(facts, pred, attrs),
+  ];
+};
+
+exports.display = {
+  dot_statements: mark_thing(expression, si.is_closed, { color: "red" }),
+};

@@ -7,19 +7,34 @@ import {
   object_graph_dot_notation_spec,
 } from "@def.codes/node-web-presentation";
 
+export const default_dot_graph = (
+  display: ReturnType<typeof make_display>,
+  dot_graph: dot.Graph
+) => {
+  display.graphviz(dot_graph);
+};
+
+export const default_dot_statements = (
+  display: ReturnType<typeof make_display>,
+  statements: dot.StatementList
+) => {
+  const dot_graph = dot.graph({
+    directed: true,
+    // Why?
+    attributes: { rankdir: "LR" },
+    statements,
+  });
+  default_dot_graph(display, dot_graph);
+};
+
 export const default_graph = (
   display: ReturnType<typeof make_display>,
   graph: IGraph<any, any, any>
 ) => {
-  const dot_graph = dot.graph({
-    directed: true,
-    attributes: { rankdir: "LR" },
-    statements: [
-      ...dot.statements_from_graph(graph, object_graph_dot_notation_spec),
-    ],
-  });
-
-  display.graphviz(dot_graph);
+  const statements = [
+    ...dot.statements_from_graph(graph, object_graph_dot_notation_spec),
+  ];
+  default_dot_statements(display, statements);
 };
 
 export const default_facts = (

@@ -5,7 +5,9 @@ import { Expression, ClosedExpression, Context } from "./api";
 // (symbol (term) resolution and evaluation).
 
 // Tell whether an expression can be evaluated now without a context.
-const is_closed = (expression: Expression): expression is ClosedExpression => {
+export const is_closed = (
+  expression: Expression
+): expression is ClosedExpression => {
   if (expression.type === "literal") return true;
 
   if (expression.type === "access") return is_closed(expression.base);
@@ -17,7 +19,10 @@ const is_closed = (expression: Expression): expression is ClosedExpression => {
 };
 
 // Resolve all terms in an expression against a given context.
-const close = (expression: Expression, context: Context): ClosedExpression => {
+export const close = (
+  expression: Expression,
+  context: Context
+): ClosedExpression => {
   if (expression.type === "literal") return expression;
 
   if (expression.type === "term")
@@ -36,7 +41,7 @@ const close = (expression: Expression, context: Context): ClosedExpression => {
   return assert_unreachable(expression, "expression");
 };
 
-const evaluate_closed = (expression: ClosedExpression): any => {
+export const evaluate_closed = (expression: ClosedExpression): any => {
   if (expression.type === "literal") return expression.value;
 
   if (expression.type === "access")

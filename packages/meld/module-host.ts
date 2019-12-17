@@ -3,8 +3,15 @@ import * as vm from "vm";
 import * as rs from "@thi.ng/rstream";
 import { IGraph, GraphFact } from "@def.codes/graphs";
 import { module_graph_watcher } from "./graph-watcher/module-graph-watcher";
+import * as dot from "@def.codes/graphviz-format";
 import { make_display } from "@def.codes/node-web-presentation";
-import { default_thing, default_graph, default_facts } from "./default-thing";
+import {
+  default_thing,
+  default_graph,
+  default_facts,
+  default_dot_graph,
+  default_dot_statements,
+} from "./default-thing";
 
 export async function module_host(
   module_name: string,
@@ -17,6 +24,9 @@ export async function module_host(
     facts: (facts: Iterable<GraphFact<string | number, any, any>>) =>
       default_facts(display, facts),
     graph: (graph: IGraph<any, any, any>) => default_graph(display, graph),
+    dot_graph: (arg: dot.Graph) => default_dot_graph(display, arg),
+    dot_statements: (arg: dot.StatementList) =>
+      default_dot_statements(display, arg),
   });
 
   // Not sure about including reference to state, just playing around
