@@ -1,11 +1,15 @@
 const es = require("@def.codes/expression-reader");
 const si = require("@def.codes/simple-interpreter");
 const dot = require("@def.codes/graphviz-format");
-const { traverse } = require("@def.codes/graphs");
+const { traverse, from_facts } = require("@def.codes/graphs");
 const {
   make_object_graph_traversal_spec,
   object_graph_dot_notation_spec,
 } = require("@def.codes/node-web-presentation");
+const {
+  facts_reachable_from,
+  select_ids_matching_value,
+} = require("./lib/selection");
 const { mark_nodes_matching } = require("./lib/marking");
 const { prefix_keys, prefix_statement_keys } = require("./lib/clustering");
 const { random_dgraph } = require("./lib/random-dgraph");
@@ -99,6 +103,7 @@ const result = si.evaluate(expression, context);
 const test_function_expression = { expression, context, result };
 
 const thing = [
+  expression,
   test_function_expression,
   es.with_scanner(use),
   some_ast,
@@ -113,6 +118,15 @@ const facts = [
   { subject: 1, object: 4, data: "goosebumps" },
 ];
 */
+
+const is_literal = expr => expr && expr.type === "literal";
+
+const is_applicable = expr =>
+  expr &&
+  expr.type === "apply" &&
+  is_literal(expr.base) &&
+  expr.args &&
+  expr.args.every(is_literal);
 
 const not = pred => (...args) => !pred(...args);
 
@@ -133,9 +147,60 @@ const mark_thing = (
   ];
 };
 
+const graph_reachable_from = (graph, ids, spec) =>
+  dot.statements_from_traversal(facts_reachable_from(graph, ids), spec);
+
+const mark_reachable = (
+  namespace,
+  thing,
+  pred = () => true,
+  attrs = { color: "red" }
+) => {
+  const pref = prefix_keys(namespace);
+  const facts = Array.from(
+    traverse([thing], make_object_graph_traversal_spec()),
+    pref
+  );
+  const graph = from_facts(facts);
+  const ids = select_ids_matching_value(facts, pred);
+  return [
+    ...dot.statements_from_traversal(facts, object_graph_dot_notation_spec),
+    ...dot.statements_from_traversal(facts_reachable_from(graph, ids), {
+      describe_edge: () => attrs,
+      describe_node: () => attrs,
+    }),
+  ];
+};
+
+const {
+  mod = x => x,
+  attrs1 = { color: "green" },
+  attrs2 = { color: "orange", penwidth: 5 },
+  pred1 = () => false,
+  pred2 = () => false,
+  target = thing,
+} = [
+  {
+    mod: x => si.close(x, context),
+    pred1: not(si.is_closed),
+    pred2: is_applicable,
+    target: expression,
+  },
+  {
+    target: some_ast,
+    pred1: Array.isArray,
+    attrs1: { style: "filled", color: "green" },
+  },
+][0];
+
 exports.display = {
-  dot_statements: [
-    ...mark_thing("v1", expression, si.is_closed, { color: "green" }),
-    ...mark_thing("v2", expression, not(si.is_closed), { color: "blue" }),
-  ],
+  dot_graph: {
+    type: "graph",
+    strict: true,
+    //attributes: { rankdir: "LR" },
+    statements: [
+      ...mark_thing("v1", target, pred1, attrs1),
+      ...mark_reachable("v2", mod(target), pred2, attrs2),
+    ],
+  },
 };
