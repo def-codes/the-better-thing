@@ -7,6 +7,7 @@ const {
   object_graph_dot_notation_spec,
 } = require("@def.codes/node-web-presentation");
 const { mark_nodes_matching } = require("./lib/marking");
+const { prefix_keys, prefix_statement_keys } = require("./lib/clustering");
 const { random_dgraph } = require("./lib/random-dgraph");
 const { some_ast } = require("./lib/some-ast");
 const { evaluate_cases } = require("./lib/evaluate-cases");
@@ -115,8 +116,17 @@ const facts = [
 
 const not = pred => (...args) => !pred(...args);
 
-const mark_thing = (thing, pred = () => true, attrs = { color: "red" }) => {
-  const facts = [...traverse([thing], make_object_graph_traversal_spec())];
+const mark_thing = (
+  namespace,
+  thing,
+  pred = () => true,
+  attrs = { color: "red" }
+) => {
+  const pref = prefix_keys(namespace);
+  const facts = Array.from(
+    traverse([thing], make_object_graph_traversal_spec()),
+    pref
+  );
   return [
     ...dot.statements_from_traversal(facts, object_graph_dot_notation_spec),
     ...mark_nodes_matching(facts, pred, attrs),
@@ -124,5 +134,8 @@ const mark_thing = (thing, pred = () => true, attrs = { color: "red" }) => {
 };
 
 exports.display = {
-  dot_statements: mark_thing(expression, si.is_closed, { color: "red" }),
+  dot_statements: [
+    ...mark_thing("v1", expression, si.is_closed, { color: "green" }),
+    ...mark_thing("v2", expression, not(si.is_closed), { color: "blue" }),
+  ],
 };
