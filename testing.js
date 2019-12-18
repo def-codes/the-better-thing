@@ -89,8 +89,9 @@ function* traverse_dgraph(g) {
   }
 }
 
-const dg = random_dgraph(4, 4);
-const facts = traverse_dgraph(dg);
+// const dg = random_dgraph(4, 4);
+// const dg_facts = [...traverse_dgraph(dg)];
+// const dg_graph = from_facts(dg_facts);
 
 const plus = (a, b) => a + b;
 const times = (a, b) => a * b;
@@ -129,6 +130,13 @@ const is_applicable = expr =>
   expr.args.every(is_literal);
 
 const not = pred => (...args) => !pred(...args);
+
+// do a traversal and map to another value in the process
+// takes an expression
+// returns a... graph
+const traverse_eval = expr => {
+  //
+};
 
 const mark_thing = (
   namespace,
@@ -191,13 +199,32 @@ const {
     pred1: Array.isArray,
     attrs1: { style: "filled", color: "green" },
   },
-][0];
+  {
+    // Doesn't work because can't target record label cell
+    target: empty_like_values,
+    pred1: x => x == null,
+    attrs1: { style: "filled", color: "red" },
+  },
+  {
+    // doesn't show anything
+    // target: dg_graph,
+  },
+  {
+    mod: xs => xs.map(([[expr, ctx], res]) => si.close(expr, ctx)),
+    target: evaluate_cases,
+    pred1: si.is_closed,
+    pred2: is_applicable, //x => x.type === "apply", // , //
+    attrs1: { color: "red", style: "filled" },
+    // attrs2: { color: "orange", style: "filled", fontsize: 50 },
+    target: evaluate_cases,
+  },
+][4];
 
 exports.display = {
   dot_graph: {
     type: "graph",
     strict: true,
-    //attributes: { rankdir: "LR" },
+    attributes: { rankdir: "LR" },
     statements: [
       ...mark_thing("v1", target, pred1, attrs1),
       ...mark_reachable("v2", mod(target), pred2, attrs2),
