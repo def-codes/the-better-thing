@@ -1,0 +1,63 @@
+#+TITLE: problem-solving methods for js
+
+Create execution plans from partial problem statements.
+
+* as macros
+
+Can this work using an approach like macro transformations?
+
+In other words, can you express the solution like
+
+#+begin_example
+square(x) = sum(take(x, repeat(x)))
+#+end_example
+
+Where
+
+#+begin_example
+sum(xs) = reduce(plus, 0, xs)
+#+end_example
+
+And the transformations have to bottom out somewhere.
+
+#+begin_example
+plus = (x, y) => x + y
+reduce = (f, init, xs) => tx.reduce(f, init, xs) // ??
+take = (n, xs) => tx.take(n, xs)
+repeat = (x) => tx.repeat(x)
+#+end_example
+
+Note also that you want to use IRI's for terms at least sometimes.
+
+Also, you can't write that exactly since application can't be an LHS.
+
+* example use cases
+
+Imagine a registry with various color functions.
+
+** task: I want to see a color (in dot)
+
+partial information:
+- color is unspecified
+- color model is unspecified
+
+output constraint:
+- dot format
+
+resources:
+- we have a sink for dot statements
+
+** task: I want to see some colors (in dot)
+
+extends:
+- multiple version of previous.  in general a multiple(x) where x is some plan
+
+partial information
+- number of colors is unspecified
+  - default by providing some number greater than 1
+    - and applying to subtask x
+    - note distinction between evauating x multiple times vs evaluating x once
+      and repeating result.  matters when x may be non-deterministic.  (though
+      shouldn't be... we should use repeatable random with seed)
+
+** task
