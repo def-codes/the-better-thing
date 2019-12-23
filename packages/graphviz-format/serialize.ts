@@ -3,7 +3,8 @@ import { assert_unreachable } from "@def.codes/helpers";
 
 const is_subgraph = (o: any): o is Dot.Subgraph => o && o.type === "subgraph";
 
-const escape_string = (s: string) => s.replace(/["\\]/g, "\\$&");
+const ALWAYS_ESCAPE = /["\\]/g;
+const escape_string = (s: string) => s.replace(ALWAYS_ESCAPE, "\\$&");
 const quoted_string = (s: string) => `"${escape_string(s)}"`;
 
 type AttributeContext = "node" | "edge" | "graph" | "subgraph";
@@ -13,9 +14,11 @@ type AttributeContext = "node" | "edge" | "graph" | "subgraph";
 // > interpreted as separators between tokens, so they must be escaped if you
 // > want spaces in the text.
 //
-// “Braces” evidently includes angle brackets.
-const BRACES = /[<>{}| ]/g;
-const escape_field_string = (s: string) => s.replace(BRACES, "\\$&");
+// “Braces” evidently includes angle brackets.  Note that characters that always
+// require escaping must also be included here.  See note in
+// `serialize_attributes`.
+const FIELD_ESCAPE = /[<>{}| "\\]/g;
+const escape_field_string = (s: string) => s.replace(FIELD_ESCAPE, "\\$&");
 
 // Mainly to ensure that strings are not excessively long
 const field_string = (s: string | number) =>
