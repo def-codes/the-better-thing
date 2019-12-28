@@ -10,15 +10,23 @@ const {
 const factory = make_identity_factory();
 const { namedNode: n, blankNode: b, literal: l } = factory;
 
+// in nwp
+const is_reference_type = x =>
+  x && (typeof x === "object" || typeof x === "function");
+
 function* rdf_js_traversal(thing) {
   const spec = make_object_graph_traversal_spec();
   for (const { subject, object, value, data } of traverse([thing], spec))
     if (object != null) yield [b(subject), n(data), b(object)];
+    else if (typeof value === "object")
+      for (const [k, v] of Object.entries(value))
+        if (!is_reference_type(v)) yield [b(subject), n(k), l(v)];
 }
 
 const { some_object_graph } = require("./lib/test-object-graph");
 const { some_ast } = require("./lib/some-ast");
-const trips = [...rdf_js_traversal(some_object_graph)];
+const { evaluate_cases } = require("./lib/evaluate-cases");
+const trips = [...rdf_js_traversal(evaluate_cases)];
 console.log(`facts`, trips);
 
 const store = new TripleStore();
