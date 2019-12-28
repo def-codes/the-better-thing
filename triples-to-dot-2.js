@@ -12,7 +12,7 @@ const TO = `${DOT}to`;
 
 // quick and dirty. this should be done through queries
 // doesn't handle clusters, etc
-function* rdfjs_store_to_dot_statements(store) {
+function* rdfjs_store_to_dot_statements_2(store) {
   // i.e. DESCRIBE
   const subjects = new Map();
   for (const [subject, predicate, object] of store) {
@@ -65,6 +65,10 @@ store.add([dolphin_breath, n(`${DOT}to`), n("breath")]);
 store.add([dolphin_breath, n(`${DOT}style`), l("dotted")]);
 
 //const dot_statements = [{ type: "node", id: "foo" }];
-const dot_statements = [...rdfjs_store_to_dot_statements(store)];
+// const dot_statements = [...rdfjs_store_to_dot_statements(store)];
 
-exports.display = { dot_statements };
+const { rdfjs_store_to_dot_statements } = require("./lib/rdf-js-to-dot");
+
+exports.display = { dot_statements: [...rdfjs_store_to_dot_statements(store)] };
+
+// exports.display = { dot_statements };
