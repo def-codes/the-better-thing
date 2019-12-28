@@ -143,7 +143,7 @@ export function show_example(model_id) {
     "test",
     rs.fromIterable(
       tx.cycle("red orange yellow green blue indigo violet".split(" ")),
-      500
+      { delay: 500 }
     )
   );
 

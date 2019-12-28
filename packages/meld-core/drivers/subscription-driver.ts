@@ -13,7 +13,7 @@ const metamerge = id => {
     // truly tear down this node (e.g. for non-monotonic dataflows), we'd want
     // to unsubscribe this as well.  A way to opt out of this behavior is
     // under consideration: https://github.com/thi-ng/umbrella/issues/74
-    merge.subscribe({}, `dummy for ${id} merge`);
+    merge.subscribe({}, { id: `dummy for ${id} merge` });
     return merge;
   };
 

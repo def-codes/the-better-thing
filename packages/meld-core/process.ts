@@ -16,4 +16,5 @@ export const make_process = () => {
   return process;
 };
 
-window["incrementer"] = make_process();
+// Node compat
+// window["incrementer"] = make_process();

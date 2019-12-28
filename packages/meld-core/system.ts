@@ -54,7 +54,7 @@ const rstream_variables = term =>
   term.termType === "Variable" ? `?${term.value}` : term;
 
 // Helper function for TripleStore to get results of a query immediately.
-const sync_query = (store, where) => {
+export const sync_query = (store, where) => {
   let results;
   const query = store
     .addQueryFromSpec({
@@ -156,7 +156,8 @@ export const monotonic_system = ({ id, store, dom_root, ports }) => {
   const registry = new EquivMap();
 
   // For use in REPL.
-  window["system"] = { store, registry };
+  // But not Node
+  // window["system"] = { store, registry };
 
   const find = subject => registry.get(subject);
 

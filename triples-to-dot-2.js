@@ -8,7 +8,13 @@ const {
 } = require("@def.codes/node-web-presentation");
 
 const factory = make_identity_factory();
-const { namedNode: n, blankNode: b, literal: l, normalize } = factory;
+const {
+  namedNode: n,
+  blankNode: b,
+  literal: l,
+  variable: v,
+  normalize,
+} = factory;
 
 const normalize_triple = triple => triple.map(normalize);
 
@@ -17,7 +23,7 @@ const { some_ast } = require("./lib/some-ast");
 const { evaluate_cases } = require("./lib/evaluate-cases");
 const { simple_records, symmetric_property } = require("./lib/rdf-js-examples");
 // const trips = [...rdf_js_traversal(evaluate_cases)];
-const trips = simple_records;
+const trips = symmetric_property;
 // console.log(`facts`, trips);
 const thing = trips;
 
@@ -29,16 +35,41 @@ for (const trip of trips) store.add(normalize_triple(trip));
 const {
   triples_to_dot_description,
 } = require("./lib/triples-to-dot-description");
-const blah = [...triples_to_dot_description(store)];
-// blah.push([b("1234"), n(`${DOT}color`), l("red")]);
-// blah.push([n("5"), n(`${DOT}color`), l("red")]);
-// blah.push([n("5"), n(`${DOT}style`), l("filled")]);
-blah.push([n("Aria"), n(`${DOT}style`), l("filled")]);
-blah.push([n("Aria"), n(`${DOT}color`), l("red")]);
+const name = "Bob";
+const store2 = new TripleStore();
+store2.into(
+  [
+    ...triples_to_dot_description(store),
+    [n(name), n(`${DOT}style`), l("filled")],
+    [n(name), n(`${DOT}color`), l("red")],
+    [n(name), n(`${DOT}shape`), l("circle")],
+  ].map(normalize_triple)
+);
+
+const { sync_query } = require("@def.codes/meld-core");
+// const results = sync_query(store, [[n("Carol"), n("loves"), v("lover")]]);
+// console.log(`results`, results);
+
+const find_dot_edges = (store, from, to) =>
+  Array.from(
+    sync_query(store, [
+      [v("edge"), n("rdf:type"), n(EDGE)],
+      [v("edge"), n(`${DOT}from`), normalize(from)],
+      [v("edge"), n(`${DOT}to`), normalize(to)],
+    ]) || [],
+    _ => _.edge
+  );
+
+const dot_edges = find_dot_edges(store2, n("Carol"), n("Alice"));
+if (dot_edges) {
+  const [dot_edge] = dot_edges;
+  console.log(`dot_edge`, dot_edge);
+  if (dot_edge) store2.into([[dot_edge, n(`${DOT}color`), l("green")]]);
+}
 
 const { dot_interpret_rdf_store } = require("./lib/dot-interpret-rdf-store");
 //const dot_statements = [...dot_interpret_rdf_store(store)];
-const dot_statements = [...dot_interpret_rdf_store(blah)];
+const dot_statements = [...dot_interpret_rdf_store(store2)];
 
 const { rdfjs_store_to_dot_statements } = require("./lib/rdf-js-to-dot");
 // const dot_statements = [...rdfjs_store_to_dot_statements(blah)];
