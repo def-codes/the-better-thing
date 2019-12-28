@@ -21,7 +21,7 @@ const statements = [...dot.statements_from_traversal(traversal, ospec)];
 exports.display = {
   dot_graph: {
     directed: true,
-    attributes: { splines: false },
+    // attributes: { splines: false },
     statements: [
       ...statements,
       ...tx.iterator(
@@ -81,7 +81,11 @@ exports.display = {
                 type: "edge",
                 from: id,
                 to: id2,
-                attributes: { label: `<< ${offset}`, color: "transparent" },
+                attributes: {
+                  label: `<< ${offset}`,
+                  color: "transparent",
+                  constraint: false,
+                },
               },
             ];
           }),

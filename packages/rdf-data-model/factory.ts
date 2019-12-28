@@ -64,6 +64,7 @@ literal.prototype.equals = function literal_equals(other: rdf.Term) {
  * spec: (https://www.w3.org/TR/rdf-interfaces/#literals) */
 literal.prototype.valueOf = function literal_valueOf(this: rdf.Literal) {
   // TEMP.  how to do this?
+  // I don't know but if anything || should now be ??
   return this.runtimeValue || this.value;
 };
 

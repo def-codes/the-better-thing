@@ -12,6 +12,8 @@
     "meld-test": "node node_modules/@def.codes/meld-cli ./testing",
     "psm-test": "node node_modules/@def.codes/meld-cli ./psm",
     "bitshift-test": "node node_modules/@def.codes/meld-cli ./bitshift",
+    "triples-test": "node node_modules/@def.codes/meld-cli ./triples-to-dot-2",
+    "rdf-js-test": "node node_modules/@def.codes/meld-cli ./rdf-js-test",
     "test-format": "prettier --list-different 'packages/**/*.{ts,json}'",
     "build": "npm run build:script && npm run build:style",
     "build:script": "tsc --build",

@@ -3,7 +3,7 @@
 // with other statements, does not matter.  Also doesn't include HTML labels.
 
 import { ATTRIBUTES_METADATA } from "./attributes-metadata";
-import { GRAPH_TYPE } from "./vocabulary";
+import { TYPES } from "./vocabulary";
 
 // Not currently used
 export type CompassPoint =
@@ -28,7 +28,7 @@ export type Statement = Node | Edge | Subgraph;
 export type StatementList = readonly Statement[];
 
 export interface GraphBase {
-  "@type"?: typeof GRAPH_TYPE;
+  "@type"?: typeof TYPES.GRAPH;
   id?: string;
   graph_attributes?: GraphAttributes;
   node_attributes?: Partial<NodeAttributes>;

@@ -61,3 +61,50 @@ partial information
       shouldn't be... we should use repeatable random with seed)
 
 ** task
+
+* description of bit-shifting
+
+Note the what versus how.
+
+What are the elements in the computation?  Including inputs and notation.
+
+There is the wish to left-shift a number.
+
+There is the knowledge that left-shift is a binary operation.
+
+There is the knowledge that a left-shift can be depicted graphically.
+
+There is the existence and usage of a (foreknown) left-shift operation.
+
+There is the knowledge of how to break down an integer into bits.
+
+There is the knowledge of how to display a base 2 number as a dot record.
+
+There is the knowledge of how a left shift's input bits map to its output bits.
+
+There is the knowlege of how to mark correspondences between record items.
+
+There is the knowledge that some nodes in the computation represent integers.
+
+There is the knowledge of how to extend a notation with a computation result.
+
+* consider an RDF graph and notating via graphviz versus text interpreters
+
+The graph itself may contain information about those notations.
+
+The baseline for a graph-to-dot mapping would be a direct mapping.
+
+One node is one node; one edge is one edge.
+
+Yet dot-facing attributes, which can be namespaced, could be taken as such.
+
+For nodes this means additional properties on subjects.
+
+For edges, this means properties on "reified" nodes (those addressing a triple).
+
+This is "meta" at the domain level, but not at the data model level.
+
+Taking dot triples literally would mean displaying them as you would others.
+
+Text or HTML-oriented claims could work the same way.
+
