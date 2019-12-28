@@ -45,10 +45,15 @@ export const default_facts = (
   default_graph(display, constructed);
 };
 
-export const default_thing = (
+export const default_things = (
   display: ReturnType<typeof make_display>,
-  input = globalThis
+  inputs: any[] = [globalThis]
 ) => {
-  const traversed = [...traverse([input], make_object_graph_traversal_spec())];
+  const traversed = [...traverse(inputs, make_object_graph_traversal_spec())];
   default_facts(display, traversed);
 };
+
+export const default_thing = (
+  display: ReturnType<typeof make_display>,
+  input: any = globalThis
+) => default_things(display, [input]);

@@ -8,43 +8,42 @@ const {
 } = require("@def.codes/node-web-presentation");
 
 const factory = make_identity_factory();
-const { namedNode: n, blankNode: b, literal: l } = factory;
+const { namedNode: n, blankNode: b, literal: l, normalize } = factory;
 
-// in nwp
-const is_reference_type = x =>
-  x && (typeof x === "object" || typeof x === "function");
-
-function* rdf_js_traversal(thing) {
-  const spec = make_object_graph_traversal_spec();
-  for (const { subject, object, value, data } of traverse([thing], spec))
-    if (object != null) yield [b(subject), n(data), b(object)];
-    else if (typeof value === "object")
-      for (const [k, v] of Object.entries(value))
-        if (!is_reference_type(v)) yield [b(subject), n(k), l(v)];
-}
+const normalize_triple = triple => triple.map(normalize);
 
 const { some_object_graph } = require("./lib/test-object-graph");
 const { some_ast } = require("./lib/some-ast");
 const { evaluate_cases } = require("./lib/evaluate-cases");
-const trips = [...rdf_js_traversal(evaluate_cases)];
-console.log(`facts`, trips);
+const { simple_records, symmetric_property } = require("./lib/rdf-js-examples");
+// const trips = [...rdf_js_traversal(evaluate_cases)];
+const trips = simple_records;
+// console.log(`facts`, trips);
+const thing = trips;
 
 const store = new TripleStore();
-for (const trip of trips) store.add(trip);
-// store.add([n("dolphins"), n(`rdf:type`), n(NODE)]);
+for (const trip of trips) store.add(normalize_triple(trip));
 // store.add([n("dolphins"), n(`${DOT}shape`), l("circle")]);
-// store.add([n("breath"), n(`rdf:type`), n(NODE)]);
-// store.add([n("breath"), n(`${DOT}shape`), l("circle")]);
-// const dolphin_breath = b();
-// store.add([dolphin_breath, n(`rdf:type`), n(EDGE)]);
-// store.add([dolphin_breath, n(`${DOT}from`), n("dolphins")]);
-// store.add([dolphin_breath, n(`${DOT}to`), n("breath")]);
-// store.add([dolphin_breath, n(`${DOT}style`), l("dotted")]);
+// store.add([b("b2536"), n(`${DOT}color`), l("red")]);
+
+const {
+  triples_to_dot_description,
+} = require("./lib/triples-to-dot-description");
+const blah = [...triples_to_dot_description(store)];
+// blah.push([b("1234"), n(`${DOT}color`), l("red")]);
+// blah.push([n("5"), n(`${DOT}color`), l("red")]);
+// blah.push([n("5"), n(`${DOT}style`), l("filled")]);
+blah.push([n("Aria"), n(`${DOT}style`), l("filled")]);
+blah.push([n("Aria"), n(`${DOT}color`), l("red")]);
 
 const { dot_interpret_rdf_store } = require("./lib/dot-interpret-rdf-store");
 //const dot_statements = [...dot_interpret_rdf_store(store)];
+const dot_statements = [...dot_interpret_rdf_store(blah)];
 
 const { rdfjs_store_to_dot_statements } = require("./lib/rdf-js-to-dot");
-const dot_statements = [...rdfjs_store_to_dot_statements(store)];
+// const dot_statements = [...rdfjs_store_to_dot_statements(blah)];
+
+// const tx = require("@thi.ng/transducers");
+// exports.display = { things: [...tx.flatten(thing)] };
 
 exports.display = { dot_statements };

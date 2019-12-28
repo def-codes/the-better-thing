@@ -78,7 +78,7 @@ export const make_process_tree = <A, B>(
   // Admirably, this infers as Subscription<A, B> | Subscription<A, A>
   // but how to tell it that B = A when xform is null?
   const output_sub = xform
-    ? base.subscribe(xform?.fn(...xform.args), "/" + path().join("/"))
+    ? base.subscribe(xform?.fn(...xform.args), { id: "/" + path().join("/") })
     : ((<unknown>base) as Subscription<A, B>);
 
   const forward_sub = forward_to && output_sub.subscribe(resolve(forward_to));

@@ -7,6 +7,7 @@ import * as dot from "@def.codes/graphviz-format";
 import { make_display } from "@def.codes/node-web-presentation";
 import {
   default_thing,
+  default_things,
   default_graph,
   default_facts,
   default_dot_graph,
@@ -21,6 +22,7 @@ export async function module_host(
   // transitional
   const display = Object.assign(make_display(), {
     thing: (thing: any) => default_thing(display, thing),
+    things: (things: any) => default_things(display, things),
     facts: (facts: Iterable<GraphFact<string | number, any, any>>) =>
       default_facts(display, facts),
     graph: (graph: IGraph<any, any, any>) => default_graph(display, graph),
