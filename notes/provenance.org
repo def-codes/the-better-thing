@@ -1,0 +1,118 @@
+#+TITLE:provenance
+
+This document evaluates how a standard "provenance" semantic can serve in the
+design of dynamic models in web environments.
+
+* motivation
+
+For the goals expressed in the project rationale, the notion of /provenance/
+serves a basic role.  Knowledge of where a piece of data came from and how it
+was composed can be leveraged to help reproduce it, package it, and trace it to
+its sources.  These capabilities can serve the larger goals of visibility,
+discoverability, portability, and others.
+
+As part of its Semantic Web initiative, the W3 Consortium created a [[https://www.w3.org/TR/2013/NOTE-prov-overview-20130430/][set of
+recommendations for describing provenance information]] across a variety of
+contexts.  These documents define "provenance" as
+#+BEGIN_QUOTE
+information about entities, activities, and people involved in producing a piece
+of data or thing, which can be used to form assessments about its quality,
+reliability or trustworthiness.
+#+END_QUOTE
+While the motivating use cases focus on high-level entities such as people and
+publications, the "PROV" vocabulary supports the representation of an arbitrary
+graph of inputs, processes, and outputs such as comprise internal operation of
+any kind of software program.  As the [[https://www.w3.org/TR/2013/REC-prov-dm-20130430/#anexample-derivation][Data Model specification]] notes:
+#+BEGIN_QUOTE
+With such a comprehensive description of derivation, a program that analyzes
+provenance can identify the activity underpinning the derivation, it can
+identify how the preceding entity =e1= was used by the activity (e.g. for
+instance, which argument it was passed as, if the activity is the result of a
+function invocation), and which output the derived entity =e2= was obtained from
+(say, for a function returning multiple results).
+#+END_QUOTE
+
+In conjunction with [[https://www.w3.org/TR/json-ld/][JSON-LD]], the PROV vocabulary provides the technical basis
+for labeling not only serialized data but even Javascript runtime objects with
+machine-usable manifests.
+
+
+* hypothesis
+
+I contend that the two core concepts of the PROV vocabulary, entities and
+activities, map precisely to the most primitive notions needed for modeling
+software operations:
+
+1. an entity is any piece of data (the static part)
+1. an activity is a set of one or more invocations (the dynamic part)
+
+** activities are not entities
+
+While JavaScript now defines a few primitives for asynchrony, it does not have a
+formal notion of process.  A "process" as we think of it, is fundamentally
+nothing more than an association of a set of invocations over time.  Any such
+association is necessarily a domain-specific abstraction.  Modeling processes
+must be done in userland by keeping the view and control of those invocations
+coherent.  The concept of an activity provides a semantically correct way to
+describe what we mean by a "process."
+
+As the specification [[https://www.w3.org/TR/2013/REC-prov-dm-20130430/#term-Activity][notes]]:
+#+BEGIN_QUOTE
+An activity is not an entity.
+#+END_QUOTE
+This is consistent with the fact that an activity is not /itself/ represented by
+any piece of data.  Whereas entities themselves may be embodied by claims,
+activities /themselves/ cannot be, since they may only exist over time.  The
+invocations that comprise activities may be represented as claims (if not
+entities?), and the entities involved in triggering, reading, killing, and
+otherwise controlling future invocations related to an activity are likewise
+entities having some association with the activity.
+
+As such, the PROV vocabulary gives us an unambiguous way of representing data
+about both static and dynamic elements in a program's runtime environment.
+
+** activities may be ongoing
+
+UPDATE: actually the [[https://www.w3.org/TR/2013/NOTE-prov-sem-20130430/#activities-1][PROV-SEM spec]] says that 
+#+BEGIN_QUOTE
+An activity is an object corresponding to a continuing process rather than an
+evolving thing.
+#+END_QUOTE
+
+This interpretation of the vocabulary assumes that the identified activities may
+be ongoing.  The specification does note that
+#+BEGIN_QUOTE
+because PROV is meant to describe how things were created or delivered, PROV
+relations are named so they can be used in assertions about the past.
+#+END_QUOTE
+However, start and end times are not required, and the past-tense terminology is
+used only by /relationships/ among activities and entities, which indeed must have
+occured in the past.
+
+* push vs pull
+
+We must distinguish between /pull/ invocations (function application from
+userland) and /push/ invocations (callbacks triggered from within the runtime).
+
+While it is fairly straightforward to "wrap" function applications (pull
+invocations) in such a way that provenance data is attached to the result, the
+case is less straightforward for callbacks.
+
+* proposal
+
+Within a system that represents all discoverable information in an RDF-style
+knowledge graph (i.e. a claim database), use the PROV vocabulary to label inputs
+and outputs with provenance data that supports tracing 
+
+* verification
+
+[[https://en.wikipedia.org/wiki/Named_graph][Named graph]]
+
+#+BEGIN_QUOTE
+Additionally trust can be managed through the publisher applying a digital
+signature to the data in the named graph. (Support for these facilities was
+originally intended to come from RDF reification, however that approach proved
+problematic.)
+#+END_QUOTE
+Ah, I was wondering about that.  I expected signatures to be part of the
+provenance spec.
