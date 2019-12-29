@@ -34,6 +34,7 @@ const modules = [
   ["rdf-data-model"],
   ["rdf-expressions"],
   ["rdf-expressions-test"],
+  ["rstream-query-rdf"],
   ["runtime-reflection"],
   ["simple-http-server", { node_only: true }],
   ["simple-interpreter"],

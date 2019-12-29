@@ -116,3 +116,36 @@ problematic.)
 #+END_QUOTE
 Ah, I was wondering about that.  I expected signatures to be part of the
 provenance spec.
+
+* in practice
+
+Here we consider how we might use a notion of provenance generally, if not the
+W3 vocabulary specifically, to accomplish certain immediate goals.
+
+** use case: rules
+
+The most prevalent use case for provenance that I have encountered has been the
+notion of tracing facts back through the rules that produced them to the facts
+used by those rules.
+
+** explosion of facts
+
+Suppose that we want to be able to answer the question, where did this fact come
+from?
+
+Does fact-level provenance require reification?
+
+That is, do we have to reify each individual fact and have it point to the rule
+that created it as well as the facts that it then used as input?
+
+What would be the alternative?
+
+One alternative would be to treat it like any reversible computation, in which,
+given a reference to the input and the transformation, we can lazily answer for
+a given output which inputs were involved.  This also arises with transducers.
+Such an approach may be suitable when the queries are sparse and pull-based.
+
+** with or without named graphs
+
+The "reversible" computation approach may work well with named graphs.  TBD.
+

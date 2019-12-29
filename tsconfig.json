@@ -27,6 +27,7 @@
     {"path": "packages/rdf-data-model" },
     {"path": "packages/rdf-expressions" },
     {"path": "packages/rdf-expressions-test" },
+    {"path": "packages/rstream-query-rdf" },
     {"path": "packages/runtime-reflection" },
     {"path": "packages/simple-interpreter" },
     {"path": "packages/simple-interpreter-test" },

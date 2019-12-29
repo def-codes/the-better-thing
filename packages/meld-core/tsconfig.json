@@ -7,6 +7,7 @@
     { "path": "../datafy-nav" },
     { "path": "../expression-reader" },
     { "path": "../rdf-data-model" },
-    { "path": "../rdf-expressions" }
+    { "path": "../rdf-expressions" },
+    { "path": "../rstream-query-rdf" },
   ]
 }

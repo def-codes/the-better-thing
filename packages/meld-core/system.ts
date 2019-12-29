@@ -3,6 +3,7 @@ import { EquivMap } from "@thi.ng/associative";
 import rdf from "@def.codes/rdf-data-model";
 import { NamedNode } from "@def.codes/rdf-data-model";
 import { IStream } from "@thi.ng/rstream";
+import { live_query, sync_query } from "@def.codes/rstream-query-rdf";
 
 // =============== RDF helpers
 
@@ -49,29 +50,6 @@ const q = (...clauses: string[]) =>
         : rdf.namedNode(term)
     )
   );
-
-const rstream_variables = term =>
-  term.termType === "Variable" ? `?${term.value}` : term;
-
-// Helper function for TripleStore to get results of a query immediately.
-export const sync_query = (store, where) => {
-  let results;
-  const query = store
-    .addQueryFromSpec({
-      q: [{ where: where.map(_ => _.map(rstream_variables)) }],
-    })
-    .subscribe({ next: result_set => (results = result_set) });
-  // TODO: Currently, unsubscribing any query makes it impossible to add others,
-  // due to the transitive closing of shared streams.  See
-  // https://github.com/thi-ng/umbrella/issues/91
-  // query.unsubscribe();
-  return results;
-};
-
-const live_query = (store, where) =>
-  store.addQueryFromSpec({
-    q: [{ where: where.map(_ => _.map(rstream_variables)) }],
-  });
 
 const drivers = [];
 export const register_driver = (name, init) =>

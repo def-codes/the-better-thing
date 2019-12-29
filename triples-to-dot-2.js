@@ -46,7 +46,7 @@ store2.into(
   ].map(normalize_triple)
 );
 
-const { sync_query } = require("@def.codes/meld-core");
+const { sync_query } = require("@def.codes/rstream-query-rdf");
 // const results = sync_query(store, [[n("Carol"), n("loves"), v("lover")]]);
 // console.log(`results`, results);
 

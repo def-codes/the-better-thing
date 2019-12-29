@@ -1,6 +1,5 @@
 import { Term } from "@def.codes/rdf-data-model";
-
-type PseudoTriple = [Term, Term, Term];
+import { PseudoTriple } from "@def.codes/rstream-query-rdf";
 
 interface DriverHandler {}
 
