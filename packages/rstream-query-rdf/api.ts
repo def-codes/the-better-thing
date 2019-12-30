@@ -8,7 +8,7 @@ import { Term } from "@def.codes/rdf-data-model";
  * expected as long as equal terms have reference identity. */
 export type PseudoTriple = readonly [Term, Term, Term];
 
-type PseudoTriples = readonly PseudoTriple[];
+export type PseudoTriples = readonly PseudoTriple[];
 
 /** To be used with `rstream-query`, at least one of the terms must include a
  * variable. */

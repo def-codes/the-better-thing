@@ -1,3 +1,5 @@
+import { normalize_triple } from "./factory";
+
 const rstream_variables = term =>
   term.termType === "Variable" ? `?${term.value}` : term;
 
@@ -6,7 +8,11 @@ export const sync_query = (store, where) => {
   let results;
   const query = store
     .addQueryFromSpec({
-      q: [{ where: where.map(_ => _.map(rstream_variables)) }],
+      q: [
+        // TODO: Normalizing here is a hack, it should be handled in
+        // RDFTripleStore's add query methods.
+        { where: where.map(_ => normalize_triple(_.map(rstream_variables))) },
+      ],
     })
     .subscribe({ next: result_set => (results = result_set) });
   // TODO: Currently, unsubscribing any query makes it impossible to add others,

@@ -3,7 +3,7 @@ import { EquivMap } from "@thi.ng/associative";
 import rdf from "@def.codes/rdf-data-model";
 import { NamedNode } from "@def.codes/rdf-data-model";
 import { IStream } from "@thi.ng/rstream";
-import { live_query, sync_query } from "@def.codes/rstream-query-rdf";
+import { live_query, sync_query, expand } from "@def.codes/rstream-query-rdf";
 
 // =============== RDF helpers
 
@@ -56,14 +56,9 @@ export const register_driver = (name, init) =>
   drivers.push(init({ q, is_node }));
 
 const HANDLERS = {
-  // When the asserted triples contain open variables (i.e. any variable terms),
-  // this treats them as a “there exists” assertion.
   assert(triples, system) {
-    if (has_open_variables(triples)) {
-      const existing = sync_query(system.store, triples);
-      if (!existing || existing.size === 0)
-        system.assert_all(sub_blank_nodes(triples));
-    } else system.assert_all(triples);
+    const expanded = expand(system.store, triples);
+    if (expanded) system.assert_all(expanded);
   },
   register_output_port({ name, subject, source }, system) {
     system.register_output_port(name, subject, source);
