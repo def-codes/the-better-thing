@@ -1,6 +1,5 @@
 const { DOT, TYPES } = require("@def.codes/graphviz-format");
 const { NODE, EDGE } = TYPES;
-// const { RDFTripleStore } = require("@thi.ng/rstream-query");
 const { RDFTripleStore } = require("@def.codes/rstream-query-rdf");
 const { make_identity_factory } = require("@def.codes/rdf-data-model");
 const { traverse } = require("@def.codes/graphs");

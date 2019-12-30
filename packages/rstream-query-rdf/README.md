@@ -7,6 +7,7 @@ with features intended to support a runtime knowledge base:
 - use terms compatible with the [RDF/JS](http://rdf.js.org/data-model-spec/)
   (using `@def.codes/rdf-data-model`)
 - basic production rules
+- feedback rules (forward chaining)
 
 ## Status
 

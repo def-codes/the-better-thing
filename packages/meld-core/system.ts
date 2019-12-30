@@ -39,17 +39,18 @@ const has_open_variables = triples =>
   triples.some(triple => triple.some(is_variable));
 
 // Helper (for drivers) to make RDF terms from clauses as written.
-const q = (...clauses: string[]) =>
-  clauses.map(clause =>
-    clause.split(/\s+/).map(term =>
-      term.startsWith("?")
-        ? rdf.variable(term.slice(1))
-        : // Clever but didn't end up getting used
-        term.startsWith('"') && term.endsWith('"')
-        ? rdf.literal(term.slice(1, -1))
-        : rdf.namedNode(term)
-    )
+
+export const q1 = (clause: string) =>
+  clause.split(/\s+/).map(term =>
+    term.startsWith("?")
+      ? rdf.variable(term.slice(1))
+      : // Clever but didn't end up getting used
+      term.startsWith('"') && term.endsWith('"')
+      ? rdf.literal(term.slice(1, -1))
+      : rdf.namedNode(term)
   );
+
+export const q = (...clauses: string[]) => clauses.map(q1);
 
 const drivers = [];
 export const register_driver = (name, init) =>
