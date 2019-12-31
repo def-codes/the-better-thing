@@ -5,6 +5,7 @@ const {
   sync_query,
   live_query,
 } = require("@def.codes/rstream-query-rdf");
+const tx = require("@thi.ng/transducers");
 const { equiv } = require("@thi.ng/equiv");
 
 // const { make_identity_factory } = require("@def.codes/rdf-data-model");
@@ -35,7 +36,7 @@ const cases = [
   {
     facts: [...abc_triangle, q1("spouseOf isa SymmetricProperty")],
     rules: [symmetric_property_rule],
-    outputs: [q("Bob spouseOf Alice")],
+    outputs: q("Bob spouseOf Alice"),
   },
   {
     facts: q("Dog isa Mammal", "Mammal subclassOf Animal"),
@@ -43,6 +44,14 @@ const cases = [
     outputs: q("Dog isa Animal"),
   },
 ];
+
+// compute the results (assertions) of the given rule on the given store
+const apply_rule = (store, { when, then }) =>
+  tx.transduce(
+    tx.mapcat(_ => then(_).assert),
+    tx.conj(),
+    sync_query(store, when) || []
+  );
 
 function eval_test(spec) {
   const { facts, rules, outputs } = spec;
@@ -52,15 +61,20 @@ function eval_test(spec) {
 
   // ASSUME 1 rule for now
   const [rule] = rules;
-  const { when, then } = rule;
-  const matched = sync_query(store, when);
-  const got = new Set(Array.from(matched, then).map(_ => _.assert));
-  const pass = equiv(got, new Set(outputs));
+  const got = apply_rule(store, rule);
+  const expect = tx.transduce(
+    tx.map(_ => _.map(rdf.normalize)),
+    tx.conj(),
+    outputs
+  );
+  const pass = equiv(got, expect);
   return { spec, got, pass };
 }
 
 const results = cases.map(eval_test);
-console.log(`...results`, ...results);
+// const { inspect } = require("util");
+// console.log(`...results`, inspect(results, { depth: 7 }));
 
-exports.display = { things: cases };
+// exports.display = { things: cases };
+exports.display = { things: results };
 // exports.display = { thing: q("Sam loves Joe") };
