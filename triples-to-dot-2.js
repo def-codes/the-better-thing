@@ -13,9 +13,12 @@ const { namedNode: n, blankNode: b, literal: l, variable: v } = factory;
 const { some_object_graph } = require("./lib/test-object-graph");
 const { some_ast } = require("./lib/some-ast");
 const { evaluate_cases } = require("./lib/evaluate-cases");
-const { simple_records, symmetric_property } = require("./lib/rdf-js-examples");
+const {
+  simple_records,
+  symmetric_property_with_bnode,
+} = require("./lib/rdf-js-examples");
 // const trips = [...rdf_js_traversal(evaluate_cases)];
-const trips = symmetric_property;
+const trips = symmetric_property_with_bnode;
 // console.log(`facts`, trips);
 const thing = trips;
 
@@ -49,6 +52,32 @@ const find_dot_edges = (store, from, to) =>
     ]) || [],
     _ => _.edge
   );
+
+const is_blank_node = term => term.termType === "BlankNode";
+
+const tx = require("@thi.ng/transducers");
+const find_blank_nodes = store =>
+  tx.iterator(
+    tx.filter(is_blank_node),
+    tx.concat(store.indexS.keys(), store.indexO.keys())
+  );
+
+function* find_blank_nodes_0(store) {
+  for (const key of store.indexS.keys()) if (is_blank_node(key)) yield key;
+  for (const key of store.indexO.keys()) if (is_blank_node(key)) yield key;
+}
+
+store2.into(
+  tx.mapcat(
+    bn => [
+      [bn, n(`${DOT}shape`), l("square")],
+      [bn, n(`${DOT}label`), l("")],
+      [bn, n(`${DOT}width`), l(0.1)],
+      [bn, n(`${DOT}style`), l("filled")],
+    ],
+    find_blank_nodes(store)
+  )
+);
 
 const dot_edges = find_dot_edges(store2, n("Carol"), n("Alice"));
 if (dot_edges) {
