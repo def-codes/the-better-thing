@@ -40,6 +40,12 @@ const find_dot_edges = (store, from, to) =>
     _ => _.edge
   );
 
+const find_all_dot_edges = store =>
+  Array.from(
+    sync_query(store, [[v("edge"), TYPE, n(EDGE)]]) || [],
+    _ => _.edge
+  );
+
 const is_blank_node = term => term.termType === "BlankNode";
 const find_blank_nodes = store =>
   tx.iterator(
@@ -48,7 +54,7 @@ const find_blank_nodes = store =>
   );
 
 // all this is a hack based on a defunct approach to dot mapping
-function mark_bnodes(store) {
+function mark_bnodes(store, color = "red") {
   store.into(
     tx.iterator(
       tx.comp(
@@ -59,7 +65,7 @@ function mark_bnodes(store) {
           [bn, n(`${DOT}label`), l("")],
           [bn, n(`${DOT}width`), l(0.1)],
           [bn, n(`${DOT}style`), l("filled")],
-          [bn, n(`${DOT}color`), l("red")],
+          [bn, n(`${DOT}color`), l(color)],
         ])
       ),
       find_blank_nodes(store)
@@ -67,13 +73,29 @@ function mark_bnodes(store) {
   );
 }
 
-function make_dot_store_from(store) {
+function mark_edges(store, color = "red") {
+  store.into(
+    tx.mapcat(
+      bn => [
+        [bn, n(`${DOT}color`), l(color)],
+        [bn, n(`${DOT}fontcolor`), l(color)],
+        // hack, so you can see both colors.  could pass in other attrs, etc
+        [bn, n(`${DOT}style`), l(color === "red" ? "dashed" : "solid")],
+      ],
+      find_all_dot_edges(store)
+    )
+  );
+}
+
+function make_dot_store_from(store, color = "red") {
   const dot_store = new RDFTripleStore();
   dot_store.into(triples_to_dot_description(store));
-  mark_bnodes(dot_store);
+  mark_bnodes(dot_store, color);
+  mark_edges(dot_store, color);
   return dot_store;
 }
 
+/* other sources
 function get_source_triples() {
   const { some_object_graph } = require("./lib/test-object-graph");
   const { some_ast } = require("./lib/some-ast");
@@ -82,18 +104,8 @@ function get_source_triples() {
     simple_records,
     symmetric_property_with_bnodes,
   } = require("./lib/rdf-js-examples");
-  // const trips = [...rdf_js_traversal(evaluate_cases)];
-  trips = [...symmetric_property_with_bnodes, [n("a"), n("b"), n("c")]];
-  // const thing = trips;
-
-  // store.add([n("dolphins"), n(`${DOT}shape`), l("circle")]);
-  // store.add([b("b2536"), n(`${DOT}color`), l("red")]);
 }
-
-function get_entail_case(n = 0) {
-  const entail_cases = require("./lib/simple-entailment-test-cases");
-  return Object.values(entail_cases)[n];
-}
+*/
 
 const store_from = triples => {
   const store = new RDFTripleStore();
@@ -101,24 +113,62 @@ const store_from = triples => {
   return store;
 };
 
-const case_number = 4;
-const source_store_1 = store_from(get_entail_case(case_number).a);
-const dot_store_1 = make_dot_store_from(source_store_1);
-const dot_statements_1 = [...dot_interpret_rdf_store(dot_store_1)];
+const entail_cases = require("./lib/simple-entailment-test-cases");
+function do_entail_case(number = 8) {
+  const [name, entail_case] = Object.entries(entail_cases)[case_number];
+  const source_store_1 = store_from(entail_case.a);
+  const dot_store_1 = make_dot_store_from(source_store_1, "blue");
+  const dot_statements_1 = [...dot_interpret_rdf_store(dot_store_1)];
 
-const source_store_2 = store_from(get_entail_case(case_number).b);
-const dot_store_2 = make_dot_store_from(source_store_2);
-const dot_statements_2 = [...dot_interpret_rdf_store(dot_store_2)];
+  const source_store_2 = store_from(entail_case.b);
+  const dot_store_2 = make_dot_store_from(source_store_2, "red");
+  const dot_statements_2 = [...dot_interpret_rdf_store(dot_store_2)];
 
-// mark_node(dot_store_1, n("Bob"));
-// mark_edge(dot_store_1, n("Carol"), n("Alice"));
+  // const dot_statements = [...rdfjs_store_to_dot_statements(blah)];
+  // exports.display = { things: [...tx.flatten(thing)] };
+  return [name, dot_statements_1, dot_statements_2];
+}
 
-// const dot_statements = [...rdfjs_store_to_dot_statements(blah)];
+function case_statements(number) {
+  const [name, dot_statements_1, dot_statements_2] = do_entail_case(number);
 
-// exports.display = { things: [...tx.flatten(thing)] };
+  const merged_statements = [...dot_statements_1, ...dot_statements_2];
 
-// exports.display = { dot_statements };
+  const { prefix_statement_keys } = require("./lib/clustering");
+  const side_by_side_statements = [
+    {
+      type: "subgraph",
+      id: "cluster a",
+      statements: [...prefix_statement_keys("a")(dot_statements_1)],
+    },
+    {
+      type: "subgraph",
+      id: "cluster b",
+      statements: [...prefix_statement_keys("b")(dot_statements_2)],
+    },
+  ];
+  // const side_by_side_statements = [
+  //   ...prefix_statement_keys("a")(dot_statements_1),
+  //   ...prefix_statement_keys("b")(dot_statements_2),
+  // ];
+  return [name, side_by_side_statements, merged_statements];
+}
+
+let case_number = 10;
+// case_number = Object.keys(entail_cases).length - 1;
+const [case_name, clusters, merged] = case_statements(case_number);
+const dot_statements = [clusters, merged][1];
+
 exports.display = {
-  dot_statements: [...dot_statements_1, ...dot_statements_2],
+  // dot_statements,
+  dot_graph: {
+    directed: true,
+    strict: false,
+    attributes: {
+      // rankdir: "LR",
+      label: case_name,
+      splines: false,
+    },
+    statements: dot_statements,
+  },
 };
-//exports.display = { dot_graph: { strict: false, statements: dot_statements } };
