@@ -162,15 +162,36 @@ function case_statements(entail_case) {
 
 // Tell whether `a` entails `b`, and if so include a mapping of `b`'s bnodes to
 // terms in `a`.
-function* simple_entailment_mapping(a, b) {
+function* simple_entailment_mapping(A, B) {
   // map b's bnodes to terms in a.  an `a` node may be used multiple times
-  // const mapping = new Map();
-  for (const [bnode, facts] of b.indexS)
-    if (is_blank_node(bnode)) {
-      const query = Array.from(facts, i => [v("s"), ...b.triples[i].slice(1)]);
-      const result = sync_query(a, query);
-      yield [bnode, Array.from(result || [], _ => _.s)];
-    }
+
+  const mapping = new Map(); // mappings we know are valid
+  const candidates = new Map(); // mappings we have reason to think may be valid
+
+  const ff = n => (is_blank_node(n) ? mapping.get(n) || v(n.value) : n);
+
+  function do_eet(bnode, facts, mode) {
+    if (!is_blank_node(bnode)) return;
+    const query = Array.from(facts, i => {
+      const [s, p, o] = B.triples[i];
+      if (mode === "subject") return [v("ZZZ"), p, ff(o)];
+      if (mode === "object") return [ff(s), p, v("ZZZ")];
+    });
+    const result = sync_query(A, query);
+    const matches = Array.from(result || [], _ => _.ZZZ);
+    // could also use value as key
+    if (matches.length === 1) mapping.set(bnode, matches[0]);
+    return matches;
+  }
+
+  for (const [bnode, facts] of B.indexS) {
+    const matches = do_eet(bnode, facts, "subject");
+    if (matches) yield [bnode, matches];
+  }
+  for (const [bnode, facts] of B.indexO) {
+    const matches = do_eet(bnode, facts, "object");
+    if (matches) yield [bnode, matches];
+  }
 }
 
 // mark algorithm state
