@@ -8,6 +8,7 @@ const {
 const { sync_query } = require("@def.codes/rstream-query-rdf");
 const { dot_interpret_rdf_store } = require("./lib/dot-interpret-rdf-store");
 const { rdfjs_store_to_dot_statements } = require("./lib/rdf-js-to-dot");
+const { prefix_statement_keys } = require("./lib/clustering");
 
 const { namedNode: n, blankNode: b, literal: l, variable: v } = factory;
 
@@ -47,7 +48,7 @@ const find_all_dot_edges = store =>
   );
 
 const is_blank_node = term => term.termType === "BlankNode";
-const find_blank_nodes = store =>
+const bnodes_in = store =>
   tx.iterator(
     tx.filter(is_blank_node),
     tx.concat(store.indexS.keys(), store.indexO.keys())
@@ -68,7 +69,7 @@ function mark_bnodes(store, color = "red") {
           [bn, n(`${DOT}color`), l(color)],
         ])
       ),
-      find_blank_nodes(store)
+      bnodes_in(store)
     )
   );
 }
@@ -113,61 +114,104 @@ const store_from = triples => {
   return store;
 };
 
-const entail_cases = require("./lib/simple-entailment-test-cases");
-function do_entail_case(number = 8) {
-  const [name, entail_case] = Object.entries(entail_cases)[case_number];
-  const source_store_1 = store_from(entail_case.a);
-  const dot_store_1 = make_dot_store_from(source_store_1, "blue");
-  const dot_statements_1 = [...dot_interpret_rdf_store(dot_store_1)];
-
-  const source_store_2 = store_from(entail_case.b);
-  const dot_store_2 = make_dot_store_from(source_store_2, "red");
-  const dot_statements_2 = [...dot_interpret_rdf_store(dot_store_2)];
-
-  // const dot_statements = [...rdfjs_store_to_dot_statements(blah)];
-  // exports.display = { things: [...tx.flatten(thing)] };
-  return [name, dot_statements_1, dot_statements_2];
+function do_item(triples, color) {
+  const source = store_from(triples);
+  const dot_store = make_dot_store_from(source, color);
+  const dot_statements = [...dot_interpret_rdf_store(dot_store)];
+  return { source, dot_store, dot_statements };
 }
 
-function case_statements(number) {
-  const [name, dot_statements_1, dot_statements_2] = do_entail_case(number);
+const do_entail_case = entail_case => ({
+  a: do_item(entail_case.a, "blue"),
+  b: do_item(entail_case.b, "red"),
+});
 
-  const merged_statements = [...dot_statements_1, ...dot_statements_2];
+const make_dot_edge = (from, to, attrs = {}) => {
+  const edge = b();
+  return [
+    [edge, TYPE, n(EDGE)],
+    [edge, n(`${DOT}from`), from],
+    [edge, n(`${DOT}to`), to],
+    ...Object.entries(attrs).map(([k, v]) => [edge, n(`${DOT}${k}`), l(v)]),
+  ];
+};
 
-  const { prefix_statement_keys } = require("./lib/clustering");
-  const side_by_side_statements = [
+function case_statements(entail_case) {
+  const { a, b } = do_entail_case(entail_case);
+
+  const merged = [...a.dot_statements, ...b.dot_statements];
+  const clusters = [
     {
       type: "subgraph",
       id: "cluster a",
-      statements: [...prefix_statement_keys("a")(dot_statements_1)],
+      statements: [...prefix_statement_keys("a")(a.dot_statements)],
     },
     {
       type: "subgraph",
       id: "cluster b",
-      statements: [...prefix_statement_keys("b")(dot_statements_2)],
+      statements: [...prefix_statement_keys("b")(b.dot_statements)],
     },
   ];
   // const side_by_side_statements = [
   //   ...prefix_statement_keys("a")(dot_statements_1),
   //   ...prefix_statement_keys("b")(dot_statements_2),
   // ];
-  return [name, side_by_side_statements, merged_statements];
+  return { a, b, merged, clusters };
 }
 
-let case_number = 10;
+// Tell whether `a` entails `b`, and if so include a mapping of `b`'s bnodes to
+// terms in `a`.
+function* simple_entailment_mapping(a, b) {
+  // map b's bnodes to terms in a.  an `a` node may be used multiple times
+  // const mapping = new Map();
+  for (const [bnode, facts] of b.indexS)
+    if (is_blank_node(bnode)) {
+      const query = Array.from(facts, i => [v("s"), ...b.triples[i].slice(1)]);
+      const result = sync_query(a, query);
+      yield [bnode, Array.from(result || [], _ => _.s)];
+    }
+}
+
+// mark algorithm state
+function mark_algorithm() {
+  const store = new RDFTripleStore();
+
+  for (const [from, targets] of simple_entailment_mapping(A.source, B.source))
+    for (const candidate of targets)
+      store.into([
+        // what we really mean is the node representing Socrates
+        // ...make_dot_edge(n("Socrates"), n("Greek"), {
+        ...make_dot_edge(from, candidate, {
+          constraint: false,
+          color: "#FF00AAAA",
+          penwidth: 5,
+        }),
+      ]);
+
+  return dot_interpret_rdf_store(store);
+}
+
+let case_number = 7;
+console.log(`case_number`, case_number);
+
 // case_number = Object.keys(entail_cases).length - 1;
-const [case_name, clusters, merged] = case_statements(case_number);
-const dot_statements = [clusters, merged][1];
+const entail_cases = require("./lib/simple-entailment-test-cases");
+const [case_name, entail_case] = Object.entries(entail_cases)[case_number];
+const { a: A, b: B, clusters, merged } = case_statements(entail_case);
+const base_dot_statements = [clusters, merged][1];
+
+const dot_statements = [...base_dot_statements, ...mark_algorithm()];
 
 exports.display = {
   // dot_statements,
   dot_graph: {
     directed: true,
-    strict: false,
     attributes: {
       // rankdir: "LR",
+      layout: "dot",
+      concentrate: false,
       label: case_name,
-      splines: false,
+      splines: true,
     },
     statements: dot_statements,
   },
