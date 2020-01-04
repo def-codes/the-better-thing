@@ -9,6 +9,7 @@ const { sync_query } = require("@def.codes/rstream-query-rdf");
 const { dot_interpret_rdf_store } = require("./lib/dot-interpret-rdf-store");
 const { rdfjs_store_to_dot_statements } = require("./lib/rdf-js-to-dot");
 const { prefix_statement_keys } = require("./lib/clustering");
+const entail_cases = require("./lib/simple-entailment-test-cases");
 
 const { namedNode: n, blankNode: b, literal: l, variable: v } = factory;
 
@@ -173,7 +174,7 @@ function* simple_entailment_mapping(a, b) {
 }
 
 // mark algorithm state
-function mark_algorithm() {
+function mark_algorithm(A, B) {
   const store = new RDFTripleStore();
 
   for (const [from, targets] of simple_entailment_mapping(A.source, B.source))
@@ -191,27 +192,43 @@ function mark_algorithm() {
   return dot_interpret_rdf_store(store);
 }
 
-let case_number = 7;
-console.log(`case_number`, case_number);
+// this no longer really plays well with clusters mode
+function do_case(number = 0, mode = 0) {
+  const [case_name, entail_case] = Object.entries(entail_cases)[number];
+  const { a: A, b: B, clusters, merged } = case_statements(entail_case);
+  const base_dot_statements = [merged, clusters][mode];
+  return {
+    type: "subgraph",
+    id: `cluster case ${number}`,
+    attributes: { label: case_name },
+    statements: prefix_statement_keys(`c${number} `)([
+      ...base_dot_statements,
+      ...mark_algorithm(A, B),
+    ]),
+  };
+}
 
 // case_number = Object.keys(entail_cases).length - 1;
-const entail_cases = require("./lib/simple-entailment-test-cases");
-const [case_name, entail_case] = Object.entries(entail_cases)[case_number];
-const { a: A, b: B, clusters, merged } = case_statements(entail_case);
-const base_dot_statements = [clusters, merged][1];
-
-const dot_statements = [...base_dot_statements, ...mark_algorithm()];
+const dot_statements = Object.keys(Object.keys(entail_cases)).map(idx =>
+  do_case(idx, 0)
+);
 
 exports.display = {
   // dot_statements,
   dot_graph: {
     directed: true,
+    node_attributes: {
+      // shape: "circle",
+    },
+    edge_attributes: {
+      // minlen: 50,
+    },
     attributes: {
-      // rankdir: "LR",
-      layout: "dot",
+      rankdir: "LR",
+      // layout: "fdp",
       concentrate: false,
-      label: case_name,
-      splines: true,
+      newrank: true,
+      splines: false,
     },
     statements: dot_statements,
   },
