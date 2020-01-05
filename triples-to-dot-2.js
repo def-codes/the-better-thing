@@ -233,36 +233,74 @@ function* simple_entailment_mapping(A, B) {
   // for each pairing that results indicate is possible
   // I mean... we should eliminate ones that we know are unconditionally true
 
-  for (const [key, matches] of Object.entries(dump)) {
-    console.log(`${key} matches`);
-    for (const { match, conditions } of matches) {
-      console.log(
-        `  ${match[key]} if`,
-        Object.entries(conditions)
-          .map(([k, v]) => `${k} => ${v}`)
-          .join(" & ")
-      );
-    }
-  }
+  const {
+    constructors,
+    ascii_notate: notate,
+    transformations,
+  } = require("./lib/simple-logic");
+  const { or, and, implies, not, variable } = constructors;
 
-  const var_name = (s, t) => `${s}?${t}`;
+  // could `?` still clash with valid var name?
+  const make_var = (s, t) => variable(`${s}?${t}`);
 
   const clauses = [];
-  const model = {};
+  // const model = {};
   for (const [key, matches] of Object.entries(dump)) {
-    // console.log(`${key} matches`);
     for (const { match, conditions } of matches) {
-      // console.log(`match, conditions`, match, conditions);
-
       const cond = Object.entries(conditions);
-      const v1 = var_name(key, match[key]);
-      const clauses = Object.entries(conditions)
-        .map(([k, v]) => var_name(k, v))
-        .join(" & ");
-
-      console.log(`  ${v1} -> (${clauses})`);
+      const v1 = make_var(key, match[key]);
+      if (cond.length) {
+        const [[k, v], ...rest] = cond;
+        clauses.push(
+          transformations.implies(
+            implies(
+              v1,
+              rest.reduce(
+                (acc, [k, v]) => and(acc, make_var(k, v)),
+                make_var(k, v)
+              )
+            )
+          )
+        );
+      } else clauses.push(v1);
     }
   }
+
+  const is_literal = expr =>
+    expr.type === "variable" ||
+    (expr.type === "not" && expr.rhs.type === "variable");
+
+  const is_cnf_clause = expr =>
+    is_literal(expr) ||
+    (expr.type === "or" && is_cnf_clause(expr.lhs) && is_cnf_clause(expr.rhs));
+
+  const is_cnf = expr =>
+    expr.type === "and" && is_cnf_clause(expr.lhs) && is_cnf_clause(expr.rhs);
+
+  function* flatten_op_tree(expr, op) {
+    if (is_literal(expr)) yield expr;
+    else if (expr.type !== op) throw `expected ‘{op}’`;
+    else {
+      yield* flatten_op_tree(expr.lhs, op);
+      yield* flatten_op_tree(expr.rhs, op);
+    }
+  }
+
+  const normalized = clauses.map(clause => {
+    if (is_cnf_clause(clause)) return clause;
+    // we happen to know this is something in the form
+    // ~(p & q1 & ... qn) | r
+    const res = or(transformations.de_morgan(clause.lhs), clause.rhs);
+    if (is_cnf_clause(res)) return res;
+    throw `failed to normalize`;
+  });
+
+  for (const clause of normalized) {
+    // console.log(notate(clause));
+    console.log([...flatten_op_tree(clause, "or")].map(notate));
+  }
+
+  // console.log(clauses.map(notate).join("\n"));
 }
 
 // mark algorithm state
