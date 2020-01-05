@@ -1,4 +1,5 @@
 const tx = require("@thi.ng/transducers");
+const { equiv } = require("@thi.ng/equiv");
 const { DOT, TYPES } = require("@def.codes/graphviz-format");
 const { NODE, EDGE } = TYPES;
 const { RDFTripleStore, factory } = require("@def.codes/rstream-query-rdf");
@@ -160,37 +161,107 @@ function case_statements(entail_case) {
   return { a, b, merged, clusters };
 }
 
+/*
+  Goal: find a mapping for bnodes in B to nodes in A.  A nodes may be reused.
+
+  A search state is
+  - A : the graph that might entail B
+  - B : the graph that might be entailed
+  - mappings : a partial mapping of B's bnode names to nodes in A
+  - node : the blank node of B's that you're currently visiting (looking at)
+  - seen : states that have been visited?  (i.e. mappings, equivmap)
+  - stack : a set of nodes currently... do you need this if you already have mapping?
+
+  Assumes that mapping is partial if you're still looking at?
+  Looking at must not be in mappings.
+  I don't think that looking-at is part of state
+
+  A solution is a complete mapping, viz one with as many entries as B has bnodes.
+
+  moves from a given mapping can be to other, more complete mappings
+  - partial mappings are always valid as far as they go
+  - but they might be a dead end
+  - don't you need equivmap to keep from revisiting old states?
+*/
+
+// given a state, produce possible moves
+// no moves means dead end
+// yields once for each possible match/scenario for given node
+function* process_state({ A, B, mapping, looking_at: node }) {
+  // construct a query for A
+  const clauses = (idx, f) => tx.map(i => f(B.triples[i]), idx.get(node) || []);
+  const sub = n => (is_blank_node(n) ? mapping[n.value] || v(n.value) : n);
+  const query = [
+    ...clauses(B.indexS, ([, p, o]) => [v("ZZZ"), p, sub(o)]),
+    ...clauses(B.indexO, ([s, p]) => [sub(s), p, v("ZZZ")]),
+  ];
+
+  // others are conditional because you still have to look at them
+  for (const { ZZZ, ...conditions } of sync_query(A, query) || [])
+    yield { match: { [node.value]: ZZZ }, conditions };
+}
+
 // Tell whether `a` entails `b`, and if so include a mapping of `b`'s bnodes to
-// terms in `a`.
+// terms in `a`.  an `a` node may be used multiple times
 function* simple_entailment_mapping(A, B) {
-  // map b's bnodes to terms in a.  an `a` node may be used multiple times
+  // const queue = Array.from(bnodes_in(B), _ => ({ looking_at: _, mapping: {} }));
+  // const target_size = queue.length;
 
-  const mapping = new Map(); // mappings we know are valid
-  const candidates = new Map(); // mappings we have reason to think may be valid
-
-  const ff = n => (is_blank_node(n) ? mapping.get(n) || v(n.value) : n);
-
-  function do_eet(bnode, facts, mode) {
-    if (!is_blank_node(bnode)) return;
-    const query = Array.from(facts, i => {
-      const [s, p, o] = B.triples[i];
-      if (mode === "subject") return [v("ZZZ"), p, ff(o)];
-      if (mode === "object") return [ff(s), p, v("ZZZ")];
-    });
-    const result = sync_query(A, query);
-    const matches = Array.from(result || [], _ => _.ZZZ);
-    // could also use value as key
-    if (matches.length === 1) mapping.set(bnode, matches[0]);
-    return matches;
+  const dump = {};
+  const EMPTY = {};
+  for (const looking_at of bnodes_in(B)) {
+    const matches = [...process_state({ A, B, looking_at, mapping: EMPTY })];
+    if (matches.length === 0) {
+      console.log(`yes, we have no bananas I mean match for ${looking_at}`);
+      return;
+    }
+    const unconditional = matches.find(_ => !Object.keys(_.conditions).length);
+    if (unconditional) {
+      console.log(`at least one match is unconditional!`, unconditional);
+      // add this to mapping for all future nodes
+      // check whether it matches conditions of all previous matches
+      // but what if it doesn't & you have another unconditional match that does?
+    } else {
+      console.log(`lovely, all matches are conditional`, ...matches);
+      // check whether any conditions
+    }
+    // if (matches.length === 1)
+    dump[looking_at.value] = matches;
   }
 
-  for (const [bnode, facts] of B.indexS) {
-    const matches = do_eet(bnode, facts, "subject");
-    if (matches) yield [bnode, matches];
+  // construct a SAT problem from the bnode findings
+  // for each pairing that results indicate is possible
+  // I mean... we should eliminate ones that we know are unconditionally true
+
+  for (const [key, matches] of Object.entries(dump)) {
+    console.log(`${key} matches`);
+    for (const { match, conditions } of matches) {
+      console.log(
+        `  ${match[key]} if`,
+        Object.entries(conditions)
+          .map(([k, v]) => `${k} => ${v}`)
+          .join(" & ")
+      );
+    }
   }
-  for (const [bnode, facts] of B.indexO) {
-    const matches = do_eet(bnode, facts, "object");
-    if (matches) yield [bnode, matches];
+
+  const var_name = (s, t) => `${s}?${t}`;
+
+  const clauses = [];
+  const model = {};
+  for (const [key, matches] of Object.entries(dump)) {
+    // console.log(`${key} matches`);
+    for (const { match, conditions } of matches) {
+      // console.log(`match, conditions`, match, conditions);
+
+      const cond = Object.entries(conditions);
+      const v1 = var_name(key, match[key]);
+      const clauses = Object.entries(conditions)
+        .map(([k, v]) => var_name(k, v))
+        .join(" & ");
+
+      console.log(`  ${v1} -> (${clauses})`);
+    }
   }
 }
 
@@ -205,7 +276,7 @@ function mark_algorithm(A, B) {
         // ...make_dot_edge(n("Socrates"), n("Greek"), {
         ...make_dot_edge(from, candidate, {
           constraint: false,
-          color: "#FF00AAAA",
+          color: "#FF00FF88",
           penwidth: 5,
         }),
       ]);
