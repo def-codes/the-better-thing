@@ -8,6 +8,13 @@ const {
 } = require("./lib/triples-to-dot-description");
 const { sync_query } = require("@def.codes/rstream-query-rdf");
 const { dot_interpret_rdf_store } = require("./lib/dot-interpret-rdf-store");
+const { solve } = require("./lib/naive-sat");
+const {
+  constructors,
+  ascii_notate: notate,
+  transformations,
+  variables_in,
+} = require("./lib/simple-logic");
 const { rdfjs_store_to_dot_statements } = require("./lib/rdf-js-to-dot");
 const { prefix_statement_keys } = require("./lib/clustering");
 const entail_cases = require("./lib/simple-entailment-test-cases");
@@ -201,104 +208,127 @@ function* process_state({ A, B, mapping, looking_at: node }) {
     yield { match: { [node.value]: ZZZ }, conditions };
 }
 
+/////////////////////////////////// SAT helpers
+
+const { or, and, implies, not, variable } = constructors;
+
+// could `?` still clash with valid var name?
+const make_var = (s, t) => variable(`${s}?${t}`);
+
+function* clauses_from(key, matches) {
+  for (const { match, conditions } of matches) {
+    const cond = Object.entries(conditions);
+    console.log(`a`);
+
+    // if (Object.keys(conditions).length > 2) {
+    //   console.log(`MULTIPLE conditions`, conditions);
+    // }
+    const v1 = make_var(key, match[key]);
+    if (cond.length) {
+      const [[k, v], ...rest] = cond;
+      yield implies(
+        v1,
+        rest.reduce((acc, [k, v]) => and(acc, make_var(k, v)), make_var(k, v))
+      );
+    } else yield v1;
+  }
+}
+
+const is_literal = expr =>
+  expr.type === "variable" ||
+  (expr.type === "not" && expr.rhs.type === "variable");
+
+const is_cnf_clause = expr =>
+  is_literal(expr) ||
+  (expr.type === "or" && is_cnf_clause(expr.lhs) && is_cnf_clause(expr.rhs));
+
+const is_cnf = expr =>
+  expr.type === "and" && is_cnf_clause(expr.lhs) && is_cnf_clause(expr.rhs);
+
+function* flatten_op_tree(expr, op) {
+  if (is_literal(expr)) yield expr;
+  else if (expr.type !== op) throw `expected ‘${op}’`;
+  else {
+    yield* flatten_op_tree(expr.lhs, op);
+    yield* flatten_op_tree(expr.rhs, op);
+  }
+}
+/////////////////////////////////////
+
 // Tell whether `a` entails `b`, and if so include a mapping of `b`'s bnodes to
 // terms in `a`.  an `a` node may be used multiple times
 function* simple_entailment_mapping(A, B) {
   // const queue = Array.from(bnodes_in(B), _ => ({ looking_at: _, mapping: {} }));
   // const target_size = queue.length;
 
+  // The `mapping` is currently superseded by the SAT approach
+  // but there could be specially-optimized versions that use it
   const dump = {};
-  const EMPTY = {};
-  for (const looking_at of bnodes_in(B)) {
-    const matches = [...process_state({ A, B, looking_at, mapping: EMPTY })];
-    if (matches.length === 0) {
-      console.log(`yes, we have no bananas I mean match for ${looking_at}`);
-      return;
-    }
-    const unconditional = matches.find(_ => !Object.keys(_.conditions).length);
-    if (unconditional) {
-      console.log(`at least one match is unconditional!`, unconditional);
-      // add this to mapping for all future nodes
-      // check whether it matches conditions of all previous matches
-      // but what if it doesn't & you have another unconditional match that does?
-    } else {
-      console.log(`lovely, all matches are conditional`, ...matches);
-      // check whether any conditions
-    }
-    // if (matches.length === 1)
-    dump[looking_at.value] = matches;
-  }
+  const mapping = {};
+  for (const looking_at of bnodes_in(B))
+    dump[looking_at.value] = [...process_state({ A, B, looking_at, mapping })];
 
   // construct a SAT problem from the bnode findings
   // for each pairing that results indicate is possible
   // I mean... we should eliminate ones that we know are unconditionally true
 
-  const {
-    constructors,
-    ascii_notate: notate,
-    transformations,
-  } = require("./lib/simple-logic");
-  const { or, and, implies, not, variable } = constructors;
-
-  // could `?` still clash with valid var name?
-  const make_var = (s, t) => variable(`${s}?${t}`);
-
-  const clauses = [];
-  // const model = {};
-  for (const [key, matches] of Object.entries(dump)) {
-    for (const { match, conditions } of matches) {
-      const cond = Object.entries(conditions);
-      const v1 = make_var(key, match[key]);
-      if (cond.length) {
-        const [[k, v], ...rest] = cond;
-        clauses.push(
-          transformations.implies(
-            implies(
-              v1,
-              rest.reduce(
-                (acc, [k, v]) => and(acc, make_var(k, v)),
-                make_var(k, v)
-              )
-            )
-          )
-        );
-      } else clauses.push(v1);
-    }
-  }
-
-  const is_literal = expr =>
-    expr.type === "variable" ||
-    (expr.type === "not" && expr.rhs.type === "variable");
-
-  const is_cnf_clause = expr =>
-    is_literal(expr) ||
-    (expr.type === "or" && is_cnf_clause(expr.lhs) && is_cnf_clause(expr.rhs));
-
-  const is_cnf = expr =>
-    expr.type === "and" && is_cnf_clause(expr.lhs) && is_cnf_clause(expr.rhs);
-
-  function* flatten_op_tree(expr, op) {
-    if (is_literal(expr)) yield expr;
-    else if (expr.type !== op) throw `expected ‘{op}’`;
-    else {
-      yield* flatten_op_tree(expr.lhs, op);
-      yield* flatten_op_tree(expr.rhs, op);
-    }
-  }
+  const clauses = [
+    ...tx.flatten(
+      tx.map(([k, matches]) => clauses_from(k, matches), Object.entries(dump))
+    ),
+  ];
 
   const normalized = clauses.map(clause => {
     if (is_cnf_clause(clause)) return clause;
     // we happen to know this is something in the form
-    // ~(p & q1 & ... qn) | r
-    const res = or(transformations.de_morgan(clause.lhs), clause.rhs);
-    if (is_cnf_clause(res)) return res;
-    throw `failed to normalize`;
+    // p -> ((q1 & q2) & ... qn)
+    let imp = transformations.implies(clause);
+    console.log(`IMPLIED`, notate(imp));
+    let res = imp;
+    let ptr = imp;
+    let i = 0;
+    while (!is_cnf_clause(ptr)) {
+      ptr = transformations.de_morgan(ptr.lhs);
+      res = or(ptr, res.rhs);
+      console.log(`notate(ptr)`, notate(ptr));
+      console.log(`notate(res)`, notate(res));
+
+      if (++i > 3) break;
+    }
+    return or(res, imp.rhs);
   });
 
+  const all_vars = new Set();
+  const sat_clauses = [];
   for (const clause of normalized) {
     // console.log(notate(clause));
-    console.log([...flatten_op_tree(clause, "or")].map(notate));
+    for (const v of variables_in(clause)) all_vars.add(v);
+    const sat_clause_1 = [...flatten_op_tree(clause, "or")];
+    // console.log(sat_clause_1.map(notate));
+    const sat_clause = sat_clause_1.map(_ =>
+      _.type === "not"
+        ? { variable: _.rhs.name, neg: true }
+        : { variable: _.name }
+    );
+    sat_clauses.push(sat_clause);
+    // console.log(`sat_clause`, sat_clause);
   }
+
+  for (const [key, matches] of Object.entries(dump)) {
+    const sat_clause = matches.map(({ match }) => ({
+      variable: make_var(key, match[key]).name,
+    }));
+    sat_clauses.push(sat_clause);
+    // console.log(`sat_clause`, sat_clause);
+  }
+
+  const sat_vars = [...all_vars];
+  // console.log(`sat_clauses`, sat_clauses);
+
+  const model = solve(sat_vars, sat_clauses);
+  const mod = {};
+  for (const x in model) mod[x] = model[x];
+  console.log(`model`, mod);
 
   // console.log(clauses.map(notate).join("\n"));
 }
@@ -358,7 +388,7 @@ exports.display = {
       // layout: "fdp",
       concentrate: false,
       newrank: true,
-      splines: false,
+      // splines: false,
     },
     statements: dot_statements,
   },
