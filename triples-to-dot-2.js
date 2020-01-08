@@ -14,6 +14,7 @@ const {
   constructors,
   ascii_notate: notate,
   sat_prep,
+  exactly_one,
 } = require("./lib/simple-logic");
 const { rdfjs_store_to_dot_statements } = require("./lib/rdf-js-to-dot");
 const { prefix_statement_keys } = require("./lib/clustering");
@@ -288,15 +289,16 @@ function* simple_entailment_mapping(A, B) {
     return;
   }
 
-  console.log(`clauses`, clauses.map(notate));
-  const { variables: sat_vars, clauses: sat_clauses } = sat_prep(clauses);
-
+  // ensure ~at least~ exactly one match for each node
+  // const all_clauses = [...clauses, ]
   for (const [key, matches] of Object.entries(findings)) {
-    const sat_clause = matches.map(({ match }) => ({
-      variable: make_var(key, match[key]).name,
-    }));
-    sat_clauses.push(sat_clause);
+    const options = matches.map(({ match }) => make_var(key, match[key]));
+    const ones = exactly_one(options);
+    for (const one of ones) clauses.push(one);
   }
+
+  // console.log(`clauses`, clauses.map(notate));
+  const { variables: sat_vars, clauses: sat_clauses } = sat_prep(clauses);
 
   const model = solve(sat_vars, sat_clauses);
   // flatten model because it uses this weird prototype thing
