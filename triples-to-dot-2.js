@@ -5,7 +5,7 @@ const { DOT, TYPES } = require("@def.codes/graphviz-format");
 const { NODE, EDGE } = TYPES;
 const { RDFTripleStore, factory } = require("@def.codes/rstream-query-rdf");
 const { dot_interpret_rdf_store } = require("./lib/dot-interpret-rdf-store");
-const { prefix_statement_keys } = require("./lib/clustering");
+const { prefix_statement_keys, clusters_from } = require("./lib/clustering");
 const entail_cases = require("./lib/simple-entailment-test-cases");
 const { simple_entailment_mapping } = require("./lib/graph-ops");
 const { dot_notate } = require("./lib/dot-notate");
@@ -45,23 +45,16 @@ function case_statements(entail_case) {
   const { a, b } = do_entail_case(entail_case);
 
   const merged = [...a.dot_statements, ...b.dot_statements];
-  const clusters = [
-    {
-      type: "subgraph",
-      id: "cluster a",
-      statements: [...prefix_statement_keys("a")(a.dot_statements)],
-    },
-    {
-      type: "subgraph",
-      id: "cluster b",
-      statements: [...prefix_statement_keys("b")(b.dot_statements)],
-    },
-  ];
   // const side_by_side_statements = [
   //   ...prefix_statement_keys("a")(dot_statements_1),
   //   ...prefix_statement_keys("b")(dot_statements_2),
   // ];
-  return { a, b, merged, clusters };
+  return {
+    a,
+    b,
+    merged,
+    clusters: clusters_from({ a: a.dot_statements, b: b.dot_statements }),
+  };
 }
 
 // mark algorithm state
@@ -70,7 +63,7 @@ function mark_algorithm(A, B) {
 
   const mapping = simple_entailment_mapping(A.source, B.source);
   for (const [from, target] of mapping) {
-    console.log(`from, target`, from, target);
+    // console.log(`from, target`, from, target);
     store.into([
       // what we really mean is the node representing Socrates
       // ...make_dot_edge(n("Socrates"), n("Greek"), {
