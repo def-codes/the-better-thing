@@ -219,9 +219,6 @@ const make_var = (s, t) => variable(`${s}?${t}`);
 function* clauses_from(key, matches) {
   for (const { match, conditions } of matches) {
     const cond = Object.entries(conditions);
-    // if (Object.keys(conditions).length > 2) {
-    //   console.log(`MULTIPLE conditions`, conditions);
-    // }
     const v1 = make_var(key, match[key]);
     if (cond.length) {
       const [[k, v], ...rest] = cond;
@@ -255,9 +252,29 @@ const describe_findings = findings =>
     .map(describe_finding)
     .join("\n");
 
+// All matches that are considered by anything.
+// Creates a map with a set of possible targets for each bnode label
+const considering = findings =>
+  tx.transduce(
+    tx.mapcat(([key, matches]) =>
+      tx.mapcat(
+        ({ match, conditions }) => [
+          [key, match[key]],
+          ...Object.entries(conditions),
+        ],
+        matches
+      )
+    ),
+    tx.groupByMap({
+      key: _ => _[0],
+      group: [() => new Set(), , (acc, [, val]) => acc.add(val)],
+    }),
+    Object.entries(findings)
+  );
+
 // Tell whether `a` entails `b`, and if so include a mapping of `b`'s bnodes to
 // terms in `a`.  an `a` node may be used multiple times
-function* simple_entailment_mapping(A, B) {
+function simple_entailment_mapping(A, B) {
   // const queue = Array.from(bnodes_in(B), _ => ({ looking_at: _, mapping: {} }));
   // const target_size = queue.length;
 
@@ -275,7 +292,7 @@ function* simple_entailment_mapping(A, B) {
   // I mean... we should eliminate ones that we know are unconditionally true
   console.log(describe_findings(findings));
 
-  const clauses = [
+  const match_clauses = [
     ...tx.flatten(
       tx.map(
         ([k, matches]) => clauses_from(k, matches),
@@ -284,44 +301,54 @@ function* simple_entailment_mapping(A, B) {
     ),
   ];
 
-  if (!clauses.length) {
+  if (!match_clauses.length) {
     console.log(`no clauses!  no work`);
-    return;
+    return new Map();
   }
 
-  // ensure ~at least~ exactly one match for each node
-  // const all_clauses = [...clauses, ]
-  for (const [key, matches] of Object.entries(findings)) {
-    const options = matches.map(({ match }) => make_var(key, match[key]));
-    const ones = exactly_one(options);
-    for (const one of ones) clauses.push(one);
-  }
+  // ensure exactly one match for each node
+  const one_per_node = [
+    ...tx.mapcat(
+      ([label, targets]) =>
+        exactly_one(Array.from(targets, target => make_var(label, target))),
+      considering(findings)
+    ),
+  ];
 
-  // console.log(`clauses`, clauses.map(notate));
-  const { variables: sat_vars, clauses: sat_clauses } = sat_prep(clauses);
+  const all_clauses = [...match_clauses, ...one_per_node];
+
+  const { variables: sat_vars, clauses: sat_clauses } = sat_prep(all_clauses);
 
   const model = solve(sat_vars, sat_clauses);
-  // flatten model because it uses this weird prototype thing
-  const mod = {};
-  for (const x in model) mod[x] = model[x];
-  console.log(`model`, mod);
+
+  // Now read back into a mapping
+  // model uses this weird prototype thing
+  const result = new Map();
+  for (const key in model)
+    if (model[key]) {
+      const [from, to] = key.split("?");
+      result.set(b(from), factory.from_id(to));
+    }
+  return result;
 }
 
 // mark algorithm state
 function mark_algorithm(A, B) {
   const store = new RDFTripleStore();
 
-  for (const [from, targets] of simple_entailment_mapping(A.source, B.source))
-    for (const candidate of targets)
-      store.into([
-        // what we really mean is the node representing Socrates
-        // ...make_dot_edge(n("Socrates"), n("Greek"), {
-        ...make_dot_edge(from, candidate, {
-          constraint: false,
-          color: "#FF00FF88",
-          penwidth: 5,
-        }),
-      ]);
+  const mapping = simple_entailment_mapping(A.source, B.source);
+  for (const [from, target] of mapping) {
+    console.log(`from, target`, from, target);
+    store.into([
+      // what we really mean is the node representing Socrates
+      // ...make_dot_edge(n("Socrates"), n("Greek"), {
+      ...make_dot_edge(from, target, {
+        constraint: false,
+        color: "#FF00FF88",
+        penwidth: 5,
+      }),
+    ]);
+  }
 
   return dot_interpret_rdf_store(store);
 }

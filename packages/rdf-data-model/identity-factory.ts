@@ -9,6 +9,7 @@ type NormalizeTerm = <T extends RDF.Term>(term: T) => T;
 
 export interface FactoryWithNormalize extends RDF.DataFactory {
   normalize: NormalizeTerm;
+  from_id(id: string): RDF.Term;
 }
 
 const id_of = (term: RDF.Term) => {
@@ -45,13 +46,23 @@ export const make_identity_factory = (): FactoryWithNormalize => {
     fn: (...args: A) => R
   ): ((...args: A) => R) => (...args) => normalize(fn(...args));
 
+  const blankNode = wrap_term(base_factory.blankNode);
+  const namedNode = wrap_term(base_factory.namedNode);
+  const variable = wrap_term(base_factory.variable);
+
+  const from_id = (id: string): RDF.Term => {
+    if (id[0] === "<") return namedNode(id.slice(1, -1));
+    if (id.startsWith("_:")) return blankNode(id.slice(2));
+    if (id[0] === "?") return variable(id.slice(1));
+  };
+
   return {
-    blankNode: wrap_term(base_factory.blankNode),
+    blankNode,
     // This one already uses a singleton
     defaultGraph: base_factory.defaultGraph,
     literal: wrap_term(base_factory.literal),
-    namedNode: wrap_term(base_factory.namedNode),
-    variable: wrap_term(base_factory.variable),
+    namedNode,
+    variable,
 
     // These don't need to return identical quads, but they do need to return
     // quads with identical terms.
@@ -69,5 +80,6 @@ export const make_identity_factory = (): FactoryWithNormalize => {
         normalize(graph)
       ),
     normalize,
+    from_id,
   };
 };
