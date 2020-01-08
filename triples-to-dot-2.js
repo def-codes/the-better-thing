@@ -1,98 +1,18 @@
 // const { inspect } = require("util");
-const tx = require("@thi.ng/transducers");
+// const tx = require("@thi.ng/transducers");
 const { equiv } = require("@thi.ng/equiv");
 const { DOT, TYPES } = require("@def.codes/graphviz-format");
 const { NODE, EDGE } = TYPES;
 const { RDFTripleStore, factory } = require("@def.codes/rstream-query-rdf");
-const {
-  triples_to_dot_description,
-} = require("./lib/triples-to-dot-description");
-const { sync_query } = require("@def.codes/rstream-query-rdf");
 const { dot_interpret_rdf_store } = require("./lib/dot-interpret-rdf-store");
-const { constructors } = require("./lib/simple-logic");
-const { rdfjs_store_to_dot_statements } = require("./lib/rdf-js-to-dot");
 const { prefix_statement_keys } = require("./lib/clustering");
 const entail_cases = require("./lib/simple-entailment-test-cases");
-const { bnodes_in, simple_entailment_mapping } = require("./lib/graph-ops");
+const { simple_entailment_mapping } = require("./lib/graph-ops");
+const { dot_notate } = require("./lib/dot-notate");
 
 const { namedNode: n, blankNode: b, literal: l, variable: v } = factory;
 
 const TYPE = n("rdf:type");
-
-function mark_node(store, node) {
-  store.into([
-    [node, n(`${DOT}style`), l("filled")],
-    [node, n(`${DOT}color`), l("red")],
-    [node, n(`${DOT}shape`), l("circle")],
-  ]);
-}
-
-function mark_edge(store, from, to) {
-  const dot_edges = find_dot_edges(store, from, to);
-  if (dot_edges) {
-    const [dot_edge] = dot_edges;
-    console.log(`dot_edge`, dot_edge);
-    if (dot_edge) store.into([[dot_edge, n(`${DOT}color`), l("green")]]);
-  }
-}
-
-const find_dot_edges = (store, from, to) =>
-  Array.from(
-    sync_query(store, [
-      [v("edge"), TYPE, n(EDGE)],
-      [v("edge"), n(`${DOT}from`), from],
-      [v("edge"), n(`${DOT}to`), to],
-    ]) || [],
-    _ => _.edge
-  );
-
-const find_all_dot_edges = store =>
-  Array.from(
-    sync_query(store, [[v("edge"), TYPE, n(EDGE)]]) || [],
-    _ => _.edge
-  );
-
-// all this is a hack based on a defunct approach to dot mapping
-function mark_bnodes(store, color = "red") {
-  store.into(
-    tx.iterator(
-      tx.comp(
-        // edges are blank nodes
-        tx.filter(node => !store.has([node, TYPE, n(EDGE)])),
-        tx.mapcat(bn => [
-          [bn, n(`${DOT}shape`), l("square")],
-          [bn, n(`${DOT}label`), l("")],
-          [bn, n(`${DOT}width`), l(0.1)],
-          [bn, n(`${DOT}style`), l("filled")],
-          [bn, n(`${DOT}color`), l(color)],
-        ])
-      ),
-      bnodes_in(store)
-    )
-  );
-}
-
-function mark_edges(store, color = "red") {
-  store.into(
-    tx.mapcat(
-      bn => [
-        [bn, n(`${DOT}color`), l(color)],
-        [bn, n(`${DOT}fontcolor`), l(color)],
-        // hack, so you can see both colors.  could pass in other attrs, etc
-        [bn, n(`${DOT}style`), l(color === "red" ? "dashed" : "solid")],
-      ],
-      find_all_dot_edges(store)
-    )
-  );
-}
-
-function make_dot_store_from(store, color = "red") {
-  const dot_store = new RDFTripleStore();
-  dot_store.into(triples_to_dot_description(store));
-  mark_bnodes(dot_store, color);
-  mark_edges(dot_store, color);
-  return dot_store;
-}
 
 /* other sources
 function get_source_triples() {
@@ -106,22 +26,9 @@ function get_source_triples() {
 }
 */
 
-const store_from = triples => {
-  const store = new RDFTripleStore();
-  store.into(triples);
-  return store;
-};
-
-function do_item(triples, color) {
-  const source = store_from(triples);
-  const dot_store = make_dot_store_from(source, color);
-  const dot_statements = [...dot_interpret_rdf_store(dot_store)];
-  return { source, dot_store, dot_statements };
-}
-
 const do_entail_case = entail_case => ({
-  a: do_item(entail_case.a, "blue"),
-  b: do_item(entail_case.b, "red"),
+  a: dot_notate(entail_case.a, "blue"),
+  b: dot_notate(entail_case.b, "red"),
 });
 
 const make_dot_edge = (from, to, attrs = {}) => {
