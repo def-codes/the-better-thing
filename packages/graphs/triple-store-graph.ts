@@ -25,5 +25,15 @@ export const triple_store_graph = (
         yield [o, p];
       }
     },
+    *adjacent(node) {
+      for (const i of store.indexS.get(node) || []) {
+        const [, p, o] = store.triples[i];
+        yield [o, p];
+      }
+      for (const i of store.indexO.get(node) || []) {
+        const [s, p] = store.triples[i];
+        yield [s, p];
+      }
+    },
   };
 };

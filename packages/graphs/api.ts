@@ -20,6 +20,10 @@ export interface IGraphReader<ID, N, E> extends IGraphIterator<ID, N, E> {
 export interface IAdjacencyListReader<ID, E> {
   // I hate to array-ize everything in cases where edge data is never needed
   edges_from(node: ID): IterableIterator<readonly [ID, E]>;
+  // iterate both inbound and outbound edges touching node
+  // what to call this? networkx has `all_neighbors`
+  // not efficient for adjacency list.
+  adjacent(node: ID): IterableIterator<readonly [ID, E]>;
 }
 
 // monotonic graph writer/builder

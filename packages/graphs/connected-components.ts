@@ -10,7 +10,7 @@ function* component_nodes<ID>(
   let group = -1;
   const seen = new Set();
   const spec: Partial<TraversalSpec<ID, any, any>> = {
-    moves_from: id => graph.edges_from(id),
+    moves_from: id => graph.adjacent(id),
   };
 
   for (const node of graph.nodes()) {

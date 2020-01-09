@@ -41,6 +41,12 @@ export class Graph<ID, N, E> implements IGraph<ID, N, E> {
       yield [object, data] as const;
   }
 
+  *adjacent(node: ID) {
+    for (const [s, o, e] of this.edges())
+      if (s === node) yield [o, e] as const;
+      else if (o === node) yield [s, e] as const;
+  }
+
   // Also sets value on existing node with no value if one is provided now.
   add_node(id: ID, value?: N) {
     if (!this._nodes.has(id)) this._nodes.set(id, { value, edges: new Map() });
