@@ -7,8 +7,8 @@
 export interface IGraphIterator<ID, N, E> {
   nodes(): IterableIterator<ID>;
   // name?
-  nodes_with_data(): IterableIterator<[ID, N]>;
-  edges(): IterableIterator<[ID, ID, E]>;
+  nodes_with_data(): IterableIterator<readonly [ID, N]>;
+  edges(): IterableIterator<readonly [ID, ID, E]>;
 }
 
 export interface IGraphReader<ID, N, E> extends IGraphIterator<ID, N, E> {
@@ -19,7 +19,7 @@ export interface IGraphReader<ID, N, E> extends IGraphIterator<ID, N, E> {
 
 export interface IAdjacencyListReader<ID, E> {
   // I hate to array-ize everything in cases where edge data is never needed
-  edges_from(node: ID): IterableIterator<[ID, E]>;
+  edges_from(node: ID): IterableIterator<readonly [ID, E]>;
 }
 
 // monotonic graph writer/builder

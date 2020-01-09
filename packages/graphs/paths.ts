@@ -7,7 +7,7 @@ import { IGraph } from "./api";
 export function* follow_path<ID, E>(
   graph: IGraph<ID, any, E>,
   start: ID,
-  predicates: Iterable<(outbound: Iterable<[ID, E]>) => ID | undefined>
+  predicates: Iterable<(outbound: Iterable<readonly [ID, E]>) => ID | undefined>
 ): IterableIterator<[ID, E]> {
   let next: ID,
     previous = start;

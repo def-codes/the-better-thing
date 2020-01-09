@@ -12,13 +12,13 @@ export class Graph<ID, N, E> implements IGraph<ID, N, E> {
   }
 
   *nodes_with_data() {
-    for (const [id, { value }] of this._nodes) yield [id, value] as [ID, N];
+    for (const [id, { value }] of this._nodes) yield [id, value] as const;
   }
 
   *edges() {
     for (const [subject, { edges }] of this._nodes)
       for (const [object, data] of edges)
-        yield [subject, object, data] as [ID, ID, E];
+        yield [subject, object, data] as const;
   }
 
   *facts() {
@@ -38,7 +38,7 @@ export class Graph<ID, N, E> implements IGraph<ID, N, E> {
 
   *edges_from(subject: ID) {
     for (const [object, data] of this._nodes.get(subject)?.edges || [])
-      yield [object, data] as [ID, E];
+      yield [object, data] as const;
   }
 
   // Also sets value on existing node with no value if one is provided now.

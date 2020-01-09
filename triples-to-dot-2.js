@@ -27,6 +27,7 @@ function get_source_triples() {
 */
 
 const do_entail_case = entail_case => ({
+  //         // [edge, n(`${DOT}style`), l(color === "red" ? "dashed" : "solid")],
   a: dot_notate(entail_case.a, "blue"),
   b: dot_notate(entail_case.b, "red"),
 });

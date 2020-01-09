@@ -8,7 +8,7 @@ const DEFAULT_ID_OF = <T>(x: T): T => x;
 
 export interface TraversalSpec<ID, N, E> {
   id_of(node: any): ID;
-  moves_from(id: ID, value: N | undefined): Iterable<[any, E]>;
+  moves_from(id: ID, value: N | undefined): Iterable<readonly [any, E]>;
   value_of(node: any): N | undefined;
 }
 export interface TraversalState<ID, N> {

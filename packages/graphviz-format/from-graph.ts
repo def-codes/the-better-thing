@@ -10,7 +10,7 @@ export interface NotationSpec<ID, N, E> {
   // Do we need the id's?  Maybe reverse these
   // provide access to graph generally?
   describe_node(id: ID, value: N): Dot.NodeAttributes | undefined;
-  describe_edge(edge: [ID, ID, E]): Dot.EdgeAttributes | undefined;
+  describe_edge(edge: readonly [ID, ID, E]): Dot.EdgeAttributes | undefined;
 }
 
 // See below... this could now be expressed in terms of below (though with
