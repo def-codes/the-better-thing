@@ -4,7 +4,7 @@ import { TraversalSpec, traverse } from "./traverse";
 
 // iterate the nodes of a graph with labels grouping them by maximally-connected
 // components.
-function* component_nodes<ID>(
+export function* component_nodes<ID>(
   graph: IGraphIterator<ID, any, any> & IAdjacencyListReader<ID, any>
 ): IterableIterator<{ subject: ID; group: number }> {
   let group = -1;
