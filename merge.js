@@ -1,5 +1,6 @@
+const { inspect } = require("util");
 const tx = require("@thi.ng/transducers");
-const { RDFTripleStore } = require("@def.codes/rstream-query-rdf");
+const { RDFTripleStore, factory } = require("@def.codes/rstream-query-rdf");
 const { merge_preprocess_source } = require("./lib/merge-graphs");
 const cases = require("./lib/simple-merge-cases");
 const { simple_entailment_mapping } = require("./lib/graph-ops");
@@ -7,6 +8,8 @@ const { dot_notate } = require("./lib/dot-notate");
 const { clusters_from } = require("./lib/clustering");
 const { color_connected_components } = require("./lib/color-connected");
 const { notate_mapping } = require("./lib/notate-mapping");
+
+const { blankNode: b } = factory;
 
 // merge the triples from graph b into graph a using simple entailment
 const merge_graphs_simple = (a, b) => {
@@ -39,7 +42,7 @@ function do_merge({ source, target, merged }) {
 }
 
 const [case_name, merge_case] = Object.entries(cases)[
-  Object.entries(cases).length - 3
+  Object.entries(cases).length - 2
 ];
 
 const {
@@ -49,25 +52,40 @@ const {
   mappings,
 } = do_merge(merge_case);
 
+const island_having = node => bnode_components.findIndex(set => set.has(node));
+
 const bnodes_store = new RDFTripleStore(triples_with_bnodes);
 const components = dot_notate(triples_with_bnodes, "gray");
 const color_notes = [...color_connected_components(bnode_components)];
 
 const target = dot_notate(merge_case.target, "blue").dot_statements;
+console.log(`bnode_components`, inspect(bnode_components, { depth: 5 }));
 
 const dot_statements = clusters_from({
   components: components.dot_statements,
   bnode_components: [...color_notes, ...components.dot_statements],
   bnode_islands: [
     ...target,
-    ...tx.flatten(mappings.map(m => notate_mapping(m))),
+    ...tx.flatten(
+      mappings.map(m => [
+        ...notate_mapping(
+          new Map(
+            Array.from(m, ([k, v]) => [
+              b(`${island_having(b(k.value))}/${k.value}`),
+              v,
+            ])
+          )
+        ),
+      ])
+    ),
     ...clusters_from(
       Object.fromEntries(
         Object.entries(bnode_islands).map(([key, trips]) => [
           key,
           dot_notate(trips).dot_statements,
         ])
-      )
+      ),
+      "bnode_islands"
     ),
   ],
   source: dot_notate(merge_case.source, "red").dot_statements,
@@ -81,7 +99,7 @@ exports.display = {
     directed: true,
     attributes: {
       label: case_name,
-      splines: false,
+      // splines: false,
       rankdir: "LR",
       // layout: "circo",
     },
