@@ -14,11 +14,13 @@ const merge_graphs_simple = (a, b) => {
   const part1 = merge_preprocess_source(b);
   const { triples_with_bnodes, bnode_components, bnode_islands } = part1;
 
+  // part 2: determine existing entailment
   const mappings = bnode_islands.map(island =>
     simple_entailment_mapping(a, new RDFTripleStore(island))
   );
 
-  // part 2: determine existing entailment
+  console.log(`mappings`, mappings);
+
   //   2a: for each resulting subgraph, attempt node mapping into target
   //   2b: if match, discard (asserting that substituted facts exist)
   //   2c: if no match, map new minted bnodes to existing ones
@@ -37,7 +39,7 @@ function do_merge({ source, target, merged }) {
 }
 
 const [case_name, merge_case] = Object.entries(cases)[
-  Object.entries(cases).length - 1
+  Object.entries(cases).length - 3
 ];
 
 const {
@@ -79,6 +81,7 @@ exports.display = {
     directed: true,
     attributes: {
       label: case_name,
+      splines: false,
       rankdir: "LR",
       // layout: "circo",
     },
