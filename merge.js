@@ -42,7 +42,7 @@ function do_merge({ source, target, merged }) {
 }
 
 const [case_name, merge_case] = Object.entries(cases)[
-  Object.entries(cases).length - 2
+  Object.entries(cases).length - 1
 ];
 
 const {
@@ -59,7 +59,7 @@ const components = dot_notate(triples_with_bnodes, "gray");
 const color_notes = [...color_connected_components(bnode_components)];
 
 const target = dot_notate(merge_case.target, "blue").dot_statements;
-console.log(`bnode_components`, inspect(bnode_components, { depth: 5 }));
+// console.log(`bnode_components`, inspect(bnode_components, { depth: 5 }));
 
 const dot_statements = clusters_from({
   components: components.dot_statements,
