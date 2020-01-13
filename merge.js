@@ -42,7 +42,8 @@ function do_merge({ source, target, merged }) {
 }
 
 const [case_name, merge_case] = Object.entries(cases)[
-  Object.entries(cases).length - 1
+  6
+  // Object.entries(cases).length - 25
 ];
 
 const {
@@ -89,8 +90,8 @@ const dot_statements = clusters_from({
     ),
   ],
   source: dot_notate(merge_case.source, "red").dot_statements,
-  target,
-  merged: dot_notate(merge_case.merged, "purple").dot_statements,
+  // target,
+  // merged: dot_notate(merge_case.merged, "purple").dot_statements,
 }).map(_ => ({ ..._, attributes: { label: _.id.slice("cluster ".length) } }));
 
 exports.display = {
