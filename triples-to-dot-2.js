@@ -4,7 +4,7 @@ const { equiv } = require("@thi.ng/equiv");
 const { DOT } = require("@def.codes/graphviz-format");
 const { factory } = require("@def.codes/rstream-query-rdf");
 const { prefix_statement_keys, clusters_from } = require("./lib/clustering");
-const entail_cases = require("./lib/simple-entailment-test-cases");
+const entail_cases = require("./lib/example-graph-pairs");
 const { simple_entailment_mapping } = require("./lib/graph-ops");
 const { dot_notate } = require("./lib/dot-notate");
 const { notate_mapping } = require("./lib/notate-mapping");
@@ -25,8 +25,8 @@ function get_source_triples() {
 
 const do_entail_case = entail_case => ({
   //         // [edge, n(`${DOT}style`), l(color === "red" ? "dashed" : "solid")],
-  a: dot_notate(entail_case.a, "blue"),
-  b: dot_notate(entail_case.b, "red"),
+  a: dot_notate(entail_case.target, "blue"),
+  b: dot_notate(entail_case.source, "red"),
 });
 
 function case_statements(entail_case) {

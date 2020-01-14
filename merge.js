@@ -2,7 +2,7 @@ const { inspect } = require("util");
 const tx = require("@thi.ng/transducers");
 const { RDFTripleStore, factory } = require("@def.codes/rstream-query-rdf");
 const { merge_preprocess_source } = require("./lib/merge-graphs");
-const cases = require("./lib/simple-merge-cases");
+const cases = require("./lib/example-graph-pairs");
 const { simple_entailment_mapping } = require("./lib/graph-ops");
 const { dot_notate } = require("./lib/dot-notate");
 const { clusters_from } = require("./lib/clustering");
@@ -41,10 +41,8 @@ function do_merge({ source, target, merged }) {
   return merge_graphs_simple(target_store, source_store);
 }
 
-const [case_name, merge_case] = Object.entries(cases)[
-  6
-  // Object.entries(cases).length - 25
-];
+const [case_name, merge_case] = Object.entries(cases)[6];
+// Object.entries(cases).length - 1
 
 const {
   triples_with_bnodes,
@@ -101,7 +99,7 @@ exports.display = {
     attributes: {
       label: case_name,
       // splines: false,
-      rankdir: "LR",
+      // rankdir: "LR",
       // layout: "circo",
     },
     statements: dot_statements,
