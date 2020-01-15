@@ -4,8 +4,9 @@ const {
   factory: rdf,
   sync_query,
   live_query,
-  interpret_rules,
+  // interpret_rules,
 } = require("@def.codes/rstream-query-rdf");
+const { interpret_rules } = require("./lib/rules");
 const tx = require("@thi.ng/transducers");
 const { equiv } = require("@thi.ng/equiv");
 

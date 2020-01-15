@@ -1,3 +1,4 @@
+// THIS STUFF is temporarily in lib
 import { transduce, mapcat, conj } from "@thi.ng/transducers";
 import { Term, Variable } from "@def.codes/rdf-data-model";
 import { TripleStore } from "@thi.ng/rstream-query";
