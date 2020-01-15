@@ -17,47 +17,42 @@ const merge_graphs_simple = (a, b) => {
   const part1 = merge_preprocess_source(b);
   const { triples_with_bnodes, bnode_components, bnode_islands } = part1;
 
-  // part 2: determine existing entailment
+  // part 2: separate already-entailed subgraphs
 
   //   2a: for each resulting subgraph, attempt node mapping into target
-  const mappings_base = Array.from(bnode_islands, island => ({
+  const mappings_base = bnode_islands.map(island => ({
     island,
     mapping: simple_entailment_mapping(a, new RDFTripleStore(island)),
   }));
 
-  const mappings = mappings_base.map(item => {
-    const get_more = ({ island, mapping }) => {
-      if (mapping.size === 0) {
-        //   2c: if no match, map new minted bnodes to existing ones
-        console.log("no mappings for this island... need to mint", island);
-        const map = new Map();
-        const sub = term => {
-          if (!is_blank_node(term)) return term;
-          if (!map.has(term)) map.set(term, factory.blankNode());
-          return map.get(term);
-        };
-        const minted = island.map(([s, p, o]) => [sub(s), p, sub(o)]);
-        console.log(`minted`, minted);
-        return { minted };
-      }
-      // 2b: if match, discard (asserting that substituted facts exist)
-      const sub = term => mapping.get(term) || term;
-      return {
-        entailed: island.map(triple => {
-          const subbed = triple.map(sub);
-          return { triple, subbed, pass: a.has(subbed) };
-        }),
+  const extend = ({ island, mapping }) => {
+    if (mapping.size === 0) {
+      //   2c: if no match, map new minted bnodes to existing ones
+      const map = new Map();
+      const sub = term => {
+        if (!is_blank_node(term)) return term;
+        if (!map.has(term)) map.set(term, factory.blankNode());
+        return map.get(term);
       };
+      return { minted: island.map(([s, p, o]) => [sub(s), p, sub(o)]) };
+    }
+    // 2b: if match, discard (asserting that substituted facts exist)
+    const sub = term => mapping.get(term) || term;
+    return {
+      entailed: island.map(triple => {
+        const mapped = triple.map(sub);
+        return { triple, mapped, pass: a.has(mapped) };
+      }),
     };
+  };
 
-    return { ...item, ...get_more(item) };
-  });
+  const mappings = mappings_base.map(item => ({ ...item, ...extend(item) }));
+  const incoming = [
+    ...tx.mapcat(x => x, tx.keep(tx.map(_ => _.minted, mappings))),
+    ...b.triples.filter(triple => !triple.some(is_blank_node)),
+  ];
 
-  // part 3: perform merge
-  //   3a: (to view incoming) remove facts already in target
-  //   3b: insert resulting facts into target
-
-  return { ...part1, mappings };
+  return { ...part1, mappings, incoming };
 };
 
 function do_merge({ source, target, merged }) {
@@ -66,19 +61,19 @@ function do_merge({ source, target, merged }) {
   return merge_graphs_simple(target_store, source_store);
 }
 
-const [case_name, merge_case] = Object.entries(cases)[
-  // 41
-  Object.entries(cases).length - 1
-];
+const [case_name, merge_case] = Object.entries(cases)[41];
+// Object.entries(cases).length - 4
 
 const {
   triples_with_bnodes,
   bnode_components,
   bnode_islands,
   mappings,
+  incoming,
 } = do_merge(merge_case);
+console.log(`incoming`, incoming);
 
-for (const { island, entailed } of mappings) {
+for (const { entailed } of mappings) {
   if (entailed) {
     const failed = entailed.filter(_ => !_.pass);
     if (failed.length) console.log(`ASSERTS FAILED:`, failed);
@@ -123,18 +118,22 @@ const dot_statements = clusters_from({
     ),
   ],
   source: dot_notate(merge_case.source, "red").dot_statements,
+  incoming: dot_notate(incoming, "green").dot_statements,
+  result: dot_notate(
+    new RDFTripleStore([...merge_case.target, ...incoming]),
+    "darkgreen"
+  ).dot_statements,
   // target,
   // merged: dot_notate(merge_case.merged, "purple").dot_statements,
 }).map(_ => ({ ..._, attributes: { label: _.id.slice("cluster ".length) } }));
 
 exports.display = {
-  // thing: entail_case,
   dot_graph: {
     directed: true,
     attributes: {
       label: case_name,
       // splines: false,
-      // rankdir: "LR",
+      rankdir: "LR",
       // layout: "circo",
     },
     statements: dot_statements,
