@@ -1,4 +1,5 @@
 // example cases for rules
+const tx = require("@thi.ng/transducers");
 const {
   RDFTripleStore,
   factory: rdf,
@@ -7,7 +8,8 @@ const {
   // interpret_rules,
 } = require("@def.codes/rstream-query-rdf");
 const { interpret_rules } = require("./lib/rules");
-const tx = require("@thi.ng/transducers");
+const { dot_notate } = require("./lib/dot-notate");
+const { clusters_from } = require("./lib/clustering");
 const { equiv } = require("@thi.ng/equiv");
 
 // const { make_identity_factory } = require("@def.codes/rdf-data-model");
@@ -26,14 +28,6 @@ const subclass_rule = {
   name: "SubclassRule",
   when: q("?s subclassOf ?c", "?x isa ?s"),
   then: ({ x, c }) => ({ assert: [[x, ISA, c]] }),
-};
-
-const dot_node_rule = {
-  name: "DotNodeRule",
-  when: q("?s ?p ?o"),
-  then: ({ s }) => ({
-    assert: [...q("?a isa dot:Node"), [...q1("?a def:represents"), s]],
-  }),
 };
 
 const symmetric_property_rule = {
@@ -64,7 +58,7 @@ const cases = [
   },
   {
     facts: q("Bob loves Alice", "Alice loves Carol"),
-    rules: [dot_node_rule],
+    rules: [DOT_NODE_RULE],
     outputs: q(
       "_a isa dot:Node",
       "_a def:represents Bob",
@@ -81,19 +75,33 @@ function eval_test(spec) {
 
   const got = interpret_rules(store, rules);
 
-  const expect = tx.transduce(
-    tx.map(_ => _.map(rdf.normalize)),
-    tx.conj(),
-    outputs
-  );
+  const expect = new Set(tx.map(_ => _.map(rdf.normalize), outputs));
   const pass = equiv(got, expect);
   return { spec, got, pass };
 }
 
-const results = cases.map(eval_test);
-// const { inspect } = require("util");
-// console.log(`...results`, inspect(results, { depth: 7 }));
+const case_number = 3;
+const the_case = cases[case_number];
+const { facts, rules, outputs } = the_case;
+// console.log(`facts, rules, outputs`, facts, rules, outputs);
+const result = eval_test(the_case);
+const gen = [...result.got];
 
-// exports.display = { things: cases };
-exports.display = { thing: results[3].got };
-// exports.display = { thing: q("Sam loves Joe") };
+const dot_statements = clusters_from({
+  facts: dot_notate(facts, "blue").dot_statements,
+  got: dot_notate(gen, "red").dot_statements,
+  outputs: dot_notate(outputs, "purple").dot_statements,
+}).map(_ => ({ ..._, attributes: { label: _.id.slice("cluster ".length) } }));
+
+exports.display = {
+  dot_graph: {
+    directed: true,
+    attributes: {
+      // label: case_name,
+      // splines: false,
+      rankdir: "LR",
+      // layout: "circo",
+    },
+    statements: dot_statements,
+  },
+};

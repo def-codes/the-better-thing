@@ -11,6 +11,7 @@
     "format": "prettier --write 'packages/**/*.{ts,json}'",
     "meld-test": "node node_modules/@def.codes/meld-cli ./testing",
     "rules-test": "node node_modules/@def.codes/meld-cli ./rules",
+    "dot-test": "node node_modules/@def.codes/meld-cli ./dot",
     "psm-test": "node node_modules/@def.codes/meld-cli ./psm",
     "bitshift-test": "node node_modules/@def.codes/meld-cli ./bitshift",
     "triples-test": "node node_modules/@def.codes/meld-cli ./triples-to-dot-2",
