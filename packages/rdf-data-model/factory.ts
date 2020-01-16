@@ -118,7 +118,7 @@ blankNode.prototype.toString = function(this: rdf.BlankNode) {
 variable.prototype.toString = function(this: rdf.Variable) {
   return `?${this.value}`;
 };
-variable.prototype.toString = function() {
+defaultGraph.prototype.toString = function() {
   return `<default graph>`;
 };
 literal.prototype.toString = function(this: rdf.Literal) {

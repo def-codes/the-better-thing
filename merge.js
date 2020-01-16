@@ -17,9 +17,9 @@ const [case_name, merge_case] = Object.entries(cases)[41];
 // Object.entries(cases).length - 4
 
 const {
-  triples_with_bnodes,
-  bnode_components,
-  bnode_islands,
+  matching_triples,
+  components: bnode_components,
+  islands: bnode_islands,
   mappings,
   incoming,
 } = do_merge_case(merge_case);
@@ -35,8 +35,8 @@ for (const { entailed } of mappings) {
 
 const island_having = node => bnode_components.findIndex(set => set.has(node));
 
-const bnodes_store = new RDFTripleStore(triples_with_bnodes);
-const components = dot_notate(triples_with_bnodes, "gray");
+const bnodes_store = new RDFTripleStore(matching_triples);
+const components = dot_notate(matching_triples, "gray");
 const color_notes = [...color_connected_components(bnode_components)];
 
 const target = dot_notate(merge_case.target, "blue").dot_statements;
