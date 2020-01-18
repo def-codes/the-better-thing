@@ -46,16 +46,26 @@ const target = q(
 );
 
 const antecedent = q("?s ?p ?o");
+const consequent = q(
+  "_:trip a rdf:Statement",
+  "_:trip rdf:subject ?s",
+  "_:trip rdf:predicate ?p",
+  "_:trip rdf:object ?o"
+);
 // const antecedent = q("?lover loves ?lovee", "?lovee loves ?third");
 // const antecedent = q("?lover loves ?lovee");
 const source_store = new RDFTripleStore(target);
 const matched = sync_query(source_store, antecedent);
 console.log(`matched`, matched);
 
-const zipped = Array.from(matched, match => ({ match, template: antecedent }));
+const zipped = Array.from(matched, match => ({
+  match,
+  antecedent,
+  consequent,
+}));
 
-const reduced = zipped.reduce((store, { match, template }) => {
-  store.import(bind(template, match));
+const reduced = zipped.reduce((store, { match, consequent }) => {
+  store.import(bind(consequent, match));
   return store;
 }, new RDFTripleStore());
 
@@ -63,6 +73,7 @@ const dot_statements = clusters_from({
   source: dot_notate(source_store.triples).dot_statements,
   source_triples: show.things(source_store.triples).dot_statements,
   antecedent: dot_notate(antecedent).dot_statements,
+  consequent: dot_notate(consequent).dot_statements,
   matched: show.thing(matched || []).dot_statements,
   zipped: show.thing(zipped || []).dot_statements,
   reduced: dot_notate(reduced.triples).dot_statements,

@@ -1,7 +1,8 @@
 import { PseudoTriple } from "./api";
-import { make_identity_factory, Term } from "@def.codes/rdf-data-model";
+import rdf, { Term } from "@def.codes/rdf-data-model";
 
-export const factory = make_identity_factory();
+// Re-export factory so you get identity in all cases
+export const factory = rdf;
 
 const { normalize } = factory;
 
