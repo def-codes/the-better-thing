@@ -2,16 +2,21 @@ import { Term } from "@def.codes/rdf-data-model";
 import { PseudoTriples } from "./api";
 import { factory } from "./factory";
 import { RDFTripleStore } from "./rdf-triple-store";
-import { Pattern } from "@thi.ng/rstream-query";
+import { is_variable } from "./terms";
 
 // TODO: Normalizing here is a hack, it should be handled in RDFTripleStore's
 // add query methods.
 const rstream_variable = (term: Term): string | Term =>
-  term.termType === "Variable" ? `?${term.value}` : factory.normalize(term);
+  is_variable(term) ? `?${term.value}` : factory.normalize(term);
 
 export const live_query = (store: RDFTripleStore, where: PseudoTriples) =>
   store.addQueryFromSpec({
-    q: [{ where: where.map(_ => _.map(rstream_variable) as Pattern) }],
+    q: [
+      // @ts-ignore: adapting readonly/mutable
+      {
+        where: where.map(_ => _.map(rstream_variable)),
+      },
+    ],
   });
 
 // Helper function for TripleStore to get results of a query immediately.

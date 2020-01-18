@@ -20,7 +20,6 @@ const mint_blank = () => rdf.blankNode();
 // need an equivalent version that checks for blank nodes instead of vars
 export const sub_blank_nodes = (triples: PseudoTriples): PseudoTriples => {
   const map = new Map<string, Term>();
-  // @ts-ignore: https://github.com/microsoft/TypeScript/issues/29841
   return triples.map(triple =>
     triple.map(term => {
       if (!is_variable(term)) return term;
@@ -28,15 +27,6 @@ export const sub_blank_nodes = (triples: PseudoTriples): PseudoTriples => {
       return map.get(term.value);
     })
   );
-};
-
-// When the asserted triples contain open variables (i.e. any variable terms),
-// this treats them as a “there exists” assertion.
-export const expand = (store: TripleStore, triples: PseudoTriples) => {
-  if (has_open_variables(triples)) {
-    const existing = sync_query(store, triples);
-    if (!existing || existing.size === 0) return sub_blank_nodes(triples);
-  } else return triples;
 };
 
 // ground?

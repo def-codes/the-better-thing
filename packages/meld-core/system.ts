@@ -3,7 +3,12 @@ import { EquivMap } from "@thi.ng/associative";
 import rdf from "@def.codes/rdf-data-model";
 import { NamedNode } from "@def.codes/rdf-data-model";
 import { IStream } from "@thi.ng/rstream";
-import { live_query, sync_query, expand } from "@def.codes/rstream-query-rdf";
+import {
+  live_query,
+  sync_query,
+  PseudoTriples,
+  RDFTripleStore,
+} from "@def.codes/rstream-query-rdf";
 
 // =============== RDF helpers
 
@@ -25,6 +30,15 @@ export const sub_blank_nodes = triples => {
   };
   // Covers predicate for good measure but only expecting vars in s & o pos's.
   return triples.map(triple => triple.map(sub));
+};
+
+// When the asserted triples contain open variables (i.e. any variable terms),
+// this treats them as a “there exists” assertion.
+const expand = (store: RDFTripleStore, triples: PseudoTriples) => {
+  if (has_open_variables(triples)) {
+    const existing = sync_query(store, triples);
+    if (!existing || existing.size === 0) return sub_blank_nodes(triples);
+  } else return triples;
 };
 
 // ================================= WORLD / INTERPRETER
@@ -124,7 +138,7 @@ const apply_drivers_to = (store, helpers, system) => {
  * A monotonic, knowledge-based system.
  *
  * @param {string} id - Provisional.  Namespace if there were more than one.
- * @param {TripleStore} store - Should be an empty knowledge base.
+ * @param {RDFTripleStore} store - Should be an empty knowledge base.
  * @param {Node} dom_root - Document node to be owned by the model.
  *
  * @returns {Function} (Provisional) dispose method.
