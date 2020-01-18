@@ -54,14 +54,19 @@ const has_open_variables = triples =>
 
 // Helper (for drivers) to make RDF terms from clauses as written.
 
+const NUMBER = /^\d+(\.\d+)?$/;
 export const q11 = (term: string) =>
   term.startsWith("?")
     ? rdf.variable(term.slice(1))
     : term.startsWith("_:")
     ? rdf.blankNode(term.slice(2))
-    : // Clever but didn't end up getting used
-    term.startsWith('"') && term.endsWith('"')
+    : term.startsWith('"') && term.endsWith('"')
     ? rdf.literal(term.slice(1, -1))
+    : NUMBER.test(term)
+    ? // Provisional, I don't think runtime value is used anywhere
+      Object.assign(rdf.literal(term /* xsd datatype, etc */), {
+        runtimeValue: parseFloat(term),
+      })
     : rdf.namedNode(term);
 
 export const q1 = (clause: string) => clause.split(/\s+/).map(q11);
