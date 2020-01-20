@@ -30,6 +30,21 @@ const { simply_entailable_units } = require("./lib/atomize");
 // intermediate results:
 //   - matches: (records) results of querying antecedent of R against S
 
+/*
+
+  The consequent of a rule --- and any template generally --- can be broken up
+  in such a way that a simple operation can tell whether or not it is entailable
+
+  - rule breakdown (1:n consequents)
+  - treat subgraph as atomic
+  - grounded, no further work
+  - non-grounded, test against TARGET
+  - mapping means it's entailed (no-op, assert included but nothing to add)
+  - no mapping means it's not entailed and every fact must be added
+    - minting bnodes where appropriate
+
+ */
+
 //////////////////////////////////// STEP 1: apply antecedent
 
 const { q } = require("@def.codes/meld-core");
@@ -39,22 +54,27 @@ const { DOT } = require("@def.codes/graphviz-format");
 const examples = require("./lib/example-graph-pairs");
 /// const { target } = examples["The author of Symposium is a student of Socrates"];
 const target = q(
-  "Bob loves Alice",
-  "Alice loves Carol",
-  "Carol loves Bob",
-  "_:xyz age 31",
-  `_:xyz commonName "Fela"`
+  "Alice loves _:b",
+  "_:b loves Carol",
+  "Carol loves Alice"
+
+  // "Bob loves Alice",
+  // "Alice loves Carol",
+  // "Carol loves Bob",
+  // "_:xyz age 31",
+  // `_:xyz commonName "Fela"`
   // works but shouldn't be in graph generally
   // "?who loves me"
 );
 
-let antecedent = q("?s ?p ?o");
+// let antecedent = q("?s ?p ?o");
 let consequent = q(
   "_:trip a rdf:Statement",
   "_:trip rdf:subject ?s",
   "_:trip rdf:predicate ?p",
   "_:trip rdf:object ?o"
 );
+let antecedent = q("?x loves ?y", "?y loves ?z", "?z loves ?x");
 
 const prep = (...cs) =>
   q(...cs.map(_ => _.replace(/dot:/g, DOT).replace(/ a /g, " rdf:type ")));
@@ -73,13 +93,27 @@ const DOT_SUBJECT_RULE = {
   }),
 };
 
-antecedent = DOT_SUBJECT_RULE.when;
-consequent = DOT_SUBJECT_RULE.then().assert; // note it is nullary
+const LOVE_TRIANGLE_RULE = {
+  name: "LoveTriangleRule",
+  when: q("?x loves ?y", "?y loves ?z", "?z loves ?x"),
+  then: () => ({
+    assert: prep(
+      // better than `hates`
+      "?x jealousOf ?z",
+      "?y jealousOf ?x",
+      "?z jealousOf ?y"
+    ),
+  }),
+};
+
+const rule = [DOT_SUBJECT_RULE, LOVE_TRIANGLE_RULE][1];
+antecedent = rule.when;
+consequent = rule.then().assert; // note it is nullary
 
 // const antecedent = q("?lover loves ?lovee", "?lovee loves ?third");
 // const antecedent = q("?lover loves ?lovee");
 const source_store = new RDFTripleStore(target);
-const matched = sync_query(source_store, antecedent);
+const matched = [...(sync_query(source_store, antecedent) || [])];
 console.log(`matched`, matched);
 
 const zipped = Array.from(matched, match => ({
@@ -104,14 +138,21 @@ const reduced = zipped.reduce((store, { match, consequent }) => {
   return store;
 }, new RDFTripleStore());
 
-const { curied_triples } = require("./curie");
+const { curied_triples, curied_term } = require("./curie");
 
 const dot_statements = clusters_from({
   source: dot_notate(source_store.triples).dot_statements,
   source_triples: show.things(source_store.triples).dot_statements,
   antecedent: dot_notate(antecedent).dot_statements,
   consequent: dot_notate(consequent).dot_statements,
-  matched: show.thing(matched || []).dot_statements,
+  matched_data: show.thing(matched || []).dot_statements,
+  matched: show.thing(
+    matched.map(rec =>
+      Object.fromEntries(
+        Object.entries(rec).map(([k, v]) => [k, curied_term(v)])
+      )
+    )
+  ).dot_statements,
   zipped: show.thing(zipped || []).dot_statements,
   reduced: dot_notate(reduced.triples).dot_statements,
   reduced_triples: show.thing(curied_triples(reduced.triples || []))

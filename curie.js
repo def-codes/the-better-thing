@@ -15,4 +15,4 @@ const curied_term = term =>
 const curied_triple = triple => triple.map(curied_term).join(" ");
 const curied_triples = triples => triples.map(curied_triple);
 
-module.exports = { curied_triples };
+module.exports = { curied_triples, curied_triple, curied_term };
