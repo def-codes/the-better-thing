@@ -44,8 +44,12 @@ export class RDFTripleStore extends TripleStore
   }
 
   into(triples: Iterable<PseudoTriple>) {
-    // @ts-ignore: this is here just to adapt th signature
+    // @ts-ignore: this is here just to adapt the signature
     return super.into(triples);
+  }
+
+  mint() {
+    return this._bnode_space.mint();
   }
 
   /**
