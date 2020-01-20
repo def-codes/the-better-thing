@@ -104,6 +104,8 @@ const reduced = zipped.reduce((store, { match, consequent }) => {
   return store;
 }, new RDFTripleStore());
 
+const { curied_triples } = require("./curie");
+
 const dot_statements = clusters_from({
   source: dot_notate(source_store.triples).dot_statements,
   source_triples: show.things(source_store.triples).dot_statements,
@@ -112,8 +114,11 @@ const dot_statements = clusters_from({
   matched: show.thing(matched || []).dot_statements,
   zipped: show.thing(zipped || []).dot_statements,
   reduced: dot_notate(reduced.triples).dot_statements,
-  reduced_triples: show.things(reduced.triples || []).dot_statements,
-  atomized: show.things(atomized || []).dot_statements,
+  reduced_triples: show.thing(curied_triples(reduced.triples || []))
+    .dot_statements,
+  reduced_triples_data: show.thing(reduced.triples || []).dot_statements,
+  atomized: show.thing((atomized || []).map(curied_triples)).dot_statements,
+  atomized_data: show.thing(atomized || []).dot_statements,
 }).map(_ => ({ ..._, attributes: { label: _.id.slice("cluster ".length) } }));
 
 exports.display = { dot_statements };
