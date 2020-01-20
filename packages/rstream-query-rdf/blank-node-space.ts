@@ -33,6 +33,9 @@ export class MonotonicBlankNodeSpace {
     do label = `${prefix}${counter++}`;
     while (this._bnodes.has(label));
     if (prefer_label) this._next_id = counter;
-    return blankNode(label);
+    // TEMP: add it anyway
+    const b = blankNode(label);
+    this.add(b);
+    return b;
   }
 }

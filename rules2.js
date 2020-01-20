@@ -15,6 +15,12 @@ const source = q("Alice loves _:b", "_:b loves Carol", "Carol loves Alice");
 const prep = (...cs) =>
   q(...cs.map(_ => _.replace(/dot:/g, DOT).replace(/ a /g, " rdf:type ")));
 
+const COPY_RULE = {
+  name: "CopyRule",
+  antecedent: q("?s ?p ?o"),
+  consequent: q("?s ?p ?o"),
+};
+
 const DOT_SUBJECT_RULE = {
   name: "DotSubjectNodeRule",
   antecedent: q("?s ?p ?o"),
@@ -25,6 +31,26 @@ const DOT_OBJECT_RULE = {
   name: "DotObjectNodeRule",
   antecedent: q("?s ?p ?o"),
   consequent: prep("_:obj a dot:Node", "_:obj def:represents ?o"),
+};
+
+const DOT_EDGE_RULE = {
+  name: "DotEdgeRule",
+  antecedent: prep(
+    "?subject ?predicate ?object",
+    "?from a dot:Node",
+    "?from def:represents ?subject",
+    "?to a dot:Node",
+    "?to def:represents ?object"
+  ),
+  consequent: prep(
+    "_:edge a dot:Edge",
+    "_:edge dot:from ?from",
+    "_:edge dot:to ?to",
+    "_:edge def:represents _:trip",
+    "_:trip rdf:subject ?subject",
+    "_:trip rdf:predicate ?predicate",
+    "_:trip rdf:object ?object"
+  ),
 };
 
 const LOVE_TRIANGLE_RULE = {
@@ -40,17 +66,30 @@ const LOVE_TRIANGLE_RULE = {
 };
 
 const rule = [DOT_SUBJECT_RULE, LOVE_TRIANGLE_RULE][0];
-const rules = [DOT_SUBJECT_RULE, DOT_OBJECT_RULE];
+// COPY_RULE seems not to be working
+const rules = [DOT_SUBJECT_RULE, DOT_OBJECT_RULE, DOT_EDGE_RULE];
 
 const source_store = new RDFTripleStore(source);
 // For derived graph
-const target_store = new RDFTripleStore([], source_store.blank_node_space_id);
+const target_store = new RDFTripleStore(
+  source_store.triples,
+  source_store.blank_node_space_id
+);
 // For new graph
 // const target_store = new RDFTripleStore();
 apply_rules(rules, source_store, target_store);
-console.log(`target_store.triples`, target_store.triples);
+// console.log(`target_store.triples`, target_store.triples);
 
-const { curied_triples, curied_term } = require("./curie");
+const second_target_store = new RDFTripleStore(
+  target_store.triples,
+  source_store.blank_node_space_id
+);
+apply_rules([DOT_EDGE_RULE], target_store, second_target_store);
+
+const { curied_triples, curied_term } = require("./lib/curie");
+
+const { dot_interpret_rdf_store } = require("./lib/dot-interpret-rdf-store");
+const interpreted = [...dot_interpret_rdf_store(second_target_store)];
 
 const dot_statements = clusters_from({
   source: dot_notate(source_store.triples).dot_statements,
@@ -59,6 +98,10 @@ const dot_statements = clusters_from({
   // consequent: dot_notate(consequent).dot_statements,
   target: dot_notate(target_store.triples).dot_statements,
   target_triples: show.things(target_store.triples).dot_statements,
+  second_target: dot_notate(second_target_store.triples).dot_statements,
+  second_target_triples: show.things(second_target_store.triples)
+    .dot_statements,
+  interpreted,
 }).map(_ => ({ ..._, attributes: { label: _.id.slice("cluster ".length) } }));
 
 exports.display = { dot_statements };
