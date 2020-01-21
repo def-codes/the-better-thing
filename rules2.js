@@ -10,7 +10,12 @@ const { DOT } = require("@def.codes/graphviz-format");
 
 const examples = require("./lib/example-graph-pairs");
 /// const { target } = examples["The author of Symposium is a student of Socrates"];
-const source = q("Alice loves _:b", "_:b loves Carol", "Carol loves Alice");
+const source = q(
+  "Alice loves _:b",
+  "_:b loves Carol",
+  "Carol loves Alice",
+  "Dave loves Carol"
+);
 
 const prep = (...cs) =>
   q(...cs.map(_ => _.replace(/dot:/g, DOT).replace(/ a /g, " rdf:type ")));
@@ -19,6 +24,17 @@ const COPY_RULE = {
   name: "CopyRule",
   antecedent: q("?s ?p ?o"),
   consequent: q("?s ?p ?o"),
+};
+
+const DOT_NODE_RULE = {
+  name: "DotNodeRule",
+  antecedent: q("?s ?p ?o"),
+  consequent: prep(
+    "_:sub a dot:Node",
+    "_:sub def:represents ?s",
+    "_:obj a dot:Node",
+    "_:obj def:represents ?o"
+  ),
 };
 
 const DOT_SUBJECT_RULE = {
@@ -53,6 +69,12 @@ const DOT_EDGE_RULE = {
   ),
 };
 
+const DOT_LABEL_RULE = {
+  name: "DotLabelRule",
+  antecedent: prep("?n a dot:Node"),
+  consequent: prep(`?n dot:color "green"`),
+};
+
 const LOVE_TRIANGLE_RULE = {
   name: "LoveTriangleRule",
   antecedent: q("?x loves ?y", "?y loves ?z", "?z loves ?x"),
@@ -67,7 +89,13 @@ const LOVE_TRIANGLE_RULE = {
 
 const rule = [DOT_SUBJECT_RULE, LOVE_TRIANGLE_RULE][0];
 // COPY_RULE seems not to be working
-const rules = [DOT_SUBJECT_RULE, DOT_OBJECT_RULE, DOT_EDGE_RULE];
+const rules = [
+  DOT_NODE_RULE,
+  // DOT_SUBJECT_RULE,
+  // DOT_OBJECT_RULE,
+  // DOT_EDGE_RULE,
+  // DOT_LABEL_RULE,
+];
 
 const source_store = new RDFTripleStore(source);
 // For derived graph
@@ -84,7 +112,7 @@ const second_target_store = new RDFTripleStore(
   target_store.triples,
   source_store.blank_node_space_id
 );
-apply_rules([DOT_EDGE_RULE], target_store, second_target_store);
+apply_rules([DOT_LABEL_RULE, DOT_EDGE_RULE], target_store, second_target_store);
 
 const { curied_triples, curied_term } = require("./lib/curie");
 
@@ -98,10 +126,10 @@ const dot_statements = clusters_from({
   // consequent: dot_notate(consequent).dot_statements,
   target: dot_notate(target_store.triples).dot_statements,
   target_triples: show.things(target_store.triples).dot_statements,
-  second_target: dot_notate(second_target_store.triples).dot_statements,
-  second_target_triples: show.things(second_target_store.triples)
-    .dot_statements,
-  interpreted,
+  // second_target: dot_notate(second_target_store.triples).dot_statements,
+  // second_target_triples: show.things(second_target_store.triples)
+  //   .dot_statements,
+  // interpreted,
 }).map(_ => ({ ..._, attributes: { label: _.id.slice("cluster ".length) } }));
 
 exports.display = { dot_statements };

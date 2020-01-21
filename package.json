@@ -20,6 +20,7 @@
     "rdf-js-test": "node node_modules/@def.codes/meld-cli ./rdf-js-test",
     "merge-test": "node node_modules/@def.codes/meld-cli ./merge",
     "conn": "node node_modules/@def.codes/meld-cli ./connected",
+    "islands": "node node_modules/@def.codes/meld-cli ./islands",
     "test-format": "prettier --list-different 'packages/**/*.{ts,json}'",
     "build": "npm run build:script && npm run build:style",
     "build:script": "tsc --build",
