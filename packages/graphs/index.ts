@@ -4,5 +4,6 @@ export * from "./from-facts";
 export * from "./graph";
 export * from "./paths";
 export * from "./roots";
+export * from "./subgraph-view";
 export * from "./traverse";
 export * from "./triple-store-graph";

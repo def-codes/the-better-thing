@@ -10,6 +10,7 @@
     "clean": "rm -rf build/ node_modules/@def.codes/",
     "format": "prettier --write 'packages/**/*.{ts,json}'",
     "meld-test": "node node_modules/@def.codes/meld-cli ./testing",
+    "subgraph": "node node_modules/@def.codes/meld-cli ./subgraph",
     "rules-test": "node node_modules/@def.codes/meld-cli ./rules",
     "rules2": "node node_modules/@def.codes/meld-cli ./rules2",
     "breakdown": "node node_modules/@def.codes/meld-cli ./rule-breakdown",

@@ -1,7 +1,7 @@
 import { IGraph, GraphFact, is_link } from "./api";
 
 export class Graph<ID, N, E> implements IGraph<ID, N, E> {
-  _nodes: Map<ID, { value: N; edges: Map<ID, E> }> = new Map();
+  private _nodes: Map<ID, { value: N; edges: Map<ID, E> }> = new Map();
 
   [Symbol.iterator]() {
     return this.nodes();
@@ -28,11 +28,15 @@ export class Graph<ID, N, E> implements IGraph<ID, N, E> {
     }
   }
 
-  get_node(id: ID) {
+  has(id: ID): boolean {
+    return this._nodes.has(id);
+  }
+
+  get_node(id: ID): N | undefined {
     return this._nodes.get(id)?.value;
   }
 
-  get_edge(from: ID, to: ID) {
+  get_edge(from: ID, to: ID): E | undefined {
     return this._nodes.get(from)?.edges.get(to);
   }
 
