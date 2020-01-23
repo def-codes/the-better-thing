@@ -11,69 +11,67 @@ interface SubgraphViewOptions<ID, N, E> {
 
 const TRUE = () => true;
 
-// but should be read only
-export class SubgraphView<ID, N, E> implements IGraphView<ID, N, E> {
-  private readonly _graph: IGraphView<ID, N, E>;
-  readonly node_predicate: (value: N, id: ID) => boolean;
-  readonly edge_predicate: (data: E, from: ID, to: ID) => boolean;
+/**
+ * Return a live, read-only view of a graph with node and edge filters applied.
+ *
+ * The returned graph is a subgraph of the given graph.  Nodes are included only
+ * if they match the node predicate.  Edges are included only if they match the
+ * edge predicate *and* both nodes match the node predicate.
+ */
+export const subgraph_view = <ID, N, E>(
+  graph: IGraphView<ID, N, E>,
+  options: Partial<SubgraphViewOptions<ID, N, E>>
+): IGraphView<ID, N, E> => {
+  const node_predicate = options.node_predicate || TRUE;
+  const edge_predicate = options.edge_predicate || TRUE;
 
-  constructor(
-    graph: IGraphView<ID, N, E>,
-    options: Partial<SubgraphViewOptions<ID, N, E>>
-  ) {
-    this._graph = graph;
-    this.node_predicate = options.node_predicate || TRUE;
-    this.edge_predicate = options.edge_predicate || TRUE;
+  const has = (id: ID): boolean =>
+    graph.has(id) && node_predicate(graph.get_node(id), id);
+
+  function* nodes_with_data() {
+    for (const [id, value] of graph.nodes_with_data())
+      if (node_predicate(value, id)) yield [id, value] as const;
   }
 
-  has(id: ID): boolean {
-    return (
-      this._graph.has(id) && this.node_predicate(this._graph.get_node(id), id)
-    );
-  }
+  return {
+    has,
+    nodes_with_data,
 
-  get_node(id: ID): N | undefined {
-    if (this.has(id)) return this._graph.get_node(id);
-  }
+    get_node(id) {
+      if (has(id)) return graph.get_node(id);
+    },
 
-  get_edge(from: ID, to: ID): E | undefined {
-    const data = this._graph.get_edge(from, to);
-    if (this.has(from) && this.has(to) && this.edge_predicate(data, from, to))
-      return data;
-  }
+    get_edge(from, to) {
+      const data = graph.get_edge(from, to);
+      if (has(from) && has(to) && edge_predicate(data, from, to)) return data;
+    },
 
-  *nodes() {
-    for (const [id, value] of this.nodes_with_data()) yield id;
-  }
+    *nodes() {
+      for (const [id, value] of nodes_with_data()) yield id;
+    },
 
-  *nodes_with_data() {
-    for (const [id, value] of this._graph.nodes_with_data())
-      if (this.node_predicate(value, id)) yield [id, value] as const;
-  }
-
-  *edges() {
-    for (const edge of this._graph.edges()) {
-      const [from, to, data] = edge;
-      if (this.has(from) && this.has(to) && this.edge_predicate(data, from, to))
-        yield edge;
-    }
-  }
-
-  *edges_from(subject: ID) {
-    if (this.has(subject))
-      for (const edge of this._graph.edges_from(subject)) {
-        const [neighbor, data] = edge;
-        if (this.has(neighbor) && this.edge_predicate(data, subject, neighbor))
-          yield edge;
+    *edges() {
+      for (const edge of graph.edges()) {
+        const [from, to, data] = edge;
+        if (has(from) && has(to) && edge_predicate(data, from, to)) yield edge;
       }
-  }
+    },
 
-  *adjacent(node: ID) {
-    if (this.has(node))
-      for (const edge of this._graph.adjacent(node)) {
-        const [neighbor, data] = edge;
-        if (this.has(neighbor) && this.edge_predicate(data, node, neighbor))
-          yield edge;
-      }
-  }
-}
+    *edges_from(subject) {
+      if (has(subject))
+        for (const edge of graph.edges_from(subject)) {
+          const [neighbor, data] = edge;
+          if (has(neighbor) && edge_predicate(data, subject, neighbor))
+            yield edge;
+        }
+    },
+
+    *adjacent(node) {
+      if (has(node))
+        for (const edge of graph.adjacent(node)) {
+          const [neighbor, data] = edge;
+          if (has(neighbor) && edge_predicate(data, node, neighbor)) yield edge;
+        }
+    },
+  };
+};

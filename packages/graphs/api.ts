@@ -12,7 +12,7 @@ export interface IGraphIterator<ID, N, E> {
 }
 
 export interface IGraphReader<ID, N, E> extends IGraphIterator<ID, N, E> {
-  has(id): boolean;
+  has(id: ID): boolean;
   get_node(id: ID): N | undefined;
   get_edge(from: ID, to: ID): E | undefined;
 }

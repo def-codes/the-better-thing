@@ -1,7 +1,11 @@
 // subgraph views
-const { from_facts, SubgraphView } = require("@def.codes/graphs");
+const tx = require("@thi.ng/transducers");
+const { from_facts, subgraph_view } = require("@def.codes/graphs");
 const show = require("./lib/thing-to-dot-statements");
+const { generate_triples } = require("./lib/random-triples");
 const { clusters_from } = require("./lib/clustering");
+const { triples_to_facts } = require("./lib/triples-to-facts");
+const pairs = require("./lib/example-graph-pairs");
 
 const FACTS = [
   { subject: "a", value: "a" },
@@ -15,6 +19,23 @@ const FACTS = [
 ];
 
 const TEST_CASES = [
+  {
+    name: "RandomGraph",
+    facts: triples_to_facts(tx.take(14, generate_triples())),
+    node_predicate: (_, s) => /[abcdefg]/.test(s.value),
+    edge_predicate: (p, s, o) => !/[abcdefghi]/.test(p.value),
+  },
+  {
+    name: "RDFType",
+    comment: "Select only the (pseudo) “type” relationships",
+    facts: triples_to_facts(
+      pairs[
+        "bnodes with disconnected components"
+        //"with multiple grounded triples to merge"
+      ].target
+    ),
+    edge_predicate: p => p.termType === "NamedNode" && p.value === "a",
+  },
   {
     name: "NoFilter",
     facts: FACTS,
@@ -50,11 +71,11 @@ const TEST_CASES = [
 
 function do_test_case({ name, facts, node_predicate, edge_predicate }) {
   const graph = from_facts(facts);
-  const subgraph = new SubgraphView(graph, { node_predicate, edge_predicate });
+  const subgraph = subgraph_view(graph, { node_predicate, edge_predicate });
   return { graph, subgraph };
 }
 
-const test_case_number = 3;
+const test_case_number = 1;
 const test_case = TEST_CASES[test_case_number];
 const { graph, subgraph } = do_test_case(test_case);
 
@@ -79,7 +100,12 @@ const dot_statements = clusters_from({
     ...subgraph_statements.map(({ attributes, ...rest }) => {
       return {
         ...rest,
-        attributes: { ...(attributes || {}), penwidth: 5, color: "#00009977" },
+        attributes: {
+          ...(attributes || {}),
+          penwidth: 5,
+          fontcolor: "#00009977",
+          color: "#00009977",
+        },
       };
     }),
   ],
@@ -88,6 +114,7 @@ const dot_statements = clusters_from({
 exports.display = {
   dot_graph: {
     directed: true,
+    attributes: { label: test_case.name, rankdir: "LR" },
     statements: dot_statements,
   },
 };

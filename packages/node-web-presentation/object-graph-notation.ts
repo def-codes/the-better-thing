@@ -102,6 +102,7 @@ export const object_graph_dot_notation_spec: NotationSpec<
         dir: "both",
         arrowtail: "dot",
         tailport: `${data}:c`,
+        label: data.toString(),
       };
   },
 };
