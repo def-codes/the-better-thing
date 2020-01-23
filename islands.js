@@ -9,7 +9,6 @@ const { clusters_from } = require("./lib/clustering");
 // const { color_connected_components } = require("./lib/color-connected");
 
 const do_islands_case = ({ source, predicate }) => {
-  //  { matching_triples, components, islands }
   const islands_result = islands_from(source, predicate);
   return { source, islands_result };
 };
@@ -22,11 +21,14 @@ const islands_case = [
 ][0];
 
 const { source, islands_result } = do_islands_case(islands_case);
+const { graph, components, islands } = islands_result;
 
 const dot_statements = clusters_from({
   source: dot_notate(source).dot_statements,
-  // source_triples: show.thing(source).dot_statements,
-  islands_result: show.things(islands_result.islands).dot_statements,
+  source_triples: show.thing(source).dot_statements,
+  graph: show.graph(graph).dot_statements,
+  components: show.thing(components).dot_statements,
+  islands: show.things(islands).dot_statements,
 }).map(_ => ({ ..._, attributes: { label: _.id.slice("cluster ".length) } }));
 
 exports.display = {

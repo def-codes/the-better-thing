@@ -1,5 +1,6 @@
 // subgraph views
 const tx = require("@thi.ng/transducers");
+const { q } = require("@def.codes/meld-core");
 const {
   from_facts,
   subgraph_view,
@@ -10,6 +11,7 @@ const show = require("./lib/thing-to-dot-statements");
 const { generate_triples } = require("./lib/random-triples");
 const { clusters_from } = require("./lib/clustering");
 const { triples_to_facts } = require("./lib/triples-to-facts");
+const { dot_notate } = require("./lib/dot-notate");
 const pairs = require("./lib/example-graph-pairs");
 
 const FACTS = [
@@ -24,6 +26,11 @@ const FACTS = [
 ];
 
 const TEST_CASES = [
+  {
+    name: "BlankNodes",
+    triples: q("_:A b C", "_:D e _:F", "_:G h I", "C z _:D", "_:G z C"),
+    node_predicate: _ => _.termType === "BlankNode",
+  },
   {
     name: "RandomGraphViaTriplesToFacts",
     facts: triples_to_facts(tx.take(14, generate_triples())),
@@ -91,22 +98,25 @@ const TEST_CASES = [
 ];
 
 function do_test_case({ name, facts, triples, ...predicates }) {
-  let graph;
+  let store, graph;
   if (facts) graph = from_facts(facts);
-  else if (triples) graph = triple_store_graph(new RDFTripleStore(triples));
-  else throw `No input for ${name}`;
+  else if (triples) {
+    store = new RDFTripleStore(triples);
+    graph = triple_store_graph(store);
+  } else throw `No input for ${name}`;
   const subgraph = subgraph_view(graph, { ...predicates });
-  return { graph, subgraph };
+  return { store, graph, subgraph };
 }
 
-const test_case_number = 6;
+const test_case_number = 0;
 const test_case = TEST_CASES[test_case_number];
-const { graph, subgraph } = do_test_case(test_case);
+const { store, graph, subgraph } = do_test_case(test_case);
 
 const graph_statements = show.graph(graph).dot_statements;
 const subgraph_statements = show.graph(subgraph).dot_statements;
 
 const dot_statements = clusters_from({
+  ...(store ? { rdf: dot_notate(store.triples).dot_statements } : {}),
   graph: graph_statements,
   subgraph: subgraph_statements,
   merged: [
