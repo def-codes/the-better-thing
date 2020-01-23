@@ -21,14 +21,24 @@ const islands_case = [
 ][0];
 
 const { source, islands_result } = do_islands_case(islands_case);
-const { graph, components, islands } = islands_result;
+const { graph, subgraph, components, islands } = islands_result;
 
 const dot_statements = clusters_from({
   source: dot_notate(source).dot_statements,
   source_triples: show.thing(source).dot_statements,
   graph: show.graph(graph).dot_statements,
+  subgraph: show.graph(subgraph).dot_statements,
   components: show.thing(components).dot_statements,
-  islands: show.things(islands).dot_statements,
+  islands_triples: show.things(islands).dot_statements,
+  islands: clusters_from(
+    Object.fromEntries(
+      Object.entries(islands).map(([key, trips]) => [
+        key,
+        dot_notate(trips).dot_statements,
+      ])
+    ),
+    "islands"
+  ),
 }).map(_ => ({ ..._, attributes: { label: _.id.slice("cluster ".length) } }));
 
 exports.display = {
