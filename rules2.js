@@ -1,4 +1,5 @@
 // see the stages in the application of rules
+// this is just a CONSTRUCT query
 const tx = require("@thi.ng/transducers");
 const show = require("./lib/thing-to-dot-statements");
 const { apply_rules } = require("./lib/rules2");
@@ -22,14 +23,14 @@ const prep = (...cs) =>
 
 const COPY_RULE = {
   name: "CopyRule",
-  antecedent: q("?s ?p ?o"),
-  consequent: q("?s ?p ?o"),
+  where: q("?s ?p ?o"),
+  construct: q("?s ?p ?o"),
 };
 
 const DOT_NODE_RULE = {
   name: "DotNodeRule",
-  antecedent: q("?s ?p ?o"),
-  consequent: prep(
+  where: q("?s ?p ?o"),
+  construct: prep(
     "_:sub a dot:Node",
     "_:sub def:represents ?s",
     "_:obj a dot:Node",
@@ -39,26 +40,26 @@ const DOT_NODE_RULE = {
 
 const DOT_SUBJECT_RULE = {
   name: "DotSubjectNodeRule",
-  antecedent: q("?s ?p ?o"),
-  consequent: prep("_:sub a dot:Node", "_:sub def:represents ?s"),
+  where: q("?s ?p ?o"),
+  construct: prep("_:sub a dot:Node", "_:sub def:represents ?s"),
 };
 
 const DOT_OBJECT_RULE = {
   name: "DotObjectNodeRule",
-  antecedent: q("?s ?p ?o"),
-  consequent: prep("_:obj a dot:Node", "_:obj def:represents ?o"),
+  where: q("?s ?p ?o"),
+  construct: prep("_:obj a dot:Node", "_:obj def:represents ?o"),
 };
 
 const DOT_EDGE_RULE = {
   name: "DotEdgeRule",
-  antecedent: prep(
+  where: prep(
     "?subject ?predicate ?object",
     "?from a dot:Node",
     "?from def:represents ?subject",
     "?to a dot:Node",
     "?to def:represents ?object"
   ),
-  consequent: prep(
+  construct: prep(
     "_:edge a dot:Edge",
     "_:edge dot:from ?from",
     "_:edge dot:to ?to",
@@ -69,16 +70,23 @@ const DOT_EDGE_RULE = {
   ),
 };
 
+const DOT_LABEL_RULE_0 = {
+  name: "DotLabelRule",
+  where: prep("?n a dot:Node"),
+  construct: prep(`?n dot:color "red"`, `?n dot:style "filled"`),
+};
+
 const DOT_LABEL_RULE = {
   name: "DotLabelRule",
-  antecedent: prep("?n a dot:Node"),
-  consequent: prep(`?n dot:color "green"`),
+  where: prep("?n a dot:Node", "?n def:represents ?s"),
+  // this kinda works but not for good reason
+  construct: prep(`?n dot:label ?s`),
 };
 
 const LOVE_TRIANGLE_RULE = {
   name: "LoveTriangleRule",
-  antecedent: q("?x loves ?y", "?y loves ?z", "?z loves ?x"),
-  consequent: prep(
+  where: q("?x loves ?y", "?y loves ?z", "?z loves ?x"),
+  construct: prep(
     // better than `hates`
     "?x jealousOf ?z",
     "?y jealousOf ?x",
@@ -90,6 +98,7 @@ const LOVE_TRIANGLE_RULE = {
 const rule = [DOT_SUBJECT_RULE, LOVE_TRIANGLE_RULE][0];
 // COPY_RULE seems not to be working
 const rules = [
+  // COPY_RULE,
   DOT_NODE_RULE,
   // DOT_SUBJECT_RULE,
   // DOT_OBJECT_RULE,
@@ -110,7 +119,7 @@ apply_rules(rules, source_store, target_store);
 
 const second_target_store = new RDFTripleStore(
   target_store.triples,
-  source_store.blank_node_space_id
+  target_store.blank_node_space_id
 );
 apply_rules([DOT_LABEL_RULE, DOT_EDGE_RULE], target_store, second_target_store);
 
@@ -122,14 +131,14 @@ const interpreted = [...dot_interpret_rdf_store(second_target_store)];
 const dot_statements = clusters_from({
   source: dot_notate(source_store.triples).dot_statements,
   source_triples: show.things(source_store.triples).dot_statements,
-  // antecedent: dot_notate(antecedent).dot_statements,
-  // consequent: dot_notate(consequent).dot_statements,
+  // where: dot_notate(where).dot_statements,
+  // construct: dot_notate(construct).dot_statements,
   target: dot_notate(target_store.triples).dot_statements,
   target_triples: show.things(target_store.triples).dot_statements,
-  // second_target: dot_notate(second_target_store.triples).dot_statements,
-  // second_target_triples: show.things(second_target_store.triples)
-  //   .dot_statements,
-  // interpreted,
+  second_target: dot_notate(second_target_store.triples).dot_statements,
+  second_target_triples: show.things(second_target_store.triples)
+    .dot_statements,
+  interpreted,
 }).map(_ => ({ ..._, attributes: { label: _.id.slice("cluster ".length) } }));
 
 exports.display = { dot_statements };

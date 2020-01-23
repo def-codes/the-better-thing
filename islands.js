@@ -13,12 +13,18 @@ const do_islands_case = ({ source, predicate }) => {
   return { source, islands_result };
 };
 
-const islands_case = [
+const islands_cases = [
+  {
+    source: q("a b _:c"),
+    predicate: _ => _.termType === "BlankNode",
+  },
   {
     source: q("_:A b C", "_:D e _:F", "_:G h I", "C z _:D", "_:G z C"),
     predicate: _ => _.termType === "BlankNode",
   },
-][0];
+];
+
+const islands_case = islands_cases[0];
 
 const { source, islands_result } = do_islands_case(islands_case);
 const { graph, subgraph, components, islands } = islands_result;
