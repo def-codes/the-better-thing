@@ -1,5 +1,6 @@
 const { inspect } = require("util");
 const tx = require("@thi.ng/transducers");
+const show = require("./lib/thing-to-dot-statements");
 const { RDFTripleStore, factory } = require("@def.codes/rstream-query-rdf");
 const cases = require("./lib/example-graph-pairs");
 const { compare_graphs_simple } = require("./lib/compare-graphs");
@@ -20,15 +21,17 @@ const do_merge_case = ({ source, target }) => {
 const [case_name, merge_case] = Object.entries(cases)[41];
 // Object.entries(cases).length - 4
 
+const result = do_merge_case(merge_case);
 const {
-  matching_triples,
+  store,
   components: bnode_components,
   islands: bnode_islands,
   mappings,
   incoming,
   source_store,
   target_store,
-} = do_merge_case(merge_case);
+} = result;
+
 // console.log(`incoming`, incoming);
 
 for (const { entailed } of mappings) {
@@ -42,16 +45,19 @@ for (const { entailed } of mappings) {
 
 const island_having = node => bnode_components.findIndex(set => set.has(node));
 
-const bnodes_store = new RDFTripleStore(matching_triples);
-const components = dot_notate(matching_triples, "gray");
+const components = dot_notate(store, "gray");
+
 const color_notes = [...color_connected_components(bnode_components)];
 
 const target = dot_notate(merge_case.target, "blue").dot_statements;
 // console.log(`bnode_components`, inspect(bnode_components, { depth: 5 }));
 
+const bnode_colored = [...components.dot_statements, ...color_notes];
+
 const dot_statements = clusters_from({
   components: components.dot_statements,
-  bnode_components: [...color_notes, ...components.dot_statements],
+  color_notes: show.thing(color_notes).dot_statements,
+  bnode_colored,
   bnode_islands: [
     ...target,
     ...tx.flatten(
