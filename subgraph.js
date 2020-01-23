@@ -1,6 +1,11 @@
 // subgraph views
 const tx = require("@thi.ng/transducers");
-const { from_facts, subgraph_view } = require("@def.codes/graphs");
+const {
+  from_facts,
+  subgraph_view,
+  triple_store_graph,
+} = require("@def.codes/graphs");
+const { RDFTripleStore } = require("@def.codes/rstream-query-rdf");
 const show = require("./lib/thing-to-dot-statements");
 const { generate_triples } = require("./lib/random-triples");
 const { clusters_from } = require("./lib/clustering");
@@ -20,13 +25,19 @@ const FACTS = [
 
 const TEST_CASES = [
   {
-    name: "RandomGraph",
+    name: "RandomGraphViaTriplesToFacts",
     facts: triples_to_facts(tx.take(14, generate_triples())),
     node_predicate: (_, s) => /[abcdefg]/.test(s.value),
     edge_predicate: (p, s, o) => !/[abcdefghi]/.test(p.value),
   },
   {
-    name: "RDFType",
+    name: "RandomGraphViaAdapter",
+    triples: [...tx.take(14, generate_triples())],
+    node_predicate: (_, s) => /[abcdefg]/.test(s.value),
+    edge_predicate: (p, s, o) => !/[abcdefghi]/.test(p.value),
+  },
+  {
+    name: "RDFTypeViaTriplesToFacts",
     comment: "Select only the (pseudo) “type” relationships",
     facts: triples_to_facts(
       pairs[
@@ -34,6 +45,16 @@ const TEST_CASES = [
         //"with multiple grounded triples to merge"
       ].target
     ),
+    edge_predicate: p => p.termType === "NamedNode" && p.value === "a",
+  },
+  {
+    name: "RDFTypeViaAdapter",
+    comment: "Select only the (pseudo) “type” relationships",
+    triples:
+      pairs[
+        "bnodes with disconnected components"
+        //"with multiple grounded triples to merge"
+      ].target,
     edge_predicate: p => p.termType === "NamedNode" && p.value === "a",
   },
   {
@@ -69,13 +90,16 @@ const TEST_CASES = [
   },
 ];
 
-function do_test_case({ name, facts, node_predicate, edge_predicate }) {
-  const graph = from_facts(facts);
-  const subgraph = subgraph_view(graph, { node_predicate, edge_predicate });
+function do_test_case({ name, facts, triples, ...predicates }) {
+  let graph;
+  if (facts) graph = from_facts(facts);
+  else if (triples) graph = triple_store_graph(new RDFTripleStore(triples));
+  else throw `No input for ${name}`;
+  const subgraph = subgraph_view(graph, { ...predicates });
   return { graph, subgraph };
 }
 
-const test_case_number = 1;
+const test_case_number = 6;
 const test_case = TEST_CASES[test_case_number];
 const { graph, subgraph } = do_test_case(test_case);
 

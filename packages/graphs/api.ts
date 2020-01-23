@@ -65,6 +65,10 @@ export interface IMutableFactGraph<ID, N, E> {
   accept_fact(fact: GraphFact<ID, N, E>): void;
 }
 
+// Shorthand for common graph read interfaces
+export type IGraphView<ID, N, E> = IGraphReader<ID, N, E> &
+  IAdjacencyListReader<ID, E>;
+
 export interface IGraph<ID, N, E>
   extends IGraphFacts<ID, N, E>,
     IMutableFactGraph<ID, N, E>,

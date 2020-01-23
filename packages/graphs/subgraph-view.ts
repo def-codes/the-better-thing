@@ -1,8 +1,4 @@
-import { IGraphReader, IAdjacencyListReader } from "./api";
-
-// Shorthand for this module
-type IGraphView<ID, N, E> = IGraphReader<ID, N, E> &
-  IAdjacencyListReader<ID, E>;
+import { IGraphView } from "./api";
 
 interface SubgraphViewOptions<ID, N, E> {
   node_predicate(value: N, id: ID): boolean;
