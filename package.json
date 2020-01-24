@@ -13,7 +13,7 @@
     "subgraph": "node node_modules/@def.codes/meld-cli ./subgraph",
     "atomize": "node node_modules/@def.codes/meld-cli ./atomize",
     "rules-test": "node node_modules/@def.codes/meld-cli ./rules",
-    "rules2": "node node_modules/@def.codes/meld-cli ./rules2",
+    "construct": "node node_modules/@def.codes/meld-cli ./construct",
     "breakdown": "node node_modules/@def.codes/meld-cli ./rule-breakdown",
     "dot-test": "node node_modules/@def.codes/meld-cli ./dot",
     "psm-test": "node node_modules/@def.codes/meld-cli ./psm",

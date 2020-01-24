@@ -2,7 +2,7 @@
 // this is just a CONSTRUCT query
 const tx = require("@thi.ng/transducers");
 const show = require("./lib/thing-to-dot-statements");
-const { apply_rules } = require("./lib/rules2");
+const { construct } = require("./lib/construct");
 const { dot_notate } = require("./lib/dot-notate");
 const { clusters_from } = require("./lib/clustering");
 const { q } = require("@def.codes/meld-core");
@@ -114,14 +114,14 @@ const target_store = new RDFTripleStore(
 );
 // For new graph
 // const target_store = new RDFTripleStore();
-apply_rules(rules, source_store, target_store);
+construct(rules, source_store, target_store);
 // console.log(`target_store.triples`, target_store.triples);
 
 const second_target_store = new RDFTripleStore(
   target_store.triples,
   target_store.blank_node_space_id
 );
-apply_rules([DOT_LABEL_RULE, DOT_EDGE_RULE], target_store, second_target_store);
+construct([DOT_LABEL_RULE, DOT_EDGE_RULE], target_store, second_target_store);
 
 const { curied_triples, curied_term } = require("./lib/curie");
 
