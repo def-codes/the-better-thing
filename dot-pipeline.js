@@ -6,7 +6,7 @@ const { clusters_from } = require("./lib/clustering");
 const { q } = require("@def.codes/meld-core");
 const { RDFTripleStore } = require("@def.codes/rstream-query-rdf");
 const { DOT } = require("@def.codes/graphviz-format");
-const { dot_interpret_rdf_store } = require("./lib/dot-interpret-rdf-store");
+const { dot_interpret_pipeline } = require("./lib/dot-interpret-pipeline");
 const ConstructDot = require("./queries/construct-dot");
 const Construct = require("./queries/construct-copy");
 const pairs = require("./lib/example-graph-pairs");
@@ -17,24 +17,6 @@ const prep = (...cs) =>
       _.replace(/dot:/g, DOT).replace(/(^|\s)a(\s|$)/g, "$1rdf:type$2")
     )
   );
-
-function do_case({ triples, pipeline }) {
-  // Assumes 3-element pipeline
-  const [queries1, queries2, queries3] = pipeline;
-  const source = new RDFTripleStore(triples);
-  const first = new RDFTripleStore([], source.blank_node_space_id);
-  construct(queries1, source, first);
-
-  const second = new RDFTripleStore(first.triples, first.blank_node_space_id);
-  construct(queries2, first, second);
-
-  const third = new RDFTripleStore(second.triples, second.blank_node_space_id);
-  construct(queries3, second, third);
-
-  const interpreted = [...dot_interpret_rdf_store(third)];
-
-  return { source, first, second, third, interpreted };
-}
 
 const TEST_TRIPLES = q(
   "Bob loves Alice",
@@ -195,7 +177,13 @@ const TEST_CASES = [
 ];
 
 function main(test_case) {
-  const { source, first, second, third, interpreted } = do_case(test_case);
+  const {
+    construction: {
+      source,
+      intermediate: [first, second, third],
+    },
+    interpreted,
+  } = dot_interpret_pipeline(test_case);
 
   const statements = clusters_from({
     source: show.store(source),
