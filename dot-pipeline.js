@@ -18,20 +18,55 @@ const prep = (...cs) =>
     )
   );
 
-const TEST_TRIPLES = q(
-  "Bob loves Alice",
-  "Alice loves Carol",
-  "Alice spouseOf Bob",
-  "Bob spouseOf Alice",
-  "Carol loves Alice",
-  "Dave knows Carol",
-  "Dave likes Alice",
-  "Dave golfsWith Bob"
-);
+const TRIANGLE = q("Bob loves Alice", "Alice loves Carol", "Carol loves Bob");
+const TEST_TRIPLES = [
+  ...TRIANGLE,
+  ...q(
+    "Alice spouseOf Bob",
+    "Bob spouseOf Alice",
+    "Carol loves Alice",
+    "Dave knows Carol",
+    "Dave likes Alice",
+    "Dave golfsWith Bob"
+  ),
+];
 
 const MORE_TRIPLES = pairs["bnodes with disconnected components"].target;
 
 const TEST_CASES = [
+  {
+    label: "Dot represent nodes",
+    triples: TRIANGLE,
+    pipeline: [[Construct.Copy, ConstructDot.Node]],
+  },
+  {
+    label: "Dot represent and label nodes",
+    triples: TRIANGLE,
+    pipeline: [[Construct.Copy, ConstructDot.Node], [ConstructDot.NodeLabel]],
+  },
+  {
+    label: "Dot represent graph",
+    triples: TRIANGLE,
+    pipeline: [[Construct.Copy, ConstructDot.Node], [ConstructDot.Edge]],
+  },
+  {
+    label: "Dot represent graph and label nodes",
+    triples: TRIANGLE,
+    pipeline: [
+      [Construct.Copy, ConstructDot.Node],
+      [ConstructDot.Edge],
+      [ConstructDot.NodeLabel],
+    ],
+  },
+  {
+    label: "Dot represent graph and label nodes and edges",
+    triples: TRIANGLE,
+    pipeline: [
+      [Construct.Copy, ConstructDot.Node],
+      [ConstructDot.Edge],
+      [ConstructDot.NodeLabel, ConstructDot.EdgeLabel],
+    ],
+  },
   {
     label: "show everything",
     triples: MORE_TRIPLES,
@@ -178,21 +213,18 @@ const TEST_CASES = [
 
 function main(test_case) {
   const {
-    construction: {
-      source,
-      intermediate: [first, second, third],
-    },
+    construction: { source, intermediate },
     interpreted,
   } = dot_interpret_pipeline(test_case);
 
   const statements = clusters_from({
     source: show.store(source),
-    // source_triples: show.things(source_store.triples).dot_statements,
-    first: show.store(first),
-    // first_triples: show.things(first.triples).dot_statements,
-    second: show.store(second),
-    // second_target_triples: show.things(second_target_store.triples),
-    third: show.store(third),
+    intermediate: Object.fromEntries(
+      Object.entries(intermediate).map(([key, store]) => [
+        key,
+        show.store(store),
+      ])
+    ),
     interpreted,
   });
 
@@ -205,4 +237,4 @@ function main(test_case) {
   };
 }
 
-exports.display = main(TEST_CASES[0]);
+exports.display = main(TEST_CASES[4]);
