@@ -33,21 +33,38 @@ const operation = q("thing a Operation");
 
 const dot_statements = clusters_from({
   operation: dot_notate(operation).dot_statements,
-  inputs: [],
+  // outputs: [{ type: "node", id: "_" }],
+  input: {
+    _: [{ type: "node", id: "_", attributes: { style: "invis" } }],
+    "as graph": main,
+    // "as triples": show.things(test_store.triples).dot_statements,
+  },
   intermediate: [],
   display: {
+    _: [{ type: "node", id: "_", attributes: { style: "invis" } }],
     annotations,
-    "annotations object": show.things(annotations).dot_statements,
+    // "annotations object": show.things(annotations).dot_statements,
     colored: [...main, ...annotations],
   },
-  outputs: [],
-  main,
 });
 
 exports.display = {
   dot_graph: {
     directed: true,
-    attributes: { rankdir: "LR", newrank: true },
-    statements: dot_statements,
+    attributes: {
+      rankdir: "LR",
+      compound: true,
+      layout: "fdp",
+      // splines: "polyline",
+    },
+    statements: [
+      {
+        type: "edge",
+        from: "input/_",
+        to: "display/_",
+        attributes: { ltail: "cluster input", lhead: "cluster display" },
+      },
+      ...dot_statements,
+    ],
   },
 };
