@@ -11,17 +11,17 @@ const { notate_mapping } = require("./lib/notate-mapping");
 
 const { blankNode: b } = factory;
 
-const do_merge_case = ({ source, target }) => {
+const do_compare_case = ({ source, target }) => {
   const source_store = new RDFTripleStore(source);
   const target_store = new RDFTripleStore(target);
   const res = compare_graphs_simple(target_store, source_store);
   return { ...res, source_store, target_store };
 };
 
-const [case_name, merge_case] = Object.entries(cases)[41];
+const [case_name, compare_case] = Object.entries(cases)[41];
 // Object.entries(cases).length - 4
 
-const result = do_merge_case(merge_case);
+const result = do_compare_case(compare_case);
 const {
   store,
   components: bnode_components,
@@ -49,7 +49,7 @@ const components = dot_notate(store, "gray");
 
 const color_notes = [...color_connected_components(bnode_components)];
 
-const target = dot_notate(merge_case.target, "blue").dot_statements;
+const target = dot_notate(compare_case.target, "blue").dot_statements;
 // console.log(`bnode_components`, inspect(bnode_components, { depth: 5 }));
 
 const bnode_colored = [...components.dot_statements, ...color_notes];
@@ -82,15 +82,15 @@ const dot_statements = clusters_from({
       "bnode_islands"
     ),
   ],
-  source: dot_notate(merge_case.source, "red").dot_statements,
+  source: dot_notate(compare_case.source, "red").dot_statements,
   incoming: dot_notate(incoming, "green").dot_statements,
   result: dot_notate(
-    new RDFTripleStore([...merge_case.target, ...incoming]),
+    new RDFTripleStore([...compare_case.target, ...incoming]),
     "darkgreen"
   ).dot_statements,
   // target,
-  // merged: dot_notate(merge_case.merged, "purple").dot_statements,
-}).map(_ => ({ ..._, attributes: { label: _.id.slice("cluster ".length) } }));
+  // merged: dot_notate(compare_case.merged, "purple").dot_statements,
+});
 
 exports.display = {
   dot_graph: {

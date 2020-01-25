@@ -192,7 +192,7 @@ function main(test_case) {
     //   .dot_statements,
     third: dot_notate(third.triples).dot_statements,
     interpreted,
-  }).map(_ => ({ ..._, attributes: { label: _.id.slice("cluster ".length) } }));
+  });
 
   return {
     dot_graph: {

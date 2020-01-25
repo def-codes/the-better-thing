@@ -143,7 +143,7 @@ const dot_statements = clusters_from({
       };
     }),
   ],
-}).map(_ => ({ ..._, attributes: { label: _.id.slice("cluster ".length) } }));
+});
 
 exports.display = {
   dot_graph: {

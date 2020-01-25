@@ -160,6 +160,6 @@ const dot_statements = clusters_from({
   reduced_triples_data: show.thing(reduced.triples || []).dot_statements,
   atomized: show.thing((atomized || []).map(curied_triples)).dot_statements,
   atomized_data: show.thing(atomized || []).dot_statements,
-}).map(_ => ({ ..._, attributes: { label: _.id.slice("cluster ".length) } }));
+});
 
 exports.display = { dot_statements };

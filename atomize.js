@@ -44,7 +44,7 @@ const ATOMIZE_CASES = [
   },
 ];
 
-const test_case_number = 1;
+const test_case_number = 4;
 const { name, triples } = ATOMIZE_CASES[test_case_number];
 const { units, ...preprocess } = simply_entailable_units(triples);
 
@@ -52,16 +52,13 @@ const dot_statements = clusters_from({
   store: dot_notate(triples).dot_statements,
   store_triples: show.things(triples).dot_statements,
   units_triples: show.things(units).dot_statements,
-  units: clusters_from(
-    Object.fromEntries(
-      Object.entries(units).map(([index, { subgraph }]) => [
-        index,
-        dot_notate(subgraph).dot_statements,
-      ])
-    ),
-    "units"
+  units: Object.fromEntries(
+    Object.entries(units).map(([index, { subgraph }]) => [
+      index,
+      dot_notate(subgraph).dot_statements,
+    ])
   ),
-}).map(_ => ({ ..._, attributes: { label: _.id.slice("cluster ".length) } }));
+});
 
 exports.display = {
   dot_graph: {

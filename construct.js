@@ -139,6 +139,6 @@ const dot_statements = clusters_from({
   second_target_triples: show.things(second_target_store.triples)
     .dot_statements,
   interpreted,
-}).map(_ => ({ ..._, attributes: { label: _.id.slice("cluster ".length) } }));
+});
 
 exports.display = { dot_statements };
