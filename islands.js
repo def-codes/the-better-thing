@@ -1,11 +1,7 @@
-const { inspect } = require("util");
-const tx = require("@thi.ng/transducers");
 const show = require("./lib/show");
-// const { RDFTripleStore, factory } = require("@def.codes/rstream-query-rdf");
 const { q } = require("@def.codes/meld-core");
 const { islands_from } = require("./lib/islands");
 const { clusters_from } = require("./lib/clustering");
-// const { color_connected_components } = require("./lib/color-connected");
 
 const do_islands_case = ({ source, predicate }) => {
   const islands_result = islands_from(source, predicate);
