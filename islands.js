@@ -3,7 +3,6 @@ const tx = require("@thi.ng/transducers");
 const show = require("./lib/thing-to-dot-statements");
 // const { RDFTripleStore, factory } = require("@def.codes/rstream-query-rdf");
 const { q } = require("@def.codes/meld-core");
-const { dot_notate } = require("./lib/dot-notate");
 const { islands_from } = require("./lib/islands");
 const { clusters_from } = require("./lib/clustering");
 // const { color_connected_components } = require("./lib/color-connected");
@@ -30,7 +29,7 @@ const { source, islands_result } = do_islands_case(islands_case);
 const { graph, subgraph, components, islands } = islands_result;
 
 const dot_statements = clusters_from({
-  source: dot_notate(source).dot_statements,
+  source: show.triples(source).dot_statements,
   source_triples: show.thing(source).dot_statements,
   graph: show.graph(graph).dot_statements,
   subgraph: show.graph(subgraph).dot_statements,
@@ -39,7 +38,7 @@ const dot_statements = clusters_from({
   islands: Object.fromEntries(
     Object.entries(islands).map(([key, trips]) => [
       key,
-      dot_notate(trips).dot_statements,
+      show.triples(trips).dot_statements,
     ])
   ),
 });

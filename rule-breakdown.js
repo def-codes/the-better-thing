@@ -2,7 +2,6 @@
 const tx = require("@thi.ng/transducers");
 const show = require("./lib/thing-to-dot-statements");
 const { bind } = require("./lib/graph-templates");
-const { dot_notate } = require("./lib/dot-notate");
 const { clusters_from } = require("./lib/clustering");
 const { simply_entailable_units } = require("./lib/atomize");
 
@@ -138,13 +137,13 @@ const reduced = zipped.reduce((store, { match, consequent }) => {
   return store;
 }, new RDFTripleStore());
 
-const { curied_triples, curied_term } = require("./curie");
+const { curied_triples, curied_term } = require("./lib/curie");
 
 const dot_statements = clusters_from({
-  source: dot_notate(source_store.triples).dot_statements,
+  source: show.store(source_store).dot_statements,
   source_triples: show.things(source_store.triples).dot_statements,
-  antecedent: dot_notate(antecedent).dot_statements,
-  consequent: dot_notate(consequent).dot_statements,
+  antecedent: show.triples(antecedent).dot_statements,
+  consequent: show.triples(consequent).dot_statements,
   matched_data: show.thing(matched || []).dot_statements,
   matched: show.thing(
     matched.map(rec =>
@@ -154,7 +153,7 @@ const dot_statements = clusters_from({
     )
   ).dot_statements,
   zipped: show.thing(zipped || []).dot_statements,
-  reduced: dot_notate(reduced.triples).dot_statements,
+  reduced: show.store(reduced).dot_statements,
   reduced_triples: show.thing(curied_triples(reduced.triples || []))
     .dot_statements,
   reduced_triples_data: show.thing(reduced.triples || []).dot_statements,

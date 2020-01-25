@@ -4,7 +4,6 @@ const show = require("./lib/thing-to-dot-statements");
 const { RDFTripleStore, factory } = require("@def.codes/rstream-query-rdf");
 const cases = require("./lib/example-graph-pairs");
 const { compare_graphs_simple } = require("./lib/compare-graphs");
-const { dot_notate } = require("./lib/dot-notate");
 const { clusters_from } = require("./lib/clustering");
 const { color_connected_components } = require("./lib/color-connected");
 const { notate_mapping } = require("./lib/notate-mapping");
@@ -45,11 +44,11 @@ for (const { entailed } of mappings) {
 
 const island_having = node => bnode_components.findIndex(set => set.has(node));
 
-const components = dot_notate(store, "gray");
+const components = show.store(store, "gray");
 
 const color_notes = [...color_connected_components(bnode_components)];
 
-const target = dot_notate(compare_case.target, "blue").dot_statements;
+const target = show.triples(compare_case.target, "blue").dot_statements;
 // console.log(`bnode_components`, inspect(bnode_components, { depth: 5 }));
 
 const bnode_colored = [...components.dot_statements, ...color_notes];
@@ -76,20 +75,18 @@ const dot_statements = clusters_from({
       Object.fromEntries(
         Object.entries(bnode_islands).map(([key, trips]) => [
           key,
-          dot_notate(trips).dot_statements,
+          show.triples(trips).dot_statements,
         ])
       ),
       "bnode_islands"
     ),
   ],
-  source: dot_notate(compare_case.source, "red").dot_statements,
-  incoming: dot_notate(incoming, "green").dot_statements,
-  result: dot_notate(
-    new RDFTripleStore([...compare_case.target, ...incoming]),
-    "darkgreen"
-  ).dot_statements,
+  source: show.triples(compare_case.source, "red").dot_statements,
+  incoming: show.triples(incoming, "green").dot_statements,
+  result: show.triples([...compare_case.target, ...incoming], "darkgreen")
+    .dot_statements,
   // target,
-  // merged: dot_notate(compare_case.merged, "purple").dot_statements,
+  // merged: show.triples(compare_case.merged, "purple").dot_statements,
 });
 
 exports.display = {

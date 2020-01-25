@@ -3,7 +3,6 @@
 const tx = require("@thi.ng/transducers");
 const show = require("./lib/thing-to-dot-statements");
 const { construct } = require("./lib/construct");
-const { dot_notate } = require("./lib/dot-notate");
 const { clusters_from } = require("./lib/clustering");
 const { q } = require("@def.codes/meld-core");
 const { RDFTripleStore } = require("@def.codes/rstream-query-rdf");
@@ -129,13 +128,13 @@ const { dot_interpret_rdf_store } = require("./lib/dot-interpret-rdf-store");
 const interpreted = [...dot_interpret_rdf_store(second_target_store)];
 
 const dot_statements = clusters_from({
-  source: dot_notate(source_store.triples).dot_statements,
+  source: show.store(source_store).dot_statements,
   source_triples: show.things(source_store.triples).dot_statements,
-  // where: dot_notate(where).dot_statements,
-  // construct: dot_notate(construct).dot_statements,
-  target: dot_notate(target_store.triples).dot_statements,
+  // where: show.triples(where).dot_statements,
+  // construct: show.triples(construct).dot_statements,
+  target: show.store(target_store).dot_statements,
   target_triples: show.things(target_store.triples).dot_statements,
-  second_target: dot_notate(second_target_store.triples).dot_statements,
+  second_target: show.store(second_target_store).dot_statements,
   second_target_triples: show.things(second_target_store.triples)
     .dot_statements,
   interpreted,

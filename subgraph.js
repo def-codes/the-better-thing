@@ -11,7 +11,6 @@ const show = require("./lib/thing-to-dot-statements");
 const { generate_triples } = require("./lib/random-triples");
 const { clusters_from } = require("./lib/clustering");
 const { triples_to_facts } = require("./lib/triples-to-facts");
-const { dot_notate } = require("./lib/dot-notate");
 const pairs = require("./lib/example-graph-pairs");
 
 const FACTS = [
@@ -116,7 +115,7 @@ const graph_statements = show.graph(graph).dot_statements;
 const subgraph_statements = show.graph(subgraph).dot_statements;
 
 const dot_statements = clusters_from({
-  ...(store ? { rdf: dot_notate(store.triples).dot_statements } : {}),
+  ...(store ? { rdf: show.store(store).dot_statements } : {}),
   graph: graph_statements,
   subgraph: subgraph_statements,
   merged: [

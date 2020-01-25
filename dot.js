@@ -2,7 +2,6 @@
 const tx = require("@thi.ng/transducers");
 const show = require("./lib/thing-to-dot-statements");
 const { construct } = require("./lib/construct");
-const { dot_notate } = require("./lib/dot-notate");
 const { clusters_from } = require("./lib/clustering");
 const { q } = require("@def.codes/meld-core");
 const { RDFTripleStore } = require("@def.codes/rstream-query-rdf");
@@ -183,14 +182,14 @@ function main(test_case) {
   const { source, first, second, third, interpreted } = do_case(test_case);
 
   const statements = clusters_from({
-    source: dot_notate(source.triples).dot_statements,
+    source: show.store(source).dot_statements,
     // source_triples: show.things(source_store.triples).dot_statements,
-    first: dot_notate(first.triples).dot_statements,
+    first: show.store(first).dot_statements,
     // first_triples: show.things(first.triples).dot_statements,
-    second: dot_notate(second.triples).dot_statements,
+    second: show.store(second).dot_statements,
     // second_target_triples: show.things(second_target_store.triples)
     //   .dot_statements,
-    third: dot_notate(third.triples).dot_statements,
+    third: show.store(third).dot_statements,
     interpreted,
   });
 

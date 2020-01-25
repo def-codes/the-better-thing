@@ -6,7 +6,6 @@ const { RDFTripleStore } = require("@def.codes/rstream-query-rdf");
 const show = require("./lib/thing-to-dot-statements");
 const { generate_triples } = require("./lib/random-triples");
 const { clusters_from } = require("./lib/clustering");
-const { dot_notate } = require("./lib/dot-notate");
 const pairs = require("./lib/example-graph-pairs");
 
 const ATOMIZE_CASES = [
@@ -49,13 +48,13 @@ const { name, triples } = ATOMIZE_CASES[test_case_number];
 const { units, ...preprocess } = simply_entailable_units(triples);
 
 const dot_statements = clusters_from({
-  store: dot_notate(triples).dot_statements,
+  store: show.triples(triples).dot_statements,
   store_triples: show.things(triples).dot_statements,
   units_triples: show.things(units).dot_statements,
   units: Object.fromEntries(
     Object.entries(units).map(([index, { subgraph }]) => [
       index,
-      dot_notate(subgraph).dot_statements,
+      show.triples(subgraph).dot_statements,
     ])
   ),
 });
