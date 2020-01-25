@@ -1,6 +1,6 @@
 const { inspect } = require("util");
 const tx = require("@thi.ng/transducers");
-const show = require("./lib/thing-to-dot-statements");
+const show = require("./lib/show");
 const { RDFTripleStore, factory } = require("@def.codes/rstream-query-rdf");
 const cases = require("./lib/example-graph-pairs");
 const { compare_graphs_simple } = require("./lib/compare-graphs");
@@ -48,14 +48,14 @@ const components = show.store(store, "gray");
 
 const color_notes = [...color_connected_components(bnode_components)];
 
-const target = show.triples(compare_case.target, "blue").dot_statements;
+const target = show.triples(compare_case.target, "blue");
 // console.log(`bnode_components`, inspect(bnode_components, { depth: 5 }));
 
-const bnode_colored = [...components.dot_statements, ...color_notes];
+const bnode_colored = [...components, ...color_notes];
 
 const dot_statements = clusters_from({
-  components: components.dot_statements,
-  color_notes: show.thing(color_notes).dot_statements,
+  components,
+  color_notes: show.thing(color_notes),
   bnode_colored,
   bnode_islands: [
     ...target,
@@ -75,18 +75,17 @@ const dot_statements = clusters_from({
       Object.fromEntries(
         Object.entries(bnode_islands).map(([key, trips]) => [
           key,
-          show.triples(trips).dot_statements,
+          show.triples(trips),
         ])
       ),
       "bnode_islands"
     ),
   ],
-  source: show.triples(compare_case.source, "red").dot_statements,
-  incoming: show.triples(incoming, "green").dot_statements,
-  result: show.triples([...compare_case.target, ...incoming], "darkgreen")
-    .dot_statements,
+  source: show.triples(compare_case.source, "red"),
+  incoming: show.triples(incoming, "green"),
+  result: show.triples([...compare_case.target, ...incoming], "darkgreen"),
   // target,
-  // merged: show.triples(compare_case.merged, "purple").dot_statements,
+  // merged: show.triples(compare_case.merged, "purple"),
 });
 
 exports.display = {

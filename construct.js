@@ -1,7 +1,7 @@
 // see the stages in the application of rules
 // this is just a CONSTRUCT query
 const tx = require("@thi.ng/transducers");
-const show = require("./lib/thing-to-dot-statements");
+const show = require("./lib/show");
 const { construct } = require("./lib/construct");
 const { clusters_from } = require("./lib/clustering");
 const { q } = require("@def.codes/meld-core");
@@ -128,15 +128,14 @@ const { dot_interpret_rdf_store } = require("./lib/dot-interpret-rdf-store");
 const interpreted = [...dot_interpret_rdf_store(second_target_store)];
 
 const dot_statements = clusters_from({
-  source: show.store(source_store).dot_statements,
-  source_triples: show.things(source_store.triples).dot_statements,
-  // where: show.triples(where).dot_statements,
-  // construct: show.triples(construct).dot_statements,
-  target: show.store(target_store).dot_statements,
-  target_triples: show.things(target_store.triples).dot_statements,
-  second_target: show.store(second_target_store).dot_statements,
-  second_target_triples: show.things(second_target_store.triples)
-    .dot_statements,
+  source: show.store(source_store),
+  source_triples: show.things(source_store.triples),
+  // where: show.triples(where),
+  // construct: show.triples(construct),
+  target: show.store(target_store),
+  target_triples: show.things(target_store.triples),
+  second_target: show.store(second_target_store),
+  second_target_triples: show.things(second_target_store.triples),
   interpreted,
 });
 

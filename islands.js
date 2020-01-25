@@ -1,6 +1,6 @@
 const { inspect } = require("util");
 const tx = require("@thi.ng/transducers");
-const show = require("./lib/thing-to-dot-statements");
+const show = require("./lib/show");
 // const { RDFTripleStore, factory } = require("@def.codes/rstream-query-rdf");
 const { q } = require("@def.codes/meld-core");
 const { islands_from } = require("./lib/islands");
@@ -29,17 +29,14 @@ const { source, islands_result } = do_islands_case(islands_case);
 const { graph, subgraph, components, islands } = islands_result;
 
 const dot_statements = clusters_from({
-  source: show.triples(source).dot_statements,
-  source_triples: show.thing(source).dot_statements,
-  graph: show.graph(graph).dot_statements,
-  subgraph: show.graph(subgraph).dot_statements,
-  components: show.thing(components).dot_statements,
-  islands_triples: show.things(islands).dot_statements,
+  source: show.triples(source),
+  source_triples: show.thing(source),
+  graph: show.graph(graph),
+  subgraph: show.graph(subgraph),
+  components: show.thing(components),
+  islands_triples: show.things(islands),
   islands: Object.fromEntries(
-    Object.entries(islands).map(([key, trips]) => [
-      key,
-      show.triples(trips).dot_statements,
-    ])
+    Object.entries(islands).map(([key, trips]) => [key, show.triples(trips)])
   ),
 });
 

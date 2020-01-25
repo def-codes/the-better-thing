@@ -3,7 +3,7 @@ const tx = require("@thi.ng/transducers");
 const { q } = require("@def.codes/meld-core");
 const { simply_entailable_units } = require("./lib/atomize");
 const { RDFTripleStore } = require("@def.codes/rstream-query-rdf");
-const show = require("./lib/thing-to-dot-statements");
+const show = require("./lib/show");
 const { generate_triples } = require("./lib/random-triples");
 const { clusters_from } = require("./lib/clustering");
 const pairs = require("./lib/example-graph-pairs");
@@ -48,13 +48,13 @@ const { name, triples } = ATOMIZE_CASES[test_case_number];
 const { units, ...preprocess } = simply_entailable_units(triples);
 
 const dot_statements = clusters_from({
-  store: show.triples(triples).dot_statements,
-  store_triples: show.things(triples).dot_statements,
-  units_triples: show.things(units).dot_statements,
+  store: show.triples(triples),
+  store_triples: show.things(triples),
+  units_triples: show.things(units),
   units: Object.fromEntries(
     Object.entries(units).map(([index, { subgraph }]) => [
       index,
-      show.triples(subgraph).dot_statements,
+      show.triples(subgraph),
     ])
   ),
 });

@@ -7,7 +7,7 @@ const {
   triple_store_graph,
 } = require("@def.codes/graphs");
 const { RDFTripleStore } = require("@def.codes/rstream-query-rdf");
-const show = require("./lib/thing-to-dot-statements");
+const show = require("./lib/show");
 const { generate_triples } = require("./lib/random-triples");
 const { clusters_from } = require("./lib/clustering");
 const { triples_to_facts } = require("./lib/triples-to-facts");
@@ -111,11 +111,11 @@ const test_case_number = 0;
 const test_case = TEST_CASES[test_case_number];
 const { store, graph, subgraph } = do_test_case(test_case);
 
-const graph_statements = show.graph(graph).dot_statements;
-const subgraph_statements = show.graph(subgraph).dot_statements;
+const graph_statements = show.graph(graph);
+const subgraph_statements = show.graph(subgraph);
 
 const dot_statements = clusters_from({
-  ...(store ? { rdf: show.store(store).dot_statements } : {}),
+  ...(store ? { rdf: show.store(store) } : {}),
   graph: graph_statements,
   subgraph: subgraph_statements,
   merged: [

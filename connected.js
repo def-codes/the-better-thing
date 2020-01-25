@@ -1,6 +1,6 @@
 // scratch program for developing connected subgraph algorithm
 const tx = require("@thi.ng/transducers");
-const show = require("./lib/thing-to-dot-statements");
+const show = require("./lib/show");
 const { RDFTripleStore } = require("@def.codes/rstream-query-rdf");
 const { clusters_from } = require("./lib/clustering");
 const {
@@ -26,7 +26,7 @@ let test_case = cases[0];
 
 const test_triples = test_case;
 const test_store = new RDFTripleStore(test_triples);
-const { dot_statements: main } = show.store(test_store);
+const main = show.store(test_store);
 const { annotations } = color_connected(test_store, { n: 31 });
 
 /*
@@ -64,7 +64,7 @@ const dot_statements = clusters_from({
     "as graph": main,
     // Might want to drill into this, but it would be hard to see if not as dot
     // whereas rest wants to be in FDP
-    // "as triples": show.things(test_store.triples).dot_statements,
+    // "as triples": show.things(test_store.triples),
   },
   display: {
     // The annotation also takes as input the colors,
@@ -72,7 +72,7 @@ const dot_statements = clusters_from({
     _: [{ type: "node", id: "_", attributes: { style: "invis" } }],
     annotations,
     // see note above
-    // "annotations object": show.things(annotations).dot_statements,
+    // "annotations object": show.things(annotations),
     colored: [...main, ...annotations],
   },
 });

@@ -1,6 +1,6 @@
 // see the stages in the application of rules
 const tx = require("@thi.ng/transducers");
-const show = require("./lib/thing-to-dot-statements");
+const show = require("./lib/show");
 const { bind } = require("./lib/graph-templates");
 const { clusters_from } = require("./lib/clustering");
 const { simply_entailable_units } = require("./lib/atomize");
@@ -140,25 +140,24 @@ const reduced = zipped.reduce((store, { match, consequent }) => {
 const { curied_triples, curied_term } = require("./lib/curie");
 
 const dot_statements = clusters_from({
-  source: show.store(source_store).dot_statements,
-  source_triples: show.things(source_store.triples).dot_statements,
-  antecedent: show.triples(antecedent).dot_statements,
-  consequent: show.triples(consequent).dot_statements,
-  matched_data: show.thing(matched || []).dot_statements,
+  source: show.store(source_store),
+  source_triples: show.things(source_store.triples),
+  antecedent: show.triples(antecedent),
+  consequent: show.triples(consequent),
+  matched_data: show.thing(matched || []),
   matched: show.thing(
     matched.map(rec =>
       Object.fromEntries(
         Object.entries(rec).map(([k, v]) => [k, curied_term(v)])
       )
     )
-  ).dot_statements,
-  zipped: show.thing(zipped || []).dot_statements,
-  reduced: show.store(reduced).dot_statements,
-  reduced_triples: show.thing(curied_triples(reduced.triples || []))
-    .dot_statements,
-  reduced_triples_data: show.thing(reduced.triples || []).dot_statements,
-  atomized: show.thing((atomized || []).map(curied_triples)).dot_statements,
-  atomized_data: show.thing(atomized || []).dot_statements,
+  ),
+  zipped: show.thing(zipped || []),
+  reduced: show.store(reduced),
+  reduced_triples: show.thing(curied_triples(reduced.triples || [])),
+  reduced_triples_data: show.thing(reduced.triples || []),
+  atomized: show.thing((atomized || []).map(curied_triples)),
+  atomized_data: show.thing(atomized || []),
 });
 
 exports.display = { dot_statements };

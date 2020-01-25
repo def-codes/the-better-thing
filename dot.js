@@ -1,6 +1,6 @@
 // use rules to create and annotate dot graphs
 const tx = require("@thi.ng/transducers");
-const show = require("./lib/thing-to-dot-statements");
+const show = require("./lib/show");
 const { construct } = require("./lib/construct");
 const { clusters_from } = require("./lib/clustering");
 const { q } = require("@def.codes/meld-core");
@@ -182,14 +182,13 @@ function main(test_case) {
   const { source, first, second, third, interpreted } = do_case(test_case);
 
   const statements = clusters_from({
-    source: show.store(source).dot_statements,
+    source: show.store(source),
     // source_triples: show.things(source_store.triples).dot_statements,
-    first: show.store(first).dot_statements,
+    first: show.store(first),
     // first_triples: show.things(first.triples).dot_statements,
-    second: show.store(second).dot_statements,
-    // second_target_triples: show.things(second_target_store.triples)
-    //   .dot_statements,
-    third: show.store(third).dot_statements,
+    second: show.store(second),
+    // second_target_triples: show.things(second_target_store.triples),
+    third: show.store(third),
     interpreted,
   });
 
