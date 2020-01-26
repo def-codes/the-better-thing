@@ -55,7 +55,14 @@ const TEST_CASES = [
     label: `DADS upper ontology`,
     triples: DADS_UPPER_ONTOLOGY,
     // this is unreadable, presumably because there are long labels
-    pipeline: [[{ construct: q(`?s ?p ?o`) }]],
+    pipeline: [
+      [
+        { construct: q(`?s a ?o`) },
+        { construct: q(`?s rdfs:range ?o`) },
+        { construct: q(`?s rdfs:domain ?o`) },
+        { construct: q(`?s rdfs:subClassOf ?o`) },
+      ],
+    ],
   },
 ];
 
@@ -64,12 +71,12 @@ const main = test_case => {
 
   const statements = clusters_from({
     source: show.store(source),
-    intermediate: Object.fromEntries(
-      Object.entries(intermediate).map(([key, store]) => [
-        key,
-        show.store(store),
-      ])
-    ),
+    // intermediate: Object.fromEntries(
+    //   Object.entries(intermediate).map(([key, store]) => [
+    //     key,
+    //     show.store(store),
+    //   ])
+    // ),
     final: show.store(final),
   });
 
@@ -82,4 +89,4 @@ const main = test_case => {
   };
 };
 
-exports.display = main(TEST_CASES[3]);
+exports.display = main(TEST_CASES[4]);

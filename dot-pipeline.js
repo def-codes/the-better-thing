@@ -7,6 +7,8 @@ const { dot_interpret_pipeline } = require("./lib/dot-interpret-pipeline");
 const ConstructDot = require("./queries/construct-dot");
 const Construct = require("./queries/construct-copy");
 const pairs = require("./lib/example-graph-pairs");
+const { LOVE_TRIANGLE } = require("./graphs/simple");
+const { DADS_UPPER_ONTOLOGY } = require("./graphs/dads");
 
 const prep = (...cs) =>
   q(
@@ -15,9 +17,8 @@ const prep = (...cs) =>
     )
   );
 
-const TRIANGLE = q("Bob loves Alice", "Alice loves Carol", "Carol loves Bob");
 const TEST_TRIPLES = [
-  ...TRIANGLE,
+  ...LOVE_TRIANGLE,
   ...q(
     "Alice spouseOf Bob",
     "Bob spouseOf Alice",
@@ -33,22 +34,22 @@ const MORE_TRIPLES = pairs["bnodes with disconnected components"].target;
 const TEST_CASES = [
   {
     label: "Dot represent nodes",
-    triples: TRIANGLE,
+    triples: LOVE_TRIANGLE,
     pipeline: [[Construct.Copy, ConstructDot.Node]],
   },
   {
     label: "Dot represent and label nodes",
-    triples: TRIANGLE,
+    triples: LOVE_TRIANGLE,
     pipeline: [[Construct.Copy, ConstructDot.Node], [ConstructDot.NodeLabel]],
   },
   {
     label: "Dot represent graph",
-    triples: TRIANGLE,
+    triples: LOVE_TRIANGLE,
     pipeline: [[Construct.Copy, ConstructDot.Node], [ConstructDot.Edge]],
   },
   {
     label: "Dot represent graph and label nodes",
-    triples: TRIANGLE,
+    triples: LOVE_TRIANGLE,
     pipeline: [
       [Construct.Copy, ConstructDot.Node],
       [ConstructDot.Edge],
@@ -57,7 +58,7 @@ const TEST_CASES = [
   },
   {
     label: "Dot represent graph and label nodes and edges",
-    triples: TRIANGLE,
+    triples: LOVE_TRIANGLE,
     pipeline: [
       [Construct.Copy, ConstructDot.Node],
       [ConstructDot.Edge],
@@ -206,6 +207,50 @@ const TEST_CASES = [
       ],
     ],
   },
+  {
+    label: "View DADS ontology",
+    triples: DADS_UPPER_ONTOLOGY,
+    pipeline: [
+      [
+        { construct: q(`?s a ?o`) },
+        { construct: q(`?s rdfs:range ?o`) },
+        { construct: q(`?s rdfs:domain ?o`) },
+        { construct: q(`?s rdfs:subClassOf ?o`) },
+      ],
+      [
+        // {
+        //   // could have a helper to produce these queries
+        //   // like to make the Node/represents part implicit
+        //   // could also do that with inference rules (but targeting only `dot:`?)
+        //   where: prep(
+        //     "?node a dot:Node",
+        //     "?node def:represents ?x",
+        //     "?x loves ?y"
+        //   ),
+        //   construct: prep(
+        //     `?node dot:color "#CC000077"`,
+        //     `?node dot:style "filled"`
+        //   ),
+        // },
+        ConstructDot.Edge,
+        ConstructDot.NodeLabel,
+      ],
+      [
+        ConstructDot.EdgeLabel,
+        {
+          where: prep(
+            "?edge def:represents ?statement",
+            "?statement rdf:predicate loves"
+          ),
+          construct: prep(
+            `?edge dot:penwidth 10`,
+            `?edge dot:color "#CC000077"`,
+            `?edge dot:fontcolor "#CC000077"`
+          ),
+        },
+      ],
+    ],
+  },
 ];
 
 function main(test_case) {
@@ -216,12 +261,12 @@ function main(test_case) {
 
   const statements = clusters_from({
     source: show.store(source),
-    intermediate: Object.fromEntries(
-      Object.entries(intermediate).map(([key, store]) => [
-        key,
-        show.store(store),
-      ])
-    ),
+    // intermediate: Object.fromEntries(
+    //   Object.entries(intermediate).map(([key, store]) => [
+    //     key,
+    //     show.store(store),
+    //   ])
+    // ),
     interpreted,
   });
 
@@ -234,4 +279,4 @@ function main(test_case) {
   };
 }
 
-exports.display = main(TEST_CASES[4]);
+exports.display = main(TEST_CASES[9]);
