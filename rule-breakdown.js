@@ -125,7 +125,7 @@ const atomized = [
   ...tx.mapcat(item => {
     const { match, consequent } = item;
     const con_store = new RDFTripleStore(consequent);
-    const { units } = simply_entailable_units(con_store);
+    const { output: units } = simply_entailable_units(con_store);
     //return units.map(unit => ({ ...item, ...unit }));
     return units.map(_ => _.subgraph);
   }, zipped),

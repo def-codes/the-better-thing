@@ -1,6 +1,6 @@
 const show = require("./lib/show");
-const { q } = require("@def.codes/meld-core");
 const { clusters_from } = require("./lib/clustering");
+const { q } = require("@def.codes/meld-core");
 const { dot_interpret_pipeline } = require("./lib/dot-interpret-pipeline");
 const Construct = require("./queries/construct-copy");
 const ConstructDot = require("./queries/construct-dot");

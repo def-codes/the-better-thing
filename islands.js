@@ -1,7 +1,7 @@
 const show = require("./lib/show");
+const { clusters_from } = require("./lib/clustering");
 const { q } = require("@def.codes/meld-core");
 const { islands_from } = require("./lib/islands");
-const { clusters_from } = require("./lib/clustering");
 
 const do_islands_case = ({ source, predicate }) => {
   const islands_result = islands_from(source, predicate);
@@ -22,7 +22,10 @@ const islands_cases = [
 const islands_case = islands_cases[1];
 
 const { source, islands_result } = do_islands_case(islands_case);
-const { graph, subgraph, components, islands } = islands_result;
+const {
+  intermediate: { graph, subgraph, components },
+  output: islands,
+} = islands_result;
 
 const dot_statements = clusters_from({
   source: show.triples(source),

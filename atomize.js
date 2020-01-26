@@ -43,26 +43,30 @@ const ATOMIZE_CASES = [
   },
 ];
 
-const test_case_number = 4;
-const { name, triples } = ATOMIZE_CASES[test_case_number];
-const { units, ...preprocess } = simply_entailable_units(triples);
+const main = ({ name, triples }) => {
+  const { intermediate, output: units } = simply_entailable_units(triples);
 
-const dot_statements = clusters_from({
-  store: show.triples(triples),
-  store_triples: show.things(triples),
-  units_triples: show.things(units),
-  units: Object.fromEntries(
-    Object.entries(units).map(([index, { subgraph }]) => [
-      index,
-      show.triples(subgraph),
-    ])
-  ),
-});
+  const dot_statements = clusters_from({
+    store: show.triples(triples),
+    store_triples: show.things(triples),
+    // intermediate: show.thing(intermediate),
+    units_triples: show.things(units),
+    units: Object.fromEntries(
+      Object.entries(units).map(([index, { subgraph }]) => [
+        index,
+        show.triples(subgraph),
+      ])
+    ),
+  });
 
-exports.display = {
-  dot_graph: {
-    directed: true,
-    attributes: { label: name, rankdir: "LR" },
-    statements: dot_statements,
-  },
+  return {
+    dot_graph: {
+      directed: true,
+      attributes: { label: name, rankdir: "LR" },
+      statements: dot_statements,
+    },
+  };
 };
+
+const test_case_number = 4;
+exports.display = main(ATOMIZE_CASES[test_case_number]);

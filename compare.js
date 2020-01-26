@@ -22,16 +22,15 @@ const [case_name, compare_case] = Object.entries(cases)[41];
 // Object.entries(cases).length - 4
 
 const result = do_compare_case(compare_case);
-const {
-  store,
-  components: bnode_components,
-  islands: bnode_islands,
-  mappings,
-  incoming,
-  source_store,
-  target_store,
-} = result;
 
+const { intermediate, output: mappings, source_store, target_store } = result;
+
+const { atomized, bnode_subgraphs } = intermediate;
+const {
+  intermediate: { islands },
+} = atomized;
+
+// TODO: do this somewhere else.  compare no longer does any bnode mapping per se
 for (const { entailed } of mappings) {
   if (entailed) {
     const failed = entailed.filter(_ => !target_store.has(_.mapped));
@@ -40,6 +39,9 @@ for (const { entailed } of mappings) {
     else console.log(`All assertions passed!!!`);
   }
 }
+
+const { store, components: bnode_components } = islands.intermediate;
+const bnode_islands = islands.output;
 
 const island_having = node => bnode_components.findIndex(set => set.has(node));
 
@@ -81,8 +83,9 @@ const dot_statements = clusters_from({
     ),
   ],
   source: show.triples(compare_case.source, "red"),
-  incoming: show.triples(incoming, "green"),
-  result: show.triples([...compare_case.target, ...incoming], "darkgreen"),
+  // incoming: show.triples(incoming, "green"),
+  // separated “incoming” from compare, but it's not moved to anything yet
+  result: show.triples([...compare_case.target /*, ...incoming*/], "darkgreen"),
   // target,
   // merged: show.triples(compare_case.merged, "purple"),
 });
