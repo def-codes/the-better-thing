@@ -60,7 +60,7 @@ const TEST_CASES = [
   },
 ];
 
-const do_case = test_case => {
+const main = test_case => {
   const { label, triples, rules } = test_case;
   const source_store = new RDFTripleStore(triples);
 
@@ -68,20 +68,19 @@ const do_case = test_case => {
   const target_store = new RDFTripleStore([], source_store.blank_node_space_id);
   construct(rules, source_store, target_store);
 
-  const dot_statements = clusters_from({
+  const statements = clusters_from({
     source: show.store(source_store),
     rules: show.things(rules),
     result: show.store(target_store),
   });
-  return { test_case_label: label, dot_statements };
+
+  return {
+    dot_graph: {
+      directed: true,
+      attributes: { label, labelloc: "t" },
+      statements,
+    },
+  };
 };
 
-const { test_case_label, dot_statements } = do_case(TEST_CASES[4]);
-
-exports.display = {
-  dot_graph: {
-    directed: true,
-    attributes: { label: test_case_label, labelloc: "t" },
-    statements: dot_statements,
-  },
-};
+exports.display = main(TEST_CASES[1]);
