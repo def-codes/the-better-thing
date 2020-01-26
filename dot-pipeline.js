@@ -1,10 +1,7 @@
 // use rules to create and annotate dot graphs
-const tx = require("@thi.ng/transducers");
 const show = require("./lib/show");
-const { construct } = require("./lib/construct");
 const { clusters_from } = require("./lib/clustering");
 const { q } = require("@def.codes/meld-core");
-const { RDFTripleStore } = require("@def.codes/rstream-query-rdf");
 const { DOT } = require("@def.codes/graphviz-format");
 const { dot_interpret_pipeline } = require("./lib/dot-interpret-pipeline");
 const ConstructDot = require("./queries/construct-dot");
