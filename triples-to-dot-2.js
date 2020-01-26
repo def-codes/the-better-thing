@@ -6,7 +6,7 @@ const { DOT } = require("@def.codes/graphviz-format");
 const { factory } = require("@def.codes/rstream-query-rdf");
 const { prefix_statement_keys, clusters_from } = require("./lib/clustering");
 const entail_cases = require("./lib/example-graph-pairs");
-const { simple_entailment_mapping } = require("./lib/graph-ops");
+const { simple_bnode_mapping } = require("./lib/simple-bnode-mapping");
 const { notate_mapping } = require("./lib/notate-mapping");
 
 const { namedNode: n, blankNode: b, literal: l, variable: v } = factory;
@@ -50,7 +50,7 @@ function do_case(number = 0, mode = 0) {
   const [case_name, entail_case] = Object.entries(entail_cases)[number];
   const { a: A, b: B, clusters, merged } = case_statements(entail_case);
   const base_dot_statements = [merged, clusters][mode];
-  const mapping = simple_entailment_mapping(A.source, B.source);
+  const mapping = simple_bnode_mapping(A.source, B.source);
 
   return {
     type: "subgraph",

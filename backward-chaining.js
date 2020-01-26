@@ -12,6 +12,12 @@ const backward_chain_from_construct = input => {
   const resources_store = new RDFTripleStore(resources);
   const output = {};
 
+  // match facts in the store against a given goal
+  // this is not just about a query...
+  // indeed, the question is does the knowledge store entail the goal?
+  // this would also cover blank nodes
+  // anyway, you can't do a query without variables
+
   return { input, resources_store, output };
 };
 
