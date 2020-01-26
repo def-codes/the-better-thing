@@ -1,3 +1,4 @@
+// This is just a more elaborate notation of simple-bnode-mapping
 const { inspect } = require("util");
 const tx = require("@thi.ng/transducers");
 const show = require("./lib/show");
@@ -30,8 +31,6 @@ const {
   source_store,
   target_store,
 } = result;
-
-// console.log(`incoming`, incoming);
 
 for (const { entailed } of mappings) {
   if (entailed) {
