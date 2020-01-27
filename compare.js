@@ -34,30 +34,29 @@ const main = (label, test_case) => {
     components,
     color_notes: show.thing(color_notes),
     bnode_colored,
-    bnode_islands: [
-      ...target,
-      ...tx.flatten(
-        mappings.map(m => [
-          ...notate_mapping(
-            new Map(
-              Array.from(m.mapping, ([k, v]) => [
-                b(`${island_having(b(k.value))}/${k.value}`),
-                v,
-              ])
-            )
-          ),
-        ])
-      ),
-      ...clusters_from(
-        Object.fromEntries(
-          Object.entries(bnode_islands).map(([key, trips]) => [
-            key,
-            show.triples(trips),
+    bnode_islands: {
+      _: [
+        ...target,
+        ...tx.flatten(
+          mappings.map(m => [
+            ...notate_mapping(
+              new Map(
+                Array.from(m.mapping, ([k, v]) => [
+                  b(`${island_having(b(k.value))}/${k.value}`),
+                  v,
+                ])
+              )
+            ),
           ])
         ),
-        "bnode_islands"
+      ],
+      ...Object.fromEntries(
+        Object.entries(bnode_islands).map(([key, trips]) => [
+          key,
+          show.triples(trips),
+        ])
       ),
-    ],
+    },
     source: show.triples(source_triples),
     target,
   });
