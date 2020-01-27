@@ -18,6 +18,14 @@ exports.VariousBlankNodes = q(
   "_:G z C"
 );
 
+exports.VariousBlankNodesSlightDifference = q(
+  "_:A b C",
+  "_:d e _:F",
+  "_:g h I",
+  "C z _:d",
+  "_:g z C"
+);
+
 exports.LOVE_TRIANGLE = q(
   "Bob loves Alice",
   "Alice loves Carol",
