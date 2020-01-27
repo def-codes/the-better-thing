@@ -3,12 +3,7 @@ const { clusters_from } = require("./lib/clustering");
 const { q } = require("@def.codes/meld-core");
 const { islands_from } = require("./lib/islands");
 
-const do_islands_case = ({ source, predicate }) => {
-  const islands_result = islands_from(source, predicate);
-  return { source, islands_result };
-};
-
-const islands_cases = [
+const TEST_CASES = [
   {
     source: q("a b _:c"),
     predicate: _ => _.termType === "BlankNode",
@@ -19,30 +14,36 @@ const islands_cases = [
   },
 ];
 
-const islands_case = islands_cases[1];
+const main = test_case => {
+  const { source, predicate } = test_case;
 
-const { source, islands_result } = do_islands_case(islands_case);
-const {
-  intermediate: { graph, subgraph, components },
-  output: islands,
-} = islands_result;
+  const islands_result = islands_from(source, predicate);
+  const islands_case = { source, islands_result };
 
-const dot_statements = clusters_from({
-  source: show.triples(source),
-  source_triples: show.thing(source),
-  graph: show.graph(graph),
-  subgraph: show.graph(subgraph),
-  components: show.thing(components),
-  islands_triples: show.things(islands),
-  islands: Object.fromEntries(
-    Object.entries(islands).map(([key, trips]) => [key, show.triples(trips)])
-  ),
-});
+  const {
+    intermediate: { graph, subgraph, components },
+    output: islands,
+  } = islands_result;
 
-exports.display = {
-  dot_graph: {
-    directed: true,
-    attributes: { rankdir: "LR" },
-    statements: dot_statements,
-  },
+  const dot_statements = clusters_from({
+    source: show.triples(source),
+    source_triples: show.thing(source),
+    graph: show.graph(graph),
+    subgraph: show.graph(subgraph),
+    components: show.thing(components),
+    islands_triples: show.things(islands),
+    islands: Object.fromEntries(
+      Object.entries(islands).map(([key, trips]) => [key, show.triples(trips)])
+    ),
+  });
+
+  return {
+    dot_graph: {
+      directed: true,
+      attributes: { rankdir: "LR" },
+      statements: dot_statements,
+    },
+  };
 };
+
+exports.display = main(TEST_CASES[1]);

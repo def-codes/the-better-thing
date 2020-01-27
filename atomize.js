@@ -1,11 +1,9 @@
-// atomize view
-const tx = require("@thi.ng/transducers");
-const { q } = require("@def.codes/meld-core");
-const { simply_entailable_units } = require("./lib/atomize");
-const { RDFTripleStore } = require("@def.codes/rstream-query-rdf");
 const show = require("./lib/show");
-const { generate_triples } = require("./lib/random-triples");
 const { clusters_from } = require("./lib/clustering");
+const { q } = require("@def.codes/meld-core");
+const tx = require("@thi.ng/transducers");
+const { simply_entailable_units } = require("./lib/atomize");
+const { generate_triples } = require("./lib/random-triples");
 const pairs = require("./lib/example-graph-pairs");
 
 const ATOMIZE_CASES = [

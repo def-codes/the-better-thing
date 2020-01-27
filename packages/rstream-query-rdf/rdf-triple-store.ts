@@ -29,6 +29,9 @@ export class RDFTripleStore extends TripleStore
       this.blank_node_space_id = id;
     }
 
+    // The triples are assumed to be from the same bnode space as the one given,
+    // if one was given.  I'm not sure it's a good idea to accept triples in
+    // this constructor.
     if (triples) this.into(triples);
   }
 

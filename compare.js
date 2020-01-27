@@ -83,6 +83,21 @@ const dot_statements = clusters_from({
     ),
   ],
   source: show.triples(compare_case.source, "red"),
+
+  // THIS is how incoming was defined
+  // What does “incoming” mean here?  For bnode subgraphs, we've already checked
+  // whether the subgraph is entailed, so we know up or down whether it's
+  // already included.  For triples, we aren't doing that check.
+  /*
+  const incoming = [
+    ...tx.mapcat(
+      _ => _.island,
+      tx.filter(_ => _.mapping.size === 0, mappings)
+    ),
+    ...b.triples.filter(triple => !triple.some(is_blank_node)),
+  ];
+  */
+
   // incoming: show.triples(incoming, "green"),
   // separated “incoming” from compare, but it's not moved to anything yet
   result: show.triples([...compare_case.target /*, ...incoming*/], "darkgreen"),
