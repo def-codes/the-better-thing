@@ -255,8 +255,10 @@ const TEST_CASES = [
 
 function main(test_case) {
   const {
-    construction: { source, intermediate },
-    interpreted,
+    intermediate: {
+      construction: { source, intermediate },
+    },
+    output: interpreted,
   } = dot_interpret_pipeline(test_case);
 
   const statements = clusters_from({

@@ -50,7 +50,7 @@ function do_case(number = 0, mode = 0) {
   const [case_name, entail_case] = Object.entries(entail_cases)[number];
   const { a: A, b: B, clusters, merged } = case_statements(entail_case);
   const base_dot_statements = [merged, clusters][mode];
-  const mapping = simple_bnode_mapping(A.source, B.source);
+  const { output: mapping } = simple_bnode_mapping(A.source, B.source);
 
   return {
     type: "subgraph",

@@ -1,3 +1,4 @@
+// OBE: and so is graph-templates
 // see the stages in the application of rules
 const tx = require("@thi.ng/transducers");
 const show = require("./lib/show");
