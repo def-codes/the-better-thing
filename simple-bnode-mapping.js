@@ -1,5 +1,5 @@
 const show = require("./lib/thing-to-dot-statements");
-const { equiv } = require("@thi.ng/equiv");
+const { q } = require("@def.codes/meld-core");
 const { DOT } = require("@def.codes/graphviz-format");
 const { factory } = require("@def.codes/rstream-query-rdf");
 const { prefix_statement_keys, clusters_from } = require("./lib/clustering");
@@ -7,13 +7,29 @@ const { simple_bnode_mapping } = require("./lib/simple-bnode-mapping");
 const { notate_mapping } = require("./lib/notate-mapping");
 const TEST_CASES = require("./lib/example-graph-pairs");
 
+const prep = (...cs) =>
+  q(
+    ...cs.map(_ =>
+      _.replace(/dot:/g, DOT).replace(/(^|\s)a(\s|$)/g, "$1rdf:type$2")
+    )
+  );
+
 const { namedNode: n, blankNode: b, literal: l, variable: v } = factory;
+
+const color_edges = color => ({
+  annotate: [
+    {
+      construct: prep(`?e dot:color "${color}"`),
+      where: prep("?e a dot:Edge"),
+    },
+  ],
+});
 
 const main = test_cases => {
   const do_entail_case = entail_case => ({
     //         // [edge, n(`${DOT}style`), l(color === "red" ? "dashed" : "solid")],
-    a: show.triples(entail_case.target, "blue"),
-    b: show.triples(entail_case.source, "red"),
+    a: show.triples(entail_case.target, color_edges("blue")),
+    b: show.triples(entail_case.source, color_edges("red")),
   });
 
   function case_statements(entail_case) {
