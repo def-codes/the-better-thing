@@ -1,8 +1,7 @@
-// scratch program for developing connected subgraph algorithm
-const tx = require("@thi.ng/transducers");
 const show = require("./lib/show");
-const { RDFTripleStore } = require("@def.codes/rstream-query-rdf");
 const { clusters_from } = require("./lib/clustering");
+const tx = require("@thi.ng/transducers");
+const { RDFTripleStore } = require("@def.codes/rstream-query-rdf");
 const {
   traverse,
   triple_store_graph,
