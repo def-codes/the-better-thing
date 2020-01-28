@@ -1,11 +1,12 @@
-const show = require("./lib/thing-to-dot-statements");
+const show = require("./lib/show");
 const { q } = require("@def.codes/meld-core");
+const { RDFTripleStore, factory } = require("@def.codes/rstream-query-rdf");
 const { DOT } = require("@def.codes/graphviz-format");
-const { factory } = require("@def.codes/rstream-query-rdf");
-const { prefix_statement_keys, clusters_from } = require("./lib/clustering");
+const { clusters_from } = require("./lib/clustering");
 const { simple_bnode_mapping } = require("./lib/simple-bnode-mapping");
-const { notate_mapping } = require("./lib/notate-mapping");
 const TEST_CASES = require("./lib/example-graph-pairs");
+
+const { namedNode: n, blankNode: b } = factory;
 
 const prep = (...cs) =>
   q(
@@ -13,8 +14,6 @@ const prep = (...cs) =>
       _.replace(/dot:/g, DOT).replace(/(^|\s)a(\s|$)/g, "$1rdf:type$2")
     )
   );
-
-const { namedNode: n, blankNode: b, literal: l, variable: v } = factory;
 
 const color_edges = color => ({
   annotate: [
@@ -26,50 +25,48 @@ const color_edges = color => ({
 });
 
 const main = test_cases => {
-  const do_entail_case = entail_case => ({
-    //         // [edge, n(`${DOT}style`), l(color === "red" ? "dashed" : "solid")],
-    a: show.triples(entail_case.target, color_edges("blue")),
-    b: show.triples(entail_case.source, color_edges("red")),
-  });
+  // Create a merged view.
+  // Originally supported a separate cluster view with mapping across
+  function do_case(case_name, entail_case, number) {
+    const a_store = new RDFTripleStore(entail_case.target);
+    const b_store = new RDFTripleStore(entail_case.source);
 
-  function case_statements(entail_case) {
-    const { a, b } = do_entail_case(entail_case);
+    const { output: mapping } = simple_bnode_mapping(a_store, b_store);
 
-    const merged = [...a.dot_statements, ...b.dot_statements];
-    // const side_by_side_statements = [
-    //   ...prefix_statement_keys("a")(dot_statements_1),
-    //   ...prefix_statement_keys("b")(dot_statements_2),
-    // ];
-    return {
-      a,
-      b,
-      merged,
-      clusters: clusters_from({ a: a.dot_statements, b: b.dot_statements }),
-    };
+    const mapping_store = new RDFTripleStore(
+      Array.from(mapping, ([bnode, term]) => [bnode, n("def:mapsTo"), term])
+    );
+
+    // HACK: Put everything into one store.  This only works because the test
+    // data takes pains to avoid overlap of bnode labels between the two graphs.
+    // But they are supposed to be separate spaces (is the whole point).
+
+    const store = new RDFTripleStore();
+    store.into(entail_case.target);
+    store.into(entail_case.source);
+    store.into(mapping_store);
+
+    return show.store(store, {
+      annotate: [
+        {
+          construct: prep(
+            `?e dot:color "#FF00FF88"`,
+            "?e dot:constraint false",
+            "?e dot:penwidth 5",
+            `?e dot:label ""`
+          ),
+          where: prep(`?e def:represents ?t`, "?t rdf:predicate def:mapsTo"),
+        },
+      ],
+    });
   }
 
-  // this no longer really plays well with clusters mode
-  function do_case(number = 0, mode = 0) {
-    const [case_name, entail_case] = Object.entries(test_cases)[number];
-    const { a: A, b: B, clusters, merged } = case_statements(entail_case);
-    const base_dot_statements = [merged, clusters][mode];
-    const res = simple_bnode_mapping(A.source, B.source);
-    const { output: mapping } = res;
-
-    return {
-      type: "subgraph",
-      id: `cluster case ${number}`,
-      attributes: { label: case_name },
-      statements: prefix_statement_keys(`c${number} `)([
-        ...base_dot_statements,
-        ...notate_mapping(mapping),
-      ]),
-    };
-  }
-
-  // case_number = Object.keys(entail_cases).length - 1;
-  const statements = Object.keys(Object.keys(test_cases)).map(idx =>
-    do_case(idx, 0)
+  const statements = clusters_from(
+    Object.fromEntries(
+      Object.entries(test_cases)
+        .slice(0, 10)
+        .map(([k, v], index) => [k, do_case(k, v, index)])
+    )
   );
 
   return {
