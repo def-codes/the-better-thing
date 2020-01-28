@@ -1,7 +1,7 @@
-// use rules to create and annotate dot graphs
 const show = require("./lib/show");
 const { clusters_from } = require("./lib/clustering");
 const { q } = require("@def.codes/meld-core");
+const { RDFTripleStore } = require("@def.codes/rstream-query-rdf");
 const { DOT } = require("@def.codes/graphviz-format");
 const { dot_interpret_pipeline } = require("./lib/dot-interpret-pipeline");
 const ConstructDot = require("./queries/construct-dot");
@@ -254,12 +254,14 @@ const TEST_CASES = [
 ];
 
 function main(test_case) {
+  const { triples, pipeline } = test_case;
+  const source = new RDFTripleStore(triples);
   const {
     intermediate: {
-      construction: { source, intermediate },
+      construction: { intermediate },
     },
     output: interpreted,
-  } = dot_interpret_pipeline(test_case);
+  } = dot_interpret_pipeline({ source, pipeline });
 
   const statements = clusters_from({
     source: show.store(source),

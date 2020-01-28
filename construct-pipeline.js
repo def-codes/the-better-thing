@@ -1,7 +1,7 @@
 const show = require("./lib/show");
+const { clusters_from } = require("./lib/clustering");
 const { q } = require("@def.codes/meld-core");
 const { construct_pipeline } = require("./lib/construct-pipeline");
-const { clusters_from } = require("./lib/clustering");
 const { RDFTripleStore } = require("@def.codes/rstream-query-rdf");
 const { LOVE_TRIANGLE } = require("./graphs/simple");
 const { DADS_UPPER_ONTOLOGY } = require("./graphs/dads");
@@ -67,7 +67,9 @@ const TEST_CASES = [
 ];
 
 const main = test_case => {
-  const { source, intermediate, final } = construct_pipeline(test_case);
+  const { triples, pipeline } = test_case;
+  const source = new RDFTripleStore(triples);
+  const { intermediate, output } = construct_pipeline({ source, pipeline });
 
   const statements = clusters_from({
     source: show.store(source),
@@ -77,7 +79,7 @@ const main = test_case => {
     //     show.store(store),
     //   ])
     // ),
-    final: show.store(final),
+    final: show.store(output),
   });
 
   return {
