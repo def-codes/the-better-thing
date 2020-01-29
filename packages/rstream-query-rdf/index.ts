@@ -1,4 +1,5 @@
 export * from "./api";
+export * from "./dataset";
 export * from "./factory";
 export * from "./query-helpers";
 export * from "./terms";

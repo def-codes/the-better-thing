@@ -1,5 +1,8 @@
 // an alternative to this whole apparatus is the Skolem approach
 // https://www.w3.org/TR/2014/REC-rdf11-concepts-20140225/#section-skolemization
+//
+// see also “identifier issuer” and related state
+// https://json-ld.github.io/normalization/spec/
 import { BlankNode } from "@def.codes/rdf-data-model";
 import { factory } from "./factory";
 

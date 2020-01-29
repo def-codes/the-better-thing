@@ -1,9 +1,8 @@
-// test program for determination of simple entailment between two RDF graphs
 const show = require("./lib/show");
-const { q } = require("@def.codes/meld-core");
-const { construct } = require("./lib/construct");
 const { clusters_from } = require("./lib/clustering");
+const { q } = require("@def.codes/meld-core");
 const { RDFTripleStore } = require("@def.codes/rstream-query-rdf");
+const { construct } = require("./lib/construct");
 const pairs = require("./lib/example-graph-pairs");
 
 // expect stores.  then they take care of their own bnode space issues
