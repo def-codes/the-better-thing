@@ -27,11 +27,11 @@ const main = test_case => {
 
   const dot_statements = clusters_from({
     source: show.triples(source),
-    source_triples: show.thing(source),
+    // source_triples: show.thing(source),
     graph: show.graph(graph),
     subgraph: show.graph(subgraph),
     components: show.thing(components),
-    islands_triples: show.things(islands),
+    // islands_triples: show.things(islands),
     islands: Object.fromEntries(
       Object.entries(islands).map(([key, trips]) => [key, show.triples(trips)])
     ),
