@@ -30,27 +30,13 @@ export class BinarySearchTree<T extends Comparable> implements IBinaryTree<T> {
   insert(value: T) {
     const rel = this.compare(value, this.value);
 
-    // No-op.  Tree already contains value
-    if (rel === 0) return;
-
+    // rel === 0 is a no-op.  Tree already contains value
     if (rel < 0) {
       if (this.left == null) this.left = new BinarySearchTree(value);
-      else {
-        if (this.compare(value, this.left.value) > 0) {
-          const new_left = new BinarySearchTree(value);
-          new_left.left = this.left;
-          this.left = new_left;
-        } else this.left.insert(value);
-      }
-    } else {
+      else this.left.insert(value);
+    } else if (rel > 0) {
       if (this.right == null) this.right = new BinarySearchTree(value);
-      else {
-        if (this.compare(value, this.right.value) < 0) {
-          const new_right = new BinarySearchTree(value);
-          new_right.right = this.right;
-          this.right = new_right;
-        } else this.right.insert(value);
-      }
+      else this.right.insert(value);
     }
   }
 }

@@ -79,7 +79,6 @@ function* object_graph_to_dot_statements(
 
 export const object_graph_to_dot = (roots: readonly object[]): Dot.Graph => ({
   type: "graph",
-  attributes: { rankdir: "LR" },
   directed: true,
   //node_attributes: { fillcolor: "#990000", style: "filled,rounded" },
   statements: [...object_graph_to_dot_statements(roots)],
