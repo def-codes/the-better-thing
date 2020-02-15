@@ -1,8 +1,7 @@
 const show = require("./lib/show");
 const { clusters_from } = require("./lib/clustering");
 const { q } = require("@def.codes/meld-core");
-const { RDFTripleStore } = require("@def.codes/rstream-query-rdf");
-const { Dataset } = require("@def.codes/rstream-query-rdf");
+const { RDFTripleStore, Dataset } = require("@def.codes/rstream-query-rdf");
 
 const { DOT } = require("@def.codes/graphviz-format");
 const prep = (...cs) =>

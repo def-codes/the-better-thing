@@ -1,0 +1,238 @@
+{
+  "AL": {
+    "label": "Alabama",
+    "borders": ["FL", "GA", "MS", "TN"]
+  },
+  "AK": {
+    "label": "Alaska",
+    "borders": []
+  },
+  "AS": {
+    "label": "American Samoa",
+    "borders": []
+  },
+  "AZ": {
+    "label": "Arizona",
+    "borders": ["CA", "CO", "NV", "NM", "UT"]
+  },
+  "AR": {
+    "label": "Arkansas",
+    "borders": ["LA", "MS", "MO", "OK", "TN", "TX"]
+  },
+  "CA": {
+    "label": "California",
+    "borders": ["AZ", "NV", "OR"]
+  },
+  "CO": {
+    "label": "Colorado",
+    "borders": ["AZ", "KS", "NE", "NM", "OK", "UT", "WY"]
+  },
+  "CT": {
+    "label": "Connecticut",
+    "borders": ["MA", "NY", "RI"]
+  },
+  "DE": {
+    "label": "Delaware",
+    "borders": ["MD", "NJ", "PA"]
+  },
+  "DC": {
+    "label": "District Of Columbia",
+    "borders": []
+  },
+  "FM": {
+    "label": "Federated States Of Micronesia",
+    "borders": []
+  },
+  "FL": {
+    "label": "Florida",
+    "borders": ["AL", "GA"]
+  },
+  "GA": {
+    "label": "Georgia",
+    "borders": ["AL", "FL", "NC", "SC", "TN"]
+  },
+  "GU": {
+    "label": "Guam Gu",
+    "borders": []
+  },
+  "HI": {
+    "label": "Hawaii",
+    "borders": []
+  },
+  "ID": {
+    "label": "Idaho",
+    "borders": ["MT", "NV", "OR", "UT", "WA", "WY"]
+  },
+  "IL": {
+    "label": "Illinois",
+    "borders": ["IN", "IA", "MI", "KY", "MO", "WI"]
+  },
+  "IN": {
+    "label": "Indiana",
+    "borders": ["IL", "KY", "MI", "OH"]
+  },
+  "IA": {
+    "label": "Iowa",
+    "borders": ["IL", "MN", "MO", "NE", "SD", "WI"]
+  },
+  "KS": {
+    "label": "Kansas",
+    "borders": ["CO", "MO", "NE", "OK"]
+  },
+  "KY": {
+    "label": "Kentucky",
+    "borders": ["IL", "IN", "MO", "OH", "TN", "VA", "WV"]
+  },
+  "LA": {
+    "label": "Louisiana",
+    "borders": ["AR", "MS", "TX"]
+  },
+  "ME": {
+    "label": "Maine",
+    "borders": ["NH"]
+  },
+  "MH": {
+    "label": "Marshall Islands",
+    "borders": []
+  },
+  "MD": {
+    "label": "Maryland",
+    "borders": ["DE", "PA", "VA", "WV"]
+  },
+  "MA": {
+    "label": "Massachusetts",
+    "borders": ["CT", "NH", "NY", "RI", "VT"]
+  },
+  "MI": {
+    "label": "Michigan",
+    "borders": ["IL", "IN", "MN", "OH", "WI"]
+  },
+  "MN": {
+    "label": "Minnesota",
+    "borders": ["IA", "MI", "ND", "SD", "WI"]
+  },
+  "MS": {
+    "label": "Mississippi",
+    "borders": ["AL", "AR", "LA", "TN"]
+  },
+  "MO": {
+    "label": "Missouri",
+    "borders": ["AR", "IL", "IA", "KS", "KY", "NE", "OK", "TN"]
+  },
+  "MT": {
+    "label": "Montana",
+    "borders": ["ID", "ND", "SD", "WY"]
+  },
+  "NE": {
+    "label": "Nebraska",
+    "borders": ["CO", "IA", "KS", "MO", "SD", "WY"]
+  },
+  "NV": {
+    "label": "Nevada",
+    "borders": ["AZ", "CA", "ID", "OR", "UT"]
+  },
+  "NH": {
+    "label": "New Hampshire",
+    "borders": ["ME", "MA", "VT"]
+  },
+  "NJ": {
+    "label": "New Jersey",
+    "borders": ["DE", "NY", "PA"]
+  },
+  "NM": {
+    "label": "New Mexico",
+    "borders": ["AZ", "CO", "OK", "TX", "UT"]
+  },
+  "NY": {
+    "label": "New York",
+    "borders": ["CT", "MA", "NJ", "PA", "RI", "VT"]
+  },
+  "NC": {
+    "label": "North Carolina",
+    "borders": ["GA", "SC", "TN", "VA"]
+  },
+  "ND": {
+    "label": "North Dakota",
+    "borders": ["MN", "MT", "SD"]
+  },
+  "MP": {
+    "label": "Northern Mariana Islands",
+    "borders": []
+  },
+  "OH": {
+    "label": "Ohio",
+    "borders": ["IN", "KY", "MI", "PA", "WV"]
+  },
+  "OK": {
+    "label": "Oklahoma",
+    "borders": ["AR", "CO", "KS", "MO", "NM", "TX"]
+  },
+  "OR": {
+    "label": "Oregon",
+    "borders": ["CA", "ID", "NV", "WA"]
+  },
+  "PW": {
+    "label": "Palau",
+    "borders": []
+  },
+  "PA": {
+    "label": "Pennsylvania",
+    "borders": ["DE", "MD", "NJ", "NY", "OH", "WV"]
+  },
+  "PR": {
+    "label": "Puerto Rico",
+    "borders": []
+  },
+  "RI": {
+    "label": "Rhode Island",
+    "borders": ["CT", "MA", "NY"]
+  },
+  "SC": {
+    "label": "South Carolina",
+    "borders": ["GA", "NC"]
+  },
+  "SD": {
+    "label": "South Dakota",
+    "borders": ["IA", "MN", "MT", "NE", "ND", "WY"]
+  },
+  "TN": {
+    "label": "Tennessee",
+    "borders": ["AL", "AR", "GA", "KY", "MS", "MO", "NC", "VA"]
+  },
+  "TX": {
+    "label": "Texas",
+    "borders": ["AR", "LA", "NM", "OK"]
+  },
+  "UT": {
+    "label": "Utah",
+    "borders": ["AZ", "CO", "ID", "NV", "NM", "WY"]
+  },
+  "VT": {
+    "label": "Vermont",
+    "borders": ["MA", "NH", "NY"]
+  },
+  "VI": {
+    "label": "Virgin Islands",
+    "borders": []
+  },
+  "VA": {
+    "label": "Virginia",
+    "borders": ["KY", "MD", "NC", "TN", "WV"]
+  },
+  "WA": {
+    "label": "Washington",
+    "borders": ["ID", "OR"]
+  },
+  "WV": {
+    "label": "West Virginia",
+    "borders": ["KY", "MD", "OH", "PA", "VA"]
+  },
+  "WI": {
+    "label": "Wisconsin",
+    "borders": ["IL", "IA", "MI", "MN"]
+  },
+  "WY": {
+    "label": "Wyoming",
+    "borders": ["CO", "ID", "MT", "NE", "SD", "UT"]
+  }
+}
