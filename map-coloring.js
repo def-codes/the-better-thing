@@ -3,6 +3,8 @@ const show = require("./lib/show");
 const { clusters_from } = require("./lib/clustering");
 const { q } = require("@def.codes/meld-core");
 const { Dataset, factory } = require("@def.codes/rstream-query-rdf");
+const { naive_dfs_recursive } = require("./lib/constraint-satisfaction");
+const { ops } = require("./lib/persistent-dictionary");
 const { usa_states_triples } = require("./graphs/usa-states-triples");
 
 const { namedNode: n } = factory;
@@ -91,20 +93,31 @@ const main = () => {
   // ==== SEARCH SPACE
   const triples = q("a p b", "b p c", "c p a", "c p d");
   const triples_statements = show.triples_old(triples).map(unlabel_edge);
-  const assignments = [
-    {},
-    { a: "red" },
-    { a: "blue" },
-    { a: "red", b: "blue" },
-    { a: "red", b: "blue", c: "darkgreen" },
-    { b: "blue" },
-  ];
-  const connect = [
-    [0, 1],
-    [0, 2],
-    [1, 3],
-    [3, 4],
-  ];
+
+  const colors = new Set("red darkgreen blue".split(" "));
+  const problem_0 = {
+    variables: new Map("a b c".split(" ").map(v => [v, colors])),
+  };
+
+  const assignments_raw = Array.from(
+    naive_dfs_recursive(problem_0),
+    _ => _.assignment
+  );
+  const assignments = assignments_raw.map(ops.objectify);
+
+  // const assignments = [
+  //   {},
+  //   { a: "red" },
+  //   { a: "blue" },
+  //   { a: "red", b: "blue" },
+  //   { a: "red", b: "blue", c: "darkgreen" },
+  //   { b: "blue" },
+  // ];
+
+  const connect = assignments_raw
+    .map((ass, index) => [assignments_raw.indexOf(ops.parent(ass)), index])
+    .filter(([a, b]) => a > -1);
+
   const color_with = (assignment, statements = triples_statements) =>
     Object.entries(assignment).map(([id, color]) => ({
       type: "node",
@@ -156,7 +169,7 @@ const main = () => {
       //   .map(unlabel_edge),
     }),
   ];
-  console.log(`statements`, require("util").inspect(statements, { depth: 6 }));
+  // console.log(`statements`, require("util").inspect(statements, { depth: 6 }));
 
   const dot_graph = {
     type: "graph",
@@ -167,7 +180,7 @@ const main = () => {
     // fdp preserves cluster boundaries & their labels
     // neato is really good for map; with short edge length, fdp is almost as good
     // only dot handles inter-cluster links reasonably
-    attributes: { compound: true, layout: "fdp" },
+    attributes: { rankdir: "LR", compound: true, layout: "sfdp" },
     statements,
   };
 
