@@ -94,9 +94,10 @@ const main = () => {
   const triples = q("a p b", "b p c", "c p a", "c p d");
   const triples_statements = show.triples_old(triples).map(unlabel_edge);
 
-  const colors = new Set("red darkgreen blue".split(" "));
+  const colors = new Set("red darkgreen blue purple".split(" "));
   const problem_0 = {
     variables: new Map("a b c".split(" ").map(v => [v, colors])),
+    constraints: [{}],
   };
 
   const assignments_raw = Array.from(
@@ -104,15 +105,7 @@ const main = () => {
     _ => _.assignment
   );
   const assignments = assignments_raw.map(ops.objectify);
-
-  // const assignments = [
-  //   {},
-  //   { a: "red" },
-  //   { a: "blue" },
-  //   { a: "red", b: "blue" },
-  //   { a: "red", b: "blue", c: "darkgreen" },
-  //   { b: "blue" },
-  // ];
+  // const assignments = [{}, { a: "red" }]; etc
 
   const connect = assignments_raw
     .map((ass, index) => [assignments_raw.indexOf(ops.parent(ass)), index])
@@ -146,20 +139,25 @@ const main = () => {
 
   // ==== OVERVIEW ==== //
 
+  // wonky but the only way I could get arrows between the clusters
+  const [first] = problem_0.variables.keys();
+  const connections = connect.map(([from, to]) => ({
+    type: "edge",
+    // Instead of pointing to the dummy `_` element, point to a real one.
+    // This makes inter-cluster arrows work a little in sfdp
+    from: `search_space/${from}/${first}`,
+    to: `search_space/${to}/${first}`,
+    attributes: {
+      dir: "forward",
+      // Only works in `dot` engine, but dot is otherwise bad
+      ltail: `cluster search_space/${from}`,
+      lhead: `cluster search_space/${to}`,
+    },
+  }));
+
   // newer rules-based display is currently way too slow for this purpose
-  const statements = [
-    // wonky but the only way I could get arrows between the clusters
-    ...connect.map(([from, to]) => ({
-      type: "edge",
-      from: `search_space/${from}/_`,
-      to: `search_space/${to}/_`,
-      attributes: {
-        dir: "forward",
-        // Only works in `dot` engine, but dot is otherwise bad
-        ltail: `cluster search_space/${from}`,
-        lhead: `cluster search_space/${to}`,
-      },
-    })),
+  const statements_0 = [
+    ...connections,
     ...clusters_from({
       // problem: show.store_old(problem_store),
       search_space,
@@ -170,17 +168,27 @@ const main = () => {
     }),
   ];
   // console.log(`statements`, require("util").inspect(statements, { depth: 6 }));
+  const N = 5;
+  const assignment = assignments[N];
+  const statements = [...triples_statements, ...color_with(assignment)];
 
   const dot_graph = {
     type: "graph",
     strict: true,
     node_attributes: { shape: "circle" },
-    edge_attributes: { len: 0.05 },
+    // edge_attributes: { len: 0.05 },
+    // edge_attributes: { len: 5 },
 
     // fdp preserves cluster boundaries & their labels
     // neato is really good for map; with short edge length, fdp is almost as good
     // only dot handles inter-cluster links reasonably
-    attributes: { rankdir: "LR", compound: true, layout: "sfdp" },
+    attributes: {
+      // sep: "+77",               // use with sfdp when viewing multiple clusters
+      rankdir: "LR",
+      compound: true,
+      layout: "fdp",
+      // mode: "maxent", // Appears to have no effect at all
+    },
     statements,
   };
 
