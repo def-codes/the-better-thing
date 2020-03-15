@@ -19,6 +19,8 @@ export async function module_host(
   op = "exports",
   state: object = {}
 ) {
+  const nav_stack: { readonly href: string }[] = [];
+
   // transitional
   const display = Object.assign(make_display(), {
     thing: (thing: any) => default_thing(display, thing),
@@ -29,6 +31,14 @@ export async function module_host(
     dot_graph: (arg: dot.Graph) => default_dot_graph(display, arg),
     dot_statements: (arg: dot.StatementList) =>
       default_dot_statements(display, arg),
+  });
+
+  display.nav().subscribe({
+    next: nav_event => {
+      // This isn't really right, don't push for lateral navigation
+      nav_stack.push(nav_event);
+      console.log("NAVIGATED", nav_stack);
+    },
   });
 
   // Not sure about including reference to state, just playing around

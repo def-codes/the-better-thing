@@ -4,6 +4,7 @@ import {
   with_constant,
   with_path_mount,
 } from "@def.codes/simple-http-server";
+import * as rs from "@thi.ng/rstream";
 import { Server } from "ws";
 
 const html = `<!DOCTYPE html>
@@ -23,10 +24,26 @@ export function support_connected_browser(
   // Kind of a hack so that initial svg is sent to new browser.
   let last_message;
 
+  const nav = rs.stream<{ readonly href: string }>();
+
   // make socket server
   const wss = new Server({ port: ws_port, clientTracking: true });
   wss.on("connection", client => {
     if (last_message) client.send(last_message);
+
+    const NAV_TYPE = "https://def.codes/vocab/Nav";
+    // Get navigation events
+    client.on("message", data => {
+      try {
+        const message = JSON.parse(data.toString("utf-8"));
+        if (message["@type"] === NAV_TYPE) {
+          if (message.href) nav.next(message);
+          else console.log("Nav type message without href", message);
+        } else console.log("Message without recognized type", data);
+      } catch (error) {
+        console.error("Couldn't parse message from client:", error);
+      }
+    });
   });
 
   // SIDE EFFECT: make http server.  This should be tracked as part of process
@@ -70,5 +87,6 @@ export function support_connected_browser(
       last_message = message;
       for (const client of wss.clients) client.send(message);
     },
+    nav,
   };
 }

@@ -7,6 +7,9 @@ export const dot_to_svg = (dot: string) => shell_command("dot", ["-Tsvg"], dot);
 
 const SVG_VIEWER_BOOT_SCRIPT = `const container = document.createElement("div");
 document.body.appendChild(container);
+let socket;
+const XLINK_NS = "http://www.w3.org/1999/xlink";
+const NAV_TYPE = "https://def.codes/vocab/Nav";
 let fit = true;
 const set_fit = (svg) => {
   svg.style.maxHeight = fit ? "100vh" : "";
@@ -17,7 +20,34 @@ function update(code) {
   // TIL https://www.w3.org/TR/selectors-3/#univnmsp
   const svg = container.querySelector('*|svg');
   if (svg) {
-    svg.onclick = () => { fit = !fit; set_fit(svg) };
+    svg.onclick = (event) => { 
+      const link = event.target.closest('a');
+      if (link) {
+        const link_href = link.getAttribute("href");
+        const xlink_href = link.getAttributeNS(XLINK_NS, "href");
+        const href = link_href || xlink_href;
+        const context = "TBD";
+        if (href) {
+          if (socket)
+            socket.send(JSON.stringify({ "@type": NAV_TYPE, context, href }));
+          else
+            console.log("Can't send navigation event because no socket")
+          event.stopPropagation();
+          event.preventDefault();
+        }
+        else console.log("click on link without href", { link_href, xlink_href });
+      } else {
+        const node = event.target.closest('g.node')
+        // Okay, we can detect nodes, but let's stick with hrefs if we can
+        if (node) console.log("clicked node", node.id)
+        else {
+          console.log("clicked non-node", event.target)
+          fit = !fit;
+          set_fit(svg);
+          if (event.target === event.currentTarget) console.log("clicked svg");
+        }
+      }
+    };
     // Remove explicit width and height from SVG
     svg.removeAttribute("width");
     svg.removeAttribute("height");
@@ -33,6 +63,7 @@ function init() {
     return
   }
   const client = new WebSocket("ws://" + window.location.hostname + ":" + ws_port)
+  socket = client;
   client.onopen = event => console.log("socket connected")
   client.onmessage = event => {
     let message;
@@ -58,6 +89,7 @@ export const make_display = () => {
       .viewer;
 
   return Object.assign((thing: any) => viewer().send(thing), {
+    nav: () => viewer().nav,
     graphviz: async (graph: Dot.Graph, trace?: boolean) => {
       const dot = Dot.serialize_dot(graph);
       // viewer.send({ dot });
