@@ -94,13 +94,15 @@ export async function module_host(
     try {
       // exported = fake_require(module_name);
       exported = require(module_file);
+      proc?.cancel();
+      // Because of this you can use `push_svg` always rather than switching
+      display.clear();
       if (exported?.display?.sequence) {
-        proc?.cancel();
         proc = display_sequence(
           exported.display.sequence,
           exported.display.delay
         );
-        proc.subscribe(rs.trace("sequence!"));
+        proc.subscribe({ next() {} });
       } else if (exported && Object.keys(exported).length) {
         for (const [key, value] of Object.entries(exported)) {
           const thing = globalThis[key];

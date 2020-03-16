@@ -109,7 +109,6 @@ const main = () => {
   return {
     delay: 250,
     sequence: tx.map(n => {
-      // const N = 7;
       const assignment = assignments[n];
       const search_space = [...triples_statements, ...color_with(assignment)];
       // ==== OVERVIEW ==== //
@@ -126,6 +125,7 @@ const main = () => {
         type: "graph",
         strict: true,
         node_attributes: { shape: "circle" },
+        graph_attributes: { bgcolor: "transparent" },
         attributes: { layout: "fdp" },
         statements,
       };

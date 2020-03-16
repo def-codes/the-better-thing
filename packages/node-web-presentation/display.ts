@@ -1,12 +1,41 @@
 import * as Dot from "@def.codes/graphviz-format";
+import * as tx from "@thi.ng/transducers";
 // singleton browser connection / svg updater
 import { shell_command } from "./node-utils/index";
 import { launch_connected_browser } from "./launcher/launch-connected-browser";
 
 export const dot_to_svg = (dot: string) => shell_command("dot", ["-Tsvg"], dot);
 
-const SVG_VIEWER_BOOT_SCRIPT = `const container = document.createElement("div");
-document.body.appendChild(container);
+const style =
+  `.stack {
+  position: relative;
+  transform-style: preserve-3d;
+  perspective: 10em;
+}
+.stack > * {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.5);
+}` +
+  Array.from(
+    tx.range(2, 100),
+    n => `
+.stack > :nth-child(${n}) {
+    transform: translate3d(0, 0, -${n}em);
+}`
+  ).join("");
+
+const SVG_VIEWER_BOOT_SCRIPT = `
+const style = document.createElement("style");
+style.innerHTML = \`${style}\`;
+document.body.appendChild(style);
+const stack = document.createElement("div");
+stack.setAttribute("class", "stack");
+document.body.appendChild(stack);
+const make_container = () => {
+  const container = document.createElement("div");
+  // return stack.appendChild(container);
+  return stack.insertBefore(container, stack.firstChild);
+};
 let socket;
 const XLINK_NS = "http://www.w3.org/1999/xlink";
 const NAV_TYPE = "https://def.codes/vocab/Nav";
@@ -15,7 +44,7 @@ const set_fit = (svg) => {
   svg.style.maxHeight = fit ? "100vh" : "";
   svg.style.maxWidth = fit ? "100vw" : "";
 }
-function update(code) {
+function update(code, container) {
   container.innerHTML = code;
   // TIL https://www.w3.org/TR/selectors-3/#univnmsp
   const svg = container.querySelector('*|svg');
@@ -55,6 +84,7 @@ function update(code) {
     set_fit(svg);
   }
 }
+let container = make_container();
 function init() {
   const params = new URLSearchParams(window.location.search);
   const ws_port = params.get('ws_port');
@@ -73,7 +103,9 @@ function init() {
       console.error("Error parsing message JSON", event.data);
       return;
     }
-    if (message.svg) update(message.svg)
+    if (message.clear_svg) stack.innerHTML = '';
+    if (message.svg) update(message.svg, container);
+    if (message.push_svg) update(message.push_svg, make_container());
   };
 }
 init();
@@ -90,13 +122,12 @@ export const make_display = () => {
 
   return Object.assign((thing: any) => viewer().send(thing), {
     nav: () => viewer().nav,
+    clear: () => viewer().send({ clear_svg: {} }),
     graphviz: async (graph: Dot.Graph, trace?: boolean) => {
       const dot = Dot.serialize_dot(graph);
-      // viewer.send({ dot });
-      // if (trace)
-      // console.log(dot);
       const result = await dot_to_svg(dot);
-      if (result) viewer().send({ svg: result.stdout.toString("utf8") });
+      // if (result) viewer().send({ svg: result.stdout.toString("utf8") });
+      if (result) viewer().send({ push_svg: result.stdout.toString("utf8") });
     },
   });
 };
