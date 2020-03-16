@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as vm from "vm";
 import * as rs from "@thi.ng/rstream";
+import * as tx from "@thi.ng/transducers";
 import { IGraph, GraphFact } from "@def.codes/graphs";
 import { module_graph_watcher } from "./graph-watcher/module-graph-watcher";
 import * as dot from "@def.codes/graphviz-format";
@@ -20,6 +21,7 @@ export async function module_host(
   state: object = {}
 ) {
   const nav_stack: { readonly href: string }[] = [];
+  let proc: rs.Stream<any>;
 
   // transitional
   const display = Object.assign(make_display(), {
@@ -40,6 +42,15 @@ export async function module_host(
       console.log("NAVIGATED", nav_stack);
     },
   });
+
+  const display_sequence = (sequence: Iterable<object>, delay) =>
+    rs.fromIterable(
+      tx.map(item => {
+        const [[key, value]] = Object.entries(item);
+        return globalThis.display[key](value);
+      }, sequence),
+      { delay: typeof delay === "number" ? delay : 1000 }
+    );
 
   // Not sure about including reference to state, just playing around
   const meld = { hosted_module: { name: module_name, state } };
@@ -83,7 +94,14 @@ export async function module_host(
     try {
       // exported = fake_require(module_name);
       exported = require(module_file);
-      if (exported && Object.keys(exported).length) {
+      if (exported?.display?.sequence) {
+        proc?.cancel();
+        proc = display_sequence(
+          exported.display.sequence,
+          exported.display.delay
+        );
+        proc.subscribe(rs.trace("sequence!"));
+      } else if (exported && Object.keys(exported).length) {
         for (const [key, value] of Object.entries(exported)) {
           const thing = globalThis[key];
           if (thing)

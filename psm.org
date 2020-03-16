@@ -108,3 +108,17 @@ Taking dot triples literally would mean displaying them as you would others.
 
 Text or HTML-oriented claims could work the same way.
 
+* computation as navigation
+
+We can generalize the idea of discrete-state computation as a sequence of
+navigation steps through a space of possibilities.
+
+Suppose we were to reify this navigation, so that you could interactively move
+through the space.  What would different cases look like?
+
+In the case of map coloring, we might think of the steps as assignments (of a
+color to a node).
+
+Really, an assignment represents two choices: the choice of a variable to assign
+(which is a node/vertex in the problem), and the choice of a color to assign to
+it, in that order.
