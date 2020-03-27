@@ -35,6 +35,7 @@ datafy_protocol.extend(
   (instance): WebSocketServerDescription => {
     return {
       "@type": WEBSOCKET_SERVER_TYPE_IRI,
+      // Why not just @id at ws: protocol?
       host: instance.options.host,
       port: instance.options.port,
     };

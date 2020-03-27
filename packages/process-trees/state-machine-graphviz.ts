@@ -30,7 +30,7 @@ export const state_machine_spec_to_dot = (
             attributes: {
               label:
                 (desc?.label ?? trans) +
-                (desc?.condition ? `, ${desc.condition}` : ""),
+                (desc?.postcondition ? `, ${desc.postcondition}` : ""),
             },
           } as const)
       ),

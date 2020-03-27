@@ -6,7 +6,7 @@ export interface StateMachineStateDescription {
 export interface StateMachineTransitionDescription {
   readonly label?: string;
   // PROVISIONAL
-  readonly condition?: any;
+  readonly postcondition?: any;
 }
 
 // a somewhat less simple state machine spec

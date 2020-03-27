@@ -3,7 +3,7 @@
 // INVARIANT 1. it MUST entail incoming message ingress as `in`
 // INVARIANT 2. it MUST entail outgoing message egress as `out`
 // INVARIANT 3. it MUST die if the connection closes
-// INVARIANT 4. it MUST close the connection of the process dies
+// INVARIANT 4. it MUST close the connection if the process dies
 //
 // MESSAGES:
 //   - can emit errors (multiple times, doesn't go into error state, right?)
@@ -20,6 +20,7 @@ const WEBSOCKET_CLIENT_TYPE_IRI =
   "https://www.w3.org/TR/websockets/#WebSocketClient";
 
 interface WebSocketClientBlueprint {
+  // ADDRESS of the server, I presume?
   address: string;
   // ws supports a bunch of client options.
   // They are mostly pure data.  Could support if needed.

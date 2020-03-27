@@ -52,12 +52,14 @@ export async function module_host(
       { delay: typeof delay === "number" ? delay : 1000 }
     );
 
-  // Not sure about including reference to state, just playing around
-  const meld = { hosted_module: { name: module_name, state } };
-
   // const encountered_dependencies = new Set();
   const resolve_options = { paths: [process.cwd()] };
   const module_file = require.resolve(module_name, resolve_options);
+
+  const watcher = module_graph_watcher(module_file);
+
+  // Not sure about including reference to state, just playing around
+  const meld = { watcher, hosted_module: { name: module_name, state } };
 
   // Assume for now that we need the module file to exist up front.
   if (!fs.existsSync(module_file)) {
@@ -119,8 +121,6 @@ export async function module_host(
       exported = { error, when: "loading-code" };
     }
   }
-
-  const watcher = module_graph_watcher(module_file);
 
   // watcher.any_invalidated.subscribe(rs.trace("INVALID!"));
 

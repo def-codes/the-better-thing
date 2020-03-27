@@ -54,12 +54,12 @@ export const fixed_buffer_state_machine: StateMachineSpec = {
     error: { terminal: true },
   },
   transitions: [
-    ["empty", "+", "full", { condition: "count = size" }],
+    ["empty", "+", "full", { postcondition: "count = size" }],
     ["empty", "+", "normal"],
-    ["full", "-", "empty", { condition: "count = 0" }],
+    ["full", "-", "empty", { postcondition: "count = 0" }],
     ["full", "-", "normal"],
-    ["normal", "-", "empty", { condition: "count = 0" }],
-    ["normal", "+", "full", { condition: "count = size" }],
+    ["normal", "-", "empty", { postcondition: "count = 0" }],
+    ["normal", "+", "full", { postcondition: "count = size" }],
     ["normal", "+", "normal"],
     ["normal", "-", "normal"],
     // In other words `* --close--> done`
