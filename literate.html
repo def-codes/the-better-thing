@@ -148,7 +148,7 @@
             
             <p>The AMD loader provides functions that can be used to create the
             globals, but it doesn't actually create them.  It should.  I think
-            the only reason I do it separatey is that I don't currently have a
+            the only reason I do it separately is that I don't currently have a
             way to configure the loader (paths, etc) after the fact.</p>
             
             <script>
@@ -553,8 +553,8 @@ console.log("gee isn't there anything I can do besides console log?? :(");
               (and other things that come from the host) as soon as the document
               is loaded.</p>
 
-              document by fetching their content.  Since it fetches an arbitrary
               <p>This script finds and inlines all of the remote scripts in the
+              document by fetching their content.  Since it fetches an arbitrary
               resource from an arbitrary location, it will only work in hosted
               mode.  (At least, I have not found a way to access the content of
               a remote script that was fetched via a script <code>src</code>.)
