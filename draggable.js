@@ -79,10 +79,12 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
         "<p>I am some HTML become death</p>"
       );
       event.dataTransfer.setData("text/plain", "I am some text become death");
-      event.dataTransfer.setData(
-        "DownloadURL",
-        "text/plain:foo.txt:https://localhost:8000/example.txt"
-      );
+      // This is a Chrome-only extension and only works with actual server-side files
+      // (not ones constructed in the browser.  See https://paul.kinlan.me/unintended-silos/
+      // event.dataTransfer.setData(
+      //   "DownloadURL",
+      //   "text/plain:foo.txt:https://localhost/example.txt"
+      // );
       element_being_dragged = draggable;
       // worse than default
       // event.dataTransfer.setDragImage(draggable, 0, 0);
