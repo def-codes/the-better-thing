@@ -1,4 +1,4 @@
-import { register_console } from "./console-view";
+// import { register_console } from "./console-view";
 import * as hdom from "@thi.ng/hdom";
 import { MIND_MAP } from "./mind-map";
 import { RULES } from "./rules";
@@ -48,7 +48,7 @@ const fun_proxy = (target: object) => {
 };
 
 export function main() {
-  register_console();
+  // register_console();
   const ctx = fun_proxy(make_renderer(RULES.queries, RULES.interpreters));
   // @ts-ignore
 

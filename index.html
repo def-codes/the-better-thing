@@ -3,15 +3,15 @@
   <head>
     <title>the better thing</title>
     <meta charset="utf-8" />
-    <link href="/index.css" rel="stylesheet" />
-    <link href="/console.css" rel="stylesheet" />
-    <link href="/build/style/globals.css" rel="stylesheet" />
-    <link href="/build/style/elements.css" rel="stylesheet" />
-    <link href="/build/style/classes.css" rel="stylesheet" />
-    <link href="/build/style/layers.css" rel="stylesheet" />
-    <!-- <link href="/build/style/value-view.css" rel="stylesheet" /> -->
-    <link href="/build/style/fonts.css" rel="stylesheet" />
-		<script>
+    <link href="./index.css" rel="stylesheet" />
+    <link href="./console.css" rel="stylesheet" />
+    <link href="./build/style/globals.css" rel="stylesheet" />
+    <link href="./build/style/elements.css" rel="stylesheet" />
+    <link href="./build/style/classes.css" rel="stylesheet" />
+    <link href="./build/style/layers.css" rel="stylesheet" />
+    <!-- <link href="./build/style/value-view.css" rel="stylesheet" /> -->
+    <link href="./build/style/fonts.css" rel="stylesheet" />
+	<script>
   const links = [...document.querySelectorAll(`link[rel="stylesheet"]`)];
   for (const link of links) {
     const style = document.createElement("style");
@@ -222,7 +222,10 @@
 		
 		<article id="hashtags"></article>
 
-		<script src="/configure-require.js"></script>
-		<script data-main="/index.js" src="/node_modules/requirejs/require.js"></script>
+		<script src="./configure-require.js"></script>
+		<script src="./node_modules/requirejs/require.js"></script>
+    <script>
+      require(['./index.js'])
+    </script>
 	</body>
 </html>

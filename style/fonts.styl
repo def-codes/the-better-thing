@@ -4,7 +4,8 @@ add(weight, variant, style = normal, name='FiraSansCondensed')
     font-family name
     font-style style
     font-weight weight
-    src local(name + ' ' + variant), local(name + '-' + variant), url('/fonts/' + name + '-' + variant + '.ttf') format('truetype')
+    // Assume CSS is in build/style
+    src local(name + ' ' + variant), local(name + '-' + variant), url('../../fonts/' + name + '-' + variant + '.ttf') format('truetype')
 
 add(100, 'Thin')
 add(100, 'Thin', italic)
