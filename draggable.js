@@ -71,20 +71,29 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
     document.body.addEventListener(name, fn, { capture: true });
 
   on("dragstart", event => {
-    const draggable = closest_draggable(event.originalTarget);
+    const draggable = closest_draggable(event.target);
     if (draggable) {
       event.dataTransfer.effectAllowed = "all";
+      event.dataTransfer.setData(
+        "text/html",
+        "<p>I am some HTML become death</p>"
+      );
+      event.dataTransfer.setData("text/plain", "I am some text become death");
+      event.dataTransfer.setData(
+        "DownloadURL",
+        "text/plain:foo.txt:https://localhost:8000/example.txt"
+      );
       element_being_dragged = draggable;
       // worse than default
       // event.dataTransfer.setDragImage(draggable, 0, 0);
 
       // What is this supposed to be?
-      event.dataTransfer.setData("text/plain", window.location.toString()); // draggable.innerText);
+      // event.dataTransfer.setData("text/plain", window.location.toString()); // draggable.innerText);
     }
   });
 
   on("dragenter", event => {
-    const droppable = closest_droppable(event.originalTarget);
+    const droppable = closest_droppable(event.target);
     if (droppable) {
       const effect = "link";
       droppable.setAttribute("drop-effect", effect);
@@ -103,14 +112,14 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
   // This doesn't cover the case where you move from parent to child
   // i.e. parent keeps drop effect and now you appear to have two targets
   on("dragleave", event => {
-    if (event.originalTarget.nodeType === 1)
-      event.originalTarget.removeAttribute("drop-effect");
+    if (event.target.nodeType === 1)
+      event.target.removeAttribute("drop-effect");
   });
 
   on("drop", event => {
     event.preventDefault();
     // At this point it should be the element with [drop-effect]
-    const droppable = closest_droppable(event.originalTarget);
+    const droppable = closest_droppable(event.target);
     if (droppable && element_being_dragged) {
       droppable.removeAttribute("drop-effect");
       element_being_dragged.draggable = false;
@@ -142,7 +151,7 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
   document.body.addEventListener(
     "mousedown",
     // Primary button only
-    event => event.buttons === 1 && set_draggable(event.originalTarget),
+    event => event.buttons === 1 && set_draggable(event.target),
     { capture: true }
   );
 
