@@ -117,7 +117,7 @@
 		<article>
 			<h2>reify a CSS variable</h2>
 			hue
-			<input type="range" min="0" max="1" step="0.1" oninput="document.getElementById('hue').innerText=`* { --hue: ${Math.round(360 * parseFloat(event.target.value))}deg;}`;" />
+			<input type="range" min="0" max="360" step="1" oninput="document.getElementById('hue').innerText=`* { --hue: ${parseFloat(event.target.value)}deg;}`;" />
 			<style id="hue"></style>
 			
 			saturation

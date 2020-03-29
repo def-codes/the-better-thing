@@ -140,7 +140,13 @@ requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
       // node (I guess representing the handle).  In that particular case you
       // want the default behavior anyway.  But this probably applies to other
       // built-in widgets also.
-      draggable = ele.nodeType === 1 ? ele : ele.parentNode;
+      //
+      // *UPDATE*: I'm not seeing any indication now of a “restricted” node, at
+      // least on Ubuntu.  And since the thumb pseudo-element isn't treated as a
+      // separate node for mouse events, the result is that you can't actually
+      // use range inputs if they're draggable.
+      if (!ele.matches('input[type="range"]'))
+        draggable = ele.nodeType === 1 ? ele : ele.parentNode;
     } catch (error) {
       return;
     }
