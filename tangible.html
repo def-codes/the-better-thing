@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>the better thing</title>
+    <meta charset="utf-8" />
+    <link href="./index.css" rel="stylesheet" />
+    <link href="./console.css" rel="stylesheet" />
+    <link href="./build/style/globals.css" rel="stylesheet" />
+    <link href="./build/style/elements.css" rel="stylesheet" />
+    <link href="./build/style/classes.css" rel="stylesheet" />
+    <link href="./build/style/layers.css" rel="stylesheet" />
+    <!-- <link href="./build/style/value-view.css" rel="stylesheet" /> -->
+    <link href="./build/style/fonts.css" rel="stylesheet" />
+	<script>
+  const links = [...document.querySelectorAll(`link[rel="stylesheet"]`)];
+  for (const link of links) {
+    const style = document.createElement("style");
+    const css = [...link.sheet.cssRules].map(_ => _.cssText).join("\n");
+    const text = document.createTextNode(css);
+    style.appendChild(text);
+    // link.parentNode.replaceChild(style, link);
+    document.head.appendChild(style);
+    link.parentNode.removeChild(link);
+}
+			
+		</script>
+		<!-- Stylus won't compile for some reason. -->
+		<style>
+			label, .Label {
+			--label-hue: 0deg;
+			--label-saturation: 50%;
+			--label-luminosity: 50%;
+			--label-alpha: 0.5;
+			
+			background-color: white;
+			background-color:
+			hsla(
+      var(--label-hue),
+      var(--label-saturation),
+      var(--label-luminosity),
+      var(--label-alpha));
+			}
+
+		</style>
+  </head>
+  <body>
+		<!--
+		<main>
+			<h1 class="Claim">
+				It's PORTABLE: you can move it
+			</h1>
+		</main>
+		-->
+		
+		<article>
+			<h1>streams</h1>
+			<p>Let's talk about streams</p>
+			<div id="keydown"></div>
+			<p>A stream is a push-based sequence.  You can</p>
+			<ul>
+				<li>listen to (“subscribe to”) a stream</li>
+				<li>stop listening to (“unsubscribe from”) a stream</li>
+				<li>write to a stream.  but why</li>
+			</ul>
+			<p>You (as an outsider, i.e. not the owner of the stream)
+			<i>cannot</i>:</p>
+			<ul>
+				<li>stop the stream from broadcasting</li>
+				<li>unsubscribe other listeners</li>
+				<li>know how many other listeners there are</li>
+				<li>know whether there are any other listeners</li>
+				<li>know whether the stream is “initialized” (which it is once it's had
+				a subscriber)</li>
+			</ul>
+			<p>Every stream has some kind of <i>source</i>.  You can get streams from
+			various sources:</p>
+			<ul>
+				<li>timers</li>
+				<li>
+					events, which in turn can include:
+					<ul>
+						<li>
+							dom events, which in turn can include:
+							<ul>
+								<li>mouse/touch events</li>
+								<li>keyboard events</li>
+								<li>focus events</li>
+								<li>input events</li>
+								<li>scroll events</li>
+								<li>dom listener (not exactly like the others)</li>
+							</ul>
+						</li>
+						<li>drag/drop events (distinct from mouse/touch because they can
+						include interop events from outside)</li>
+						<li>storage events</li>
+						<li>audio events (need mic)</li>
+						<li>worker events (post message)</li>
+						<li>network events (sockets)</li>
+						<li>and so much more...</li>
+					</ul>
+				</li>
+				<li>the synchronization of other streams</li>
+			</ul>
+		</article>
+		
+		<dl class="Dictionary KeyValueCollection Collection Value">
+			<div class="KeyValuePair">
+				<dt>thing</dt>
+				<dd>a thing in the world</dd>
+			</div>
+			<div class="KeyValuePair">
+				<dt>stuff</dt>
+				<dd>an amount of some material</dd>
+			</div>
+		</dl>
+		
+		<article>
+			<h2>reify a CSS variable</h2>
+			hue
+			<input type="range" min="0" max="360" step="1" oninput="document.getElementById('hue').innerText=`* { --hue: ${parseFloat(event.target.value)}deg;}`;" />
+			<style id="hue"></style>
+			
+			saturation
+			<input type="range" min="0" max="1" step="0.1" oninput="document.getElementById('saturation').innerText=`* { --saturation: ${Math.round(100 * parseFloat(event.target.value))}%;}`" />
+			<style id="saturation"></style>
+			
+			luminosity
+			<input type="range" min="0" max="1" step="0.1" oninput="document.getElementById('luminosity').innerText=`* { --luminosity: ${Math.round(100 * parseFloat(event.target.value))}%;}`" />
+			<style id="luminosity"></style>
+
+			<input type="range" min="0" max="1" step="0.1" oninput="document.getElementById('alpha').innerText=`* { --alpha: ${parseFloat(event.target.value)};}`" />
+			<style id="alpha"></style>
+		</article>
+		
+		<ul>
+			<li><label><input type="checkbox" />reify types as classes</label></li>
+		</ul>
+		
+		<article id="dragging">
+			<header>
+				<h1>dragging</h1>
+				<h2>what happens when you drag?</h2>
+			</header>
+
+			<p>The HTML Drag & Drop API defines three userland “effects”:</p>
+			<ul>
+				<li>move</li>
+				<li>copy</li>
+				<li>link</li>
+			</ul>
+			
+			<article>
+				<h1>copying (drag operation) </h1>
+				<p>Copying is less destructive (more monotonic) than moving.</p>
+				<ul>
+					<li id="place-1"><span>item 1</span></li>
+					<li id="place-2"></li>
+				</ul>
+			</article>
+			
+			<article>
+				<h1>linking (drag operation) </h1>
+				
+				<article>
+					<h1>linking two things</h1>
+					<h2>writing triples by drag and drop</h2>
+					
+					<p>Create a labeled, directed graph edge by hand.</p>
+					<p>Drag and drop is naturally directional.</p>
+					<p>But it is not naturally labeled.</p>
+					<p>To make an RDF assertion from a drag-drop operation, you would need
+					to pick up (or otherwise reference) a third element.</p>
+					<p>or use modal predicate.</p>
+					<ul>
+						<li id="thing-1"></li>
+						<li id="thing-2"></li>
+					</ul>
+				</article>
+				
+				<article>
+					<h1>linking more than two things</h1>
+					<p>To link more than two things, you must describe a subgraph.</p>
+																																						
+					<ul>
+						<li id="thing-1"></li>
+						<li id="thing-2"></li>
+					</ul>
+				</article>
+
+			</article>
+			
+			<article>
+				<h1>moving</h1>
+
+				<article>
+					<h1>moving a thing from one container to another</h1>
+					<p>Drag <code>item 1</code> from <code>place 1</code> to <code>place
+					2</code></p>
+					<ul>
+						<li id="place-1"><span>item 1</span></li>
+						<li id="place-2"></li>
+					</ul>
+				</article>
+				
+			</article>
+		</article>
+
+		
+		<ol id="tasks">
+			<li>reify drag</li>
+			<li>Next: reify selection (mark)</li>
+			<li>reify: indication (hover)</li>
+			<li>reify: indication/selection (touch)</li>
+			<li>reify: unicode</li>
+		</ol>
+
+		<article>
+			<h1>drag link to make an in-place context</h1>
+			<p>Use case.  Tear off a link, boom, you've made a layer.  A layer where
+			the selected link now has the mic, the point of view.  (re-move)</p>
+		</article>
+		
+		<article id="hashtags"></article>
+
+		<script src="./configure-require.js"></script>
+		<script src="./node_modules/requirejs/require.js"></script>
+    <script>
+      require(['./index.js'])
+    </script>
+	</body>
+</html>
