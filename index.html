@@ -45,6 +45,27 @@
           </details>
         </section>
         
+        <section id="meld-preamble-inlined-styles">
+          <details>
+            <summary>
+              <h3>make stylesheets persist with document</h3>
+            </summary>
+              
+              <p>We can inline stylesheets that are loaded from external
+              sources.</p>
+              
+              <script src="./inline-styles.js"></script>
+              
+              <p>Note that relative URL's can be used from stylesheets, and they
+              are interpreted as relative to the stylesheet (not the document
+              that loaded it).  This technique doesn't deal with such URL's,
+              which are liable to be incorrect after inlining.
+              </p>
+
+              <div id="inlined-styles"></div>
+          </details>          
+        </section>
+        
         <section id="meld-preamble-define-globalthis">
           <details>
             <summary>
@@ -585,17 +606,6 @@ script[data-source]::after
   font-style: italic;
 }
               </style>
-              
-              <p>We can inline stylesheets that are loaded from external
-              sources.</p>
-              
-              <script src="./inline-styles.js"></script>
-              
-              <p>Note that relative URL's can be used from stylesheets, and they
-              are interpreted as relative to the stylesheet (not the document
-              that loaded it).  This technique doesn't deal with such URL's,
-              which are liable to be incorrect after inlining.
-              </p>
             </details>
           </section>
           
