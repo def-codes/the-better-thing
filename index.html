@@ -54,7 +54,7 @@
               <p>We can inline stylesheets that are loaded from external
               sources.</p>
               
-              <script src="./inline-styles.js"></script>
+              <script src="./bootstrap-temp/inline-styles.js"></script>
               
               <p>Note that relative URL's can be used from stylesheets, and they
               are interpreted as relative to the stylesheet (not the document
@@ -88,7 +88,7 @@
             <code>globalThis</code>.  Here we ensure that it is defined in all
             environments.</p>
             
-            <script src="./polyfill-globalthis.js"></script>
+            <script src="./bootstrap-temp/polyfill-globalthis.js"></script>
 
             <p>This is a “naive” polyfill which depends on the fact that it's
             not run in strict mode.  At present, I don't actually need this and
@@ -218,7 +218,7 @@
           <p>We will use a protocol for determining how things are represented
           in this namespace.</p>
           
-          <script src="./global-namespace-representation.js"></script>
+          <script src="./bootstrap-temp/global-namespace-representation.js"></script>
         </header>
 
         <section id="global-namespace-representation"></section>
@@ -267,7 +267,7 @@ require(["@def-codes/meld/global-namespace-representation"], functions => {
         
         <p>The following script triggers the initialization</p>
         
-        <script>require(['./something-moving.js'], thing => {
+        <script>require(['./bootstrap-temp/something-moving.js'], thing => {
   thing.make_something_moving_in("something-moving-output");
 })</script>
       </section>
@@ -591,7 +591,7 @@ console.log("gee isn't there anything I can do besides console log?? :(");
               a remote script that was fetched via a script <code>src</code>.)
               </p>
               
-              <script src="./inline-scripts.js"></script>
+              <script src="./bootstrap-temp/inline-scripts.js"></script>
               
               <p>That code replaces remote script references with inline
               scripts.  It also annotates the inlined script with the source
@@ -624,7 +624,7 @@ script[data-source]::after
               document and making its content available for download using
               ordinary links.</p>
               
-              <script src="./document-persistence.js"></script>
+              <script src="./bootstrap-temp/document-persistence.js"></script>
               
               <p>That defines the mechanism for making a download link, but
               doesn't actually apply it to the document.</p>
@@ -787,7 +787,7 @@ script {
           <p>We need a place to put modules.  When something is imported
           transitively, it needs to be captured and put there.</p>
           
-          <script src="./amd-module-persistence.js"></script>
+          <script src="./bootstrap-temp/amd-module-persistence.js"></script>
           
           <p>There's a problem with this.  It doesn't work for scripts that are
           loaded by path.  That is, once you leave the hosting context, you can
