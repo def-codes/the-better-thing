@@ -153,15 +153,17 @@
             
             <script>
               (function() {
-              console.log("all");
               const { make_full_amd, default_resolver } = window["@def.codes/amd-loader"];
-              console.log("your", make_full_amd, default_resolver);
-              const base = make_full_amd(window["@def.codes/amd-basic"]);
+              const custom_resolver = (module_id, base) => {
+              const [, defcodes] = module_id.match('^@def.codes/(.*)$') || []
+              if (defcodes) return `./node_modules/@def.codes/${defcodes}.js`
+              return default_resolver(module_id, base)
+              }
+              const base = make_full_amd(window["@def.codes/amd-basic"], custom_resolver);
               Object.assign(window, base);
-              console.log(base);
               })();
-              
             </script>
+            
           </details>
         </section>
         
