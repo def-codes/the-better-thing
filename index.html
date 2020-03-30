@@ -2,7 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title contenteditable="true">literate</title>
+    <title contenteditable="true">MELD</title>
+    <link href="./index.css" rel="stylesheet" />
+    <link href="./console.css" rel="stylesheet" />
+    <link href="./build/style/globals.css" rel="stylesheet" />
+    <link href="./build/style/elements.css" rel="stylesheet" />
+    <link href="./build/style/classes.css" rel="stylesheet" />
+    <link href="./build/style/layers.css" rel="stylesheet" />
+    <!-- <link href="./build/style/value-view.css" rel="stylesheet" /> -->
+    <link href="./build/style/fonts.css" rel="stylesheet" />
   </head>
   <body>
     <article id="meld-preamble">
@@ -207,8 +215,8 @@ require(["@def-codes/meld/global-namespace-representation"], functions => {
     
     <main>
       <h1>dynamic html for the twenty-first century</h1>
-      <p>This document is about making plain HTML into a literate programming
-      platform.</p>
+      <p>This document is about making plain HTML into a dynamic, literate
+      modeling platform.</p>
 
       <p>
         <a download="literate.html" href="" data-intent="save-document">
@@ -577,6 +585,17 @@ script[data-source]::after
   font-style: italic;
 }
               </style>
+              
+              <p>We can inline stylesheets that are loaded from external
+              sources.</p>
+              
+              <script src="./inline-styles.js"></script>
+              
+              <p>Note that relative URL's can be used from stylesheets, and they
+              are interpreted as relative to the stylesheet (not the document
+              that loaded it).  This technique doesn't deal with such URL's,
+              which are liable to be incorrect after inlining.
+              </p>
             </details>
           </section>
           
