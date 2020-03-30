@@ -1,0 +1,77 @@
+<article id="markup-versus-programming">
+  <details>
+    <summary>
+      <h3>Markup languages <i>versus</i> programming languages</h3>
+    </summary>
+    
+    <p>Perhaps the most wonderful thing about HTML is that what you write is
+    <em>visible by default</em>.  Whatever you type will be output (more or
+    less) as you typed it.  For example, an HTML file containing nothing but the
+    following eleven characters</p>
+
+    <pre>hello world</pre>
+
+    <p>will, when opened in a web browser, display the text “hello world” as
+    expected.  Here, <a target="_blank" download="hello-world.html"
+    href="data:text/html, hello world"> try it</a></p>
+    
+    <p>More realistically, look at the code for this section's opening
+    paragraph:</p>
+    
+    <pre> &lt;p&gt;Perhaps the most wonderful thing about HTML is that what you
+    write is &lt;em&gt;visible by default&lt;/em&gt;.  Whatever you type will be
+    output (more or less) as you typed it.  For example, an HTML file containing
+    nothing but the following eleven bytes&lt;/p&gt;
+    </pre>
+    
+    <aside><b>Note:</b> You can use “view source” in your browser to see the
+    markup for this entire document.</aside>
+    
+    <p>Most of the text is displayed as-is, just like writing on paper.  This is
+    true generally of “markup” languages.  You have to go out of your way to
+    switch to a mode where text is not taken literally.  (In the case of HTML,
+    the notorious “angle brackets” are the signal.)</p>
+    
+    <p>This “literal” quality is also true of spreadsheets: just about anything
+    you type into a spreadsheet cell will be displayed in the cell just as you
+    typed it.</p>
+    
+    <p>This see-what-you-typed quality of markup languages may be hard to
+    appreciate until you've used something that <em>doesn't</em> work that
+    way—such as nearly every programming language.</p>
+    
+    <p>In “programming” languages, by contrast, the code that you provide is
+    <em>not</em> displayed, only interpreted.  You have to go out of your way to
+    produce output.</p>
+    
+    <p>People find markup languages much more intuitive than programming
+    languages.  No doubt this quality is a major reason for the web's initial
+    success.  Invisiblity is the <em>exception</em> rather than the rule.</p>
+
+    <section>
+      <h4>Invisible elements in HTML</h4>
+      
+      <p>Still, there are exceptions.  In HTML, all “tags” (such as the
+      <code>&lt;p&gt;</code> tags indicating “paragraph”) are themselves
+      invisible, as are their attributes.  Instead, the tags impact <em>how</em>
+      the text content is displayed.  (More strictly speaking, markup helps
+      <em>classify</em> the content, which in turn can subject the content to
+      special display rules.) </p>
+      
+      <p>But for some HTML elements, even the <em>content</em> is invisible by
+      default.  These elements include the document <code>head</code> (and
+      everything inside it, such as <code>title</code>, <code>link</code>,
+      <code>meta</code>, etc), <code>style</code>, and <code>script</code>, as
+      well as some newer elements like <code>template</code> (whose main purpose
+      is to support the “semantic” inclusion of content that is used only by
+      scripts).</p>
+      
+      <p>Considering that some of these invisible elements—particularly
+      <code>style</code> and <code>script</code>—are the only way to format the
+      document or model changes to it, bringing these elements to light is
+      clearly a first step in making any dynamic document system.  (<a
+      href="#despecialization">Historical note)</a></p>
+    </section>
+  </details>
+
+</article>

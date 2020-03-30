@@ -1,0 +1,24 @@
+<article id="despecialization">
+  <details>
+    <summary>
+      <h3>The despecialization of special elements</h3>
+    </summary>
+    
+    <p>In the old days, elements like <code>head</code>, <code>style</code>, and
+    <code>script</code> were specially excluded from rendering.  At some point,
+    for consistency's sake, browsers started treating these “special” elements
+    just like anything else for display purposes.  Now, these invisible elements
+    are simply hidden with default rules that set their <code>display</code>
+    property to <code>none</code>, which is easily overridden.  (Citation
+    needed.  But I'm willing to bet this is the case.)</p>
+    
+    <p>Some people <a href="https://stackoverflow.com/q/18182211">discovered
+    these capabilities by accident</a> by using <code>display</code> rules with
+    an unintentionally-excessive scope.  As recently as 2018, the ability to
+    show <em>and edit</em> these elements even <a
+    href="https://css-tricks.com/did-you-know-that-style-and-script-tags-can-be-set-to-display-block/">took
+    some self-styled CSS authorities by surprise</a>, though as to “why we would
+    want to do this,” the author was “not entirely sure.”  </p>
+  </details>
+
+</article>
