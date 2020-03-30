@@ -9,6 +9,6 @@
     /* TEMP */
     { "path": "../expression-reader" },
     { "path": "../graphviz-format" },
-    { "path": "../simple-http-server" },
+    { "path": "../simple-http-server" }
   ]
 }

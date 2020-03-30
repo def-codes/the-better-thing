@@ -4,11 +4,7 @@
 const dot_safe = o =>
   o == null
     ? "(null/undefined)"
-    : o
-        .toString()
-        .substring(0, 50)
-        .replace(/"/g, '\\"')
-        .replace(/\$/, "");
+    : o.toString().substring(0, 50).replace(/"/g, '\\"').replace(/\$/, "");
 
 function* digraph_lines_from(log, formatter) {
   //yield "forcelabels=true";

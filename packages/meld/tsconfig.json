@@ -7,6 +7,6 @@
     { "path": "../node-web-presentation" },
     { "path": "../process-trees" },
     { "path": "../graphviz-format" },
-    { "path": "../expression-reader" },
+    { "path": "../expression-reader" }
   ]
 }

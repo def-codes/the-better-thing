@@ -8,6 +8,6 @@
     { "path": "../expression-reader" },
     { "path": "../rdf-data-model" },
     { "path": "../rdf-expressions" },
-    { "path": "../rstream-query-rdf" },
+    { "path": "../rstream-query-rdf" }
   ]
 }

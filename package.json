@@ -50,13 +50,12 @@
   },
   "devDependencies": {
     "@types/ws": "6.0.3",
-    "prettier": "1.19.1",
+    "prettier": "2.0.2",
     "rollup": "1.26.0",
     "stylus": "0.54.5",
     "typescript": "3.9.0-dev.20200329"
   },
   "prettier": {
-    "trailingComma": "es5",
-    "endOfLine": "lf"
+    "arrowParens": "avoid"
   }
 }

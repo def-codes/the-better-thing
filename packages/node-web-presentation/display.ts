@@ -43,6 +43,7 @@ let fit = true;
 const set_fit = (svg) => {
   svg.style.maxHeight = fit ? "100vh" : "";
   svg.style.maxWidth = fit ? "100vw" : "";
+  // svg.style.width = fit ? "400vw" : "";
 }
 function update(code, container) {
   container.innerHTML = code;

@@ -14,7 +14,7 @@ import { datafy, nav } from "@def.codes/datafy-nav";
 import { depth_first_search } from "./depth-first-search";
 import { as_key_values } from "./as-key-values";
 
-export const navbot = function*(thing: unknown) {
+export const navbot = function* (thing: unknown) {
   // BUT we never add to this.  How would we compare?
   const visited = new Set();
   let coll = datafy(thing);

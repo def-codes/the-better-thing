@@ -25,7 +25,7 @@ export function hijack_console() {
   for (const method of CONSOLE_METHODS) {
     orig[method] = console[method];
     try {
-      console[method] = function(...args: any[]) {
+      console[method] = function (...args: any[]) {
         if (_stream) _stream.next({ method, args });
         if (method === "error") orig.error(...args);
       };

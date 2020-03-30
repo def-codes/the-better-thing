@@ -22,7 +22,7 @@ export const dependency_grapher = () => {
     graph[importer] = resolved.filter(_ => !!_).map(_ => _.resolvedFileName);
   };
 
-  host.resolveModuleNames = function(imports, importer) {
+  host.resolveModuleNames = function (imports, importer) {
     const resolved = imports.map(
       name =>
         ts_module.resolveModuleName(name, importer, {}, this).resolvedModule

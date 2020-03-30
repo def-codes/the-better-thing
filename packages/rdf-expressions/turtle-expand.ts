@@ -17,7 +17,7 @@ interface ScannerFunction {
 }
 
 let count = 0;
-const mint = (function() {
+const mint = (function () {
   return (): MintedNode => ({ term: { minted: count++ } });
 })();
 
@@ -125,7 +125,7 @@ export function* expecting_statement(expr) {
 // expr means an array of elements (term, literal, or array)
 // exprs means an array of expr's
 
-const expecting_predicate_object: ScannerFunction = function*(
+const expecting_predicate_object: ScannerFunction = function* (
   expr,
   { subject }
 ) {
@@ -159,7 +159,7 @@ const expecting_predicate_object: ScannerFunction = function*(
   throw "Expecting predicate object: exhausted";
 };
 
-const expecting_object: ScannerFunction = function*(
+const expecting_object: ScannerFunction = function* (
   expr,
   { subject, predicate }
 ) {

@@ -1,6 +1,4 @@
 {
   "extends": "../tsconfig-composite",
-  "references": [
-    { "path": "../rdf-data-model" }
-  ]
+  "references": [{ "path": "../rdf-data-model" }]
 }

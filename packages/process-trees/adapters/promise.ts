@@ -52,7 +52,7 @@ Promise.prototype.then = function then<T>(
 };
 
 const { catch: _catch } = Promise.prototype;
-Promise.prototype.catch = function<T>(
+Promise.prototype.catch = function <T>(
   this: Promise<T> & INotify,
   ...args: any[]
 ) {

@@ -27,7 +27,7 @@ const ACCESS_TYPE_TESTS = [
   ["map", new Map()],
   ["atomic", "a string"],
   ["atomic", Symbol.for("hello")],
-  ["iterable", (function*() {})()],
+  ["iterable", (function* () {})()],
   ["atomic", 234],
   ["atomic", 234.234],
   ["atomic", true],

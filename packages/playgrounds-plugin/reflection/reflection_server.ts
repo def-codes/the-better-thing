@@ -168,7 +168,7 @@ console.log("initialized discovery");
   create_server({ port, handler });
 }
 
-const create_websocket_server: GeneratorProcess = function*(
+const create_websocket_server: GeneratorProcess = function* (
   port: number,
   input: Channel,
   output: Channel
@@ -186,7 +186,7 @@ const create_websocket_server: GeneratorProcess = function*(
   }
 };
 
-const reflection_server_main: GeneratorProcess = function*(
+const reflection_server_main: GeneratorProcess = function* (
   options: ReflectionServerOptions
 ) {
   /* Get in front of the user */

@@ -10,11 +10,7 @@ type SinkLog = SinkLogEntry[];
 const dot_safe = o =>
   o == null
     ? "(null/undefined)"
-    : o
-        .toString()
-        .substring(0, 50)
-        .replace(/"/g, '\\"')
-        .replace(/\$/, "");
+    : o.toString().substring(0, 50).replace(/"/g, '\\"').replace(/\$/, "");
 
 function* system_log_to_dot_statements(
   log: SinkLog

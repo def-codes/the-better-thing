@@ -109,19 +109,19 @@ export const dataFactory: rdf.DataFactory = {
 };
 
 /////////// toString extensions
-namedNode.prototype.toString = function(this: rdf.NamedNode) {
+namedNode.prototype.toString = function (this: rdf.NamedNode) {
   return `<${this.value}>`;
 };
-blankNode.prototype.toString = function(this: rdf.BlankNode) {
+blankNode.prototype.toString = function (this: rdf.BlankNode) {
   return `_:${this.value}`;
 };
-variable.prototype.toString = function(this: rdf.Variable) {
+variable.prototype.toString = function (this: rdf.Variable) {
   return `?${this.value}`;
 };
-defaultGraph.prototype.toString = function() {
+defaultGraph.prototype.toString = function () {
   return `<default graph>`;
 };
-literal.prototype.toString = function(this: rdf.Literal) {
+literal.prototype.toString = function (this: rdf.Literal) {
   // TODO: Doesn't escape quotes.  What are the rules for this?
   return this.language
     ? `"${this.value}"@${this.language}`
@@ -129,6 +129,6 @@ literal.prototype.toString = function(this: rdf.Literal) {
     ? `"${this.value}"`
     : `"${this.value}"^^${this.datatype}`;
 };
-triple.prototype.toString = function(this: rdf.Triple) {
+triple.prototype.toString = function (this: rdf.Triple) {
   return `${this.subject} ${this.predicate} ${this.object}`;
 };

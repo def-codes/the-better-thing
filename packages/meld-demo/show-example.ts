@@ -80,7 +80,7 @@ export function show_example(model_id) {
 
   //================================== HOST DATAFLOW INTEROP
   // under construction
-  const ports = (function() {
+  const ports = (function () {
     let container_registry: Record<
       string,
       { sub: rs.Subscription<any, any>; ele: Element }

@@ -97,7 +97,7 @@ export async function launch() {
   else if (true) {
     const updater = dot_updater();
     // without a notifier of changes, we just have to poll
-    (async function() {
+    (async function () {
       while (true) {
         updater.go(Dot.dotify(result));
         await delayed(true, 250);

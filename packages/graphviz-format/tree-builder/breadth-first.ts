@@ -70,6 +70,10 @@ const make_deep_object = <T, I, K extends PropertyKey, V>(
     // @ts-ignore
     // prettier-ignore
     // @ts-ignore
+    // prettier-ignore
+    // @ts-ignore
+    // prettier-ignore
+    // @ts-ignore
     for (const [key, values] of entries)
   // prettier-ignore
       // @ts-ignore

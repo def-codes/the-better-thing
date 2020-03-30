@@ -253,12 +253,9 @@ type Meta = typeof ATTRIBUTES_METADATA;
 type ArrayItemType<T> = T extends ReadonlyArray<infer E> ? E : never;
 
 // Sub-conditional is a trick to make type distribute over key
-type FilterAttributes<
-  T,
-  K extends keyof Meta = keyof Meta
-> = K extends (T extends ArrayItemType<Meta[K]["used_by"]>
-? K
-: never)
+type FilterAttributes<T, K extends keyof Meta = keyof Meta> = K extends (
+  T extends ArrayItemType<Meta[K]["used_by"]> ? K : never
+)
   ? K
   : never;
 
