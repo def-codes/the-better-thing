@@ -1,4 +1,4 @@
-require([], () => {
+(function () {
   const links = [...document.querySelectorAll(`link[rel="stylesheet"]`)];
 
   // By default, this inlines stylesheets in place of the import links, which is
@@ -23,4 +23,4 @@ require([], () => {
       // link.parentNode.removeChild(link);
     }
   }
-});
+})();

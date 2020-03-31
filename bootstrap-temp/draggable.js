@@ -1,49 +1,49 @@
-// see
-// http://www.aosabook.org/en/500L/blockcode-a-visual-programming-toolkit.html
+define(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
+  // see
+  // http://www.aosabook.org/en/500L/blockcode-a-visual-programming-toolkit.html
 
-// FROM touch punch
+  // FROM touch punch
 
-/**
- * Simulate a mouse event based on a corresponding touch event
- * @param {Object} event A touch event
- * @param {String} simulatedType The corresponding mouse event
- */
-// [gpc] removed `originalEvent` references (from jquery)
-function simulateMouseEvent(event, simulatedType) {
-  // [gpc] “ignore” == retain default handling
-  //
-  // Ignore multi-touch events
-  if (event.touches.length > 1) return;
+  /**
+   * Simulate a mouse event based on a corresponding touch event
+   * @param {Object} event A touch event
+   * @param {String} simulatedType The corresponding mouse event
+   */
+  // [gpc] removed `originalEvent` references (from jquery)
+  function simulateMouseEvent(event, simulatedType) {
+    // [gpc] “ignore” == retain default handling
+    //
+    // Ignore multi-touch events
+    if (event.touches.length > 1) return;
 
-  event.preventDefault();
+    event.preventDefault();
 
-  var touch = event.changedTouches[0],
-    simulatedEvent = document.createEvent("MouseEvents");
+    var touch = event.changedTouches[0],
+      simulatedEvent = document.createEvent("MouseEvents");
 
-  // Initialize the simulated mouse event using the touch event's coordinates
-  simulatedEvent.initMouseEvent(
-    simulatedType, // type
-    true, // bubbles
-    true, // cancelable
-    window, // view
-    1, // detail
-    touch.screenX, // screenX
-    touch.screenY, // screenY
-    touch.clientX, // clientX
-    touch.clientY, // clientY
-    false, // ctrlKey
-    false, // altKey
-    false, // shiftKey
-    false, // metaKey
-    0, // button
-    null // relatedTarget
-  );
+    // Initialize the simulated mouse event using the touch event's coordinates
+    simulatedEvent.initMouseEvent(
+      simulatedType, // type
+      true, // bubbles
+      true, // cancelable
+      window, // view
+      1, // detail
+      touch.screenX, // screenX
+      touch.screenY, // screenY
+      touch.clientX, // clientX
+      touch.clientY, // clientY
+      false, // ctrlKey
+      false, // altKey
+      false, // shiftKey
+      false, // metaKey
+      0, // button
+      null // relatedTarget
+    );
 
-  // Dispatch the simulated event to the target element
-  event.target.dispatchEvent(simulatedEvent);
-}
+    // Dispatch the simulated event to the target element
+    event.target.dispatchEvent(simulatedEvent);
+  }
 
-requirejs(["@thi.ng/transducers", "@def.codes/meld-demo"], tx => {
   // Make streams from all events of interest
   // - hover (mouseenter/leave)
   // - touch
