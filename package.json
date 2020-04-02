@@ -11,10 +11,7 @@
     "format": "prettier --write 'packages/**/*.{ts,json}'",
     "meld": "node node_modules/@def.codes/meld-cli",
     "test-format": "prettier --list-different 'packages/**/*.{ts,json}'",
-    "build": "npm run build:script && npm run build:style",
-    "build:script": "tsc --build",
-    "prebuild:style": "bash -c \"mkdir -p build/style\"",
-    "build:style": "stylus --out build/style style",
+    "build": "tsc --build",
     "bundle": "rollup -c",
     "watch": "bash -c './watch.sh'"
   },
@@ -52,7 +49,6 @@
     "@types/ws": "6.0.3",
     "prettier": "2.0.2",
     "rollup": "1.26.0",
-    "stylus": "0.54.5",
     "typescript": "3.9.0-dev.20200329"
   },
   "prettier": {

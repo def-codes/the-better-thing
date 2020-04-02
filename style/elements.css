@@ -1,0 +1,204 @@
+[id]:not([id=""]) {
+  --prefix: '#' attr(id);
+  font-size: 100%;
+  --type: 'Indicator';
+}
+[id]:not([id=""])::before {
+  font-size: 200%;
+  background: #fff;
+}
+[class]:not([class=""]) {
+  --type: '.' attr(class);
+}
+[draggable="true"] {
+  outline: 1em dotted rgba(0,128,0,0.6);
+}
+:hover {
+  --luminosity: 100%;
+  --alpha: 66%;
+  box-shadow: 0 0 2em -0.5em;
+}
+div:not([class]),
+div[class=""] {
+  border: 1em solid rgba(255,0,0,0.5);
+}
+span {
+  border-width: 0.2em;
+  border-style: dashed;
+  border-color: rgba(255,0,0,0.5);
+  display: block;
+}
+span:not([class])::before,
+span[class=""]::before {
+  display: none;
+}
+html {
+  background: none;
+}
+body,
+.Space {
+  --type: 'Space';
+  background-color: var(--space-background);
+}
+main {
+  margin: var(--main-margin);
+}
+p {
+  display: inline-block;
+  --type: '¶';
+}
+a {
+  display: inline-block;
+  cursor: pointer;
+  font-size: 100%;
+  --type: 'Indicator';
+  --type: 'Affordance';
+  cursor: hand;
+  border: 1em solid rgba(0,128,0,0.2);
+  box-shadow: 0 0 2em -0.5em;
+  --type: 'Navigable';
+}
+a:hover {
+  background: var(--indicator-color);
+}
+dfn {
+  display: inline-block;
+}
+ul {
+  display: inline-block;
+  --type: 'Collection';
+  --type: 'List';
+  --type: 'UnorderedList';
+  border-bottom: 1em solid #ffa500;
+  counter-reset: array-item;
+}
+ol {
+  display: inline-block;
+  --type: 'Collection';
+  --type: 'List';
+  --type: 'OrderedList';
+}
+li {
+  display: inline-block;
+  --type: 'Item';
+  counter-increment: array-item;
+  --prefix: "Item " counter(array-item);
+}
+::marker {
+  display: none;
+}
+dl {
+  display: inline-block;
+  --type: 'Dictionary';
+  --type: 'Collection';
+}
+dt {
+  --type: "Term";
+}
+dd {
+  --type: "Definition";
+  margin-inline-start: 0;
+}
+details {
+  border: 1em solid rgba(255,0,0,0.1);
+}
+summary {
+  font-size: 100%;
+  --type: 'Indicator';
+  --type: 'Affordance';
+  cursor: hand;
+  border: 1em solid rgba(0,128,0,0.2);
+  box-shadow: 0 0 2em -0.5em;
+}
+summary:hover {
+  background: var(--indicator-color);
+}
+aside {
+  display: block;
+  border: 1em solid #ff0;
+  float: right;
+}
+nav {
+  display: block;
+  --type: 'Nav';
+}
+article {
+  display: block;
+  display: inline-block;
+  --article-margin: 4em;
+  margin: var(--article-margin);
+  background: rgba(0,0,0,0.1);
+  margin: 1em;
+}
+section {
+  display: block;
+  margin-top: 1em;
+}
+header {
+  display: inline-block;
+  --type: 'Header';
+}
+footer {
+  display: inline-block;
+  --type: 'Footer';
+}
+figure {
+  display: inline-block;
+  --type: 'Figure';
+}
+h1,
+h2,
+h3 {
+  --type: 'Heading';
+}
+blockquote {
+  --type: 'Lens';
+  box-shadow: inset 0 0 2em -0.5em;
+  --type: 'Quotation';
+  margin-left: 4em;
+  --alpha: 0.6;
+}
+q {
+  --type: 'Quotation';
+}
+script {
+  --type: "script";
+  display: block;
+  white-space: pre;
+}
+style {
+  --type: "style";
+  display: block;
+  white-space: pre;
+}
+output,
+output .Output {
+  --type: 'Output';
+  border: 1em solid #808080 !important;
+}
+address {
+  display: inline-block;
+}
+cite {
+  display: inline-block;
+  --type: 'Citation';
+}
+code {
+  display: inline-block;
+  --type: 'Code';
+}
+p code,
+p output {
+  display: inline-block;
+}
+code,
+output {
+  display: inline-block;
+}
+i {
+  display: inline-block;
+}
+s {
+  display: inline-block;
+  --type: 'Stricken';
+}

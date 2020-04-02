@@ -10,7 +10,6 @@ trap 'kill %1; kill %2' SIGINT
 npm run build
 
 npm run build:script -- --watch \
-    & npm run build:style -- --watch \
     & npm run bundle -- --watch \
     & wait
 

@@ -1,0 +1,503 @@
+.Stack {
+--stack-blur-factor
+  transform-style: preserve-3d;
+  perspective: 10em;
+}
+.Stack > :nth-child(2) {
+  --z: -2em;
+  transform: translate3d(0, 0, -2em);
+  transform: translate3d(0, 0, -2em) rotate3d(0, 0, 10deg);
+}
+.Stack > :nth-child(3) {
+  --z: -3em;
+  transform: translate3d(0, 0, -3em);
+  transform: translate3d(0, 0, -3em) rotate3d(0, 0, 15deg);
+}
+.Stack > :nth-child(4) {
+  --z: -4em;
+  transform: translate3d(0, 0, -4em);
+  transform: translate3d(0, 0, -4em) rotate3d(0, 0, 20deg);
+}
+.Stack > :nth-child(5) {
+  --z: -5em;
+  transform: translate3d(0, 0, -5em);
+  transform: translate3d(0, 0, -5em) rotate3d(0, 0, 25deg);
+}
+.Stack > :nth-child(6) {
+  --z: -6em;
+  transform: translate3d(0, 0, -6em);
+  transform: translate3d(0, 0, -6em) rotate3d(0, 0, 30deg);
+}
+.Stack > :nth-child(7) {
+  --z: -7em;
+  transform: translate3d(0, 0, -7em);
+  transform: translate3d(0, 0, -7em) rotate3d(0, 0, 35deg);
+}
+.Stack > :nth-child(8) {
+  --z: -8em;
+  transform: translate3d(0, 0, -8em);
+  transform: translate3d(0, 0, -8em) rotate3d(0, 0, 40deg);
+}
+.Stack > :nth-child(9) {
+  --z: -9em;
+  transform: translate3d(0, 0, -9em);
+  transform: translate3d(0, 0, -9em) rotate3d(0, 0, 45deg);
+}
+.Stack > :nth-child(10) {
+  --z: -10em;
+  transform: translate3d(0, 0, -10em);
+  transform: translate3d(0, 0, -10em) rotate3d(0, 0, 50deg);
+}
+.Stack > :nth-child(11) {
+  --z: -11em;
+  transform: translate3d(0, 0, -11em);
+  transform: translate3d(0, 0, -11em) rotate3d(0, 0, 55deg);
+}
+.Stack > :nth-child(12) {
+  --z: -12em;
+  transform: translate3d(0, 0, -12em);
+  transform: translate3d(0, 0, -12em) rotate3d(0, 0, 60deg);
+}
+.Stack > :nth-child(13) {
+  --z: -13em;
+  transform: translate3d(0, 0, -13em);
+  transform: translate3d(0, 0, -13em) rotate3d(0, 0, 65deg);
+}
+.Stack > :nth-child(14) {
+  --z: -14em;
+  transform: translate3d(0, 0, -14em);
+  transform: translate3d(0, 0, -14em) rotate3d(0, 0, 70deg);
+}
+.Stack > :nth-child(15) {
+  --z: -15em;
+  transform: translate3d(0, 0, -15em);
+  transform: translate3d(0, 0, -15em) rotate3d(0, 0, 75deg);
+}
+.Stack > :nth-child(16) {
+  --z: -16em;
+  transform: translate3d(0, 0, -16em);
+  transform: translate3d(0, 0, -16em) rotate3d(0, 0, 80deg);
+}
+.Stack > :nth-child(17) {
+  --z: -17em;
+  transform: translate3d(0, 0, -17em);
+  transform: translate3d(0, 0, -17em) rotate3d(0, 0, 85deg);
+}
+.Stack > :nth-child(18) {
+  --z: -18em;
+  transform: translate3d(0, 0, -18em);
+  transform: translate3d(0, 0, -18em) rotate3d(0, 0, 90deg);
+}
+.Stack > :nth-child(19) {
+  --z: -19em;
+  transform: translate3d(0, 0, -19em);
+  transform: translate3d(0, 0, -19em) rotate3d(0, 0, 95deg);
+}
+.Stack > :nth-child(20) {
+  --z: -20em;
+  transform: translate3d(0, 0, -20em);
+  transform: translate3d(0, 0, -20em) rotate3d(0, 0, 100deg);
+}
+.Stack > :nth-child(21) {
+  --z: -21em;
+  transform: translate3d(0, 0, -21em);
+  transform: translate3d(0, 0, -21em) rotate3d(0, 0, 105deg);
+}
+.Stack > :nth-child(22) {
+  --z: -22em;
+  transform: translate3d(0, 0, -22em);
+  transform: translate3d(0, 0, -22em) rotate3d(0, 0, 110deg);
+}
+.Stack > :nth-child(23) {
+  --z: -23em;
+  transform: translate3d(0, 0, -23em);
+  transform: translate3d(0, 0, -23em) rotate3d(0, 0, 115deg);
+}
+.Stack > :nth-child(24) {
+  --z: -24em;
+  transform: translate3d(0, 0, -24em);
+  transform: translate3d(0, 0, -24em) rotate3d(0, 0, 120deg);
+}
+.Stack > :nth-child(25) {
+  --z: -25em;
+  transform: translate3d(0, 0, -25em);
+  transform: translate3d(0, 0, -25em) rotate3d(0, 0, 125deg);
+}
+.Stack > :nth-child(26) {
+  --z: -26em;
+  transform: translate3d(0, 0, -26em);
+  transform: translate3d(0, 0, -26em) rotate3d(0, 0, 130deg);
+}
+.Stack > :nth-child(27) {
+  --z: -27em;
+  transform: translate3d(0, 0, -27em);
+  transform: translate3d(0, 0, -27em) rotate3d(0, 0, 135deg);
+}
+.Stack > :nth-child(28) {
+  --z: -28em;
+  transform: translate3d(0, 0, -28em);
+  transform: translate3d(0, 0, -28em) rotate3d(0, 0, 140deg);
+}
+.Stack > :nth-child(29) {
+  --z: -29em;
+  transform: translate3d(0, 0, -29em);
+  transform: translate3d(0, 0, -29em) rotate3d(0, 0, 145deg);
+}
+.Stack > :nth-child(30) {
+  --z: -30em;
+  transform: translate3d(0, 0, -30em);
+  transform: translate3d(0, 0, -30em) rotate3d(0, 0, 150deg);
+}
+.Stack > :nth-child(31) {
+  --z: -31em;
+  transform: translate3d(0, 0, -31em);
+  transform: translate3d(0, 0, -31em) rotate3d(0, 0, 155deg);
+}
+.Stack > :nth-child(32) {
+  --z: -32em;
+  transform: translate3d(0, 0, -32em);
+  transform: translate3d(0, 0, -32em) rotate3d(0, 0, 160deg);
+}
+.Stack > :nth-child(33) {
+  --z: -33em;
+  transform: translate3d(0, 0, -33em);
+  transform: translate3d(0, 0, -33em) rotate3d(0, 0, 165deg);
+}
+.Stack > :nth-child(34) {
+  --z: -34em;
+  transform: translate3d(0, 0, -34em);
+  transform: translate3d(0, 0, -34em) rotate3d(0, 0, 170deg);
+}
+.Stack > :nth-child(35) {
+  --z: -35em;
+  transform: translate3d(0, 0, -35em);
+  transform: translate3d(0, 0, -35em) rotate3d(0, 0, 175deg);
+}
+.Stack > :nth-child(36) {
+  --z: -36em;
+  transform: translate3d(0, 0, -36em);
+  transform: translate3d(0, 0, -36em) rotate3d(0, 0, 180deg);
+}
+.Stack > :nth-child(37) {
+  --z: -37em;
+  transform: translate3d(0, 0, -37em);
+  transform: translate3d(0, 0, -37em) rotate3d(0, 0, 185deg);
+}
+.Stack > :nth-child(38) {
+  --z: -38em;
+  transform: translate3d(0, 0, -38em);
+  transform: translate3d(0, 0, -38em) rotate3d(0, 0, 190deg);
+}
+.Stack > :nth-child(39) {
+  --z: -39em;
+  transform: translate3d(0, 0, -39em);
+  transform: translate3d(0, 0, -39em) rotate3d(0, 0, 195deg);
+}
+.Stack > :nth-child(40) {
+  --z: -40em;
+  transform: translate3d(0, 0, -40em);
+  transform: translate3d(0, 0, -40em) rotate3d(0, 0, 200deg);
+}
+.Stack > :nth-child(41) {
+  --z: -41em;
+  transform: translate3d(0, 0, -41em);
+  transform: translate3d(0, 0, -41em) rotate3d(0, 0, 205deg);
+}
+.Stack > :nth-child(42) {
+  --z: -42em;
+  transform: translate3d(0, 0, -42em);
+  transform: translate3d(0, 0, -42em) rotate3d(0, 0, 210deg);
+}
+.Stack > :nth-child(43) {
+  --z: -43em;
+  transform: translate3d(0, 0, -43em);
+  transform: translate3d(0, 0, -43em) rotate3d(0, 0, 215deg);
+}
+.Stack > :nth-child(44) {
+  --z: -44em;
+  transform: translate3d(0, 0, -44em);
+  transform: translate3d(0, 0, -44em) rotate3d(0, 0, 220deg);
+}
+.Stack > :nth-child(45) {
+  --z: -45em;
+  transform: translate3d(0, 0, -45em);
+  transform: translate3d(0, 0, -45em) rotate3d(0, 0, 225deg);
+}
+.Stack > :nth-child(46) {
+  --z: -46em;
+  transform: translate3d(0, 0, -46em);
+  transform: translate3d(0, 0, -46em) rotate3d(0, 0, 230deg);
+}
+.Stack > :nth-child(47) {
+  --z: -47em;
+  transform: translate3d(0, 0, -47em);
+  transform: translate3d(0, 0, -47em) rotate3d(0, 0, 235deg);
+}
+.Stack > :nth-child(48) {
+  --z: -48em;
+  transform: translate3d(0, 0, -48em);
+  transform: translate3d(0, 0, -48em) rotate3d(0, 0, 240deg);
+}
+.Stack > :nth-child(49) {
+  --z: -49em;
+  transform: translate3d(0, 0, -49em);
+  transform: translate3d(0, 0, -49em) rotate3d(0, 0, 245deg);
+}
+.Stack > :nth-child(50) {
+  --z: -50em;
+  transform: translate3d(0, 0, -50em);
+  transform: translate3d(0, 0, -50em) rotate3d(0, 0, 250deg);
+}
+.Stack > :nth-child(51) {
+  --z: -51em;
+  transform: translate3d(0, 0, -51em);
+  transform: translate3d(0, 0, -51em) rotate3d(0, 0, 255deg);
+}
+.Stack > :nth-child(52) {
+  --z: -52em;
+  transform: translate3d(0, 0, -52em);
+  transform: translate3d(0, 0, -52em) rotate3d(0, 0, 260deg);
+}
+.Stack > :nth-child(53) {
+  --z: -53em;
+  transform: translate3d(0, 0, -53em);
+  transform: translate3d(0, 0, -53em) rotate3d(0, 0, 265deg);
+}
+.Stack > :nth-child(54) {
+  --z: -54em;
+  transform: translate3d(0, 0, -54em);
+  transform: translate3d(0, 0, -54em) rotate3d(0, 0, 270deg);
+}
+.Stack > :nth-child(55) {
+  --z: -55em;
+  transform: translate3d(0, 0, -55em);
+  transform: translate3d(0, 0, -55em) rotate3d(0, 0, 275deg);
+}
+.Stack > :nth-child(56) {
+  --z: -56em;
+  transform: translate3d(0, 0, -56em);
+  transform: translate3d(0, 0, -56em) rotate3d(0, 0, 280deg);
+}
+.Stack > :nth-child(57) {
+  --z: -57em;
+  transform: translate3d(0, 0, -57em);
+  transform: translate3d(0, 0, -57em) rotate3d(0, 0, 285deg);
+}
+.Stack > :nth-child(58) {
+  --z: -58em;
+  transform: translate3d(0, 0, -58em);
+  transform: translate3d(0, 0, -58em) rotate3d(0, 0, 290deg);
+}
+.Stack > :nth-child(59) {
+  --z: -59em;
+  transform: translate3d(0, 0, -59em);
+  transform: translate3d(0, 0, -59em) rotate3d(0, 0, 295deg);
+}
+.Stack > :nth-child(60) {
+  --z: -60em;
+  transform: translate3d(0, 0, -60em);
+  transform: translate3d(0, 0, -60em) rotate3d(0, 0, 300deg);
+}
+.Stack > :nth-child(61) {
+  --z: -61em;
+  transform: translate3d(0, 0, -61em);
+  transform: translate3d(0, 0, -61em) rotate3d(0, 0, 305deg);
+}
+.Stack > :nth-child(62) {
+  --z: -62em;
+  transform: translate3d(0, 0, -62em);
+  transform: translate3d(0, 0, -62em) rotate3d(0, 0, 310deg);
+}
+.Stack > :nth-child(63) {
+  --z: -63em;
+  transform: translate3d(0, 0, -63em);
+  transform: translate3d(0, 0, -63em) rotate3d(0, 0, 315deg);
+}
+.Stack > :nth-child(64) {
+  --z: -64em;
+  transform: translate3d(0, 0, -64em);
+  transform: translate3d(0, 0, -64em) rotate3d(0, 0, 320deg);
+}
+.Stack > :nth-child(65) {
+  --z: -65em;
+  transform: translate3d(0, 0, -65em);
+  transform: translate3d(0, 0, -65em) rotate3d(0, 0, 325deg);
+}
+.Stack > :nth-child(66) {
+  --z: -66em;
+  transform: translate3d(0, 0, -66em);
+  transform: translate3d(0, 0, -66em) rotate3d(0, 0, 330deg);
+}
+.Stack > :nth-child(67) {
+  --z: -67em;
+  transform: translate3d(0, 0, -67em);
+  transform: translate3d(0, 0, -67em) rotate3d(0, 0, 335deg);
+}
+.Stack > :nth-child(68) {
+  --z: -68em;
+  transform: translate3d(0, 0, -68em);
+  transform: translate3d(0, 0, -68em) rotate3d(0, 0, 340deg);
+}
+.Stack > :nth-child(69) {
+  --z: -69em;
+  transform: translate3d(0, 0, -69em);
+  transform: translate3d(0, 0, -69em) rotate3d(0, 0, 345deg);
+}
+.Stack > :nth-child(70) {
+  --z: -70em;
+  transform: translate3d(0, 0, -70em);
+  transform: translate3d(0, 0, -70em) rotate3d(0, 0, 350deg);
+}
+.Stack > :nth-child(71) {
+  --z: -71em;
+  transform: translate3d(0, 0, -71em);
+  transform: translate3d(0, 0, -71em) rotate3d(0, 0, 355deg);
+}
+.Stack > :nth-child(72) {
+  --z: -72em;
+  transform: translate3d(0, 0, -72em);
+  transform: translate3d(0, 0, -72em) rotate3d(0, 0, 360deg);
+}
+.Stack > :nth-child(73) {
+  --z: -73em;
+  transform: translate3d(0, 0, -73em);
+  transform: translate3d(0, 0, -73em) rotate3d(0, 0, 365deg);
+}
+.Stack > :nth-child(74) {
+  --z: -74em;
+  transform: translate3d(0, 0, -74em);
+  transform: translate3d(0, 0, -74em) rotate3d(0, 0, 370deg);
+}
+.Stack > :nth-child(75) {
+  --z: -75em;
+  transform: translate3d(0, 0, -75em);
+  transform: translate3d(0, 0, -75em) rotate3d(0, 0, 375deg);
+}
+.Stack > :nth-child(76) {
+  --z: -76em;
+  transform: translate3d(0, 0, -76em);
+  transform: translate3d(0, 0, -76em) rotate3d(0, 0, 380deg);
+}
+.Stack > :nth-child(77) {
+  --z: -77em;
+  transform: translate3d(0, 0, -77em);
+  transform: translate3d(0, 0, -77em) rotate3d(0, 0, 385deg);
+}
+.Stack > :nth-child(78) {
+  --z: -78em;
+  transform: translate3d(0, 0, -78em);
+  transform: translate3d(0, 0, -78em) rotate3d(0, 0, 390deg);
+}
+.Stack > :nth-child(79) {
+  --z: -79em;
+  transform: translate3d(0, 0, -79em);
+  transform: translate3d(0, 0, -79em) rotate3d(0, 0, 395deg);
+}
+.Stack > :nth-child(80) {
+  --z: -80em;
+  transform: translate3d(0, 0, -80em);
+  transform: translate3d(0, 0, -80em) rotate3d(0, 0, 400deg);
+}
+.Stack > :nth-child(81) {
+  --z: -81em;
+  transform: translate3d(0, 0, -81em);
+  transform: translate3d(0, 0, -81em) rotate3d(0, 0, 405deg);
+}
+.Stack > :nth-child(82) {
+  --z: -82em;
+  transform: translate3d(0, 0, -82em);
+  transform: translate3d(0, 0, -82em) rotate3d(0, 0, 410deg);
+}
+.Stack > :nth-child(83) {
+  --z: -83em;
+  transform: translate3d(0, 0, -83em);
+  transform: translate3d(0, 0, -83em) rotate3d(0, 0, 415deg);
+}
+.Stack > :nth-child(84) {
+  --z: -84em;
+  transform: translate3d(0, 0, -84em);
+  transform: translate3d(0, 0, -84em) rotate3d(0, 0, 420deg);
+}
+.Stack > :nth-child(85) {
+  --z: -85em;
+  transform: translate3d(0, 0, -85em);
+  transform: translate3d(0, 0, -85em) rotate3d(0, 0, 425deg);
+}
+.Stack > :nth-child(86) {
+  --z: -86em;
+  transform: translate3d(0, 0, -86em);
+  transform: translate3d(0, 0, -86em) rotate3d(0, 0, 430deg);
+}
+.Stack > :nth-child(87) {
+  --z: -87em;
+  transform: translate3d(0, 0, -87em);
+  transform: translate3d(0, 0, -87em) rotate3d(0, 0, 435deg);
+}
+.Stack > :nth-child(88) {
+  --z: -88em;
+  transform: translate3d(0, 0, -88em);
+  transform: translate3d(0, 0, -88em) rotate3d(0, 0, 440deg);
+}
+.Stack > :nth-child(89) {
+  --z: -89em;
+  transform: translate3d(0, 0, -89em);
+  transform: translate3d(0, 0, -89em) rotate3d(0, 0, 445deg);
+}
+.Stack > :nth-child(90) {
+  --z: -90em;
+  transform: translate3d(0, 0, -90em);
+  transform: translate3d(0, 0, -90em) rotate3d(0, 0, 450deg);
+}
+.Stack > :nth-child(91) {
+  --z: -91em;
+  transform: translate3d(0, 0, -91em);
+  transform: translate3d(0, 0, -91em) rotate3d(0, 0, 455deg);
+}
+.Stack > :nth-child(92) {
+  --z: -92em;
+  transform: translate3d(0, 0, -92em);
+  transform: translate3d(0, 0, -92em) rotate3d(0, 0, 460deg);
+}
+.Stack > :nth-child(93) {
+  --z: -93em;
+  transform: translate3d(0, 0, -93em);
+  transform: translate3d(0, 0, -93em) rotate3d(0, 0, 465deg);
+}
+.Stack > :nth-child(94) {
+  --z: -94em;
+  transform: translate3d(0, 0, -94em);
+  transform: translate3d(0, 0, -94em) rotate3d(0, 0, 470deg);
+}
+.Stack > :nth-child(95) {
+  --z: -95em;
+  transform: translate3d(0, 0, -95em);
+  transform: translate3d(0, 0, -95em) rotate3d(0, 0, 475deg);
+}
+.Stack > :nth-child(96) {
+  --z: -96em;
+  transform: translate3d(0, 0, -96em);
+  transform: translate3d(0, 0, -96em) rotate3d(0, 0, 480deg);
+}
+.Stack > :nth-child(97) {
+  --z: -97em;
+  transform: translate3d(0, 0, -97em);
+  transform: translate3d(0, 0, -97em) rotate3d(0, 0, 485deg);
+}
+.Stack > :nth-child(98) {
+  --z: -98em;
+  transform: translate3d(0, 0, -98em);
+  transform: translate3d(0, 0, -98em) rotate3d(0, 0, 490deg);
+}
+.Stack > :nth-child(99) {
+  --z: -99em;
+  transform: translate3d(0, 0, -99em);
+  transform: translate3d(0, 0, -99em) rotate3d(0, 0, 495deg);
+}
+.Stack > :nth-child(100) {
+  --z: -100em;
+  transform: translate3d(0, 0, -100em);
+  transform: translate3d(0, 0, -100em) rotate3d(0, 0, 500deg);
+}
+.Stack > * {
+  position: absolute;
+}
