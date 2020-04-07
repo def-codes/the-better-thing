@@ -14,66 +14,81 @@
   </head>
   <body>
     <article>
-      <header>
-        square : f(x) = x<sup>2</sup>
-      </header>
+      <header>square : f(x) = x<sup>2</sup></header>
       <div>
-        <article><div>4</div><output>16</output></article>
-        <article><div>55</div><output>3025</output></article>
-        <article><div>234</div><output>54756</output></article>
+        <article>
+          <div>4</div>
+          <output>16</output>
+        </article>
+        <article>
+          <div>55</div>
+          <output>3025</output>
+        </article>
+        <article>
+          <div>234</div>
+          <output>54756</output>
+        </article>
       </div>
       <footer>
         input
       </footer>
     </article>
-    
+
     <article id="meld-preamble">
       <details>
         <summary>
           <h2>MELD preamble</h2>
         </summary>
-        
+
         <p>This is (a working draft of) the MELD preamble.</p>
-        
+
         <section id="meld-preamble-background">
           <details>
             <summary>
               <h3>Background</h3>
             </summary>
-            
-            <p>MELD is a project for creating a dynamic medium on top of HTML
-            documents.  A MELD document is anything you can think of: an
-            interactive presentation, a model of the Earth, a personal computing
-            environment.  MELD supports the arbitrary organization of “programs”
-            into documents and is itself is embodied in HTML fragments, meaning
-            that you could tuck it away in an appendix or scatter its parts as
-            you see fit.  However, because of the way that HTML works, some of
-            that foundation must physically (i.e. lexically) precede everything
-            else in order for the system to work.  That's what this preamble is
-            for: to provide a minimal basis for everything else.</p>
-            
-            <p>(This still does not precede the document <code>head</code>.
-            MELD systems avoid using the document head because it's
-            invisible.)</p>
 
+            <p>
+              MELD is a project for creating a dynamic medium on top of HTML
+              documents. A MELD document is anything you can think of: an
+              interactive presentation, a model of the Earth, a personal
+              computing environment. MELD supports the arbitrary organization of
+              “programs” into documents and is itself is embodied in HTML
+              fragments, meaning that you could tuck it away in an appendix or
+              scatter its parts as you see fit. However, because of the way that
+              HTML works, some of that foundation must physically (i.e.
+              lexically) precede everything else in order for the system to
+              work. That's what this preamble is for: to provide a minimal basis
+              for everything else.
+            </p>
+
+            <p>
+              (This still does not precede the document <code>head</code>. MELD
+              systems avoid using the document head because it's invisible.)
+            </p>
           </details>
         </section>
-        
+
         <section id="meld-preamble-amd-loader">
           <details>
             <summary>
               <h3>AMD loader</h3>
             </summary>
-            
-            <p>The first order of business is to define an asynchronous module
-            loader.  This allows later pieces to be defined and used in any order.
-            This module loader is mostly conformant to the <a
-            href="https://github.com/amdjs/amdjs-api/blob/master/AMD.md">Asynchronous
-            Module Definition (AMD) spec</a>, with the following exceptions:</p>
+
+            <p>
+              The first order of business is to define an asynchronous module
+              loader. This allows later pieces to be defined and used in any
+              order. This module loader is mostly conformant to the
+              <a href="https://github.com/amdjs/amdjs-api/blob/master/AMD.md"
+                >Asynchronous Module Definition (AMD) spec</a
+              >, with the following exceptions:
+            </p>
 
             <ul>
-              <li><code>define</code> is lazy: it doesn't execute the factory
-              function.  <code>require</code> is eager.</li>
+              <li>
+                <code>define</code> is lazy: it doesn't execute the factory
+                function. <code>require</code> is eager.
+              </li>
             </ul>
 
             <section>
@@ -81,34 +96,38 @@
                 <summary>
                   <h4>basic</h4>
                 </summary>
-                
-                <p>We start with a basic module loader.  Following is a (far
-                from final) implementation of a minimal subset of AMD.  It
-                handles asynchronous definitions, but has no notion of remote
-                scripts.</p>
-                
-                <p>One distinguishing feature of this implementation is that it
-                posts a global event whenever a module is defined.  This
-                information can be put to various uses by listeners, such as to
-                construct a dependency graph.</p>
-                
+
+                <p>
+                  We start with a basic module loader. Following is a (far from
+                  final) implementation of a minimal subset of AMD. It handles
+                  asynchronous definitions, but has no notion of remote scripts.
+                </p>
+
+                <p>
+                  One distinguishing feature of this implementation is that it
+                  posts a global event whenever a module is defined. This
+                  information can be put to various uses by listeners, such as
+                  to construct a dependency graph.
+                </p>
+
                 <script src="./packages/amd-loader/basic.js"></script>
               </details>
             </section>
-            
+
             <section>
               <details>
                 <summary>
                   <h4>extended</h4>
                 </summary>
 
-                <p>We now extend the basic AMD core defined above to include
-                support for name resolution and remote script retrieval.</p>
-                
+                <p>
+                  We now extend the basic AMD core defined above to include
+                  support for name resolution and remote script retrieval.
+                </p>
+
                 <script src="./packages/amd-loader/extended.js"></script>
               </details>
             </section>
-            
           </details>
         </section>
 
@@ -117,85 +136,61 @@
             <summary>
               <h3>initialize amd loader</h3>
             </summary>
-            
-            <p>The AMD loader provides functions that can be used to create the
-            globals, but it doesn't actually create them.  It should.  I think
-            the only reason I do it separately is that I don't currently have a
-            way to configure the loader (paths, etc) after the fact.</p>
-            
+
+            <p>
+              The AMD loader provides functions that can be used to create the
+              globals, but it doesn't actually create them. It should. I think
+              the only reason I do it separately is that I don't currently have
+              a way to configure the loader (paths, etc) after the fact.
+            </p>
+
             <script>
-              (function() {
-              const { make_full_amd, default_resolver } = window["@def.codes/amd-loader"];
-              const custom_resolver = (module_id, base) => {
-              const [, defcodes] = module_id.match('^@def.codes/(.*)$') || []
-              if (defcodes) return `./node_modules/@def.codes/${defcodes}.js`
-              const [, thing] = module_id.match('^@thi.ng/(.*)$') || []
-              if (thing) return `./node_modules/@thi.ng/${thing}/lib/index.umd.js`
-              return default_resolver(module_id, base)
-              }
-              const base = make_full_amd(window["@def.codes/amd-basic"], custom_resolver);
-              Object.assign(window, base);
+              (function () {
+                const { make_full_amd, default_resolver } = window[
+                  "@def.codes/amd-loader"
+                ];
+                const custom_resolver = (module_id, base) => {
+                  const [, defcodes] =
+                    module_id.match("^@def.codes/(.*)$") || [];
+                  if (defcodes)
+                    return `./node_modules/@def.codes/${defcodes}.js`;
+                  const [, thing] = module_id.match("^@thi.ng/(.*)$") || [];
+                  if (thing)
+                    return `./node_modules/@thi.ng/${thing}/lib/index.umd.js`;
+                  return default_resolver(module_id, base);
+                };
+                const base = make_full_amd(
+                  window["@def.codes/amd-basic"],
+                  custom_resolver
+                );
+                Object.assign(window, base);
               })();
             </script>
-            
           </details>
         </section>
-        
       </details>
     </article>
-    
+
     <article id="meld-system">
       <details>
         <summary>
           <h2>MELD system</h2>
         </summary>
 
-        <p>The MELD system is the bootstrapper that lets you work with
-        models.</p>
+        <p>
+          The MELD system is the bootstrapper that lets you work with models.
+        </p>
 
         <script src="./bootstrap-temp/meld.js"></script>
       </details>
     </article>
-    
-    <article id="global-namespace">
-      <details>
-        <summary>
-          <h2>The global namespace</h2>
-        </summary>
-        
-        <header>
-          <noscript>
-            <p>JavaScript is not available in this document.</p>
-          </noscript>
-          
-          <p>Every HTML document that supports JavaScript has its own runtime
-          context.  JavaScript runtimes have a <em>global namespace</em>.  Here is a
-          representation of the global namespace of the JavaScript runtime in this
-          document.</p>
-          
-          <p>We will use a protocol for determining how things are represented
-          in this namespace.</p>
-          
-          <script src="./bootstrap-temp/global-namespace-representation.js"></script>
-        </header>
 
-        <section id="global-namespace-representation"></section>
-        
-        <p>This will execute immediately and so has to follow the container
-        element being referenced.</p>
-          <script>
-require(["@def-codes/meld/global-namespace-representation"], functions => {
-  functions.represent_global_namespace_in("global-namespace-representation");
-})
-          </script>
-      </details>
-      
-    </article>
-    
     <main>
       <h1>dynamic html for the twenty-first century</h1>
-      <p>This document is about making plain HTML into a dynamic, literate
-      modeling platform.</p>
+      <p>
+        This document is about making plain HTML into a dynamic, literate
+        modeling platform.
+      </p>
 
       <p>
         <a download="literate.html" href="" data-intent="save-document">
@@ -203,574 +198,404 @@ require(["@def-codes/meld/global-namespace-representation"], functions => {
         </a>
         (<a href="#saving-ourselves">Learn about this feature.</a>)
       </p>
-      
+
       <section id="something-moving">
         <h2>Illustration that AMD module persistence works</h2>
-        
-        <p>One of the chief hurdles of persistence is capturing transitive
-        dependencies.  If we require an external module that in turn requires an
-        external module, we need to incorporate <em>both</em> into a standalone
-        document in order for it to work.</p>
-        
-        <p>The following <a href="#something-moving-fig">figure</a> shows an
-        animation that is the result of an AMD module which depends on another
-        AMD module.</p>
-        
+
+        <p>
+          One of the chief hurdles of persistence is capturing transitive
+          dependencies. If we require an external module that in turn requires
+          an external module, we need to incorporate <em>both</em> into a
+          standalone document in order for it to work.
+        </p>
+
+        <p>
+          The following <a href="#something-moving-fig">figure</a> shows an
+          animation that is the result of an AMD module which depends on another
+          AMD module.
+        </p>
+
         <figure id="something-moving-fig">
           <output id="something-moving-output"></output>
-          <figcaption>Here is a thing that shows a transitive dependency must
-          have loaded.</figcaption>
+          <figcaption>
+            Here is a thing that shows a transitive dependency must have loaded.
+          </figcaption>
         </figure>
-        
-        
+
         <p>The following script triggers the initialization</p>
-        
-        <script>require(['./bootstrap-temp/something-moving.js'], thing => {
-  thing.make_something_moving_in("something-moving-output");
-})</script>
+
+        <script>
+          require(["./bootstrap-temp/something-moving.js"], thing => {
+            thing.make_something_moving_in("something-moving-output");
+          });
+        </script>
       </section>
 
-      <p><b>Status:</b> you can use the above link to save the document with
-      dynamic changes to HTML (such as edits to the title), and the resulting
-      (standalone) document can also be saved in a way that persists such
-      changes!</p>
-      
-      <section>
-        <details>
-          <summary>
-            <h2>Goals</h2>
-          </summary>
-          <p>This project will create an HTML document that offers the following
-          capabilities:</p>
-          
-          <ul>
-            <li>the document does the expected thing for common actions</li>
-            <li>the foundation is sufficient to build more powerful tools</li>
-            <li>the mechanisms used support persistence and portability</li>
-            <li>support a modular form of composition using external
-            resources</li>
-            <li>support the breaking up of script execution units into physical
-            pieces</li>
-            <li>whatever code is needed to get this up and running can be
-            “tucked away” into a section (like an appendix) of this document
-            that is normally hidden.</li>
-          </ul>
-          
-          <p>Most of these features have some analog in literate programming
-          systems such as Emacs' <a href="https://orgmode.org/">Org
-          Mode</a>.</p>
-        </details>
-      </section>
-      
+      <p>
+        <b>Status:</b> you can use the above link to save the document with
+        dynamic changes to HTML (such as edits to the title), and the resulting
+        (standalone) document can also be saved in a way that persists such
+        changes!
+      </p>
+
       <section>
         <details>
           <summary>
             <h2>Built-in capabilities : what we get “for free”</h2>
           </summary>
-          
-          <p>In this section, we look at (yes, <em>look at</em>) the web
-          platform's <em>built-in</em> capabilities supporting dynamic
-          documents.  While they are not sufficient for all of our needs, we can
-          use these features with minimal effort and build on them.</p>
-          
-          <p>By “free” I mean “without script.”  If we have to implement it
-          ourselves, it's not free.</p>
-          
-          <section id="make-invisible-elements-visible">
-            <details>
-              <summary>
-                <h3>Free element visibility</h3>
-              </summary>
-              
-              <p>Things are not real until we can see them.  So the first order
-              of business is to <a href="#make-invisible-elements-visible">make
-              invisible elements visible</a>. (See also the appendix <a
-              href="#markup-versus-programming">“Markup languages <i>versus</i>
-              programming languages”</a>) </p>
 
-              <p>The two most powerful elements in HTML—<code>script</code> and
-              <code>style</code>—are both invisible by default.</p>
-              
-              <p>We start by using a style rule to make style rules visible:</p>
-              
-              <style contenteditable="true">style { display: initial }</style>
-              
-              <p>This rule is critical.  Without this rule (or some equivalent),
-              you'd be unable to see the rule itself, or any of the other
-              rules.</p>
-              
-              <p>A more practical version follows, which makes scripts visible
-              as well:</p>
-              
-              <style contenteditable="true">
-style,
-script
-{
-  display: block;  /* `initial` also works, but gives odd results */
-  white-space: pre; /* Preserve whitespace (it's collapsed in normal content) */
-}
-              </style>
-              
-              <p>This also goes for the document head and its contents.</p>
-              
-              <style contenteditable="true">
-head, link, title, meta
-{
-  display: block;
-  white-space: pre;
-  font-family: monospace;
-}
-              </style>
-              
-              <p>In practice, you won't see <code>link</code> or
-              <code>meta</code> elements because they have no content (only
-              attributes).</p>
-            </details>
-          </section>
+          <p>
+            In this section, we look at (yes, <em>look at</em>) the web
+            platform's <em>built-in</em> capabilities supporting dynamic
+            documents. While they are not sufficient for all of our needs, we
+            can use these features with minimal effort and build on them.
+          </p>
 
-          <section id="free-content-editability">
-            <details>
-              <summary>
-                <h3>Free content editability</h3>
-              </summary>
-              
-              <p>The web platform includes a built-in way to make elements
-              editable.  The global <a
-              href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/contenteditable"><code>contenteditable</code></a>
-              attribute (which controls the boolean <a
-              href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/contentEditable"><code>contentEditable</code></a>
-              interface property) indicates that “the user” (that's you) should
-              be able to type in the area.</p>
-              
-              <p>Making a <code>style</code> block <code>contenteditable</code>
-              will immediately reflect changes that you make.  (Tested in
-              Firefox, Chrome, and Edge.)</p>
-              
-              <p>Go ahead, try it.</p>
-              
-              <style contenteditable="true">
-body {
-  color: black; /* edit this to set the document's default text color */
-}
-              </style>
-              
-              <p>You can also make <code>script</code> tags editable.  However,
-              they are <em>not</em> re-evaluated when edited.</p>
-              
-              <script contenteditable="true">
-console.log("mind blown");
-              </script>
-
-              <p>Most elements, including <code>style</code>, will inherit the
-              <code>contentEditable</code> property, all the way up to the
-              <code>html</code> (document).  Some elements (to wit,
-              <code>title</code>) do not inherit this property, but are only
-              editable when they are explicitly marked as such.</p>
-
-              <section>
-                <details>
-                  <summary>
-                    <h4>Indicating when elements are editable</h4>
-                  </summary>
-                  
-                  <p>How can you tell when something is editable, other than
-                  trying it?</p>
-                  
-                  <p>If the browser lets you put your cursor into a regular text
-                  element (i.e. a place that is not a text input), then it's
-                  editable.</p>
-                  
-                  <p>It would be useful if we could provide additional visual
-                  cues that something can be edited.  Here is a rule that
-                  targets elements with the <code>contenteditable</code>
-                  property set.</p>
-                  
-                  <style contenteditable="true">
-[contenteditable=""],
-[contenteditable="true"]
-{
-  background-color: #FFC;
-}
-                  </style>
-
-                  <p>(Note that “enumerated” attributes are enabled when the
-                  value is <code>true</code> or the empty string.)</p>
-
-                  <p>Because <code>contenteditable</code> is inherited (in most
-                  cases), we cannot reliably indicate editability on individual
-                  elements using CSS.  CSS can only target <em>explicit
-                  attribute values</em>, not <em>effective property values</em>.
-                  However, we can use a CSS property that is itself inherited
-                  (such as <code>background-color</code>).</p>
-                  
-                  <p>Editability can also be turned <em>off</em>.  To prevent
-                  non-editable elements from inheriting the indicator, we can
-                  reset them to their initial value.</p>
-
-                  <style contenteditable="true">
-[contenteditable=""] [contenteditable="false"],
-[contenteditable="true"] [contenteditable="false"]
-{
-  background-color: white;
-}
-                  </style>
-                  
-                  <p>It's not sufficient to set the color to
-                  <code>initial</code>, as this is transparent and the parent's
-                  background color will still show through.</p>
-                  
-                  <figure>
-                    <p contenteditable="true">
-                      You can change me.  And you can change me.  <em
-                      contenteditable="false">But you cannot change me so
-                      easily.</em> For my part, I am also of the changeable
-                      type.  In fact, while you cannot make edits to that text
-                      <em>per se</em>, you can select across the editable
-                      regions and delete it.  I don't know whether this is
-                      intentional.
-                    </p>
-                    <figcaption>
-                      Example of a non-editable region within an editable one.
-                    </figcaption>
-                  </figure>
-                </details>
-
-              </section>
-            </details>
-
-          </section>
-          
+          <p>
+            By “free” I mean “without script.” If we have to implement it
+            ourselves, it's not free.
+          </p>
         </details>
       </section>
-      
+
       <section>
         <details>
           <summary>
             <h2>Extending the built-in capabilities</h2>
           </summary>
-          
+
           <section>
             <details>
               <summary>
                 <h3>defensiveness</h3>
               </summary>
-              
-              <p>The objective of portability is that (to the extent possible) a
-              document can travel from one environment to another and retain its
-              essential character (for lack of a better word).</p>
-              
-              <p>Some of that preservation relies on those capabilities that
-              will become unavailable in standalone mode.  Therefore, a portable
-              document must <em>pre-emptively</em> take the steps that will
-              allow it to survive in the wild.</p>
-              
-              <p>What this means in practice is that we need to inline scripts
-              (and other things that come from the host) as soon as the document
-              is loaded.</p>
 
-              <p>This script finds and inlines all of the remote scripts in the
-              document by fetching their content.  Since it fetches an arbitrary
-              resource from an arbitrary location, it will only work in hosted
-              mode.  (At least, I have not found a way to access the content of
-              a remote script that was fetched via a script <code>src</code>.)
+              <p>
+                The objective of portability is that (to the extent possible) a
+                document can travel from one environment to another and retain
+                its essential character (for lack of a better word).
               </p>
-              
+
+              <p>
+                Some of that preservation relies on those capabilities that will
+                become unavailable in standalone mode. Therefore, a portable
+                document must <em>pre-emptively</em> take the steps that will
+                allow it to survive in the wild.
+              </p>
+
+              <p>
+                What this means in practice is that we need to inline scripts
+                (and other things that come from the host) as soon as the
+                document is loaded.
+              </p>
+
+              <p>
+                This script finds and inlines all of the remote scripts in the
+                document by fetching their content. Since it fetches an
+                arbitrary resource from an arbitrary location, it will only work
+                in hosted mode. (At least, I have not found a way to access the
+                content of a remote script that was fetched via a script
+                <code>src</code>.)
+              </p>
+
               <script src="./bootstrap-temp/inline-scripts.js"></script>
-              
-              <p>That code replaces remote script references with inline
-              scripts.  It also annotates the inlined script with the source
-              URL, so that we know where it came from.  We make that annotation
-              visible with style rules:</p>
-              
+
+              <p>
+                That code replaces remote script references with inline scripts.
+                It also annotates the inlined script with the source URL, so
+                that we know where it came from. We make that annotation visible
+                with style rules:
+              </p>
+
               <style contenteditable="true">
-script[data-source]::after
-{
-  content: 'from ' attr(data-source);
-  display: block;
-  font-style: italic;
-}
+                script[data-source]::after {
+                  content: "from " attr(data-source);
+                  display: block;
+                  font-style: italic;
+                }
               </style>
             </details>
           </section>
-          
+
           <section id="saving-ourselves">
             <details>
               <summary>
                 <h3>saving ourselves</h3>
               </summary>
-              
-              <p>Portability depends on our having the ability to save the
-              document.</p>
-              
+
+              <p>
+                Portability depends on our having the ability to save the
+                document.
+              </p>
+
               <aside>Does this come before or after the AMD loader?</aside>
-              
-              <p>This module provides tools for persisting the state of the
-              document and making its content available for download using
-              ordinary links.</p>
-              
+
+              <p>
+                This module provides tools for persisting the state of the
+                document and making its content available for download using
+                ordinary links.
+              </p>
+
               <script src="./bootstrap-temp/document-persistence.js"></script>
-              
-              <p>That defines the mechanism for making a download link, but
-              doesn't actually apply it to the document.</p>
-              
+
+              <p>
+                That defines the mechanism for making a download link, but
+                doesn't actually apply it to the document.
+              </p>
+
               <script>
-require(["@def-codes/meld/document-persistence"], functions => {
-  functions.wire_save_links();
-})
+                require(["@def-codes/meld/document-persistence"], functions => {
+                  functions.wire_save_links();
+                });
               </script>
-              
+
               <p>A few notes:</p>
               <ul>
-                <li>This doesn't guarantee that the document has a download
-                link.  We could also create one if one is not found.  The only
-                question would be, where to put it?</li>
-                <li>Simply taking the document content as-is will not give the
-                desired or expected result for many particular cases (such as
-                preserving the content of textareas).  To support these cases,
-                we will need a way to register functions to perform synchronous
-                preprocessing of the document before document
-                serialization.</li>
+                <li>
+                  This doesn't guarantee that the document has a download link.
+                  We could also create one if one is not found. The only
+                  question would be, where to put it?
+                </li>
+                <li>
+                  Simply taking the document content as-is will not give the
+                  desired or expected result for many particular cases (such as
+                  preserving the content of textareas). To support these cases,
+                  we will need a way to register functions to perform
+                  synchronous preprocessing of the document before document
+                  serialization.
+                </li>
               </ul>
             </details>
           </section>
         </details>
       </section>
-      
+
       <footer>
         <h2>Appendices</h2>
-        
-        <p>Excise at will.</p>
 
+        <p>Excise at will.</p>
 
         <article id="house-rules">
           <details>
             <summary>
               <h3>House rules</h3>
             </summary>
-            
-            <p>The following style rules are included just to make the document
-            more readable.  They are not essential to the functionality being
-            discussed.  This does, however, illustrate a usage of dynamic
-            documents.</p>
-            
+
+            <p>
+              The following style rules are included just to make the document
+              more readable. They are not essential to the functionality being
+              discussed. This does, however, illustrate a usage of dynamic
+              documents.
+            </p>
+
             <style contenteditable="true">
               body {
-              font-family: sans-serif; /* Sans Serif fonts tend to be more screen friendly */
-              font-size: 16pt; /* I like big fonts and I cannot lie */
+                font-family: sans-serif; /* Sans Serif fonts tend to be more screen friendly */
+                font-size: 16pt; /* I like big fonts and I cannot lie */
               }
             </style>
-            
-            <p>Following are common rules to make narrative document content
-            more readable than browser defaults.</p>
-            
+
+            <p>
+              Following are common rules to make narrative document content more
+              readable than browser defaults.
+            </p>
+
             <style contenteditable="true">
               main {
-              width: 50rem;  /* A comfortable reading width */
-              max-width: 100%; /* Don't overflow if the viewport is less than width */
-              margin-left: auto;  /* This and the following rule center the block horizontally. */
-              margin-right: auto;
+                width: 50rem; /* A comfortable reading width */
+                max-width: 100%; /* Don't overflow if the viewport is less than width */
+                margin-left: auto; /* This and the following rule center the block horizontally. */
+                margin-right: auto;
               }
             </style>
-            
-            <p>The <code>aside</code> element, although it has to be placed at
-            some definite point in the document, is not part of the document
-            “flow.”</p>
-            
+
+            <p>
+              The <code>aside</code> element, although it has to be placed at
+              some definite point in the document, is not part of the document
+              “flow.”
+            </p>
+
             <style contenteditable="true">
               aside {
-              float: right;
-              clear: both;
-              width: 50%;
-              margin-left: 2rem;
-              margin-bottom: 2rem;
+                float: right;
+                clear: both;
+                width: 50%;
+                margin-left: 2rem;
+                margin-bottom: 2rem;
               }
             </style>
-            
-            <p>Blockquotes traditionally have certain formatting.  Some of that,
-            such as the left margin, is a default style in most browsers.</p>
-            
+
+            <p>
+              Blockquotes traditionally have certain formatting. Some of that,
+              such as the left margin, is a default style in most browsers.
+            </p>
+
             <style contenteditable="true">
               blockquote {
-              font-size: smaller; /* block quotes conventionally use smaller font */
+                font-size: smaller; /* block quotes conventionally use smaller font */
               }
             </style>
 
-            <p>I'm a fan of the <a
-            href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details">“disclosure”</a>
-            elements.  They provide a free way to hide and show things.</p>
-            
-            <p>The <code>summary</code> element is affordable (you can act on
-            it), but the default styles do not indicate this.</p>
-            
+            <p>
+              I'm a fan of the
+              <a
+                href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details"
+                >“disclosure”</a
+              >
+              elements. They provide a free way to hide and show things.
+            </p>
+
+            <p>
+              The <code>summary</code> element is affordable (you can act on
+              it), but the default styles do not indicate this.
+            </p>
+
             <style contenteditable="true">
-              summary:hover
-              {
-              cursor: pointer;
-              background-color: rgba(0, 0, 0, 0.3);
+              summary:hover {
+                cursor: pointer;
+                background-color: rgba(0, 0, 0, 0.3);
               }
             </style>
-            
-            <p>I'm using disclosure elements to make sections collapsible.  For
-            some reason (I guess related to built-in rules), block-level
-            elements do not appear when used inside of a <code>summary</code>.
-            This fixes that.</p>
-            
-            <style contenteditable="true">
-summary > h2,
-summary > h3,
-summary > h4
-{
-  display: inline;
-}
-            </style>
-            
-            <p>By default, text inputs are far too small.  If I wanted something
-            that small, I'd use an <code>input</code>.  A textarea should be
-            like a block-level element, which automatically uses the available
-            horizontal space.</p>
+
+            <p>
+              I'm using disclosure elements to make sections collapsible. For
+              some reason (I guess related to built-in rules), block-level
+              elements do not appear when used inside of a <code>summary</code>.
+              This fixes that.
+            </p>
 
             <style contenteditable="true">
-textarea { width: 100%; }
+              summary > h2,
+              summary > h3,
+              summary > h4 {
+                display: inline;
+              }
             </style>
-            
-            <p>In general, we would prefer that scripts be editable, in which
-            case they would use a <code>textarea</code>.  However, we do still
-            see some <code>script</code> elements, which are read-only.  Scripts
-            need to be <em>interpreted</em> differently than their surrounding
-            content, and thus should be demarked in some way, to cue the change
-            in context.</p>
-            <p>But <em>how</em> should scripts be demarked?  Many factors bear
-            on this.  I will not go into all of them now, but in general, I
-            believe that physical demarcations should be reserved to indicate
-            physical distinctions.  While I personally prefer proportional fonts
-            for code, I would note that the <em>JavaScript</em> code in question
-            here is not what we ultimately want to be reading anyway.  A
-            typewriter font suggests a suitably archaic computing idiom.</p>
+
+            <p>
+              By default, text inputs are far too small. If I wanted something
+              that small, I'd use an <code>input</code>. A textarea should be
+              like a block-level element, which automatically uses the available
+              horizontal space.
+            </p>
 
             <style contenteditable="true">
-script {
-  font-family: Consolas, monospace;
-}
+              textarea {
+                width: 100%;
+              }
             </style>
-            
-            <p>“Consolas” is a monospace font that is available on many Windows
-            systems and is better than the default of “Courier New.”</p>
 
+            <p>
+              In general, we would prefer that scripts be editable, in which
+              case they would use a <code>textarea</code>. However, we do still
+              see some <code>script</code> elements, which are read-only.
+              Scripts need to be <em>interpreted</em> differently than their
+              surrounding content, and thus should be demarked in some way, to
+              cue the change in context.
+            </p>
+            <p>
+              But <em>how</em> should scripts be demarked? Many factors bear on
+              this. I will not go into all of them now, but in general, I
+              believe that physical demarcations should be reserved to indicate
+              physical distinctions. While I personally prefer proportional
+              fonts for code, I would note that the <em>JavaScript</em> code in
+              question here is not what we ultimately want to be reading anyway.
+              A typewriter font suggests a suitably archaic computing idiom.
+            </p>
+
+            <style contenteditable="true">
+              script {
+                font-family: Consolas, monospace;
+              }
+            </style>
+
+            <p>
+              “Consolas” is a monospace font that is available on many Windows
+              systems and is better than the default of “Courier New.”
+            </p>
           </details>
-
         </article>
-        
       </footer>
     </main>
-      		
-		<article id="dragging">
-			<header>
-				<h1>dragging</h1>
-				<h2>what happens when you drag?</h2>
-			</header>
-      
+
+    <article id="dragging">
+      <header>
+        <h1>dragging</h1>
+        <h2>what happens when you drag?</h2>
+      </header>
+
       <script>
         require(["./bootstrap-temp/draggable.js"]);
       </script>
 
-			<p>The HTML Drag & Drop API defines three userland “effects”:</p>
-			<ul>
-				<li>move</li>
-				<li>copy</li>
-				<li>link</li>
-			</ul>
-			
-			<article>
-				<h1>copying (drag operation) </h1>
-				<p>Copying is less destructive (more monotonic) than moving.</p>
-				<ul>
-					<li id="place-1"><span>item 1</span></li>
-					<li id="place-2"></li>
-				</ul>
-			</article>
-			
-			<article>
-				<h1>linking (drag operation) </h1>
-				
-				<article>
-					<h1>linking two things</h1>
-					<h2>writing triples by drag and drop</h2>
-					
-					<p>Create a labeled, directed graph edge by hand.</p>
-					<p>Drag and drop is naturally directional.</p>
-					<p>But it is not naturally labeled.</p>
-					<p>To make an RDF assertion from a drag-drop operation, you would need
-					to pick up (or otherwise reference) a third element.</p>
-					<p>or use modal predicate.</p>
-					<ul>
-						<li id="thing-1"></li>
-						<li id="thing-2"></li>
-					</ul>
-				</article>
-				
-				<article>
-					<h1>linking more than two things</h1>
-					<p>To link more than two things, you must describe a subgraph.</p>
-					
-					<ul>
-						<li id="thing-1"></li>
-						<li id="thing-2"></li>
-					</ul>
-				</article>
+      <p>The HTML Drag & Drop API defines three userland “effects”:</p>
+      <ul>
+        <li>move</li>
+        <li>copy</li>
+        <li>link</li>
+      </ul>
 
-			</article>
-			
-			<article>
-				<h1>moving</h1>
+      <article>
+        <h1>copying (drag operation)</h1>
+        <p>Copying is less destructive (more monotonic) than moving.</p>
+        <ul>
+          <li id="place-1"><span>item 1</span></li>
+          <li id="place-2"></li>
+        </ul>
+      </article>
 
-				<article>
-					<h1>moving a thing from one container to another</h1>
-					<p>Drag <code>item 1</code> from <code>place 1</code> to <code>place
-					2</code></p>
-					<ul>
-						<li id="place-1"><span>item 1</span></li>
-						<li id="place-2"></li>
-					</ul>
-				</article>
-				
-			</article>
-		</article>
-    
+      <article>
+        <h1>linking (drag operation)</h1>
+
+        <article>
+          <h1>linking two things</h1>
+          <h2>writing triples by drag and drop</h2>
+
+          <p>Create a labeled, directed graph edge by hand.</p>
+          <p>Drag and drop is naturally directional.</p>
+          <p>But it is not naturally labeled.</p>
+          <p>
+            To make an RDF assertion from a drag-drop operation, you would need
+            to pick up (or otherwise reference) a third element.
+          </p>
+          <p>or use modal predicate.</p>
+          <ul>
+            <li id="thing-1"></li>
+            <li id="thing-2"></li>
+          </ul>
+        </article>
+
+        <article>
+          <h1>linking more than two things</h1>
+          <p>To link more than two things, you must describe a subgraph.</p>
+
+          <ul>
+            <li id="thing-1"></li>
+            <li id="thing-2"></li>
+          </ul>
+        </article>
+      </article>
+
+      <article>
+        <h1>moving</h1>
+
+        <article>
+          <h1>moving a thing from one container to another</h1>
+          <p>
+            Drag <code>item 1</code> from <code>place 1</code> to
+            <code>place 2</code>
+          </p>
+          <ul>
+            <li id="place-1"><span>item 1</span></li>
+            <li id="place-2"></li>
+          </ul>
+        </article>
+      </article>
+    </article>
+
     <footer>
       <section>
         <h2>modules</h2>
-        
-        <section>
-          <p>We need a place to put modules.  When something is imported
-          transitively, it needs to be captured and put there.</p>
-          
-          <script src="./bootstrap-temp/amd-module-persistence.js"></script>
-          
-          <p>There's a problem with this.  It doesn't work for scripts that are
-          loaded by path.  That is, once you leave the hosting context, you can
-          no longer access things at relative paths.  Examples.</p>
-          
-          <p>Let's say that I load a script at <code>/hijack-console.js</code>.
-          The inlining routing will inline it with an annotation that it came
-          from that path.</p>
-          
-          <p>Because the script is embedded in the saved document, it doesn't
-          matter where it originally came from, right?</p>
-          
-          <p>Right.  This would only matter if something else were trying to
-          reference it.  For “standalone” scripts, this is not a problem because
-          the only reference has been substituted with the inlined version.</p>
-          
-          <p>However, it <em>is</em> a problem for modules that are loaded as
-          AMD dependencies.  Why?</p>
-          
-          <p>When something requires <code>/hijack-console.js</code> by naming
-          it explicitly as a dependency, the loader will treat it as a
-          “top-level” id.</p>
-          
-          <section id="amd-modules"></section>
-        </section>
-
       </section>
     </footer>
   </body>

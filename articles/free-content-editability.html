@@ -1,0 +1,130 @@
+<article id="free-content-editability">
+  <details>
+    <summary>
+      <h3>Free content editability</h3>
+    </summary>
+
+    <p>
+      The web platform includes a built-in way to make elements editable. The
+      global
+      <a
+        href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/contenteditable"
+        ><code>contenteditable</code></a
+      >
+      attribute (which controls the boolean
+      <a
+        href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/contentEditable"
+        ><code>contentEditable</code></a
+      >
+      interface property) indicates that “the user” (that's you) should be able
+      to type in the area.
+    </p>
+
+    <p>
+      Making a <code>style</code> block <code>contenteditable</code> will
+      immediately reflect changes that you make. (Tested in Firefox, Chrome, and
+      Edge.)
+    </p>
+
+    <p>Go ahead, try it.</p>
+
+    <style contenteditable="true">
+      body {
+        color: black; /* edit this to set the document's default text color */
+      }
+    </style>
+
+    <p>
+      You can also make <code>script</code> tags editable. However, they are
+      <em>not</em> re-evaluated when edited.
+    </p>
+
+    <script contenteditable="true">
+      console.log("mind blown");
+    </script>
+
+    <p>
+      Most elements, including <code>style</code>, will inherit the
+      <code>contentEditable</code> property, all the way up to the
+      <code>html</code> (document). Some elements (to wit, <code>title</code>)
+      do not inherit this property, but are only editable when they are
+      explicitly marked as such.
+    </p>
+
+    <section>
+      <details>
+        <summary>
+          <h4>Indicating when elements are editable</h4>
+        </summary>
+
+        <p>
+          How can you tell when something is editable, other than trying it?
+        </p>
+
+        <p>
+          If the browser lets you put your cursor into a regular text element
+          (i.e. a place that is not a text input), then it's editable.
+        </p>
+
+        <p>
+          It would be useful if we could provide additional visual cues that
+          something can be edited. Here is a rule that targets elements with the
+          <code>contenteditable</code> property set.
+        </p>
+
+        <style contenteditable="true">
+          [contenteditable=""],
+          [contenteditable="true"] {
+            background-color: #ffc;
+          }
+        </style>
+
+        <p>
+          (Note that “enumerated” attributes are enabled when the value is
+          <code>true</code> or the empty string.)
+        </p>
+
+        <p>
+          Because <code>contenteditable</code> is inherited (in most cases), we
+          cannot reliably indicate editability on individual elements using CSS.
+          CSS can only target <em>explicit attribute values</em>, not
+          <em>effective property values</em>. However, we can use a CSS property
+          that is itself inherited (such as <code>background-color</code>).
+        </p>
+
+        <p>
+          Editability can also be turned <em>off</em>. To prevent non-editable
+          elements from inheriting the indicator, we can reset them to their
+          initial value.
+        </p>
+
+        <style contenteditable="true">
+          [contenteditable=""] [contenteditable="false"],
+          [contenteditable="true"] [contenteditable="false"] {
+            background-color: white;
+          }
+        </style>
+
+        <p>
+          It's not sufficient to set the color to
+          <code>initial</code>, as this is transparent and the parent's
+          background color will still show through.
+        </p>
+
+        <figure>
+          <p contenteditable="true">
+            You can change me. And you can change me.
+            <em contenteditable="false">But you cannot change me so easily.</em>
+            For my part, I am also of the changeable type. In fact, while you
+            cannot make edits to that text <em>per se</em>, you can select
+            across the editable regions and delete it. I don't know whether this
+            is intentional.
+          </p>
+          <figcaption>
+            Example of a non-editable region within an editable one.
+          </figcaption>
+        </figure>
+      </details>
+    </section>
+  </details>
+</article>

@@ -1,0 +1,66 @@
+<article id="make-invisible-elements-visible">
+  <details>
+    <summary>
+      <h3>Free element visibility</h3>
+    </summary>
+
+    <p>
+      Things are not real until we can see them. So the first order of business
+      is to
+      <a href="#make-invisible-elements-visible"
+        >make invisible elements visible</a
+      >. (See also the appendix
+      <a href="#markup-versus-programming"
+        >“Markup languages <i>versus</i> programming languages”</a
+      >)
+    </p>
+
+    <p>
+      The two most powerful elements in HTML—<code>script</code> and
+      <code>style</code>—are both invisible by default.
+    </p>
+
+    <p>We start by using a style rule to make style rules visible:</p>
+
+    <style contenteditable="true">
+      style {
+        display: initial;
+      }
+    </style>
+
+    <p>
+      This rule is critical. Without this rule (or some equivalent), you'd be
+      unable to see the rule itself, or any of the other rules.
+    </p>
+
+    <p>
+      A more practical version follows, which makes scripts visible as well:
+    </p>
+
+    <style contenteditable="true">
+      style,
+      script {
+        display: block; /* `initial` also works, but gives odd results */
+        white-space: pre; /* Preserve whitespace (it's collapsed in normal content) */
+      }
+    </style>
+
+    <p>This also goes for the document head and its contents.</p>
+
+    <style contenteditable="true">
+      head,
+      link,
+      title,
+      meta {
+        display: block;
+        white-space: pre;
+        font-family: monospace;
+      }
+    </style>
+
+    <p>
+      In practice, you won't see <code>link</code> or <code>meta</code> elements
+      because they have no content (only attributes).
+    </p>
+  </details>
+</article>

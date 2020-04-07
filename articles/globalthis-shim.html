@@ -4,46 +4,69 @@
       <h3>ensure <code>globalThis</code> is defined</h3>
     </summary>
 
-    <p>MELD embraces the use of the <a href="#global-namespace"> <em>global
-    namespace</em></a> as a shared place for use by many parties.  Strange as it
-    may sound, JavaScript does not define a universal name for this topmost
-    singleton.  A global property called <a
-    href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis"><code>globalThis</code></a>
-    has been proposed by ECMAScript as a uniform way of referencing the global
-    namespace across various JavaScript runtime contexts.</p>
-    
-    <p>As of this writing, <code>globalThis</code> is a <a
-    href="https://tc39.es/proposal-global/#sec-other-properties-of-the-global-object-global">stage
-    3 proposal</a> and is available in all remotely tolerable environments.
-    MELD assumes the existence of <code>globalThis</code>.  Here we ensure that
-    it is defined in all environments.</p>
-    
+    <p>
+      MELD embraces the use of the
+      <a href="#global-namespace"> <em>global namespace</em></a> as a shared
+      place for use by many parties. Strange as it may sound, JavaScript does
+      not define a universal name for this topmost singleton. A global property
+      called
+      <a
+        href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis"
+        ><code>globalThis</code></a
+      >
+      has been proposed by ECMAScript as a uniform way of referencing the global
+      namespace across various JavaScript runtime contexts.
+    </p>
+
+    <p>
+      As of this writing, <code>globalThis</code> is a
+      <a
+        href="https://tc39.es/proposal-global/#sec-other-properties-of-the-global-object-global"
+        >stage 3 proposal</a
+      >
+      and is available in all remotely tolerable environments. MELD assumes the
+      existence of <code>globalThis</code>. Here we ensure that it is defined in
+      all environments.
+    </p>
+
     <script src="./bootstrap-temp/polyfill-globalthis.js"></script>
 
-    <p>This is a “naive” polyfill which depends on the fact that it's not run in
-    strict mode.  At present, I don't actually need this and have included this
-    entire section only as a nod to the notion that I might one day care about
-    Edge.</p>
-    
-    <p>More robust shims are available.  Mathias Bynens (of Google's V8 team)
-    gives a thorough discussion of the userland issues surrounding this problem
-    in his article <a href="https://mathiasbynens.be/notes/globalthis">“A
-    horrifying <code>globalThis</code> polyfill in universal JavaScript,”</a>
-    dissecting an apparently bulletproof technique that he credits to one Toon
-    Verwaest.  As usual, Dr. Axel Rauschmayer offers <a
-    href="https://2ality.com/2019/08/global-this.html">a complete description of
-    the proposal</a>.</p>
+    <p>
+      This is a “naive” polyfill which depends on the fact that it's not run in
+      strict mode. At present, I don't actually need this and have included this
+      entire section only as a nod to the notion that I might one day care about
+      Edge.
+    </p>
 
-    <p>Note that the proposal explicitly states that <code>globalThis</code> is
-    a configurable and writable property.  As much as I advocate for more
-    dynamic computing environments, I find this surprising, since the entire
-    value proposition of the feature is that it always be present and mean the
-    same thing.  A JavaScript engine implementing <code>globalthis</code> avails
-    nothing if someone can come along and say <code>globalThis =
-    "potato"</code>, which this spec allows.</p>
-    
-    <p><b>Update April 2020</b>: The latest version of Edge supports
-    <code>globalThis</code>, though according to current stats it has not rolled
-    out to most Edge users.</p>
+    <p>
+      More robust shims are available. Mathias Bynens (of Google's V8 team)
+      gives a thorough discussion of the userland issues surrounding this
+      problem in his article
+      <a href="https://mathiasbynens.be/notes/globalthis"
+        >“A horrifying <code>globalThis</code> polyfill in universal
+        JavaScript,”</a
+      >
+      dissecting an apparently bulletproof technique that he credits to one Toon
+      Verwaest. As usual, Dr. Axel Rauschmayer offers
+      <a href="https://2ality.com/2019/08/global-this.html"
+        >a complete description of the proposal</a
+      >.
+    </p>
+
+    <p>
+      Note that the proposal explicitly states that <code>globalThis</code> is a
+      configurable and writable property. As much as I advocate for more dynamic
+      computing environments, I find this surprising, since the entire value
+      proposition of the feature is that it always be present and mean the same
+      thing. A JavaScript engine implementing <code>globalthis</code> avails
+      nothing if someone can come along and say
+      <code>globalThis = "potato"</code>, which this spec allows.
+    </p>
+
+    <p>
+      <b>Update April 2020</b>: The latest version of Edge supports
+      <code>globalThis</code>, though according to current stats it has not
+      rolled out to most Edge users.
+    </p>
   </details>
 </article>

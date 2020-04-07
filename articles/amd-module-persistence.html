@@ -1,0 +1,46 @@
+<article id="amd-module-persistence">
+  <h2>AMD module persistence</h2>
+
+  <p>
+    We need a place to put modules. When something is imported transitively, it
+    needs to be captured and put there.
+  </p>
+
+  <!-- MIGRATED to main bootstrapper -->
+  <script src="./bootstrap-temp/amd-module-persistence.js"></script>
+
+  <p>
+    There's a problem with this. It doesn't work for scripts that are loaded by
+    path. That is, once you leave the hosting context, you can no longer access
+    things at relative paths. Examples.
+  </p>
+
+  <p>
+    Let's say that I load a script at <code>/hijack-console.js</code>. The
+    inlining routing will inline it with an annotation that it came from that
+    path.
+  </p>
+
+  <p>
+    Because the script is embedded in the saved document, it doesn't matter
+    where it originally came from, right?
+  </p>
+
+  <p>
+    Right. This would only matter if something else were trying to reference it.
+    For “standalone” scripts, this is not a problem because the only reference
+    has been substituted with the inlined version.
+  </p>
+
+  <p>
+    However, it <em>is</em> a problem for modules that are loaded as AMD
+    dependencies. Why?
+  </p>
+
+  <p>
+    When something requires <code>/hijack-console.js</code> by naming it
+    explicitly as a dependency, the loader will treat it as a “top-level” id.
+  </p>
+
+  <section id="amd-modules"></section>
+</article>

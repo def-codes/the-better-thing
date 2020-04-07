@@ -3,34 +3,47 @@
     <summary>
       <h3>Free persistence</h3>
     </summary>
-    
-    <p>By “persistence,” I mean “portability”: the ability to preserve the
-    document in whatever state it's in, pick it up, take it somewhere else, and
-    pick up where you left off.  For that, we get nothing at all for free from
-    the browser.  Even worse: we get a problem.</p>
-    
+
+    <p>
+      By “persistence,” I mean “portability”: the ability to preserve the
+      document in whatever state it's in, pick it up, take it somewhere else,
+      and pick up where you left off. For that, we get nothing at all for free
+      from the browser. Even worse: we get a problem.
+    </p>
+
     <section>
       <h4>The “Save” problem</h4>
-      
-      <p>Once upon a time, browsers had a built-in “Save” feature, and that
-      “Save” feature would include changes that the user had made to <a
-      href="#free-content-editability">content-editable elements</a>.</p>
 
-      <p>That is no longer the case.  As of 2019, <a
-      href="#edge-no-save">Microsoft Edge does not have a “Save” feature at
-      all</a>, and browsers that do <a href="#lost-free-persistence">do not
-      preserve your edits</a>.</p>
+      <p>
+        Once upon a time, browsers had a built-in “Save” feature, and that
+        “Save” feature would include changes that the user had made to
+        <a href="#free-content-editability">content-editable elements</a>.
+      </p>
 
-      <aside>I have not checked for a “Save” feature in Safari, or on any mobile
-      browsers.</aside>
+      <p>
+        That is no longer the case. As of 2019,
+        <a href="#edge-no-save"
+          >Microsoft Edge does not have a “Save” feature at all</a
+        >, and browsers that do
+        <a href="#lost-free-persistence">do not preserve your edits</a>.
+      </p>
 
-      <p>In a way, it would be better if browsers <em>didn't</em> have a
-      built-in save.  It creates certain expectations, yet it's not a standard
-      and we (authors) can't control what it does.  In that sense, Edge is the
-      first browser to get this right.</p>
-      
-      <p>As such, the problem becomes, how do we deal with the expectations
-      created by a built-in “Save” feature when it does exist?</p>
+      <aside>
+        I have not checked for a “Save” feature in Safari, or on any mobile
+        browsers.
+      </aside>
+
+      <p>
+        In a way, it would be better if browsers <em>didn't</em> have a built-in
+        save. It creates certain expectations, yet it's not a standard and we
+        (authors) can't control what it does. In that sense, Edge is the first
+        browser to get this right.
+      </p>
+
+      <p>
+        As such, the problem becomes, how do we deal with the expectations
+        created by a built-in “Save” feature when it does exist?
+      </p>
     </section>
   </details>
 </article>

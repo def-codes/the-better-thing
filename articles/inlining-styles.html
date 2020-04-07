@@ -3,40 +3,52 @@
     <summary>
       <h3>making stylesheets persist with document</h3>
     </summary>
-    
-    <p>We can inline stylesheets that are loaded from external sources—as long
-    as we're in an environment with sufficient permissions.</p>
-    
-    <p>Note that relative URL's can be used from stylesheets, and they are
-    interpreted as relative to the stylesheet (not the document that loaded it).
-    This technique doesn't deal with such URL's, which are liable to be
-    incorrect after inlining.</p>
+
+    <p>
+      We can inline stylesheets that are loaded from external sources—as long as
+      we're in an environment with sufficient permissions.
+    </p>
+
+    <p>
+      Note that relative URL's can be used from stylesheets, and they are
+      interpreted as relative to the stylesheet (not the document that loaded
+      it). This technique doesn't deal with such URL's, which are liable to be
+      incorrect after inlining.
+    </p>
 
     <section>
       <h4>Restrictions when using local file protocol</h4>
 
-      <p>When attempting to read the content of externally-loaded
-      stylesheets—including those with a <code>file:</code> origin on the same
-      local machine—you get a message like</p>
-      
+      <p>
+        When attempting to read the content of externally-loaded
+        stylesheets—including those with a <code>file:</code> origin on the same
+        local machine—you get a message like
+      </p>
+
       <output>
         <pre>
           Not allowed to access cross-origin stylesheet
         </pre>
       </output>
 
-      <p><a
-      href="https://bugs.chromium.org/p/chromium/issues/detail?id=45786">Issue
-      45786: Can't read .cssRules (under file: or http: protocol)</a>
+      <p>
+        <a href="https://bugs.chromium.org/p/chromium/issues/detail?id=45786"
+          >Issue 45786: Can't read .cssRules (under file: or http: protocol)</a
+        >
       </p>
-      
-      <p>"Starting Chrome with --allow-file-access-from-files option has no
-      effect."  (which see)</p>
 
-      <p><a
-             href="https://bugs.chromium.org/p/chromium/issues/detail?id=143626#c11">Issue
-      143626: document.styleSheets[n].cssRules null when page accessed
-      locally</a> was resolved as “WONTFIX” with the comment:
+      <p>
+        "Starting Chrome with --allow-file-access-from-files option has no
+        effect." (which see)
+      </p>
+
+      <p>
+        <a
+          href="https://bugs.chromium.org/p/chromium/issues/detail?id=143626#c11"
+          >Issue 143626: document.styleSheets[n].cssRules null when page
+          accessed locally</a
+        >
+        was resolved as “WONTFIX” with the comment:
       </p>
 
       <blockquote>
@@ -48,8 +60,12 @@
         that I'd prefer to avoid.
       </blockquote>
 
-      <p>Regarding <a href="https://stackoverflow.com/a/49160760">Cannot access
-      cssRules from local css file in Chrome 64</a></p>
+      <p>
+        Regarding
+        <a href="https://stackoverflow.com/a/49160760"
+          >Cannot access cssRules from local css file in Chrome 64</a
+        >
+      </p>
 
       <blockquote>
         As of Chrome 64 you'll need to use a local development server to test
@@ -57,8 +73,6 @@
       </blockquote>
 
       <p>This is also the case in Firefox now.</p>
-
     </section>
-
-  </details>          
+  </details>
 </article>

@@ -3,57 +3,68 @@
     <summary>
       <h3>On order mattering in HTML</h3>
     </summary>
-    
-    <p>Documents have always been a powerful medium.  But it was inevitable that
-    we would strain against their linearity.  In the dynamic medium, we want to
-    keep what is powerful about documents while freeing them from their
-    dimensional constraints.</p>
-    
+
+    <p>
+      Documents have always been a powerful medium. But it was inevitable that
+      we would strain against their linearity. In the dynamic medium, we want to
+      keep what is powerful about documents while freeing them from their
+      dimensional constraints.
+    </p>
+
     <section id="on-order-mattering-in-composition">
       <h4>On order mattering in composition</h4>
-      
-      <p>A document is a <em>composition</em>, that is, a “putting together” of
-      parts.  Composition is powerful.  An effective composition is said to be
-      “greater than the sum of its parts.”  This suggests that there is
-      something in way the parts are composed that itself contributes to the
-      effect.  In some cases that “extra” thing is the order in which they
-      occur.  Think of the AABA form commonly used in music and rhetoric.</p>
-    </section>
-    
-    <section>
-      <h4>When does order matter in HTML?</h4>
-      
-      <p><em>Coordinated</em> composition is impossible in an environment like
-      the web.  HTML documents are and will continue to be the locus of
-      components from multiple parties.  These parties have no say in the order
-      in which their artifacts will appear in the document.</p>
-      
-      <section>
-        <h5>How order matters in scripts</h5>
-        
-        <p>Order matters in scripts because of the <em>execution model</em> of
-        scripts in HTML documents.  In particular, scripts are executed in the
-        order in which they are encountered.  Because scripts may have side
-        effects, the order in which they are evaluated can matter <em>at that
-        time</em>.</p>
-        
-        <p>This creates a difficulty for composition, particularly the kind of
-        composition that occurs in an open environment such as the web.</p>
-        
-        <p>Formal module definitions are a way to mitigate this.</p>
-      </section>
-      
-      <section>
-        <h5>How order matters in style rules</h5>
-        
-        <p>Like most rule-based languages, CSS is <em>declarative</em>, meaning
-        that it is based on statements rather than instructions.  As in other
-        rule languages, rules in CSS are mostly independent of order.  Yet (as
-        is also the case in some other rule languages), there <em>is</em> a
-        lexical order defined, and it is used as an arbiter between rules when
-        other factors cannot choose from among multiple matches.</p>
-      </section>
+
+      <p>
+        A document is a <em>composition</em>, that is, a “putting together” of
+        parts. Composition is powerful. An effective composition is said to be
+        “greater than the sum of its parts.” This suggests that there is
+        something in way the parts are composed that itself contributes to the
+        effect. In some cases that “extra” thing is the order in which they
+        occur. Think of the AABA form commonly used in music and rhetoric.
+      </p>
     </section>
 
+    <section>
+      <h4>When does order matter in HTML?</h4>
+
+      <p>
+        <em>Coordinated</em> composition is impossible in an environment like
+        the web. HTML documents are and will continue to be the locus of
+        components from multiple parties. These parties have no say in the order
+        in which their artifacts will appear in the document.
+      </p>
+
+      <section>
+        <h5>How order matters in scripts</h5>
+
+        <p>
+          Order matters in scripts because of the <em>execution model</em> of
+          scripts in HTML documents. In particular, scripts are executed in the
+          order in which they are encountered. Because scripts may have side
+          effects, the order in which they are evaluated can matter
+          <em>at that time</em>.
+        </p>
+
+        <p>
+          This creates a difficulty for composition, particularly the kind of
+          composition that occurs in an open environment such as the web.
+        </p>
+
+        <p>Formal module definitions are a way to mitigate this.</p>
+      </section>
+
+      <section>
+        <h5>How order matters in style rules</h5>
+
+        <p>
+          Like most rule-based languages, CSS is <em>declarative</em>, meaning
+          that it is based on statements rather than instructions. As in other
+          rule languages, rules in CSS are mostly independent of order. Yet (as
+          is also the case in some other rule languages), there <em>is</em> a
+          lexical order defined, and it is used as an arbiter between rules when
+          other factors cannot choose from among multiple matches.
+        </p>
+      </section>
+    </section>
   </details>
 </article>

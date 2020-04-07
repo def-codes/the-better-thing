@@ -1,0 +1,44 @@
+<article id="global-namespace-representation">
+  <details>
+    <summary>
+      <h2>The global namespace</h2>
+    </summary>
+
+    <header>
+      <noscript>
+        <p>JavaScript is not available in this document.</p>
+      </noscript>
+
+      <p>
+        Every HTML document that supports JavaScript has its own runtime
+        context. JavaScript runtimes have a <em>global namespace</em>. Here is a
+        representation of the global namespace of the JavaScript runtime in this
+        document.
+      </p>
+
+      <p>
+        We will use a protocol for determining how things are represented in
+        this namespace.
+      </p>
+
+      <script src="./bootstrap-temp/global-namespace-representation.js"></script>
+    </header>
+
+    <section id="global-namespace-representation"></section>
+
+    <p>
+      This will execute immediately and so has to follow the container element
+      being referenced.
+    </p>
+
+    <script>
+      require([
+        "@def-codes/meld/global-namespace-representation",
+      ], functions => {
+        functions.represent_global_namespace_in(
+          "global-namespace-representation"
+        );
+      });
+    </script>
+  </details>
+</article>
