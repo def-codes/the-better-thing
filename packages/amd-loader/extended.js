@@ -1,7 +1,6 @@
 // Extend a basic AMD implementation to support remote scripts and anonymous
 // defines.  Unlike the basic module, this is browser-specific.
-
-(function() {
+(function () {
   /** Load the script at a given URL (for its side-effects) and resolve when
    * complete (which will occur synchronously after the script has been executed).
    * Temporarily adds a script element to the document head. */
@@ -77,7 +76,7 @@
         // Don't do a remote request if we already have the module.
         // Is this a good idea?  Depends on `modules` being exposed.
         if (basic_amd.modules.has(id)) {
-          console.log(id, "already defined as", basic_amd.modules.get(id));
+          // console.log(id, "already defined as", basic_amd.modules.get(id));
           return;
         }
 

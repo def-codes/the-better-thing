@@ -1,0 +1,37 @@
+
+<article id="autoexec-scripts">
+  <h3>the bootstrapper</h3>
+
+  <p><b>Update April 2020</b>: This concerns a crude way of adding startup
+  scripts to a document and should be superseded by modules or models.</p>
+
+  <p>Everything that we don't get for free, we have to accomplish with script.
+  Therefore, the first thing we need is a way to use scripts (without leaving
+  the document).</p>
+  
+  <p>We will need to write, run, and save scripts.  We'll take up each one
+  separately.</p>
+  
+  <p>Find all designated script tags.  The timeout is to wait until the script
+  has loaded (to cover elements that are not in the document yet at this
+  point).</p>
+  
+  <script>
+    window.setTimeout(() => {
+    for (const script of document.querySelectorAll('[data-autoexec="true"]'))
+    eval(script.innerText || script.value);
+    }, 1);
+  </script>
+  
+  <textarea data-autoexec="true">
+    console.log("hey Tremé!!!!")
+  </textarea>
+  
+  <p>All right, now we should be able to create scripts and edit them
+  dynamically just by adding the <code>data-autoexec</code> attribute to a
+  <code>textarea</code>.</p>
+  
+  <textarea data-autoexec="true">
+    console.log("gee isn't there anything I can do besides console log?? :(");
+  </textarea>
+</article>
