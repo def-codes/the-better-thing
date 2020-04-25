@@ -64,13 +64,10 @@
 
     const SPECIAL_NAMES = ["exports", "require", "module"];
 
-    // Must more or less entirely supersede the basic require, which will not
-    // initiate any requests for remote scripts.
-    const require_from = (base, resolver = default_resolver) => async (
-      ...args
-    ) => {
-      const [dependencies] = args;
-      dependencies.map(id => {
+    // Ensure that we've initiated requests for all external dependencies,
+    // transitively.
+    const fetch_transitive = (base, resolver, module_ids) => {
+      module_ids.map(id => {
         if (SPECIAL_NAMES.includes(id)) return;
 
         // Don't do a remote request if we already have the module.
@@ -98,11 +95,18 @@
             // Use window.define to include any later wrapping.
             window.define(id, ...context.args);
             // Just defining it here doesn't trigger its factory.
-            require_from(url, resolver)(...context.args);
+            const [dependencies] = context.args;
+            fetch_transitive(url, resolver, dependencies);
           });
       });
+    };
 
-      return basic_amd.require(...args);
+    // Basic require will wait for dependencies to be resolved, but doesn't do
+    // anything to resolve them.  This initiates requests for remote scripts.
+    const require_from = (base, resolver = default_resolver) => (...args) => {
+      const [dependencies] = args;
+      fetch_transitive(base, resolver, dependencies);
+      basic_amd.require(...args);
     };
 
     return { define, require: require_from(null, resolver) };
