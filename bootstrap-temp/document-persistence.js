@@ -21,14 +21,27 @@ define("@def-codes/meld/document-persistence", [], () => {
     this.href = `data:text/html;charset=utf-8, ${encodeURIComponent(html)}`;
   }
 
-  const handle_save_document = event => {
+  // Like above but for a more limited scope.  See above for notes.
+  function snapshot_and_prompt_download_scope(event) {
+    this.href = "";
+    // How do we determine what scope is intended?
+    // For now, let's just say the container.
+    const scope = this.parentNode;
+    const html = scope.outerHTML;
+    this.href = `data:text/html;charset=utf-8, ${encodeURIComponent(html)}`;
+  }
+
+  const handle_save_intent = event => {
     if (event.target.matches(`a[data-intent="save-document"]`))
       snapshot_and_prompt_download.apply(event.target);
+
+    if (event.target.matches(`a[data-intent="save-scope"]`))
+      snapshot_and_prompt_download_scope.apply(event.target);
   };
 
   // A side-effecting function
   function wire_save_links() {
-    document.body.addEventListener("click", handle_save_document);
+    document.body.addEventListener("click", handle_save_intent);
   }
 
   return { wire_save_links };

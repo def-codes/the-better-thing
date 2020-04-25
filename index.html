@@ -14,6 +14,53 @@
   </head>
   <body>
     <article>
+      <h2>Enumerated sets</h2>
+      <p>A set is a kind of collection</p>
+      <p>
+        RDF includes a notion of containers but not of sets specifically.
+        However, RDF resources are in some ways sets by default, in that graphs
+        are sets of triples, and not multisets.
+      </p>
+      <p>
+        See As Shelley Powers notes in
+        <a
+          href="https://www.oreilly.com/library/view/practical-rdf/0596002637/ch04.html"
+          >Chapter 4 from <i>Practical RDF</i>,
+        </a>
+      </p>
+      <blockquote>
+        use the RDF collection as sparingly as you would use the RDF
+        Container—use only when no other construct matches your specific needs,
+        and use it specifically as the specification intended it to be used. If
+        you’re unsure about the intent, then don’t use it.
+      </blockquote>
+      <p>
+        Dropping into this collection might cause an
+        <code>rdf:member</code> assertion to be made about the item being
+        dropped. This could be implied by an RDFa <code>rel</code> attribute on
+        the container.
+      </p>
+      <p>Duplicate items should not be accepted (but currently are).</p>
+      <p>In mathematics, sets are usually denoted with curly braces {}</p>
+      <p>
+        HTML doesn't have any notion about sets as such. The closest thing is
+        the unordered list, which can be used to represent an enumerated set.
+        However, it doesn't have a notion of uniqueness.
+      </p>
+      <ul class="EnumeratedSet" rel="rdf:member">
+        <li>Groucho</li>
+        <li>Harpo</li>
+        <li>Zeppo</li>
+        <li>Chico</li>
+      </ul>
+    </article>
+    <section>
+      <h2>named graphs</h2>
+      <article data-named-graph="test1" contenteditable="true">
+        define("test1", [], () => { Alice.loves.Bob })
+      </article>
+    </section>
+    <article>
       <header>square : f(x) = x<sup>2</sup></header>
       <div>
         <article>
@@ -169,6 +216,13 @@
           </details>
         </section>
       </details>
+    </article>
+
+    <article>
+      <h2>Box with download link</h2>
+      <script>
+        require(["./bootstrap-temp/box-with-download-link.js"]);
+      </script>
     </article>
 
     <article id="meld-system">
