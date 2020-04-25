@@ -21,13 +21,14 @@ define("@def-codes/meld/document-persistence", [], () => {
     this.href = `data:text/html;charset=utf-8, ${encodeURIComponent(html)}`;
   }
 
+  const handle_save_document = event => {
+    if (event.target.matches(`a[data-intent="save-document"]`))
+      snapshot_and_prompt_download.apply(event.target);
+  };
+
   // A side-effecting function
-  // Should we add the `download` attribute here?
   function wire_save_links() {
-    for (const link of document.querySelectorAll(
-      'a[data-intent="save-document"]'
-    ))
-      link.addEventListener("click", snapshot_and_prompt_download);
+    document.body.addEventListener("click", handle_save_document);
   }
 
   return { wire_save_links };
