@@ -1,13 +1,23 @@
 * {
-  --type: 'Thing';
+  --type: "Thing";
   box-sizing: border-box;
   transition: 0.3s;
-  padding: 1em;
+  padding: calc((1 - var(--is-phrasing)) * 1em);
   border-width: 1px;
   border-style: solid;
-  border-color: rgba(0,0,0,0.5);
-  background-color: hsla(var(--hue), var(--saturation), var(--luminosity), var(--alpha));
-  --color: rgba(var(--pen-red), var(--pen-green), var(--pen-blue), var(--pen-alpha));
+  border-color: rgba(0, 0, 0, 0.5);
+  background-color: hsla(
+    var(--hue),
+    var(--saturation),
+    var(--luminosity),
+    var(--alpha)
+  );
+  --color: rgba(
+    var(--pen-red),
+    var(--pen-green),
+    var(--pen-blue),
+    var(--pen-alpha)
+  );
   color: var(--color);
   --prefix: var(--type);
   --space-background: #222;
@@ -23,10 +33,47 @@
   --border-saturation: 100%;
   --border-luminosity: 100%;
   --border-alpha: 1;
-  --border-color: hsla(var(--border-hue), var(--border-saturation), var(--border-luminosity), var(--border-alpha));
+  --border-color: hsla(
+    var(--border-hue),
+    var(--border-saturation),
+    var(--border-luminosity),
+    var(--border-alpha)
+  );
 }
 *::before {
   opacity: 0.5;
+  /* display: block; */
+  content: var(--prefix) "\00a0"; /* what was this for? */
+}
+/* RDFa. */
+/* 
+* NOTE, This DOES NOT WORK!  But it would be a great place to use attr() with
+* css custom properties, if that were supported (which it is currently not by
+* any browser, https://caniuse.com/#feat=css3-attr).
+* 
+* If it were supported, we could use it like this:
+*/
+* {
+  --resource: "";
+  --rdfa: "<" var(--resource) "> <" var(--property) ">";
+}
+[resource] {
+  --resource: attr(resource);
+}
+[property] {
+  --property: attr(property);
+}
+/* and so on with [about], etc */
+
+*::after {
+  opacity: 0.5;
   display: block;
-  content: var(--prefix) '\00a0';
+  padding: 0.5em;
+  font-size: initial;
+}
+[resource]::after {
+  content: "resource " attr(resource);
+}
+[property]::after {
+  content: var(--resource) "property " attr(property);
 }

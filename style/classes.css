@@ -86,7 +86,7 @@ body[drop-effect] {
   text-align: center;
 }
 .Porthole:hover {
-  background: var(--indicator-color);
+  background-color: var(--indicator-color);
 }
 .Value {
   border-radius: 1em;

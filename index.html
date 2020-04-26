@@ -14,6 +14,57 @@
   </head>
   <body>
     <article>
+      <h2>Using function representations</h2>
+      <p>drag something over “apply” to invoke.</p>
+      <p>
+        Idea is that this asserts an invocation somewhere. When the graph has an
+        invocation “driver” (interpreter), this will invoke the function and
+        assert a result. Then a display which is an interpretation of the graph
+        that includes the invocation, will show the result. What graph will that
+        be?
+      </p>
+    </article>
+    <article resource="http://def.codes/javascript/math/square">
+      <h2 property="def:name">square</h2>
+      <p>f(x)=x<sup>2</sup></p>
+      <span property="rdfs:range">xsd:number</span>
+      <code property="rdf:value">x => x * x</code>
+      <div>apply</div>
+    </article>
+    <article>
+      <h2>MultiWave voltage</h2>
+      <p>Intent: view the voltage of a MultiWave device</p>
+      <p>
+        Need to know the location of the device interface. Suppose one is
+        reachable at <a href="">http://localhost:1234/</a>
+      </p>
+      <p>Comes from register <code>0x0017</code></p>
+      <p>
+        then we would issue an HTTP <code>POST</code>request to
+        <code>http://localhost:1234/readreg</code> with the payload
+        <code>0x0017</code>
+      </p>
+      <figure>
+        <output>
+          <div>
+            <span property="rdf:value" class="value">115</span>
+            <span property="qudt:??" class="units">Volts</span> (the actual
+            value)
+          </div>
+          <div>
+            ideal range (should span from x1 to x2 where x1 is min good voltage
+            and x2 is max good voltage)
+          </div>
+          <div>
+            full range (should span from xb1 to xb2 where xb1 is min
+            representable voltage (lowest you'd ever expect to see) and xb2 is
+            same for max)
+          </div>
+        </output>
+        <figcaption>voltage</figcaption>
+      </figure>
+    </article>
+    <article>
       <h2>Enumerated sets</h2>
       <p>A set is a kind of collection</p>
       <p>
@@ -504,12 +555,13 @@
               it), but the default styles do not indicate this.
             </p>
 
-            <style contenteditable="true">
+            <pre contenteditable="true">
               summary:hover {
                 cursor: pointer;
                 background-color: rgba(0, 0, 0, 0.3);
               }
-            </style>
+            </pre>
+            <aside>This is now covered by the element stylesheet.</aside>
 
             <p>
               I'm using disclosure elements to make sections collapsible. For
@@ -518,13 +570,17 @@
               This fixes that.
             </p>
 
-            <style contenteditable="true">
+            <pre contenteditable="true">
               summary > h2,
               summary > h3,
               summary > h4 {
                 display: inline;
               }
-            </style>
+            </pre>
+            <aside>
+              But this has unwanted effects when used with element visibility
+              rules, which prevent the problem noted above.
+            </aside>
 
             <p>
               By default, text inputs are far too small. If I wanted something
