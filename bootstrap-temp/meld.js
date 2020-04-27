@@ -18,7 +18,9 @@ require(["./bootstrap-temp/meld-system.js"], ({ system }) => {
         for (const iri of iris) {
           const selector = `graph=["${iri}"]`;
         }
-        console.log(`results`, foo);
+      },
+      error(error) {
+        console.log(`SOMETHING WRONG in graph query results`, error);
       },
     });
 

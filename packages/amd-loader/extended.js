@@ -7,6 +7,8 @@
   const load_script = (url, doc = document) =>
     new Promise((resolve, reject) => {
       const script = doc.createElement("script");
+      // Marker for use by other processors (not used here).
+      script.setAttribute("data-is-temporary", "true");
       script.async = true;
       script.src = url;
       const remove = () => script.parentNode.removeChild(script);

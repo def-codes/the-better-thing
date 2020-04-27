@@ -14,6 +14,36 @@
   </head>
   <body>
     <section id="named-graphs"></section>
+    <article>
+      <h2>oven simulation</h2>
+      <p property="rdfs:comment">
+        Illustrates a model that can be used by other models. Also illustrates
+        use of a forcefield to simulate a simple continuous variable.
+      </p>
+      <p>a model .</p>
+      <p>the interface</p>
+      <ul>
+        <li>heatTo a number</li>
+        <li>isDoorOpen a boolean</li>
+        <li>(maybe) roomTemp a number (external stream)</li>
+        <li>currentTemp a number</li>
+      </ul>
+      <p>the implementation</p>
+      <ul>
+        <li>a forcefield</li>
+        <li>a weak forceX at heatTo</li>
+        <li>(maybe) when door is open, a weak forceX at roomTemp</li>
+        <li>ticker hasInterval (250)</li>
+        <li>forcefield listensTo ticker</li>
+        <li>forcefield contains oventemp</li>
+        <li>currentTemp listensTo forcefield, maps with pluck oventemp, x</li>
+      </ul>
+    </article>
+    <article>
+      <h2>event triggered by threshold condition</h2>
+      <p>when oven reaches 350°, place pan in oven</p>
+      <p></p>
+    </article>
     <section>
       <h2>cooking and modeling processes</h2>
       <p>
@@ -389,6 +419,8 @@
                   const [, thing] = module_id.match("^@thi.ng/(.*)$") || [];
                   if (thing)
                     return `./node_modules/@thi.ng/${thing}/lib/index.umd.js`;
+                  const [, d3] = module_id.match("^(d3-.*)$") || [];
+                  if (d3) return `./node_modules/${d3}/dist/${d3}.js`;
                   return default_resolver(module_id, base);
                 };
                 const base = make_full_amd(
@@ -401,6 +433,13 @@
           </details>
         </section>
       </details>
+    </article>
+
+    <article>
+      <h2>Cooking and other examples</h2>
+      <script>
+        require(["./bootstrap-temp/forcefield-transitional.js"]);
+      </script>
     </article>
 
     <article>
