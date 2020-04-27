@@ -13,6 +13,146 @@
     <link href="./style/fonts.css" rel="stylesheet" />
   </head>
   <body>
+    <section id="named-graphs"></section>
+    <section>
+      <h2>cooking and modeling processes</h2>
+      <p>
+        Following is a set of concepts needed for modeling processes with
+        analogies to cooking. This is a rough, informal sketch of ideas to be
+        fleshed out more formally.
+      </p>
+      <ul>
+        <li>resources / ingredients</li>
+        <li>timers / waiting</li>
+        <li>verbs / operations from known vocabulary: chop / mix etc</li>
+        <li>perishable / expiring resources</li>
+        <li>
+          constraints: don't leave empty pan on fire for more than N seconds
+        </li>
+        <li>
+          alternate context for terms within scope of recipe: substitute vegan
+          versions of all animal-based ingredients
+        </li>
+        <li>
+          running out of something, temporarily, requesting / waiting for
+          replenishment / service
+        </li>
+        <li>
+          oven simulation using force layout (opening door bumps it towards room
+          temp, which could itself be a continuous variable simulation)
+        </li>
+        <li>event: when oven reaches 350°, put prepared pan into oven</li>
+        <li>
+          referencing things / naming composites. "the prepared pan", "the
+          stuffing"
+        </li>
+        <li>
+          attribute queries: "the wet ingredients" and "the dry ingredients"
+        </li>
+        <li>irreversible transforms: aggregates, e.g. mixing liquids</li>
+        <li>output of one process is input to another</li>
+        <li>
+          state machine: when a pancake begins to bubble, flip it. then when it
+          no longer sticks to the pan, remove it from pan (dequeue)
+        </li>
+        <li>
+          event from stream with threshold condition: when the onions are
+          browned, add the broccoli
+        </li>
+        <li>
+          error handling: if you burn what's in the pan, throw it out and
+          restart that part of the process over
+        </li>
+        <li>
+          precondition: ensure knives are sharpened
+        </li>
+        <li>
+          inference rule: range/domain. chopping is only for solids, pouring is
+          only for liquids
+        </li>
+        <li>event from external system: rice cooker switches to "finished"</li>
+        <li>
+          synchronization: (when the crust and the filling are complete), put
+          the filling into the crust
+        </li>
+        <li>
+          parallelization: while the oven is preheating / while the dough is
+          rising
+        </li>
+        <li>
+          parallel with constraints: use one of N burners
+        </li>
+        <li>
+          transforms with possible reverse mapping: map, filter (cookie dough
+          ball <-> cookie)
+        </li>
+        <li>
+          instance of another model: serve with the bread from recipe X
+        </li>
+        <li>
+          Use output of another process as input to this process: with the
+          frosting from recipe X, frost the finished cake
+        </li>
+        <li>
+          multiple instances of another model: make two of the flaky pie crusts
+        </li>
+        <li>
+          arbitrary selection: make a pie crust of your choice (or 2)
+        </li>
+        <li>parameterization: multiply recipe, use variant (whole-wheat)</li>
+        <li>rules: 2 cups water to one cup white rice</li>
+        <li>rule specializations: 2.5 cups water for brown rice</li>
+        <li>override: substitute ingredients</li>
+        <li>
+          blocking queues: fixed-capacity cookware (e.g boil 6 eggs at a time,
+          dequeue when it floats)
+        </li>
+        <li>
+          environmental factors: humidity, air pressure and temperature.
+        </li>
+        <li>batching</li>
+        <li>loops: repeat (sub) process for each stuffed pepper</li>
+        <li>
+          environmental factors: choose a seasonal/regional vegetable
+        </li>
+        <li>
+          state: make a cookie with one spoonful of batter until you run out.
+          generally, things in any state of preparation. state of stove range, N
+          burners
+        </li>
+        <li>
+          dataflow: room / oven temperature. "cookedness" of something as a
+          continuous (discretized) variable. water flow filling container. ratio
+          of size of dough rising (e.g. when the dough has doubled in size)
+        </li>
+        <li>
+          external events: timer, arrival of delivery (e.g. for ingredients)
+        </li>
+        <li>
+          reflected (not reified) processes. e.g. consumers taking from queue
+          (i.e. people walking into the kitchen and taking from stack as you
+          cook). simulation, can you reach a threshold amount with different
+          rates of production / consumption
+        </li>
+        <li>units (tbsp, tsp, cup, quart)</li>
+      </ul>
+    </section>
+    <section>
+      <h2>cooking and representation</h2>
+      <p>
+        TBD: talking about representations of things and processes in the domain
+        of cooking, in a way that generalizes to other domains.
+      </p>
+    </section>
+    <article>
+      <h4>Some rules</h4>
+      <ul>
+        <li>
+          (informal) if the domain and range of a function are both real
+          numbers, then one way to present the function is a plot
+        </li>
+      </ul>
+    </article>
     <article>
       <h2>Using function representations</h2>
       <p>drag something over “apply” to invoke.</p>
@@ -105,12 +245,6 @@
         <li>Chico</li>
       </ul>
     </article>
-    <section>
-      <h2>named graphs</h2>
-      <article data-named-graph="test1" contenteditable="true">
-        define("test1", [], () => { Alice.loves.Bob })
-      </article>
-    </section>
     <article>
       <header>square : f(x) = x<sup>2</sup></header>
       <div>
