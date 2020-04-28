@@ -151,11 +151,13 @@ const apply_drivers_to = (store, helpers, system) => {
 export const monotonic_system = ({ id, store, dom_root, ports }) => {
   const registry = new EquivMap();
 
-  // For use in REPL.
-  // But not Node
-  // window["system"] = { store, registry };
-
-  const find = subject => registry.get(subject);
+  const find = subject => {
+    if (!registry.has(subject)) {
+      console.warn("No such subject", subject, "in", [...registry.keys()]);
+      console.log("ALL TRIPLES", store.triples);
+    }
+    return registry.get(subject);
+  };
 
   const register_exotic = (object, type: NamedNode) => {
     const object_id = mint_blank();

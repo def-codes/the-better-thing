@@ -47,8 +47,8 @@ export class Dataset {
     const predicate = TYPE;
     const object = GRAPH;
 
-    this.defaultGraph.add([subject, predicate, object]);
     this.namedGraphs.set(subject, store);
+    this.defaultGraph.add([subject, predicate, object]);
 
     return store;
   }
