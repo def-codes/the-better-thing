@@ -14,6 +14,31 @@
   </head>
   <body>
     <section id="named-graphs"></section>
+    <section>
+      <h2>rules</h2>
+      <article>Everything in the kitchen should be visible</article>
+      <article>A resource can be represented by an element</article>
+      <article>
+        A data-typed property can be represented by an RDFa element directly
+        inside of the element representing the subject resource
+      </article>
+      <article>
+        An element representing a resource as RDFa should have a
+        <code>resource</code>attribute with a value of the resource's IRI
+      </article>
+      <article>
+        An element representing a property as RDFa should have a
+        <code>property</code> attribute with a value of the property's IRI
+      </article>
+      <article>
+        An element representing a datatype property as RDFa should directly
+        contain a representation of the literal value
+      </article>
+      <article>
+        An element representing an object property as RDFa should directly
+        contain a link to the object
+      </article>
+    </section>
     <article>
       <h2>oven simulation</h2>
       <p property="rdfs:comment">
@@ -433,6 +458,13 @@
           </details>
         </section>
       </details>
+    </article>
+
+    <article>
+      <h2>Rule-based representations</h2>
+      <script>
+        require(["./bootstrap-temp/dom-process-sketch.js"]);
+      </script>
     </article>
 
     <article>

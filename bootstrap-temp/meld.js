@@ -19,6 +19,7 @@ require([
     if (existing) return existing;
     const container = document.createElement("div");
     container.setAttribute("graph", iri);
+    container.innerHTML = `<code data-part="recipe"></code><figure data-part="kitchen"></figure>`;
     root.appendChild(container);
     return container;
   };
@@ -27,7 +28,9 @@ require([
   const systems = new Map();
   const ensure_system = iri => {
     if (systems.has(iri)) return systems.get(iri);
-    const dom_root = ensure_container(iri);
+    const container = ensure_container(iri);
+    const dom_root = container.querySelector('[data-part="kitchen"]');
+    const recipe = container.querySelector('[data-part="recipe"]');
     const ports = {
       add_output(name, stream) {
         console.log("ADD_OUTPUT", { name, stream });
@@ -56,7 +59,7 @@ require([
         const iris = Array.from(results, _ => _.s.value);
         for (const iri of iris) {
           const system = ensure_system(iri);
-          console.log(`iri, system`, iri, system);
+          // console.log(`iri, system`, iri, system);
         }
       },
       error(error) {
@@ -64,10 +67,23 @@ require([
       },
     });
 
+  const { namedNode: n, blankNode: b, literal: l } = factory;
+
+  return;
+  const astore = dataset.create();
+  // astore.add([n("Alice"), n("loves"), n("Bob")]);
+  astore.add([n("Alice"), n("name"), l("Alice")]);
+  astore.add([n("Alice"), n("isa"), n("Woman")]);
+  astore.add([n("Bob"), n("name"), l("Robert")]);
+  astore.add([n("Bob"), n("isa"), n("Man")]);
+  astore.add([n("Woman"), n("subclassOf"), n("Person")]);
+  astore.add([n("Man"), n("subclassOf"), n("Person")]);
+  console.log("ALL TRIPLES SYNC", astore.triples);
+
+  return;
   // Testing.  but where do the graphs init from?
   const some_graph = dataset.create();
-  const { namedNode: n, blankNode: b, literal: l } = factory;
-  // some_graph.add([n("Alice"), n("loves"), n("Bob")]);
+  some_graph.add([n("Alice"), n("loves"), n("Bob")]);
   some_graph.add([n("Alice"), n("hostOutput"), l("Alice")]);
   some_graph.add([n("Bob"), n("hostOutput"), l("Bob")]);
   some_graph.add([n("Alice"), n("hasInterval"), l(5000)]);
