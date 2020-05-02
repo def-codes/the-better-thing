@@ -74,9 +74,9 @@ export const q1 = (clause: string) => clause.split(/\s+/).map(q11);
 export const q = (...clauses: (string | string[])[]) =>
   clauses.map(item => (Array.isArray(item) ? item.map(q1) : q1(item)));
 
-const drivers = [];
+const driver_dictionary = new Map();
 export const register_driver = (name, init) =>
-  drivers.push(init({ q, is_node }));
+  driver_dictionary.set(name, init({ q, is_node }));
 
 const HANDLERS = {
   assert(triples, system) {
@@ -123,10 +123,13 @@ const make_consequent_handler = (then, helpers, system, all) => results => {
 
 // behavior is undefined if store is not empty
 // returns a bunch of subscriptions
-const apply_drivers_to = (store, helpers, system) => {
+const apply_drivers_to = (store, helpers, system, names) => {
   const subs = [];
-  for (const { claims, rules } of drivers) {
-    store.into(claims);
+  for (const name of names) {
+    if (!driver_dictionary.has(name))
+      throw new Error(`No such driver: ${name}`);
+    const { claims, rules } = driver_dictionary.get(name);
+    system.assert_all(claims);
     for (const { when, when_all, then } of rules)
       subs.push(
         live_query(store, when || when_all).subscribe({
@@ -144,12 +147,25 @@ const apply_drivers_to = (store, helpers, system) => {
  *
  * @param {string} id - Provisional.  Namespace if there were more than one.
  * @param {RDFTripleStore} store - Should be an empty knowledge base.
+ * @param {RDFTripleStore} target - Where to assert to (`store` if undefined)
  * @param {Node} dom_root - Document node to be owned by the model.
+ * @param {string[]} drivers - Optional list of driver names to install
  *
  * @returns {Function} (Provisional) dispose method.
  */
-export const monotonic_system = ({ id, store, dom_root, ports }) => {
+export const monotonic_system = ({
+  id,
+  store,
+  dom_root,
+  ports,
+  target,
+  drivers,
+}) => {
   const registry = new EquivMap();
+  const out_store = target ?? store;
+  const driver_names = drivers ?? [...driver_dictionary.keys()];
+
+  const assert = fact => out_store.add(fact);
 
   const find = subject => {
     if (!registry.has(subject)) {
@@ -162,7 +178,7 @@ export const monotonic_system = ({ id, store, dom_root, ports }) => {
   const register_exotic = (object, type: NamedNode) => {
     const object_id = mint_blank();
     registry.set(object_id, object);
-    store.add([object_id, AS, type]);
+    assert([object_id, AS, type]);
     return object_id;
   };
 
@@ -185,18 +201,14 @@ export const monotonic_system = ({ id, store, dom_root, ports }) => {
       //  This is wack.  listensTo rule doesn't fire unless the source node
       //  IMPLEMENTS the resource associated with the dataflow node.  But in
       //  this case, they are the same thing.
-      store.add([impl, IMPLEMENTS, impl]);
-      store.add([
-        impl,
-        rdf.namedNode("implementsHostInput"),
-        rdf.literal(name),
-      ]);
+      assert([impl, IMPLEMENTS, impl]);
+      assert([impl, rdf.namedNode("implementsHostInput"), rdf.literal(name)]);
     },
     register_output_port: (name, subject, source) => {
       const stream = system.find(source);
-      ports.add_output(name, stream);
+      ports?.add_output(name, stream);
     },
-    assert_all: facts => store.into(facts),
+    assert_all: facts => out_store.into(facts),
     query_all: where => sync_query(store, where),
 
     // A single resource can be “implemented” once for each type.  This allows
@@ -229,13 +241,13 @@ export const monotonic_system = ({ id, store, dom_root, ports }) => {
         // }
         registry.set([subject, type], object);
         const object_id = register_exotic(object, type);
-        store.add([object_id, IMPLEMENTS, subject]);
+        assert([object_id, IMPLEMENTS, subject]);
       }
     },
   };
 
   // Feels like this should be done in "world"
-  ports.input_added.subscribe({
+  ports?.input_added.subscribe({
     next({ name, stream }) {
       system.register_input_port(name, stream);
     },
@@ -247,7 +259,12 @@ export const monotonic_system = ({ id, store, dom_root, ports }) => {
     system.register(n("home"), "Container", () => dom_root);
   }
 
-  const rule_subscriptions = apply_drivers_to(store, driver_helpers, system);
+  const rule_subscriptions = apply_drivers_to(
+    store,
+    driver_helpers,
+    system,
+    driver_names
+  );
 
   return function dispose() {
     for (const sub of rule_subscriptions) if (sub) sub.unsubscribe();
