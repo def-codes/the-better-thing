@@ -67,40 +67,40 @@ require([
       },
     });
 
-  const { namedNode: n, blankNode: b, literal: l } = factory;
+  function various_tests() {
+    const { namedNode: n, blankNode: b, literal: l } = factory;
 
-  return;
-  const astore = dataset.create();
-  // astore.add([n("Alice"), n("loves"), n("Bob")]);
-  astore.add([n("Alice"), n("name"), l("Alice")]);
-  astore.add([n("Alice"), n("isa"), n("Woman")]);
-  astore.add([n("Bob"), n("name"), l("Robert")]);
-  astore.add([n("Bob"), n("isa"), n("Man")]);
-  astore.add([n("Woman"), n("subclassOf"), n("Person")]);
-  astore.add([n("Man"), n("subclassOf"), n("Person")]);
-  console.log("ALL TRIPLES SYNC", astore.triples);
+    const astore = dataset.create();
+    // astore.add([n("Alice"), n("loves"), n("Bob")]);
+    astore.add([n("Alice"), n("name"), l("Alice")]);
+    astore.add([n("Alice"), n("isa"), n("Woman")]);
+    astore.add([n("Bob"), n("name"), l("Robert")]);
+    astore.add([n("Bob"), n("isa"), n("Man")]);
+    astore.add([n("Woman"), n("subclassOf"), n("Person")]);
+    astore.add([n("Man"), n("subclassOf"), n("Person")]);
+    console.log("ALL TRIPLES SYNC", astore.triples);
 
-  return;
-  // Testing.  but where do the graphs init from?
-  const some_graph = dataset.create();
-  some_graph.add([n("Alice"), n("loves"), n("Bob")]);
-  some_graph.add([n("Alice"), n("hostOutput"), l("Alice")]);
-  some_graph.add([n("Bob"), n("hostOutput"), l("Bob")]);
-  some_graph.add([n("Alice"), n("hasInterval"), l(5000)]);
-  some_graph.add([n("Bob"), n("listensTo"), n("bar")]);
-  some_graph.add([n("Bob"), n("transformsWith"), n("foo")]);
-  some_graph.add([n("foo"), n("hasRoot"), n("home")]);
-  some_graph.add([n("bar"), n("listensTo"), n("Alice")]);
-  some_graph.add([
-    n("bar"),
-    n("mapsWith"),
-    l(x => [
-      "details",
-      {},
-      ["summary", {}, ["b", {}, "the state of Alice"]],
-      ["p", {}, x, " ticks"],
-    ]),
-  ]);
+    // Testing.  but where do the graphs init from?
+    const some_graph = dataset.create();
+    some_graph.add([n("Alice"), n("loves"), n("Bob")]);
+    some_graph.add([n("Alice"), n("hostOutput"), l("Alice")]);
+    some_graph.add([n("Bob"), n("hostOutput"), l("Bob")]);
+    some_graph.add([n("Alice"), n("hasInterval"), l(5000)]);
+    some_graph.add([n("Bob"), n("listensTo"), n("bar")]);
+    some_graph.add([n("Bob"), n("transformsWith"), n("foo")]);
+    some_graph.add([n("foo"), n("hasRoot"), n("home")]);
+    some_graph.add([n("bar"), n("listensTo"), n("Alice")]);
+    some_graph.add([
+      n("bar"),
+      n("mapsWith"),
+      l(x => [
+        "details",
+        {},
+        ["summary", {}, ["b", {}, "the state of Alice"]],
+        ["p", {}, x, " ticks"],
+      ]),
+    ]);
 
-  // Every model is a graph, but not every graph is a model
+    // Every model is a graph, but not every graph is a model
+  }
 });

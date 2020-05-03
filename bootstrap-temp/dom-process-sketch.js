@@ -6,7 +6,7 @@ define([
   "@def.codes/rstream-query-rdf",
   "@def.codes/meld-core",
   "@def.codes/dom-process",
-], (rs, tx, hiccup, th, rdf, { q, monotonic_system }, dp) => {
+], async (rs, tx, hiccup, th, rdf, { q, monotonic_system }, dp) => {
   const { factory, RDFTripleStore, sync_query } = rdf;
   const { namedNode: n, variable: v, blankNode: b, literal: l } = factory;
 
@@ -81,13 +81,107 @@ define([
   };
 
   // dom process take 2
-  const dom_process = () => {
-    const providers = new Map();
-    const consumers = new Map();
-    const state = { providers, consumers };
-    const provided = rs.stream();
-    const consumed = rs.stream();
-    return { provided, consumed };
+
+  // need to replace placeholder reference with Placeholder component
+
+  const Placeholder = {
+    init(element, context, { id }) {
+      console.log(`PLACEHOLDER INIT`, context, id);
+
+      context.mounted({ id, element });
+    },
+    render(_, { id }) {
+      return ["div", { "data-placeholder": id, __skip: true }];
+    },
+    release() {
+      console.log("RELEASE!!");
+    },
+  };
+
+  const transform_expression = expression =>
+    expression.element === "placeholder"
+      ? [Placeholder, { id: expression.attributes.id }]
+      : [
+          expression.element,
+          expression.attributes,
+          tx.map(
+            expr =>
+              typeof expr === "string" || typeof expr === "number"
+                ? expr
+                : transform_expression(expr),
+            expression.children || []
+          ),
+        ];
+
+  const make_dom_process = root => {
+    const elements = new Map(); // mounted element, if any
+    const templates = new Map(); // last-provided template (expression), if any
+    const sources = new Map(); // pubsub subscriber for placeholder
+    const feeds = new Map(); // placeholder content sink.  METASTREAM?
+
+    const pluck_content = tx.pluck("content");
+    const pubsub = rs.pubsub({ topic: _ => _.id });
+    const ensure_source = id => {
+      if (!sources.has(id))
+        sources.set(
+          id,
+          // Don't tear down when removing last subscriber.
+          // This is meant to survive even if element changes.
+          pubsub.subscribeTopic(id, pluck_content, { closeOut: false })
+        );
+      return sources.get(id);
+    };
+
+    // Used by template/placeholder component
+    const ctx = { mounted: _ => process.mounted.next(_) };
+
+    const connect_if_mounted = id => {
+      const element = id ? elements.get(id) : root;
+      if (element && !feeds.has(id)) {
+        // Automatically sends the latest value (if one arrived first)
+        feeds.set(
+          id,
+          ensure_source(id).transform(
+            tx.trace("FEED"),
+            tx.map(transform_expression),
+            tx.trace("TRANSFORMED"),
+            th.updateDOM({ root: element, ctx }),
+            tx.trace("DOMED")
+          )
+        );
+      }
+    };
+
+    const process = {
+      // stream where client writes content for placeholders
+      content: rs.subscription({
+        next(value) {
+          const { id } = value;
+          ensure_source(id);
+          pubsub.next(value);
+          connect_if_mounted(id);
+        },
+      }),
+      // exposed so it can be monitored, but used internally
+      mounted: rs.subscription({
+        next({ id, element }) {
+          // Unsubscribe feed if element is changing...
+          // OR, maybe could use metastream
+          const old_element = elements.get(id);
+          if (old_element && old_element !== element) {
+            console.log("ELEMENT IS CHANGING", old_element, element);
+            const feed = feeds.get(id);
+            if (feed) {
+              console.log("Unsubscribing feed");
+              feed.unsubscribe();
+            }
+          }
+          elements.set(id, element);
+          connect_if_mounted(id); // ??
+        },
+      }),
+    };
+    return process;
   };
 
   // map rules into templates
@@ -236,15 +330,69 @@ Man(subclassOf(Person))`,
 
   // const dom_process = dp.make_dom_process();
 
+  const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  // test usage
+  const root = document.querySelector("#rule-based-representation");
+  const dom_process = make_dom_process(root);
+  dom_process.mounted.subscribe(rs.trace("MOUNTED"));
+  dom_process.content.subscribe(rs.trace("CONTENT"));
+  dom_process.content.next({
+    id: "def:root/never",
+    content: {
+      element: "p",
+      children: ["Never seen because placeholder never placed"],
+    },
+  });
+
+  dom_process.content.next({
+    id: "",
+    content: {
+      element: "div",
+      attributes: {},
+      children: [
+        {
+          element: "header",
+          children: [{ element: "h1", children: ["in the beginning"] }],
+        },
+        { element: "placeholder", attributes: { id: "def:root/bananas" } },
+        {
+          element: "footer",
+          children: [{ element: "q", children: ["and in the end"] }],
+        },
+      ],
+    },
+  });
+  dom_process.content.next({
+    id: "def:root/bananas",
+    content: {
+      element: "p",
+      attributes: { resource: "http:brainstorms" },
+      children: ["I ", { element: "i", children: ["loves"] }, " you, Porgy"],
+    },
+  });
+  await timeout(7000);
+  dom_process.content.next({
+    id: "def:root/bananas",
+    content: {
+      element: "p",
+      attributes: { resource: "http:brainstorms" },
+      children: ["I ", { element: "i", children: ["loves"] }, " you, Bess"],
+    },
+  });
+  await timeout(7000);
+  dom_process.content.next({
+    id: "def:root/bananas",
+    content: {
+      element: "p",
+      attributes: { resource: "http:brainstorms" },
+      children: ["I ", { element: "i", children: ["loves"] }, " you, Potato"],
+    },
+  });
   // console.log(`dom_process`, dom_process);
   // dom_process.notify_mounted((expression, context_getter, path) => {
   //   console.log(`DOM PROCESS MOUNTED`, { expression, context_getter, path });
   // });
 
-  const root = document.querySelector("#rule-based-representation");
-  const { updateDOM } = th;
-  console.log(`updateDOM`, updateDOM);
-  rs.fromIterable([1]).transform(updateDOM({ root }));
-
-  connect_models_to_interpreter(examples, dom_process);
+  // connect_models_to_interpreter(examples, dom_process);
 });

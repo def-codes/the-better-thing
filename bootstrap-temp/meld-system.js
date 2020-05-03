@@ -7,7 +7,7 @@ define(["@def.codes/rstream-query-rdf"], cool => {
     // knowledge base
     dataset = new Dataset();
     constructor() {
-      console.log(`Oh we in biznessssssssssssss`, this.datset);
+      // console.log(`Oh we in biznessssssssssssss`, this.datset);
     }
     // What is model?
     interpret(model) {}
