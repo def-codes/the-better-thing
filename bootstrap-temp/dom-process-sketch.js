@@ -15,13 +15,19 @@ define([
   const CONTAINS = n("def:contains");
 
   const ATTRIBUTE_EQUALS = /^\[(.+)="(.+)"\]$/;
+  const ELEMENT = /^[a-z][a-z0-9]*$/;
   const assertion_from_css = selector => {
     const attribute_equals = selector.match(ATTRIBUTE_EQUALS);
     if (attribute_equals) {
       const [, name, value] = attribute_equals;
       return { type: "attribute-equals", name, value };
     }
-    return { type: "unknown" };
+    const element = selector.match(ELEMENT);
+    if (element) {
+      const [name] = element;
+      return { type: "uses-element", name };
+    }
+    return { type: "unknown", selector };
   };
 
   function foobar() {
@@ -64,6 +70,8 @@ define([
           : value;
       } else if (operation.type === "attribute-equals") {
         attributes[operation.name] = operation.value;
+      } else if (operation.type === "uses-element") {
+        element = operation.name;
       } else if (operation.type === "contains-text") {
         children.push(operation.text);
       } else if (operation.type === "contains") {

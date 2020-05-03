@@ -27,7 +27,7 @@ const OBJECT = n("rdf:object");
 
 export default {
   name: "domRepresentationDriver",
-  init: ({ q }) => ({
+  init: ({ q, is_node }) => ({
     claims: q(),
     rules: [
       {
@@ -62,6 +62,24 @@ export default {
             ],
           };
         },
+      },
+      {
+        name: "something with an element rule",
+        when: q(
+          "?subject ?property ?object",
+          "?trip rdf:object ?object",
+          "?rep def:represents ?trip",
+          "?rep isa def:DomElement"
+        ),
+        then: ({ rep, object }) =>
+          is_node(object)
+            ? {
+                assert: [
+                  [rep, MATCHES, l(`a`)],
+                  [rep, MATCHES, l(`[href="${object.value}"]`)],
+                ],
+              }
+            : {},
       },
       {
         name: "RDFaPropertyAttributeRule",
