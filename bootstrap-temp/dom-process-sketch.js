@@ -1,15 +1,27 @@
 define([
   "@thi.ng/rstream",
   "@thi.ng/transducers",
+  "@thi.ng/hiccup",
   "@def.codes/rstream-query-rdf",
   "@def.codes/meld-core",
-], (rs, tx, rdf, { monotonic_system }) => {
-  const { factory, RDFTripleStore } = rdf;
-  const { namedNode: n, blankNode: b, literal: l } = factory;
+], (rs, tx, hiccup, rdf, { q, monotonic_system }) => {
+  const { factory, RDFTripleStore, sync_query } = rdf;
+  const { namedNode: n, variable: v, blankNode: b, literal: l } = factory;
 
   const ISA = n("isa");
   const DOM_ELEMENT = n("def:DomElement");
   const REPRESENTS = n("def:represents");
+  const MATCHES = n("def:matches");
+
+  const ATTRIBUTE_EQUALS = /^\[(.+)="(.+)"\]$/;
+  const assertion_from_css = selector => {
+    const attribute_equals = selector.match(ATTRIBUTE_EQUALS);
+    if (attribute_equals) {
+      const [, name, value] = attribute_equals;
+      return { type: "attribute-equals", name, value };
+    }
+    return { type: "unknown" };
+  };
 
   function foobar() {
     const store = new RDFTripleStore();
@@ -55,12 +67,15 @@ define([
         attributes[name] = attributes[name]
           ? attributes[name] + " " + value
           : value;
+      } else if (operation.type === "attribute-equals") {
+        attributes[operation.name] = operation.value;
       } else if (operation.type === "contains-text") {
         template.push(operation.text);
       } else if (operation.type === "contains-markup") {
         // more general case of contains text?
       }
     }
+    return template;
   };
 
   // dom process
@@ -141,8 +156,22 @@ define([
     return { representation_graph };
   };
 
-  // * create a dom process interpreter that constructs templates & feeds to dom process
-  const dom_process_interpreter = () => {};
+  // * create a dom process interpreter that constructs templates
+  const dom_process_interpreter = ({ representation_graph: graph }) => {
+    // Get all the things that are dom representations and all their facts
+    const reps = sync_query(graph, q("?ele isa def:DomElement"));
+    const templates = {};
+    for (const { ele } of reps) {
+      const matches = sync_query(graph, [[ele, n("def:matches"), v("sel")]]);
+      const operations = Array.from(matches, _ =>
+        assertion_from_css(_.sel.value)
+      );
+      const template = apply_dom_operations(operations);
+      templates[ele.value] = template;
+    }
+
+    return { templates };
+  };
 
   // * create minimal dom process implementation
   // * create minimal hdom adapter for dom process (leaving extra element if necessary)
@@ -161,17 +190,20 @@ define([
     const { representation_graph } = representation_interpreter({
       input_graph: kitchen_graph,
     });
-    console.log(`kitchen_graph.triples`, kitchen_graph.triples);
-    console.log(`representation_graph.triples`, representation_graph.triples);
+    // console.log(`kitchen_graph.triples`, kitchen_graph.triples);
+    // console.log(`representation_graph.triples`, representation_graph.triples);
+
+    const { templates } = dom_process_interpreter({ representation_graph });
+    const all_html = hiccup.serialize([
+      "div",
+      { source: "model" },
+      Object.values(templates),
+    ]);
+    dom_container.innerHTML = all_html;
 
     return;
-
     // use DOM process
     const dp = dom_process();
-    const CD = interpreter(dom_process_interpreter, {
-      representation_graph: C,
-      output_dom_process: dp,
-    });
   };
 
   const get_dom_container_for = model => {
