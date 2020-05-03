@@ -1,10 +1,15 @@
 define([
   "@thi.ng/rstream",
+  "@thi.ng/transducers",
   "@def.codes/rstream-query-rdf",
   "@def.codes/meld-core",
-], (rs, rdf, { monotonic_system }) => {
+], (rs, tx, rdf, { monotonic_system }) => {
   const { factory, RDFTripleStore } = rdf;
   const { namedNode: n, blankNode: b, literal: l } = factory;
+
+  const ISA = n("isa");
+  const DOM_ELEMENT = n("def:DomElement");
+  const REPRESENTS = n("def:represents");
 
   function foobar() {
     const store = new RDFTripleStore();
@@ -96,17 +101,45 @@ define([
   // * create interpreter interface for connecting custom logic to a graph
   // * modify system to support interpreter interface
   // * create a "model" interpreter that includes RDFS+ and dataflow drivers
-  const model_interpreter = spec => {
-    const { kitchen_graph, recipe_graph } = spec;
-    const interpreter = system_from({
-      graph: kitchen_graph,
-      drivers: model_drivers,
-      assert_to: recipe_graph,
+  const model_interpreter = ({ recipe_graph }) => {
+    // NOTE: Just copies, doesn't subscribe
+    const kitchen_graph = new RDFTripleStore(recipe_graph.triples);
+    const system = monotonic_system({
+      store: kitchen_graph,
+      drivers: ["owlBasicDriver"],
     });
+    return { kitchen_graph };
   };
 
   // * create a representation interpreter that writes r12n facts to a new graph
-  const representation_interpreter = () => {};
+  const representation_interpreter = ({ input_graph }) => {
+    // NOTE: Just copies, doesn't subscribe.  This might not cut it, though.
+    const representation_graph = new RDFTripleStore(input_graph.triples);
+
+    // For each incoming subject, assert a representation.
+    // Initial representations need to be *a priori* else feedback loop.
+    // This could be done by a rule if it weren't subject to feedback
+    representation_graph.into([
+      ...tx.mapcat(s => {
+        // HACK. avoids blank nodes
+        const rep = n(`representationOf${s.value}`);
+        return [
+          [rep, ISA, DOM_ELEMENT],
+          [rep, REPRESENTS, s],
+        ];
+      }, input_graph.indexS.keys()),
+    ]);
+
+    const system = monotonic_system({
+      store: representation_graph,
+      drivers: ["domRepresentationDriver"],
+    });
+
+    //
+    console.log(`representation triples`, representation_graph.triples);
+
+    return { representation_graph };
+  };
 
   // * create a dom process interpreter that constructs templates & feeds to dom process
   const dom_process_interpreter = () => {};
@@ -121,25 +154,17 @@ define([
 
   // * create function to implement interpreter pipeline
   const create_interpreter_pipeline = (model_facts, dom_container) => {
-    const A = new RDFTripleStore(model_facts);
-    const B = new RDFTripleStore(model_facts);
+    const recipe_graph = new RDFTripleStore(model_facts);
     const C = new RDFTripleStore();
 
-    const system_A = monotonic_system({
-      store: B,
-      drivers: ["owlBasicDriver"],
+    const { kitchen_graph } = model_interpreter({ recipe_graph });
+    const { representation_graph } = representation_interpreter({
+      input_graph: kitchen_graph,
     });
-    console.log(`B facts after`, B.triples);
+    console.log(`kitchen_graph.triples`, kitchen_graph.triples);
+    console.log(`representation_graph.triples`, representation_graph.triples);
 
     return;
-    const AB = interpreter(model_interpreter, {
-      recipe_graph: A,
-      kitchen_graph: B,
-    });
-    const BC = interpreter(representation_interpreter, {
-      input_graph: B,
-      representation_graph: C,
-    });
 
     // use DOM process
     const dp = dom_process();
@@ -193,6 +218,7 @@ Bob(isa(Man))`,
     {
       label: "Subclass inference",
       facts: [
+        [n("Alice"), n("name"), l("Alice")],
         [n("Alice"), n("isa"), n("Woman")],
         [n("Bob"), n("isa"), n("Man")],
         [n("Woman"), n("subclassOf"), n("Person")],
