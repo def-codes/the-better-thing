@@ -15,9 +15,15 @@ import rdf from "@def.codes/rdf-data-model";
 // - still need another approach for has text/template
 
 const n = rdf.namedNode;
+const b = rdf.blankNode;
 const l = rdf.literal;
 
+const ISA = n("isa");
 const MATCHES = n("def:matches");
+const REPRESENTS = n("def:represents");
+const SUBJECT = n("rdf:subject");
+const PREDICATE = n("rdf:predicate");
+const OBJECT = n("rdf:object");
 
 export default {
   name: "domRepresentationDriver",
@@ -34,15 +40,42 @@ export default {
             : {},
       },
       {
-        name: "RDFaPropertyRule",
+        name: "RDFaPropertyRepresentationRule",
+        comment:
+          "Each property value has a concrete representation (contained by its resource representation)",
         when: q(
-          "?rep isa def:DomElement",
-          "?rep def:represents ?thing",
-          "?thing ?property ?value"
+          "?s ?p ?o",
+          "?rep def:represents ?s",
+          "?rep isa def:DomElement"
         ),
-        // TODO: s/b in filter
+        then: ({ rep, s, p, o }) => {
+          const prop = b();
+          const trip = b();
+          return {
+            assert: [
+              [rep, n("def:contains"), prop],
+              [prop, ISA, n("def:DomElement")],
+              [prop, REPRESENTS, trip],
+              [trip, SUBJECT, s],
+              [trip, PREDICATE, p],
+              [trip, OBJECT, o],
+            ],
+          };
+        },
+      },
+      {
+        name: "RDFaPropertyAttributeRule",
+        when: q(
+          "?subject ?property ?value",
+          "?trip rdf:subject ?subject",
+          "?trip rdf:predicate ?property",
+          "?trip rdf:object ?value",
+          "?rep def:represents ?trip",
+          "?rep isa def:DomElement"
+        ),
         then: ({ rep, property, value }) =>
-          value.termType === "Literal"
+          // TODO: s/b in filter
+          value.termType // === "Literal"
             ? {
                 assert: [
                   // Could assert hasText vs (or in addition to) content

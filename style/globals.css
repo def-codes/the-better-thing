@@ -77,6 +77,9 @@
 [property]::after {
   content: var(--resource) "property " attr(property);
 }
+[property][content]::after {
+  content: var(--resource) "property " attr(property) " : " attr(content);
+}
 [graph]::after {
   content: "graph " attr(graph);
 }
