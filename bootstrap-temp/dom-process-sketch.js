@@ -2,9 +2,11 @@ define([
   "@thi.ng/rstream",
   "@thi.ng/transducers",
   "@thi.ng/hiccup",
+  "@thi.ng/transducers-hdom",
   "@def.codes/rstream-query-rdf",
   "@def.codes/meld-core",
-], (rs, tx, hiccup, rdf, { q, monotonic_system }) => {
+  "@def.codes/dom-process",
+], (rs, tx, hiccup, th, rdf, { q, monotonic_system }, dp) => {
   const { factory, RDFTripleStore, sync_query } = rdf;
   const { namedNode: n, variable: v, blankNode: b, literal: l } = factory;
 
@@ -58,9 +60,9 @@ define([
 
   // dom operations
   const apply_dom_operations = operations => {
-    const initial_element = "div";
+    let element = "div";
     const attributes = {};
-    const template = [initial_element, attributes];
+    const children = [];
     for (const operation of operations) {
       if (operation.type === "attribute-contains") {
         const { name, value } = operation;
@@ -70,15 +72,15 @@ define([
       } else if (operation.type === "attribute-equals") {
         attributes[operation.name] = operation.value;
       } else if (operation.type === "contains-text") {
-        template.push(operation.text);
+        children.push(operation.text);
       } else if (operation.type === "contains-markup") {
         // more general case of contains text?
       }
     }
-    return template;
+    return { element, attributes, children };
   };
 
-  // dom process
+  // dom process take 2
   const dom_process = () => {
     const providers = new Map();
     const consumers = new Map();
@@ -86,29 +88,6 @@ define([
     const provided = rs.stream();
     const consumed = rs.stream();
     return { provided, consumed };
-  };
-
-  // Dom element driver
-  const dom_element_driver = {
-    rules: [
-      {
-        when: ["?x", "a", "DomElement"],
-        then: ({ x }) => {
-          const operations = [];
-          const template = template_from_operations(operations);
-          // TODO: x is the rep, not the resource... *but*, how does it get set
-          // as the identifier when making child reps.
-          dp.set_template(x.value, template);
-        },
-      },
-    ],
-  };
-
-  // listen for each representation
-  const rep_query = ["?x", "a", "DomElement"];
-  const rep_results_handler = projections => {
-    for (const projection of projections) {
-    }
   };
 
   // map rules into templates
@@ -150,8 +129,7 @@ define([
       drivers: ["domRepresentationDriver"],
     });
 
-    //
-    console.log(`representation triples`, representation_graph.triples);
+    // console.log(`representation triples`, representation_graph.triples);
 
     return { representation_graph };
   };
@@ -182,7 +160,7 @@ define([
   // * support contains-text rule
 
   // * create function to implement interpreter pipeline
-  const create_interpreter_pipeline = (model_facts, dom_container) => {
+  const create_interpreter_pipeline = (model_facts, dom_process) => {
     const recipe_graph = new RDFTripleStore(model_facts);
     const C = new RDFTripleStore();
 
@@ -194,28 +172,21 @@ define([
     // console.log(`representation_graph.triples`, representation_graph.triples);
 
     const { templates } = dom_process_interpreter({ representation_graph });
-    const all_html = hiccup.serialize([
-      "div",
-      { source: "model" },
-      Object.values(templates),
-    ]);
-    dom_container.innerHTML = all_html;
-
-    return;
-    // use DOM process
-    const dp = dom_process();
+    const uber_template = {
+      element: "div",
+      attributes: { source: "model" },
+      children: Object.values(templates),
+    };
+    // const all_html = hiccup.serialize(uber_template);
+    // dom_container.innerHTML = all_html;
+    dom_process.content.next({ path: [], template: uber_template });
   };
 
-  const get_dom_container_for = model => {
-    return document.body.appendChild(document.createElement("div"));
-  };
-
-  const connect_models_to_interpreter = models => {
+  const connect_models_to_interpreter = (models, dom_process) => {
     for (const model of models) {
-      const dom_container = get_dom_container_for(model);
       // const facts = read_facts_from(example.userland_code);
       const { facts } = model;
-      create_interpreter_pipeline(facts, dom_container);
+      create_interpreter_pipeline(facts, dom_process);
     }
   };
 
@@ -263,6 +234,17 @@ Man(subclassOf(Person))`,
     },
   ];
 
-  // * connect example models to interpreter pipeline
-  connect_models_to_interpreter(examples);
+  // const dom_process = dp.make_dom_process();
+
+  // console.log(`dom_process`, dom_process);
+  // dom_process.notify_mounted((expression, context_getter, path) => {
+  //   console.log(`DOM PROCESS MOUNTED`, { expression, context_getter, path });
+  // });
+
+  const root = document.querySelector("#rule-based-representation");
+  const { updateDOM } = th;
+  console.log(`updateDOM`, updateDOM);
+  rs.fromIterable([1]).transform(updateDOM({ root }));
+
+  connect_models_to_interpreter(examples, dom_process);
 });

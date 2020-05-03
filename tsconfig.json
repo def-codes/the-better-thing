@@ -7,6 +7,7 @@
     {"path": "packages/console-stream" },
     {"path": "packages/datafy-nav" },
     {"path": "packages/datafy-node" },
+    {"path": "packages/dom-process" },
     {"path": "packages/expression-reader" },
     {"path": "packages/function-testing" },
     {"path": "packages/graphs" },

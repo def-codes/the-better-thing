@@ -14,6 +14,7 @@ const modules = [
   ["console-stream"],
   ["datafy-nav"],
   ["datafy-node", { node_only: true }],
+  ["dom-process"],
   ["expression-reader"],
   ["function-testing"],
   ["graphs"],
@@ -90,7 +91,7 @@ const bundle = ([name, { node_only, ...config } = {}]) => ({
   //
   //watch: { include: "build/modules/**", chokidar: { usePolling: true } },
   plugins: [
-    (function() {
+    (function () {
       return {
         name: "meld-resolve",
         resolveId: includee => TO_INLINE[includee] || null,
