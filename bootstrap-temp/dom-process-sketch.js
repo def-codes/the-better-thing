@@ -86,8 +86,6 @@ define([
 
   const Placeholder = {
     init(element, context, { id }) {
-      console.log(`PLACEHOLDER INIT`, context, id);
-
       context.mounted({ id, element });
     },
     render(_, { id }) {
@@ -142,11 +140,8 @@ define([
         feeds.set(
           id,
           ensure_source(id).transform(
-            tx.trace("FEED"),
             tx.map(transform_expression),
-            tx.trace("TRANSFORMED"),
-            th.updateDOM({ root: element, ctx }),
-            tx.trace("DOMED")
+            th.updateDOM({ root: element, ctx })
           )
         );
       }
@@ -335,14 +330,24 @@ Man(subclassOf(Person))`,
   // test usage
   const root = document.querySelector("#rule-based-representation");
   const dom_process = make_dom_process(root);
-  dom_process.mounted.subscribe(rs.trace("MOUNTED"));
-  dom_process.content.subscribe(rs.trace("CONTENT"));
+  // dom_process.mounted.subscribe(rs.trace("MOUNTED"));
+  // dom_process.content.subscribe(rs.trace("CONTENT"));
   dom_process.content.next({
     id: "def:root/never",
     content: {
       element: "p",
       children: ["Never seen because placeholder never placed"],
     },
+  });
+  rs.fromInterval(250).subscribe({
+    next: value =>
+      dom_process.content.next({
+        id: "def:some-value",
+        content: {
+          element: "output",
+          children: ["my value is", { element: "b", children: [value] }],
+        },
+      }),
   });
 
   dom_process.content.next({
@@ -355,6 +360,7 @@ Man(subclassOf(Person))`,
           element: "header",
           children: [{ element: "h1", children: ["in the beginning"] }],
         },
+        { element: "placeholder", attributes: { id: "def:some-value" } },
         { element: "placeholder", attributes: { id: "def:root/bananas" } },
         {
           element: "footer",
