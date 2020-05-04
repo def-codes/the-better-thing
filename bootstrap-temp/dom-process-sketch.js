@@ -98,7 +98,7 @@ define([
   // construct templates from a graph containing representations
   const dom_process_interpreter = ({ representation_graph: graph }) => {
     // Get all the things that are dom representations and all their facts
-    const reps = sync_query(graph, q("?ele isa def:DomElement"));
+    const reps = sync_query(graph, q("?ele isa def:DomElement")) || [];
     const contained = new Set(
       tx.map(
         _ => _.contained.value,
@@ -124,32 +124,46 @@ define([
     return { templates, top_level };
   };
 
-  const create_interpreter_pipeline = (model_facts, dom_process) => {
-    const recipe_graph = new RDFTripleStore(model_facts);
+  const create_interpreter_graph = spec => {
+    const { recipe_facts, recipe_dom_process, kitchen_dom_process } = spec;
+    const recipe_graph = new RDFTripleStore(recipe_facts);
 
     // TEMP: View model directly, rather than interpreter
     const { kitchen_graph } = model_interpreter({ recipe_graph });
 
-    const { representation_graph } = representation_interpreter({
-      input_graph: recipe_graph, //kitchen_graph,
+    const model_representation_graph = representation_interpreter({
+      input_graph: recipe_graph,
+    }).representation_graph;
+
+    const kitchen_representation_graph = representation_interpreter({
+      input_graph: kitchen_graph,
+    }).representation_graph;
+
+    const recipe_rep = dom_process_interpreter({
+      representation_graph: model_representation_graph,
     });
 
-    const { templates, top_level } = dom_process_interpreter({
-      representation_graph,
+    const kitchen_rep = dom_process_interpreter({
+      representation_graph: kitchen_representation_graph,
     });
 
-    // Construct a main template to contain all top-level items
-    dom_process.content.next({
-      id: "",
-      content: {
-        element: "div",
-        children: Array.from(top_level, id => templates[id]),
-      },
-    });
+    const bind_rep = ({ top_level, templates }, dom_process) => {
+      // Construct a main template to contain all top-level items
+      dom_process.content.next({
+        id: "",
+        content: {
+          element: "div",
+          children: Array.from(top_level, id => templates[id]),
+        },
+      });
 
-    // Bind all other templates to their placeholders
-    for (const [id, content] of Object.entries(templates))
-      dom_process.content.next({ id, content });
+      // Bind all other templates to their placeholders
+      for (const [id, content] of Object.entries(templates))
+        dom_process.content.next({ id, content });
+    };
+
+    bind_rep(recipe_rep, recipe_dom_process);
+    bind_rep(kitchen_rep, kitchen_dom_process);
 
     return { recipe_graph, kitchen_graph };
   };
@@ -162,26 +176,44 @@ define([
     const cont = model => {
       const article = document.createElement("article");
       article.setAttribute("resource", model.label);
+      const model_code_id = `${model.label.replace(/\W+/g, "-")}`;
       const model_code = article.appendChild(document.createElement("code"));
+      model_code.setAttribute("id", model_code_id);
       const model_interpretation_code = article.appendChild(
         document.createElement("code")
       );
-      const output = article.appendChild(document.createElement("output"));
+      // > A space-separated list of other elements’ ids, indicating that those
+      // > elements contributed input values to (or otherwise affected) the
+      // > calculation.
+      const recipe_output = article.appendChild(
+        document.createElement("output")
+      );
+      const kitchen_output = article.appendChild(
+        document.createElement("output")
+      );
+      recipe_output.setAttribute("for", model_code_id);
       root.appendChild(article);
-      return { model_code, model_interpretation_code, output };
+      return {
+        model_code,
+        model_interpretation_code,
+        recipe_output,
+        kitchen_output,
+      };
     };
     for (const model of models) {
-      const { model_code, model_interpretation_code, output } = cont(model);
-      model_code.innerText = model.userland_code;
-      const dom_process = dp.make_dom_process(output);
-      const facts = interpret(read(model.userland_code));
-      const { kitchen_graph, recipe_graph } = create_interpreter_pipeline(
-        facts,
-        dom_process
-      );
+      const the = cont(model);
+      the.model_code.innerText = model.userland_code;
+      const recipe_dom_process = dp.make_dom_process(the.recipe_output);
+      const kitchen_dom_process = dp.make_dom_process(the.kitchen_output);
+      const recipe_facts = interpret(read(model.userland_code));
+      const { kitchen_graph, recipe_graph } = create_interpreter_graph({
+        recipe_facts,
+        recipe_dom_process,
+        kitchen_dom_process,
+      });
       live_query(kitchen_graph, q("?s ?p ?o")).subscribe({
         next: facts => {
-          model_interpretation_code.innerText = Array.from(
+          the.model_interpretation_code.innerText = Array.from(
             facts,
             ({ s, p, o }) => `${s} ${p} ${o}`
           ).join("\n");

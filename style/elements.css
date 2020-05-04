@@ -180,10 +180,9 @@ style {
   display: block;
   white-space: pre;
 }
-output,
-output .Output {
+output {
   --type: "Output";
-  border: 1em solid #808080 !important;
+  display: inline-block;
 }
 address {
   --type: "Address";
@@ -195,14 +194,6 @@ cite {
 }
 code {
   --type: "Code";
-  display: inline-block;
-}
-p code,
-p output {
-  display: inline-block;
-}
-code,
-output {
   display: inline-block;
 }
 i {
