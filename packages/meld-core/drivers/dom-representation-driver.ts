@@ -55,8 +55,8 @@ export default {
             assert: [
               [rep, n("def:contains"), prop],
               [prop, ISA, n("def:DomElement")],
-              [rep, MATCHES, l(`[property="${p.value}"]`)],
-              [rep, MATCHES, l(`[content="${o.value}"]`)],
+              [prop, MATCHES, l(`[property="${p.value}"]`)],
+              [prop, MATCHES, l(`[content="${o.value}"]`)],
               // Set both text and content attribute
               [prop, n("def:containsText"), l(o.value)],
               // This of course creates an infinite loop

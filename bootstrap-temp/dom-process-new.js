@@ -4,7 +4,9 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
   tx,
   th
 ) => {
-  // need to replace placeholder reference with Placeholder component
+  // TODO: support dismount
+  // TODO: support cleanup (delete cache)
+  // TODO: support changing element OR support multiple mount points
 
   const Placeholder = {
     init(element, context, { id }) {

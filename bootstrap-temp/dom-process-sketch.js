@@ -6,7 +6,7 @@ define([
   "@def.codes/expression-reader",
   "./dom-process-new.js",
 ], async (rs, tx, rdf, { q, monotonic_system, interpret }, { read }, dp) => {
-  const { factory, RDFTripleStore, sync_query } = rdf;
+  const { factory, RDFTripleStore, sync_query, live_query } = rdf;
   const { namedNode: n, variable: v, blankNode: b, literal: l } = factory;
 
   const ISA = n("isa");
@@ -128,7 +128,8 @@ define([
     const recipe_graph = new RDFTripleStore(model_facts);
 
     // TEMP: View model directly, rather than interpreter
-    // const { kitchen_graph } = model_interpreter({ recipe_graph });
+    const { kitchen_graph } = model_interpreter({ recipe_graph });
+
     const { representation_graph } = representation_interpreter({
       input_graph: recipe_graph, //kitchen_graph,
     });
@@ -149,23 +150,43 @@ define([
     // Bind all other templates to their placeholders
     for (const [id, content] of Object.entries(templates))
       dom_process.content.next({ id, content });
+
+    return { recipe_graph, kitchen_graph };
   };
 
+  // For now, use one dom_process instance per model
+  // obviously this would be a good use case for dom process itself,
+  // but we'd need actual unique (representation) IRI's across models
   const connect_models_to_interpreter = (models, dom_process) => {
     const root = document.querySelector("#rule-based-representation");
     const cont = model => {
       const article = document.createElement("article");
       article.setAttribute("resource", model.label);
-      return root.appendChild(article);
+      const model_code = article.appendChild(document.createElement("code"));
+      const model_interpretation_code = article.appendChild(
+        document.createElement("code")
+      );
+      const output = article.appendChild(document.createElement("output"));
+      root.appendChild(article);
+      return { model_code, model_interpretation_code, output };
     };
     for (const model of models) {
-      // For now, use one dom_process instance per model
-      // obviously this would be a good use case for dom process itself,
-      // but we'd need actual unique (representation) IRI's across models
-      const container = cont(model);
-      const dom_process = dp.make_dom_process(container);
+      const { model_code, model_interpretation_code, output } = cont(model);
+      model_code.innerText = model.userland_code;
+      const dom_process = dp.make_dom_process(output);
       const facts = interpret(read(model.userland_code));
-      create_interpreter_pipeline(facts, dom_process);
+      const { kitchen_graph, recipe_graph } = create_interpreter_pipeline(
+        facts,
+        dom_process
+      );
+      live_query(kitchen_graph, q("?s ?p ?o")).subscribe({
+        next: facts => {
+          model_interpretation_code.innerText = Array.from(
+            facts,
+            ({ s, p, o }) => `${s} ${p} ${o}`
+          ).join("\n");
+        },
+      });
     }
   };
 
@@ -189,7 +210,7 @@ Bob(isa(Man))`,
     },
     {
       label: "Subclass inference",
-      userland_code: `Alice(isa(Woman), name("woman"))
+      userland_code: `Alice(isa(Woman), name("Alice"))
 Bob(isa(Man))
 Woman(subclassOf(Person))
 Man(subclassOf(Person))`,
