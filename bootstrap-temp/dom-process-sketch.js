@@ -3,8 +3,9 @@ define([
   "@thi.ng/transducers",
   "@def.codes/rstream-query-rdf",
   "@def.codes/meld-core",
+  "@def.codes/expression-reader",
   "./dom-process-new.js",
-], async (rs, tx, rdf, { q, monotonic_system }, dp) => {
+], async (rs, tx, rdf, { q, monotonic_system, interpret }, { read }, dp) => {
   const { factory, RDFTripleStore, sync_query } = rdf;
   const { namedNode: n, variable: v, blankNode: b, literal: l } = factory;
 
@@ -163,9 +164,7 @@ define([
       // but we'd need actual unique (representation) IRI's across models
       const container = cont(model);
       const dom_process = dp.make_dom_process(container);
-
-      // const facts = read_facts_from(example.userland_code);
-      const { facts } = model;
+      const facts = interpret(read(model.userland_code));
       create_interpreter_pipeline(facts, dom_process);
     }
   };
@@ -173,42 +172,25 @@ define([
   const examples = [
     {
       label: "Single fact with literal",
-      facts: [[n("Alice"), n("name"), l("Alice")]],
       userland_code: `Alice(name("Alice"))`,
     },
     {
       label: "Single fact with object value",
-      facts: [[n("Alice"), n("isa"), n("Person")]],
       userland_code: `Alice(a(Person))`,
     },
     {
       label: "Two facts about one subject",
-      facts: [
-        [n("Alice"), n("name"), l("Alice")],
-        [n("Alice"), n("isa"), n("Person")],
-      ],
       userland_code: `Alice(isa(Person), name("Alice"))`,
     },
     {
       label: "Two subjects",
-      facts: [
-        [n("Alice"), n("isa"), n("Woman")],
-        [n("Bob"), n("isa"), n("Man")],
-      ],
       userland_code: `Alice(isa(Woman))
 Bob(isa(Man))`,
     },
     {
       label: "Subclass inference",
-      facts: [
-        [n("Alice"), n("name"), l("Alice")],
-        [n("Alice"), n("isa"), n("Woman")],
-        [n("Bob"), n("isa"), n("Man")],
-        [n("Woman"), n("subclassOf"), n("Person")],
-        [n("Man"), n("subclassOf"), n("Person")],
-      ],
       userland_code: `Alice(isa(Woman), name("woman"))
-Bob(isa(Person))
+Bob(isa(Man))
 Woman(subclassOf(Person))
 Man(subclassOf(Person))`,
     },
