@@ -91,7 +91,13 @@
           .catch(error => console.warn(`Couldn't load ${url} for ${id}`, error))
           .then(context => {
             if (!context) {
-              console.warn(`No context for ${url} for ${id}`);
+              // No context means that we didn't detect an anonymous define.  If
+              // the module was not defined before but is defined now, then the
+              // module used a named define.
+              // TODO: still wrong if such a module had deps of its own, right?
+              // TODO: restructure, this must be a bug wrt above `pop`
+              if (!basic_amd.modules.has(id))
+                console.warn(`No context for ${url} for ${id}`);
               return;
             }
             // Use window.define to include any later wrapping.

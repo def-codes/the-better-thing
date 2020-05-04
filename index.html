@@ -438,6 +438,8 @@
                   "@def.codes/amd-loader"
                 ];
                 const custom_resolver = (module_id, base) => {
+                  if (module_id === "tslib")
+                    return "./node_modules/tslib/tslib.js";
                   const [, defcodes] =
                     module_id.match("^@def.codes/(.*)$") || [];
                   if (defcodes)
