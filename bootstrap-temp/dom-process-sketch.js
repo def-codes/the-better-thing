@@ -13,6 +13,7 @@ define([
   const REPRESENTS = n("def:represents");
   const MATCHES = n("def:matches");
   const CONTAINS = n("def:contains");
+  const CONTAINS_TEXT = n("def:containsText");
 
   const ATTRIBUTE_EQUALS = /^\[(.+)="(.+)"\]$/;
   const ELEMENT = /^[a-z][a-z0-9]*$/;
@@ -108,9 +109,11 @@ define([
     for (const { ele } of reps) {
       const matches = sync_query(graph, [[ele, MATCHES, v("sel")]]) || [];
       const contains = sync_query(graph, [[ele, CONTAINS, v("rep")]]) || [];
+      const texts = sync_query(graph, [[ele, CONTAINS_TEXT, v("text")]]) || [];
       const operations = [
-        ...Array.from(matches, _ => assertion_from_css(_.sel.value)),
-        ...Array.from(contains, _ => ({ type: "contains", id: _.rep.value })),
+        ...tx.map(_ => assertion_from_css(_.sel.value), matches),
+        ...tx.map(_ => ({ type: "contains", id: _.rep.value }), contains),
+        ...tx.map(_ => ({ type: "contains-text", text: _.text.value }), texts),
       ];
       const template = apply_dom_operations(operations);
       templates[ele.value] = template;

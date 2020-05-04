@@ -57,6 +57,8 @@ export default {
               [prop, ISA, n("def:DomElement")],
               [rep, MATCHES, l(`[property="${p.value}"]`)],
               [rep, MATCHES, l(`[content="${o.value}"]`)],
+              // Set both text and content attribute
+              [prop, n("def:containsText"), l(o.value)],
               // This of course creates an infinite loop
               // [prop, REPRESENTS, trip],
               // [trip, SUBJECT, s],
@@ -98,17 +100,12 @@ export default {
           "?rep def:represents ?trip",
           "?rep isa def:DomElement"
         ),
-        then: ({ rep, property, value }) =>
-          // TODO: s/b in filter
-          value.termType // === "Literal"
-            ? {
-                assert: [
-                  // Could assert hasText vs (or in addition to) content
-                  [rep, MATCHES, l(`[property="${property.value}"]`)],
-                  [rep, MATCHES, l(`[content="${value.value}"]`)],
-                ],
-              }
-            : {},
+        then: ({ rep, property, value }) => ({
+          assert: [
+            [rep, MATCHES, l(`[property="${property.value}"]`)],
+            [rep, MATCHES, l(`[content="${value.value}"]`)],
+          ],
+        }),
       },
       {
         // PROVISIONAL
