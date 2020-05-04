@@ -50,15 +50,18 @@ export default {
         ),
         then: ({ rep, s, p, o }) => {
           const prop = b();
-          const trip = b();
+          // const trip = b();
           return {
             assert: [
               [rep, n("def:contains"), prop],
               [prop, ISA, n("def:DomElement")],
-              [prop, REPRESENTS, trip],
-              [trip, SUBJECT, s],
-              [trip, PREDICATE, p],
-              [trip, OBJECT, o],
+              [rep, MATCHES, l(`[property="${p.value}"]`)],
+              [rep, MATCHES, l(`[content="${o.value}"]`)],
+              // This of course creates an infinite loop
+              // [prop, REPRESENTS, trip],
+              // [trip, SUBJECT, s],
+              // [trip, PREDICATE, p],
+              // [trip, OBJECT, o],
             ],
           };
         },
@@ -81,6 +84,10 @@ export default {
               }
             : {},
       },
+
+      // THIS rule is essentially moot.  It was working in conjunction with the
+      // `RDFaPropertyRepresentationRule`.  That approach is more flexible but
+      // causes infinite loop, as noted.  So the attributes are done there.
       {
         name: "RDFaPropertyAttributeRule",
         when: q(

@@ -24,6 +24,7 @@ div[class=""] {
 }
 /* Go a little easier on these elements */
 div[data-placeholder] {
+  --prefix: "";
   border: 0.25em solid rgba(255, 0, 0, 0.25);
 }
 
