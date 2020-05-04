@@ -1,4 +1,4 @@
-import { getIn } from "@thi.ng/paths";
+import { getInUnsafe } from "@thi.ng/paths";
 import {
   Subgraph,
   object_graph_to_dot_subgraph,
@@ -32,7 +32,7 @@ export const make_grapher = () => {
     const options = { spec, state };
 
     const to_subgraph_special = (sketch: Sketch): Subgraph => {
-      const value = sketch.path ? getIn(thing, sketch.path) : thing;
+      const value = sketch.path ? getInUnsafe(thing, sketch.path) : thing;
       const interpreter = sketch.as || "graph";
 
       if (interpreter === "walk")
