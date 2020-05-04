@@ -19,7 +19,10 @@ define(["./dom-process-new.js", "@thi.ng/rstream"], async (dp, rs) => {
         id: "def:some-value",
         content: {
           element: "output",
-          children: ["my value is", { element: "b", children: [value] }],
+          children: [
+            { element: "i", children: ["my value is"] },
+            { element: "b", children: [value] },
+          ],
         },
       }),
   });
@@ -48,7 +51,11 @@ define(["./dom-process-new.js", "@thi.ng/rstream"], async (dp, rs) => {
     content: {
       element: "p",
       attributes: { resource: "http:brainstorms" },
-      children: ["I ", { element: "i", children: ["loves"] }, " you, Porgy"],
+      children: [
+        "I ",
+        { element: "i", children: ["loves"] },
+        { element: "span", children: [" you, Porgy"] },
+      ],
     },
   });
   await timeout(7000);
@@ -57,7 +64,11 @@ define(["./dom-process-new.js", "@thi.ng/rstream"], async (dp, rs) => {
     content: {
       element: "p",
       attributes: { resource: "http:brainstorms" },
-      children: ["I ", { element: "i", children: ["loves"] }, " you, Bess"],
+      children: [
+        "I ",
+        { element: "i", children: ["loves"] },
+        { element: "span", children: [" you, Bess"] },
+      ],
     },
   });
   await timeout(7000);
@@ -66,7 +77,11 @@ define(["./dom-process-new.js", "@thi.ng/rstream"], async (dp, rs) => {
     content: {
       element: "p",
       attributes: { resource: "http:brainstorms" },
-      children: ["I ", { element: "i", children: ["loves"] }, " you, Potato"],
+      children: [
+        "I ",
+        { element: "i", children: ["loves"] },
+        { element: "span", children: [" you, Potato"] },
+      ],
     },
   });
 });

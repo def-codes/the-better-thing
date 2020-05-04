@@ -1,4 +1,6 @@
 // dom process take 2. TODO: move this to package
+//
+// NOTE: expects you to provide your own spans and keys
 define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
   rs,
   tx,
@@ -25,8 +27,8 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
       ? [Placeholder, { id: expression.attributes.id }]
       : [
           expression.element,
-          expression.attributes,
-          tx.map(
+          expression.attributes || {},
+          ...tx.map(
             expr =>
               typeof expr === "string" || typeof expr === "number"
                 ? expr
@@ -35,7 +37,8 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
           ),
         ];
 
-  const make_dom_process = root => {
+  // May support span/keys as options
+  const make_dom_process = (root, ___opts) => {
     const elements = new Map(); // mounted element, if any
     const templates = new Map(); // last-provided template (expression), if any
     const sources = new Map(); // pubsub subscriber for placeholder
@@ -63,10 +66,16 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
         // Automatically sends the latest value (if one arrived first)
         feeds.set(
           id,
-          ensure_source(id).transform(
-            tx.map(transform_expression),
-            th.updateDOM({ root: element, ctx })
-          )
+          ensure_source(id)
+            .transform(
+              tx.map(transform_expression),
+              th.updateDOM({ root: element, ctx, span: false, keys: false })
+            )
+            .subscribe({
+              error(error) {
+                console.error("UPDATE HDOM ERROR", error);
+              },
+            })
         );
       }
     };
