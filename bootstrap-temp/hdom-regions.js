@@ -60,23 +60,32 @@ define([
     ),
   };
 
-  const TEMPLATE_PROTOTYPE = {
-    init(element, context, args) {
-      const { id } = args;
-      const { process } = context;
-      console.log(`INIT!!`, { element, context, args });
-      if (id) process.mounted.next({ id, element });
-    },
-    render(_ctx, { id }) {
-      return ["div", { __impl: custom, key: id, id }];
-    },
-    release({ process: { unmounted } }, { id }) {
-      unmounted.next("umm.... what?");
-      console.log(`RELEASE!!`);
-    },
+  // A stateful thing is needed so that the *element* can be released.
+  // Is there any other way to know what element is being released?
+  const Template = () => {
+    let state = {};
+    return {
+      init(element, context, args) {
+        const { id } = args;
+        const { process } = context;
+        state.element = element;
+        console.log(`INIT!!`, { element, context, args });
+        if (id) process.mounted.next({ id, element });
+      },
+      render(_ctx, { id }) {
+        // turns out the custom impl is not needed
+        // return ["div", { __impl: custom, key: id, id }];
+        return ["div", { key: id /*, id */ }];
+      },
+      release({ process: { unmounted } }, { id }) {
+        // is id even needed?
+        unmounted.next({ id, element: state.element });
+        console.log(`RELEASE!!`);
+      },
+    };
   };
 
-  const OPTS = { closeOut: false };
+  const OPTS = { closeOut: rs.CloseMode.NEVER };
   const P = Object.getPrototypeOf;
   const is_plain_object = x => x && P(P(x)) === null;
   const transform_expression = (
@@ -93,7 +102,7 @@ define([
       p.add({ id, path });
       console.log(`placeholder`, id, path);
       // return ["div", { __impl: custom, key: id, id }];
-      return [TEMPLATE_PROTOTYPE, { id }];
+      return [Template(), { id }];
     }
 
     return [
@@ -131,7 +140,10 @@ define([
         // Automatically sends the latest value (if one arrived first)
         for (const element of mounted_elements) {
           if (!feeds.has(element)) {
-            console.log("MAKING FEED FOR", id, element);
+            let i = 0;
+            for (const [k, v] of elements) i += v.size;
+            console.log("NEW FEED", feeds.size, i, id, element);
+
             feeds.set(
               element,
               ensure_source(id)
@@ -152,7 +164,7 @@ define([
       }
     };
 
-    Object.assign(process, {
+    return Object.assign(process, {
       content: rs.subscription({
         next(value) {
           const { id, content } = value;
@@ -173,12 +185,18 @@ define([
         error: error => console.error("error: mounted", error),
       }),
       unmounted: rs.subscription({
-        next(message) {
-          console.log(`UNMOUNTED!!??`, message);
+        // do we even need to know id?  yes, to update element books
+        next({ id, element }) {
+          if (elements.has(id)) elements.get(id).delete(element);
+          if (feeds.has(element)) {
+            const feed = feeds.get(element);
+            console.log(`REMOVE FEED:`, feed);
+            if (feed) feed.unsubscribe();
+            feeds.delete(element);
+          }
         },
       }),
     });
-    return process;
   };
   return { make_dom_process };
 });
