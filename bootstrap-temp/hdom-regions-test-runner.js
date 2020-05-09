@@ -9,8 +9,7 @@ define(["./hdom-regions"], ({ make_dom_process }) => {
     for (const [id, stream] of Object.entries(streams))
       stream.subscribe({
         next: content => {
-          console.log(`content`, id, content);
-
+          // console.log(`content`, id, content);
           dom_process.content.next({ id, content });
         },
       });

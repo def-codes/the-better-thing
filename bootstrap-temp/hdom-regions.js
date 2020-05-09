@@ -1,8 +1,18 @@
-define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
-  rs,
-  tx,
-  th
-) => {
+define([
+  "@thi.ng/rstream",
+  "@thi.ng/transducers",
+  "@thi.ng/associative",
+  "@thi.ng/transducers-hdom",
+], (rs, tx, { ArraySet }, th) => {
+  // element is the instance key
+  // custom impl is responsible for calling init,
+  // but “parent” impl will call release
+  // which means you must use lifecycle if you want to know when release happens
+
+  // from @thi.ng/hdom dom implementation
+  const maybeInitElement = (el, tree) =>
+    tree.__init && tree.__init.apply(tree.__this, [el, ...tree.__args]);
+
   const custom = {
     normalizeTree(opts, tree) {
       // console.log(`NORMALIZE TREE`, tree);
@@ -11,22 +21,19 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
     createTree(opts, parent, tree, child, init) {
       console.log(`CREATE TREE`, { parent, tree, child, init });
       const element = document.createElement("blockquote");
-      const { ctx } = opts;
-      const { process } = ctx;
       const [, attributes] = tree;
       const { id } = attributes;
 
       if (parent)
         if (child) parent.insertBefore(element, parent.children[child]);
         else parent.appendChild(element);
-      if (id) process.mounted.next({ id, element });
+      if (init) maybeInitElement(element, tree);
 
       return element;
     },
-    hydrateTree(opts, parent, tree, child) {
-      console.log(`NOT IMPLEMENTED! HYDRATE TREE`, opts, parent, tree, child);
-    },
     diffTree(opts, impl, parent, prev, curr, child) {
+      console.log("DIFF", { prev_id, curr_id, child });
+
       // TODO: Why is this being called with `impl` as second argument?
       const prev_id = prev && prev[1] && prev[1].id;
       const curr_id = curr && curr[1] && curr[1].id;
@@ -36,11 +43,10 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
       } else if (prev_id === curr_id) {
         console.log(`Placeholder, you ain't changing`, curr_id);
       }
-
-      console.log("DIFF", { prev_id, curr_id, child });
     },
     ...Object.fromEntries(
       [
+        "hydrateTree",
         "createElement",
         "createTextElement",
         "getElementById",
@@ -53,62 +59,65 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
       ].map(key => [key, (...args) => console.log(`NO!! ${key}`, ...args)])
     ),
   };
-  const OPTS = { closeOut: false };
 
-  const transform_expression_0 = (expression, p = new Set()) => {
-    console.log(`expression`, expression);
-    return expression.element === "xxxxxxxxxxplaceholder"
-      ? (p.add(expression.attributes.id),
-        ["div", { id: expression.attributes.id }])
-      : [
-          expression.element,
-          expression.attributes || {},
-          ...tx.map(
-            expr =>
-              typeof expr === "string" || typeof expr === "number"
-                ? expr.toString()
-                : transform_expression(expr, p),
-            expression.children || []
-          ),
-        ];
+  const TEMPLATE_PROTOTYPE = {
+    init(element, context, args) {
+      const { id } = args;
+      const { process } = context;
+      console.log(`INIT!!`, { element, context, args });
+      if (id) process.mounted.next({ id, element });
+    },
+    render(_ctx, { id }) {
+      return ["div", { __impl: custom, key: id, id }];
+    },
+    release({ process: { unmounted } }, { id }) {
+      unmounted.next("umm.... what?");
+      console.log(`RELEASE!!`);
+    },
   };
+
+  const OPTS = { closeOut: false };
   const P = Object.getPrototypeOf;
   const is_plain_object = x => x && P(P(x)) === null;
-  const transform_expression = ([element, ...rest], p = new Set()) => {
+  const transform_expression = (
+    [element, ...rest],
+    p = new Set(),
+    path = []
+  ) => {
     const [second, ...tail] = rest;
     const n = is_plain_object(second);
     const attributes = n ? second : {};
     const children = n ? tail : rest;
     if (element === "placeholder") {
-      console.log(`placeholder`, attributes.id);
-      p.add(attributes.id);
-      return ["div", { __impl: custom, id: attributes.id }];
+      const { id } = attributes;
+      p.add({ id, path });
+      console.log(`placeholder`, id, path);
+      // return ["div", { __impl: custom, key: id, id }];
+      return [TEMPLATE_PROTOTYPE, { id }];
     }
 
     return [
       element,
       attributes || {},
-      ...tx.map(
-        expr =>
-          typeof expr === "string" || typeof expr === "number"
-            ? expr.toString()
-            : transform_expression(expr, p),
-        children || []
+      ...(children || []).map((expr, index) =>
+        typeof expr === "string" || typeof expr === "number"
+          ? expr.toString()
+          : transform_expression(expr, p, [...path, index])
       ),
     ];
   };
 
   const make_dom_process = () => {
-    const templates = new Map();
-    const elements = new Map();
-    const sources = new Map();
-    const feeds = new Map();
+    const templates = new Map(); // template by id, would be deleted only by instruction
+    const sources = new Map(); // pubsub topics, same provenance as templates
+    const elements = new Map(); // needs removal when element dismounted
+    const feeds = new Map(); // ditto
 
     const pluck_content = tx.map(_ => _.content);
-    const pubsub = rs.pubsub({ topic: _ => _.id });
+    const content_hub = rs.pubsub({ topic: _ => _.id });
     const ensure_source = id => {
       if (!sources.has(id))
-        sources.set(id, pubsub.subscribeTopic(id, pluck_content, OPTS));
+        sources.set(id, content_hub.subscribeTopic(id, pluck_content, OPTS));
       return sources.get(id);
     };
 
@@ -119,22 +128,26 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
       const mounted_elements = elements.get(id);
 
       if (mounted_elements) {
-        // && !feeds.has(id)) {
         // Automatically sends the latest value (if one arrived first)
         for (const element of mounted_elements) {
-          feeds.set(
-            id,
-            ensure_source(id)
-              .transform(
-                tx.map(expr => {
-                  const things = new Set();
-                  return transform_expression(expr, things);
-                  console.log(`encountered`, things);
-                }),
-                th.updateDOM({ root: element, ctx, span: false, keys: false })
-              )
-              .subscribe({ error: error => console.error("UPDATE", error) })
-          );
+          if (!feeds.has(element)) {
+            console.log("MAKING FEED FOR", id, element);
+            feeds.set(
+              element,
+              ensure_source(id)
+                .transform(
+                  tx.map(expr => {
+                    // PROVISIONAL: this is not currently used
+                    const things = new ArraySet();
+                    const ret = transform_expression(expr, things);
+                    // if (things.size) console.log(`encountered`, ...things);
+                    return ret;
+                  }),
+                  th.updateDOM({ root: element, ctx })
+                )
+                .subscribe({ error: error => console.error("UPDATE", error) })
+            );
+          }
         }
       }
     };
@@ -145,7 +158,7 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
           const { id, content } = value;
           ensure_source(id);
           templates.set(id, content);
-          pubsub.next(value);
+          content_hub.next(value);
           connect(id);
         },
         error: error => console.error("error: content", error),
@@ -159,7 +172,11 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
         },
         error: error => console.error("error: mounted", error),
       }),
-      unmounted: rs.subscription({ next(element) {} }),
+      unmounted: rs.subscription({
+        next(message) {
+          console.log(`UNMOUNTED!!??`, message);
+        },
+      }),
     });
     return process;
   };

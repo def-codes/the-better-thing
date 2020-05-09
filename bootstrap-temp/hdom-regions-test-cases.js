@@ -27,47 +27,41 @@ define(["@thi.ng/rstream", "@thi.ng/transducers"], (rs, tx) => {
       ),
     }),
     mount: () => ({
-      root: rs.fromIterable([""]).transform(
-        tx.map(n => [
-          "section",
-          ["h1", "Example 1"],
-          ["p", "This is Alice.  Alice will be defined."],
-          ["placeholder", { id: "Alice" }],
-          [
-            "p",
-            `Following would be Bob.  But Bob will never be defined.  So 
-               that's the end of this example.`,
-          ],
-          ["placeholder", { id: "Bob" }],
-        ])
-      ),
-      Alice: rs.fromIterable([""]).transform(
-        tx.map(n => [
-          "section",
-          ["h2", "Alice"],
-          [
-            "p",
-            `Hi, I'm Alice.  I should be mounted in the root template because 
-               it asks for me by name.`,
-          ],
-        ])
-      ),
+      root: rs
+        .fromIterable([""])
+        .transform(
+          tx.map(n => [
+            "section",
+            ["h1", "Example 1"],
+            ["p", "This is Alice.  Alice will be defined."],
+            ["placeholder", { id: "Alice" }],
+            ["p", `Following would be Bob, if he were defined.`],
+            ["placeholder", { id: "Bob" }],
+          ])
+        ),
+      Alice: rs
+        .fromIterable([""])
+        .transform(
+          tx.map(n => [
+            "section",
+            ["h2", "Alice"],
+            ["p", `I've been called by name, so you should see me.`],
+          ])
+        ),
     }),
     nested: () => ({
-      root: rs.fromIterable([""]).transform(
-        tx.map(n => [
-          "section",
-          ["h1", "Example 1"],
-          ["p", "This is Alice.  Alice will be defined."],
-          ["placeholder", { id: "Alice" }],
-          [
-            "p",
-            `Following would be Bob.  But Bob will never be defined.  So that's 
-             the end of this example.`,
-          ],
-          ["placeholder", { id: "Bob" }],
-        ])
-      ),
+      root: rs
+        .fromIterable([""])
+        .transform(
+          tx.map(n => [
+            "section",
+            ["h1", "Example 1"],
+            ["p", "This is Alice.  Alice will be defined."],
+            ["placeholder", { id: "Alice" }],
+            ["p", `Following would be Bob, if he were defined.`],
+            ["placeholder", { id: "Bob" }],
+          ])
+        ),
       Alice: rs
         .fromIterable([""])
         .transform(
@@ -96,24 +90,24 @@ define(["@thi.ng/rstream", "@thi.ng/transducers"], (rs, tx) => {
       ),
     }),
     moving: () => ({
-      root: rs.fromIterable([""]).transform(
-        tx.map(n => [
-          "section",
-          ["h1", "Moving example"],
-          [
-            "p",
-            `These are the winners.  Alice is a winner.  She will move up in 
-             the ranks.`,
-          ],
-          ["placeholder", { id: "winners" }],
-        ])
-      ),
+      root: rs
+        .fromIterable([""])
+        .transform(
+          tx.map(n => [
+            "section",
+            ["h1", "Moving example"],
+            ["p", `These are the rankings.  Alice moves up in the ranks.`],
+            ["placeholder", { id: "winners" }],
+            ["p", "Well, here's Alice anyway"],
+            ["placeholder", { id: "Alice" }],
+          ])
+        ),
       winners: rs.fromInterval(2000).transform(
         tx.map(n => {
           const names = "Bob Carol Don Edgar Fran Gerald Hal Ivan Joel Kim Lawrence Marvin".split(
             " "
           );
-          names.splice(-n, 0, "Alice");
+          names.splice(-(n + 1), 0, "Alice");
           return [
             "ol",
             ...tx.map(
@@ -129,10 +123,29 @@ define(["@thi.ng/rstream", "@thi.ng/transducers"], (rs, tx) => {
           tx.map(n => [
             "section",
             ["h2", "Alice"],
-            [
-              "p",
-              `Hi, I'm Alice. I'm dynamic. I'm also moving up in the ranks.`,
-            ],
+            ["p", `I'm Alice. I'm dynamic. I'm also moving up in the ranks.`],
+            ["p", `Accomplishments: `, ["b", n]],
+          ])
+        ),
+    }),
+    removing: () => ({
+      root: rs
+        .fromInterval(1000)
+        .transform(
+          tx.map(n => [
+            "section",
+            ["h1", "Removing example"],
+            ["p", `Alice will be here only when this number is even: ${n}`],
+            n % 2 ? ["i", "not Alice"] : ["placeholder", { id: "Alice" }],
+          ])
+        ),
+      Alice: rs
+        .fromInterval(1000)
+        .transform(
+          tx.map(n => [
+            "section",
+            ["h2", "Alice"],
+            ["p", `I'm dynamic. That may not be relevant for this test.`],
             ["p", `Accomplishments: `, ["b", n]],
           ])
         ),
