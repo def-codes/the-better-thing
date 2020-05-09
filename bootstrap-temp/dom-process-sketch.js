@@ -5,7 +5,9 @@ define([
   "@def.codes/meld-core",
   "@def.codes/expression-reader",
   "./hdom-regions.js",
-], async (rs, tx, rdf, { q, monotonic_system, interpret }, { read }, dp) => {
+  "./userland-code-cases.js",
+], async (rs, tx, rdf, core, { read }, dp, examples) => {
+  const { q, monotonic_system, interpret } = core;
   const { factory, RDFTripleStore, sync_query, live_query } = rdf;
   const { namedNode: n, variable: v, blankNode: b, literal: l } = factory;
 
@@ -194,10 +196,11 @@ define([
       const recipe_output = article.appendChild(
         document.createElement("output")
       );
+      recipe_output.setAttribute("for", model_code_id);
       const kitchen_output = article.appendChild(
         document.createElement("output")
       );
-      recipe_output.setAttribute("for", model_code_id);
+      kitchen_output.setAttribute("for", `${model_code_id}-kitchen`);
       root.appendChild(article);
       return {
         model_code,
@@ -235,33 +238,6 @@ define([
       });
     }
   };
-
-  const examples = [
-    {
-      label: "Single fact with literal",
-      userland_code: `Alice(name("Alice"))`,
-    },
-    {
-      label: "Single fact with object value",
-      userland_code: `Alice(a(Person))`,
-    },
-    {
-      label: "Two facts about one subject",
-      userland_code: `Alice(isa(Person), name("Alice"))`,
-    },
-    {
-      label: "Two subjects",
-      userland_code: `Alice(isa(Woman))
-Bob(isa(Man))`,
-    },
-    {
-      label: "Subclass inference",
-      userland_code: `Alice(isa(Woman), name("Alice"))
-Bob(isa(Man))
-Woman(subclassOf(Person))
-Man(subclassOf(Person))`,
-    },
-  ];
 
   connect_models_to_interpreter(examples);
 });

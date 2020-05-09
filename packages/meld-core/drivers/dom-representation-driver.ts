@@ -20,6 +20,7 @@ const l = rdf.literal;
 
 const ISA = n("isa");
 const MATCHES = n("def:matches");
+const CONTAINS_TEXT = n("def:containsText");
 const REPRESENTS = n("def:represents");
 const SUBJECT = n("rdf:subject");
 const PREDICATE = n("rdf:predicate");
@@ -58,7 +59,7 @@ export default {
               [prop, MATCHES, l(`[property="${p.value}"]`)],
               [prop, MATCHES, l(`[content="${o.value}"]`)],
               // Set both text and content attribute
-              [prop, n("def:containsText"), l(o.value)],
+              [prop, CONTAINS_TEXT, l(o.value)],
               // This of course creates an infinite loop
               // [prop, REPRESENTS, trip],
               // [trip, SUBJECT, s],
@@ -106,6 +107,36 @@ export default {
             [rep, MATCHES, l(`[content="${value.value}"]`)],
           ],
         }),
+      },
+      // EXPLORATION: these could be done more informationally, i.e.
+      // facts associating the unicode code point with the class
+      // in fact let's do that
+      {
+        name: "PersonIcon",
+        when: q(
+          "?x isa Person",
+          "?rep isa def:DomElement",
+          "?rep def:represents ?x"
+        ),
+        then: ({ rep }) => ({ assert: [[rep, CONTAINS_TEXT, l("\u{1f464}")]] }),
+      },
+      {
+        name: "WomanIcon",
+        when: q(
+          "?x isa Woman",
+          "?rep isa def:DomElement",
+          "?rep def:represents ?x"
+        ),
+        then: ({ rep }) => ({ assert: [[rep, CONTAINS_TEXT, l("\u2640")]] }),
+      },
+      {
+        name: "ManIcon",
+        when: q(
+          "?x isa Man",
+          "?rep isa def:DomElement",
+          "?rep def:represents ?x"
+        ),
+        then: ({ rep }) => ({ assert: [[rep, CONTAINS_TEXT, l("\u2642")]] }),
       },
       {
         // PROVISIONAL

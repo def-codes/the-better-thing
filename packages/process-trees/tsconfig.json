@@ -1,6 +1,8 @@
 {
   "extends": "../tsconfig-composite",
   "compilerOptions": {
+    /* for dom-query-stream */
+    "lib": ["dom"],
     "experimentalDecorators": true
   },
   "references": [
