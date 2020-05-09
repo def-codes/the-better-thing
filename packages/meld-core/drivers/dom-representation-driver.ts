@@ -29,7 +29,13 @@ const OBJECT = n("rdf:object");
 export default {
   name: "domRepresentationDriver",
   init: ({ q, is_node }) => ({
-    claims: q(),
+    claims: q(
+      // Relate types with unicode symbols
+      // These are hex strings...
+      `Person def:symbolizedByCodePoint ${0x1f464}`,
+      `Woman def:symbolizedByCodePoint ${0x2640}`,
+      `Man def:symbolizedByCodePoint ${0x2642}`
+    ),
     rules: [
       {
         name: "RDFaResourceRule",
@@ -114,29 +120,14 @@ export default {
       {
         name: "PersonIcon",
         when: q(
-          "?x isa Person",
+          "?thing isa ?type",
           "?rep isa def:DomElement",
-          "?rep def:represents ?x"
+          "?rep def:represents ?thing",
+          "?type def:symbolizedByCodePoint ?hex"
         ),
-        then: ({ rep }) => ({ assert: [[rep, CONTAINS_TEXT, l("\u{1f464}")]] }),
-      },
-      {
-        name: "WomanIcon",
-        when: q(
-          "?x isa Woman",
-          "?rep isa def:DomElement",
-          "?rep def:represents ?x"
-        ),
-        then: ({ rep }) => ({ assert: [[rep, CONTAINS_TEXT, l("\u2640")]] }),
-      },
-      {
-        name: "ManIcon",
-        when: q(
-          "?x isa Man",
-          "?rep isa def:DomElement",
-          "?rep def:represents ?x"
-        ),
-        then: ({ rep }) => ({ assert: [[rep, CONTAINS_TEXT, l("\u2642")]] }),
+        then: ({ rep, hex }) => ({
+          assert: [[rep, CONTAINS_TEXT, l(String.fromCodePoint(hex))]],
+        }),
       },
       {
         // PROVISIONAL
