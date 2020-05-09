@@ -52,7 +52,7 @@ define(["./dom-process-new.js", "@thi.ng/rstream"], async (dp, rs) => {
       element: "p",
       attributes: { resource: "http:brainstorms" },
       children: [
-        "I ",
+        { element: "span", children: ["I "] },
         { element: "i", children: ["loves"] },
         { element: "span", children: [" you, Porgy"] },
       ],
@@ -65,7 +65,7 @@ define(["./dom-process-new.js", "@thi.ng/rstream"], async (dp, rs) => {
       element: "p",
       attributes: { resource: "http:brainstorms" },
       children: [
-        "I ",
+        { element: "span", children: ["I "] },
         { element: "i", children: ["loves"] },
         { element: "span", children: [" you, Bess"] },
       ],
@@ -78,7 +78,7 @@ define(["./dom-process-new.js", "@thi.ng/rstream"], async (dp, rs) => {
       element: "p",
       attributes: { resource: "http:brainstorms" },
       children: [
-        "I ",
+        { element: "span", children: ["I "] },
         { element: "i", children: ["loves"] },
         { element: "span", children: [" you, Potato"] },
       ],
