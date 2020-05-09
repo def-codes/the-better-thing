@@ -14,13 +14,21 @@ define([
   const ISA = n("isa");
   const DOM_ELEMENT = n("def:DomElement");
   const REPRESENTS = n("def:represents");
+  const REPRESENTS_TRANSITIVE = n("def:representsTransitive");
   const MATCHES = n("def:matches");
   const CONTAINS = n("def:contains");
   const CONTAINS_TEXT = n("def:containsText");
 
+  const ATTRIBUTE_CONTAINS_WORD = /^\[(.+)~="(.+)"\]$/;
   const ATTRIBUTE_EQUALS = /^\[(.+)="(.+)"\]$/;
   const ELEMENT = /^[a-z][a-z0-9]*$/;
   const assertion_from_css = selector => {
+    // Order matters here
+    const attribute_contains_word = selector.match(ATTRIBUTE_CONTAINS_WORD);
+    if (attribute_contains_word) {
+      const [, name, value] = attribute_contains_word;
+      return { type: "attribute-contains-word", name, value };
+    }
     const attribute_equals = selector.match(ATTRIBUTE_EQUALS);
     if (attribute_equals) {
       const [, name, value] = attribute_equals;
@@ -41,11 +49,17 @@ define([
     const attributes = {};
     const children = [];
     for (const operation of operations) {
-      if (operation.type === "attribute-contains") {
+      if (operation.type === "attribute-contains-word") {
         const { name, value } = operation;
         attributes[name] = attributes[name]
           ? attributes[name] + " " + value
           : value;
+        console.log(`ATTRIBUTE CONTAINS WORD`, {
+          attributes,
+          name,
+          value,
+          operation,
+        });
       } else if (operation.type === "attribute-equals") {
         attributes[operation.name] = operation.value;
       } else if (operation.type === "uses-element") {
@@ -90,7 +104,7 @@ define([
         const rep = n(`representationOf${s.value}`);
         return [
           [rep, ISA, DOM_ELEMENT],
-          [rep, REPRESENTS, s],
+          [rep, REPRESENTS_TRANSITIVE, s],
         ];
       }, input_graph.indexS.keys()),
     ]);

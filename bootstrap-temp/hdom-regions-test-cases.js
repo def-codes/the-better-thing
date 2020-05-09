@@ -1,16 +1,4 @@
 define(["@thi.ng/rstream", "@thi.ng/transducers"], (rs, tx) => {
-  // const P = Object.getPrototypeOf;
-  // const is_plain_object = x => x && P(P(x)) === null;
-  // const is_element = x => x.element && x.attributes && x.children;
-  // const h = (e, second, ...rest) =>
-  //       is_plain_object(second) && !is_element(second)
-  //     ? { element: e, attributes: second || {}, children: rest }
-  //     : {
-  //         element: e,
-  //         attributes: {},
-  //         children: second === undefined ? [] : [second, ...rest],
-  //       };
-
   return {
     simplest: () => ({
       root: rs.fromIterable([""]).transform(
@@ -43,7 +31,7 @@ define(["@thi.ng/rstream", "@thi.ng/transducers"], (rs, tx) => {
         .fromIterable([""])
         .transform(
           tx.map(n => [
-            "section",
+            "article",
             ["h2", "Alice"],
             ["p", `I've been called by name, so you should see me.`],
           ])
@@ -67,11 +55,7 @@ define(["@thi.ng/rstream", "@thi.ng/transducers"], (rs, tx) => {
         .transform(
           tx.map(n => [
             "section",
-            ["h2", "Alice"],
-            [
-              "p",
-              "Hi, I'm Alice.  These are my hobbies.  They will be defined.",
-            ],
+            ["p", "Hi, I'm Alice.  I have a growing list of hobbies."],
             ["placeholder", { id: "AliceHobbies" }],
           ])
         ),
@@ -122,7 +106,6 @@ define(["@thi.ng/rstream", "@thi.ng/transducers"], (rs, tx) => {
         .transform(
           tx.map(n => [
             "section",
-            ["h2", "Alice"],
             ["p", `I'm Alice. I'm dynamic. I'm also moving up in the ranks.`],
             ["p", `Accomplishments: `, ["b", n]],
           ])
@@ -144,8 +127,10 @@ define(["@thi.ng/rstream", "@thi.ng/transducers"], (rs, tx) => {
         .transform(
           tx.map(n => [
             "section",
-            ["h2", "Alice"],
-            ["p", `I'm dynamic. That may not be relevant for this test.`],
+            [
+              "p",
+              `I'm Alice.  I'm dynamic. That may not be relevant for this test.`,
+            ],
             ["p", `Accomplishments: `, ["b", n]],
           ])
         ),

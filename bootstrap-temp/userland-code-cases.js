@@ -2,10 +2,11 @@ define([], () => [
   {
     label: "Single fact with literal",
     userland_code: `Alice(name("Alice"))`,
+    // name(rdfs.subpropertyOf(rdf.label))
   },
   {
     label: "Single fact with object value",
-    userland_code: `Alice(a(Person))`,
+    userland_code: `Alice(isa(Person))`,
   },
   {
     label: "Two facts about one subject",

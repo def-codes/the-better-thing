@@ -30,6 +30,8 @@ export default {
   name: "domRepresentationDriver",
   init: ({ q, is_node }) => ({
     claims: q(
+      // Maybe a bad term because it's “transitive” in an informal way
+      "def:representsTransitive subpropertyOf def:represents",
       // Relate types with unicode symbols
       // These are hex strings...
       `Person def:symbolizedByCodePoint ${0x1f464}`,
@@ -48,33 +50,51 @@ export default {
       },
       {
         name: "RDFaPropertyRepresentationRule",
-        comment:
-          "Each property value has a concrete representation (contained by its resource representation)",
+        comment: `A *transitive* representation of a resource contains a 
+          representation of each of its property values`,
         when: q(
           "?s ?p ?o",
-          "?rep def:represents ?s",
+          "?rep def:representsTransitive ?s",
           "?rep isa def:DomElement"
         ),
         then: ({ rep, s, p, o }) => {
           const prop = b();
-          // const trip = b();
+          const trip = b();
           return {
             assert: [
               [rep, n("def:contains"), prop],
               [prop, ISA, n("def:DomElement")],
-              [prop, MATCHES, l(`[property="${p.value}"]`)],
-              [prop, MATCHES, l(`[content="${o.value}"]`)],
-              // Set both text and content attribute
-              [prop, CONTAINS_TEXT, l(o.value)],
-              // This of course creates an infinite loop
-              // [prop, REPRESENTS, trip],
-              // [trip, SUBJECT, s],
-              // [trip, PREDICATE, p],
-              // [trip, OBJECT, o],
+              [prop, REPRESENTS, trip],
+              [trip, SUBJECT, s],
+              [trip, PREDICATE, p],
+              [trip, OBJECT, o],
             ],
           };
         },
       },
+      {
+        name: "RDFaTypeRepresentationRule",
+        when: q(
+          "?thing isa ?type",
+          "?rep isa def:DomElement",
+          "?rep def:represents ?thing"
+        ),
+        then: ({ rep, type }) => ({
+          assert: [[rep, MATCHES, l(`[typeof~="${type.value}"]`)]],
+        }),
+      },
+      // {
+      //   name: "LabelRepresentationRule",
+      //   when: q(
+      //     "?thing rdfs:label ?label",
+      //     "?rep isa def:DomElement",
+      //     "?rep def:represents ?thing"
+      //   ),
+      //   then: ({ rep, type }) => ({
+      //     // PROVISIONAL
+      //     assert: [[rep, MATCHES, l(`:first-child`)]],
+      //   }),
+      // },
       {
         name: "something with an element rule",
         when: q(
@@ -94,9 +114,6 @@ export default {
             : {},
       },
 
-      // THIS rule is essentially moot.  It was working in conjunction with the
-      // `RDFaPropertyRepresentationRule`.  That approach is more flexible but
-      // causes infinite loop, as noted.  So the attributes are done there.
       {
         name: "RDFaPropertyAttributeRule",
         when: q(
@@ -111,12 +128,13 @@ export default {
           assert: [
             [rep, MATCHES, l(`[property="${property.value}"]`)],
             [rep, MATCHES, l(`[content="${value.value}"]`)],
+            // Set both text and content attribute
+            [rep, CONTAINS_TEXT, l(value.value)],
           ],
         }),
       },
-      // EXPLORATION: these could be done more informationally, i.e.
-      // facts associating the unicode code point with the class
-      // in fact let's do that
+      // Yes, you could do this more generally for text, but we want to talk
+      // about Unicode explicitly at some point.
       {
         name: "PersonIcon",
         when: q(

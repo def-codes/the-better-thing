@@ -33,7 +33,7 @@ span:not([data-from-rule]) {
   border-width: 0.2em;
   border-style: dashed;
   border-color: rgba(255, 0, 0, 0.5);
-  display: block;
+  /* display: block; HUH?? */
 }
 span:not([class])::before,
 span[class=""]::before {
@@ -184,6 +184,9 @@ style {
 output {
   --type: "Output";
   display: inline-block;
+}
+output[for] {
+  --prefix: "Output for " attr(for);
 }
 address {
   --type: "Address";

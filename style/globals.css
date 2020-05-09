@@ -1,5 +1,5 @@
 * {
-  --type: "Thing";
+  --type: "(unknown)";
   box-sizing: border-box;
   transition: 0.3s;
   padding: calc((1 - var(--is-phrasing)) * 1em);
@@ -57,29 +57,30 @@
   --resource: "";
   --rdfa: "<" var(--resource) "> <" var(--property) ">";
 }
-[resource] {
-  --resource: attr(resource);
-}
-[property] {
-  --property: attr(property);
-}
 /* and so on with [about], etc */
-
+/* NO, just use prefix for these
 *::after {
   opacity: 0.5;
   display: block;
   padding: 0.5em;
   font-size: initial;
 }
-[resource]::after {
-  content: "resource " attr(resource);
+*/
+
+[resource]:not([resource=""]) {
+  --prefix: "Resource: " attr(resource);
+  /* --resource: attr(resource); */
 }
-[property]::after {
-  content: var(--resource) " property " attr(property);
+[property] {
+  --prefix: "Property: " attr(property);
+  /* --property: attr(property); */
 }
-[property][content]::after {
-  content: var(--resource) " property " attr(property) " : " attr(content);
+[resource][property] {
+  --prefix: attr(resource) " property: " attr(property);
 }
-[graph]::after {
-  content: "graph " attr(graph);
+[resource][property][content] {
+  --prefix: attr(resource) " property " attr(property) " : " attr(content);
+}
+[graph] {
+  --prefix: "Graph " attr(graph);
 }
