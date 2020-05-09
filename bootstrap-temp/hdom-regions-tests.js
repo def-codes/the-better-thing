@@ -5,9 +5,9 @@ define(["./hdom-regions-test-runner.js", "./hdom-regions-test-cases.js"], (
   let i = 0;
   const root = document.querySelector("#hdom-regions-tests");
   for (const [name, test_case] of Object.entries(cases)) {
-    if (name !== "moving") continue;
+    // if (name !== "moving") continue;
     console.log(`Running test`, name);
     run_test_case(test_case, root);
-    if (i++ > 2) break;
+    // if (i++ > 2) break;
   }
 });

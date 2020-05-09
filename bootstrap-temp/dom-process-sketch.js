@@ -4,7 +4,7 @@ define([
   "@def.codes/rstream-query-rdf",
   "@def.codes/meld-core",
   "@def.codes/expression-reader",
-  "./dom-process-new.js",
+  "./hdom-regions.js",
 ], async (rs, tx, rdf, { q, monotonic_system, interpret }, { read }, dp) => {
   const { factory, RDFTripleStore, sync_query, live_query } = rdf;
   const { namedNode: n, variable: v, blankNode: b, literal: l } = factory;
@@ -156,7 +156,7 @@ define([
     const bind_rep = ({ top_level, templates }, dom_process) => {
       // Construct a main template to contain all top-level items
       dom_process.content.next({
-        id: "",
+        id: "root",
         content: {
           element: "div",
           children: Array.from(top_level, id => templates[id]),
@@ -209,8 +209,16 @@ define([
     for (const model of models) {
       const the = cont(model);
       the.model_code.innerText = model.userland_code;
-      const recipe_dom_process = dp.make_dom_process(the.recipe_output);
-      const kitchen_dom_process = dp.make_dom_process(the.kitchen_output);
+      const recipe_dom_process = dp.make_dom_process();
+      recipe_dom_process.mounted.next({
+        id: "root",
+        element: the.recipe_output,
+      });
+      const kitchen_dom_process = dp.make_dom_process();
+      kitchen_dom_process.mounted.next({
+        id: "root",
+        element: the.kitchen_output,
+      });
       const recipe_facts = interpret(read(model.userland_code));
       const { kitchen_graph, recipe_graph } = create_interpreter_graph({
         recipe_facts,

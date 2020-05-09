@@ -69,7 +69,7 @@ define([
         const { id } = args;
         const { process } = context;
         state.element = element;
-        console.log(`INIT!!`, { element, context, args });
+        // console.log(`INIT!!`, { element, context, args });
         if (id) process.mounted.next({ id, element });
       },
       render(_ctx, { id }) {
@@ -80,25 +80,15 @@ define([
       release({ process: { unmounted } }, { id }) {
         // is id even needed?
         unmounted.next({ id, element: state.element });
-        console.log(`RELEASE!!`);
+        // console.log(`RELEASE!!`);
       },
     };
   };
-
   const OPTS = { closeOut: rs.CloseMode.NEVER };
-  const P = Object.getPrototypeOf;
-  const is_plain_object = x => x && P(P(x)) === null;
-  const transform_expression = (
-    [element, ...rest],
-    p = new Set(),
-    path = []
-  ) => {
-    const [second, ...tail] = rest;
-    const n = is_plain_object(second);
-    const attributes = n ? second : {};
-    const children = n ? tail : rest;
-    if (element === "placeholder") {
-      const { id } = attributes;
+
+  const transform_expression = (expression, p = new Set(), path = []) => {
+    if (expression.element === "placeholder") {
+      const { id } = expression.attributes;
       p.add({ id, path });
       console.log(`placeholder`, id, path);
       // return ["div", { __impl: custom, key: id, id }];
@@ -106,12 +96,14 @@ define([
     }
 
     return [
-      element,
-      attributes || {},
-      ...(children || []).map((expr, index) =>
-        typeof expr === "string" || typeof expr === "number"
-          ? expr.toString()
-          : transform_expression(expr, p, [...path, index])
+      expression.element,
+      expression.attributes || {},
+      ...tx.mapIndexed(
+        (index, expr) =>
+          typeof expr === "string" || typeof expr === "number"
+            ? expr.toString()
+            : transform_expression(expr, p, [...path, index]),
+        expression.children || []
       ),
     ];
   };
@@ -190,7 +182,7 @@ define([
           if (elements.has(id)) elements.get(id).delete(element);
           if (feeds.has(element)) {
             const feed = feeds.get(element);
-            console.log(`REMOVE FEED:`, feed);
+            // console.log(`REMOVE FEED:`, feed);
             if (feed) feed.unsubscribe();
             feeds.delete(element);
           }
