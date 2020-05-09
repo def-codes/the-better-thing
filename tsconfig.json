@@ -7,11 +7,11 @@
     {"path": "packages/console-stream" },
     {"path": "packages/datafy-nav" },
     {"path": "packages/datafy-node" },
-    {"path": "packages/dom-process" },
     {"path": "packages/expression-reader" },
     {"path": "packages/function-testing" },
     {"path": "packages/graphs" },
     {"path": "packages/graphviz-format" },
+    {"path": "packages/hdom-regions" },
     {"path": "packages/helpers" },
     {"path": "packages/meld" },
     {"path": "packages/meld-cli" },
@@ -30,8 +30,8 @@
     {"path": "packages/rdf-expressions-test" },
     {"path": "packages/rstream-query-rdf" },
     {"path": "packages/runtime-reflection" },
+    {"path": "packages/simple-http-server" },
     {"path": "packages/simple-interpreter" },
-    {"path": "packages/simple-interpreter-test" },
-    {"path": "packages/simple-http-server" }
+    {"path": "packages/simple-interpreter-test" }
   ]
 }

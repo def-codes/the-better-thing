@@ -1,4 +1,3 @@
-// TEMP: not essential to this package, just a (DOM) stream source
 import { stream, ISubscribable } from "@thi.ng/rstream";
 import { fromMutationObserver } from "./from-mutation-observer";
 

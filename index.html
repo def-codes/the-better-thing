@@ -13,6 +13,9 @@
     <link href="./style/fonts.css" rel="stylesheet" />
   </head>
   <body>
+    <section id="hdom-regions-tests"></section>
+    <section id="plain-transducers-hdom-test"></section>
+    <section id="dom-process-test"></section>
     <section id="rule-based-representation"></section>
     <section id="named-graphs"></section>
     <section>
@@ -464,11 +467,24 @@
     </article>
 
     <article>
+      <h2>hdom regions tests</h2>
+      <script>
+        require(["./bootstrap-temp/hdom-regions-tests.js"]);
+      </script>
+    </article>
+
+    <article>
       <h2>Dom-process test</h2>
       <script>
         require(["./bootstrap-temp/test-dom-process.js"]);
       </script>
-      <section id="dom-process-test"></section>
+    </article>
+
+    <article>
+      <h2>Plain hdom test</h2>
+      <script>
+        require(["./bootstrap-temp/plain-transducers-hdom-test.js"]);
+      </script>
     </article>
 
     <article>
