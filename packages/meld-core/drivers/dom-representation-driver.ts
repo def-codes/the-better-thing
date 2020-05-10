@@ -15,7 +15,7 @@ import rdf from "@def.codes/rdf-data-model";
 // - still need another approach for has text/template
 
 const n = rdf.namedNode;
-const b = rdf.blankNode;
+const v = rdf.variable;
 const l = rdf.literal;
 
 const ISA = n("isa");
@@ -36,7 +36,8 @@ export default {
       // These are hex strings...
       `Person def:symbolizedByCodePoint ${0x1f464}`,
       `Woman def:symbolizedByCodePoint ${0x2640}`,
-      `Man def:symbolizedByCodePoint ${0x2642}`
+      `Man def:symbolizedByCodePoint ${0x2642}`,
+      `name subpropertyOf rdfs:label`
     ),
     rules: [
       {
@@ -58,8 +59,10 @@ export default {
           "?rep isa def:DomElement"
         ),
         then: ({ rep, s, p, o }) => {
-          const prop = b();
-          const trip = b();
+          // Odd, but vars in output get presence checking
+          const prop = v("prop");
+          const trip = v("trip");
+          console.log(`prop rep rule`);
           return {
             assert: [
               [rep, n("def:contains"), prop],
@@ -84,16 +87,14 @@ export default {
         }),
       },
       // {
-      //   name: "LabelRepresentationRule",
+      //   name: "LabelAtStartRule",
       //   when: q(
-      //     "?thing rdfs:label ?label",
+      //     "?statement rdf:predicate rdfs:label",
       //     "?rep isa def:DomElement",
-      //     "?rep def:represents ?thing"
+      //     "?rep def:represents ?statement"
       //   ),
-      //   then: ({ rep, type }) => ({
-      //     // PROVISIONAL
-      //     assert: [[rep, MATCHES, l(`:first-child`)]],
-      //   }),
+      //   // PROVISIONAL
+      //   then: ({ rep }) => ({ assert: [[rep, MATCHES, l(`:first-child`)]] }),
       // },
       {
         name: "something with an element rule",
