@@ -18,6 +18,12 @@ define([], () => [
 Bob(isa(Man))`,
   },
   {
+    label: "Minimal dataflow example",
+    // Not even sure Bob is needed...
+    userland_code: `Alice.hasInterval(1000)
+Bob.listensTo.Alice`,
+  },
+  {
     label: "Subclass inference",
     userland_code: `Alice(isa(Woman), name("Alice"))
 Bob(isa(Man))

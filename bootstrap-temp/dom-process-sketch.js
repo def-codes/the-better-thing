@@ -98,7 +98,8 @@ define([
         const rep = n(`representationOf${s.value}`);
         return [
           [rep, ISA, DOM_ELEMENT],
-          [rep, REPRESENTS_TRANSITIVE, s],
+          // TEMP: Avoiding REPRESENTS_TRANSITIVE because it's really slow rn
+          [rep, REPRESENTS, s],
         ];
       }, input_graph.indexS.keys()),
     ]);
