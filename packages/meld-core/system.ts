@@ -1,7 +1,7 @@
 // support system for monotonic, rule-based drivers of resource implementations.
 import rdf from "@def.codes/rdf-data-model";
 import { IStream } from "@thi.ng/rstream";
-import { make_registry } from "./registry";
+import { Registry, make_registry } from "./registry";
 import {
   live_query,
   sync_query,
@@ -138,26 +138,36 @@ const apply_drivers_to = (store, helpers, system, names) => {
   return subs;
 };
 
+interface MonotonicSystemOptions {
+  /** Provisional.  Namespace if there were more than one. */
+  readonly id: string;
+
+  /** Should be an empty knowledge base. */
+  readonly store: RDFTripleStore;
+
+  /** Where to assert to (`store` if undefined) */
+  readonly target: RDFTripleStore;
+
+  readonly ports?: any;
+
+  /** Document node to be owned by the model. */
+  readonly dom_root: Node;
+
+  /** Optional list of driver names to install */
+  readonly drivers?: readonly string[];
+
+  /** Optional runtime object registry */
+  readonly registry?: Registry;
+}
+
 /**
  * A monotonic, knowledge-based system.
  *
- * @param {string} id - Provisional.  Namespace if there were more than one.
- * @param {RDFTripleStore} store - Should be an empty knowledge base.
- * @param {RDFTripleStore} target - Where to assert to (`store` if undefined)
- * @param {Node} dom_root - Document node to be owned by the model.
- * @param {string[]} drivers - Optional list of driver names to install
- *
- * @returns {Function} (Provisional) dispose method.
+ * @returns (Provisional) dispose method.
  */
-export const monotonic_system = ({
-  id,
-  store,
-  dom_root,
-  ports,
-  target,
-  drivers,
-}) => {
-  const registry = make_registry();
+export const monotonic_system = (options: MonotonicSystemOptions) => {
+  const { id, store, dom_root, ports, target, drivers } = options;
+  const registry = options.registry ?? make_registry();
   const out_store = target ?? store;
   const driver_names = drivers ?? [...driver_dictionary.keys()];
 
