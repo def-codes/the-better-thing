@@ -80,7 +80,7 @@ define([
     const kitchen_graph = new RDFTripleStore(recipe_graph.triples);
     const system = monotonic_system({
       store: kitchen_graph,
-      drivers: ["owlBasicDriver"],
+      drivers: ["owlBasicDriver", "streamDriver", "subscriptionDriver"],
     });
     return { kitchen_graph };
   };

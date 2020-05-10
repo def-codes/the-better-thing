@@ -47,6 +47,8 @@ export default {
         then: ({ rep, thing }) =>
           thing.termType === "NamedNode"
             ? { assert: [[rep, MATCHES, l(`[resource="${thing.value}"]`)]] }
+            : thing.termType === "BlankNode"
+            ? { assert: [[rep, MATCHES, l(`[resource="_:${thing.value}"]`)]] }
             : {},
       },
       {

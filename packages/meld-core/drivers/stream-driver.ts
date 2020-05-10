@@ -17,8 +17,8 @@ export default {
       "hasSource range StreamSource",
       // not a general stream thing as such
       "Ticker subclassOf Stream",
-      "hasInterval domain Ticker",
-      "hasInterval range number"
+      "hasInterval domain Ticker"
+      // "hasInterval range number"
     ),
     rules: [
       {
