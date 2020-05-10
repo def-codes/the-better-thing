@@ -70,8 +70,6 @@ export const make_registry = (): Registry => {
           return;
         }
 
-        register_exotic(object, type);
-
         _things.set([subject, type], object);
         const object_id = register_exotic(object, type);
         assert([object_id, IMPLEMENTS, subject]);
