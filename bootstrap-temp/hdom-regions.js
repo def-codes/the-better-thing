@@ -90,7 +90,7 @@ define([
     if (expression.element === "placeholder") {
       const { id } = expression.attributes;
       p.add({ id, path });
-      console.log(`placeholder`, id, path);
+      // console.log(`placeholder`, id, path);
       // return ["div", { __impl: custom, key: id, id }];
       return [Template(), { id }];
     }
@@ -134,7 +134,7 @@ define([
           if (!feeds.has(element)) {
             let i = 0;
             for (const [k, v] of elements) i += v.size;
-            console.log("NEW FEED", feeds.size, i, id, element);
+            // console.log("NEW FEED", feeds.size, i, id, element);
 
             feeds.set(
               element,

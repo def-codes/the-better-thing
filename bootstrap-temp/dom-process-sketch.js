@@ -54,12 +54,6 @@ define([
         attributes[name] = attributes[name]
           ? attributes[name] + " " + value
           : value;
-        console.log(`ATTRIBUTE CONTAINS WORD`, {
-          attributes,
-          name,
-          value,
-          operation,
-        });
       } else if (operation.type === "attribute-equals") {
         attributes[operation.name] = operation.value;
       } else if (operation.type === "uses-element") {
