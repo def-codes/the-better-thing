@@ -8,7 +8,7 @@ define([
   "./userland-code-cases.js",
 ], async (rs, tx, rdf, core, { read }, dp, examples) => {
   const { q, make_registry, monotonic_system, interpret } = core;
-  const { factory, RDFTripleStore, sync_query, live_query } = rdf;
+  const { factory, Dataset, sync_query, live_query } = rdf;
   const { namedNode: n, variable: v, blankNode: b, literal: l } = factory;
 
   const ISA = n("isa");
@@ -75,10 +75,12 @@ define([
     return { element, attributes, children };
   };
 
-  const model_interpreter = ({ recipe_graph, registry }) => {
+  const model_interpreter = (dataset, registry, { recipe_graph }) => {
     // NOTE: Just copies, doesn't subscribe
-    const kitchen_graph = new RDFTripleStore(recipe_graph.triples);
+    const { name, graph: kitchen_graph } = dataset.create_graph();
+    kitchen_graph.into(recipe_graph.triples);
     const system = monotonic_system({
+      id: name,
       store: kitchen_graph,
       registry,
       drivers: ["owlBasicDriver", "streamDriver", "subscriptionDriver"],
@@ -86,9 +88,10 @@ define([
     return { kitchen_graph };
   };
 
-  const representation_interpreter = ({ input_graph, registry }) => {
+  const representation_interpreter = (dataset, registry, { input_graph }) => {
     // NOTE: Just copies, doesn't subscribe.  This might not cut it, though.
-    const representation_graph = new RDFTripleStore(input_graph.triples);
+    const { name, graph: representation_graph } = dataset.create_graph();
+    representation_graph.into(input_graph.triples);
 
     // For each incoming subject, assert a representation.
     // Initial representations need to be *a priori* else feedback loop.
@@ -106,6 +109,7 @@ define([
     ]);
 
     const system = monotonic_system({
+      id: name,
       store: representation_graph,
       registry,
       drivers: [
@@ -149,21 +153,27 @@ define([
     return { templates, top_level };
   };
 
-  const create_interpreter_graph = (spec, registry) => {
-    const { recipe_facts, recipe_dom_process, kitchen_dom_process } = spec;
-    const recipe_graph = new RDFTripleStore(recipe_facts);
+  const create_interpreter_graph = (dataset, registry, spec) => {
+    const { id, recipe_facts, recipe_dom_process, kitchen_dom_process } = spec;
+    const { name, graph: recipe_graph } = dataset.create_graph();
+    recipe_graph.into(recipe_facts);
 
     // TEMP: View model directly, rather than interpreter
-    const { kitchen_graph } = model_interpreter({ recipe_graph, registry });
+    const { kitchen_graph } = model_interpreter(dataset, registry, {
+      recipe_graph,
+    });
 
-    const model_representation_graph = representation_interpreter({
-      input_graph: recipe_graph,
+    const model_representation_graph = representation_interpreter(
+      dataset,
       registry,
-    }).representation_graph;
+      { input_graph: recipe_graph }
+    ).representation_graph;
 
-    const kitchen_representation_graph = representation_interpreter({
-      input_graph: kitchen_graph,
-    }).representation_graph;
+    const kitchen_representation_graph = representation_interpreter(
+      dataset,
+      registry,
+      { input_graph: kitchen_graph }
+    ).representation_graph;
 
     const recipe_rep = dom_process_interpreter({
       representation_graph: model_representation_graph,
@@ -227,6 +237,7 @@ define([
         kitchen_output,
       };
     };
+    const dataset = new Dataset();
     const registry = make_registry();
     for (const model of models) {
       const the = cont(model);
@@ -243,12 +254,13 @@ define([
       });
       const recipe_facts = interpret(read(model.userland_code));
       const { kitchen_graph, recipe_graph } = create_interpreter_graph(
+        dataset,
+        registry,
         {
           recipe_facts,
           recipe_dom_process,
           kitchen_dom_process,
-        },
-        registry
+        }
       );
       live_query(kitchen_graph, q("?s ?p ?o")).subscribe({
         next: facts => {

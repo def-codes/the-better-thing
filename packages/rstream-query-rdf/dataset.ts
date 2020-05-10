@@ -37,19 +37,23 @@ export class Dataset {
     return this.namedGraphs.get(name);
   }
 
-  create(): IGraph {
-    const store = new RDFTripleStore();
+  create_graph(): { name: NamedNode; graph: IGraph } {
+    const graph = new RDFTripleStore();
 
     // record some info about the existence of this store
-    // should we also return the ID?
-    const graph_name = generate_iri();
-    const subject = namedNode(graph_name);
+    const graph_iri = generate_iri();
+    const name = namedNode(graph_iri);
     const predicate = TYPE;
     const object = GRAPH;
 
-    this.namedGraphs.set(subject, store);
-    this.defaultGraph.add([subject, predicate, object]);
+    this.namedGraphs.set(name, graph);
+    this.defaultGraph.add([name, predicate, object]);
 
-    return store;
+    return { name, graph };
+  }
+
+  // TODO: deprecate, this is a bad name
+  create(): IGraph {
+    return this.create_graph().graph;
   }
 }
