@@ -1,8 +1,7 @@
 // support system for monotonic, rule-based drivers of resource implementations.
-import { EquivMap } from "@thi.ng/associative";
 import rdf from "@def.codes/rdf-data-model";
-import { NamedNode } from "@def.codes/rdf-data-model";
 import { IStream } from "@thi.ng/rstream";
+import { make_registry } from "./registry";
 import {
   live_query,
   sync_query,
@@ -11,9 +10,6 @@ import {
 } from "@def.codes/rstream-query-rdf";
 
 // =============== RDF helpers
-
-const AS = rdf.namedNode("as"); // for runtime only
-const IMPLEMENTS = rdf.namedNode("implements"); // s/b meld:
 
 const mint_blank = () => rdf.blankNode();
 
@@ -161,25 +157,16 @@ export const monotonic_system = ({
   target,
   drivers,
 }) => {
-  const registry = new EquivMap();
+  const registry = make_registry();
   const out_store = target ?? store;
   const driver_names = drivers ?? [...driver_dictionary.keys()];
 
   const assert = fact => out_store.add(fact);
 
   const find = subject => {
-    if (!registry.has(subject)) {
-      console.warn("No such subject", subject, "in", [...registry.keys()]);
-      console.log("ALL TRIPLES", store.triples);
-    }
-    return registry.get(subject);
-  };
-
-  const register_exotic = (object, type: NamedNode) => {
-    const object_id = mint_blank();
-    registry.set(object_id, object);
-    assert([object_id, AS, type]);
-    return object_id;
+    const got = registry.find(subject);
+    if (!got) console.warn(`Subject ${subject} not in registry`, store.triples);
+    return got;
   };
 
   const unstable_live_query = where => live_query(store, where);
@@ -197,12 +184,13 @@ export const monotonic_system = ({
     store,
     find,
     register_input_port: (name: string, stream: IStream<any>) => {
-      const impl = register_exotic(stream, rdf.namedNode("Subscribable"));
+      // DISABLED all this as OBE.
+      // const impl = register_exotic(stream, rdf.namedNode("Subscribable"));
       //  This is wack.  listensTo rule doesn't fire unless the source node
       //  IMPLEMENTS the resource associated with the dataflow node.  But in
       //  this case, they are the same thing.
-      assert([impl, IMPLEMENTS, impl]);
-      assert([impl, rdf.namedNode("implementsHostInput"), rdf.literal(name)]);
+      // assert([impl, IMPLEMENTS, impl]);
+      // assert([impl, rdf.namedNode("implementsHostInput"), rdf.literal(name)]);
     },
     register_output_port: (name, subject, source) => {
       const stream = system.find(source);
@@ -215,34 +203,7 @@ export const monotonic_system = ({
     // drivers to disambiguate the role for which they are querying
     // implementations.
     register(subject, type_name, using) {
-      const type = rdf.namedNode(type_name);
-      if (!registry.has([subject, type])) {
-        let object;
-        try {
-          object = using();
-        } catch (error) {
-          // Should also know driver/rule source here.
-          console.error(
-            `Error getting value for ${subject.value} as type ${type_name}`,
-            error
-          );
-          return;
-        }
-
-        register_exotic(object, type);
-
-        // I won't judge you for using this.
-        // if (type_name === "Subscribable") {
-        //   value.subscribe(
-        //     tx.sideEffect(value =>
-        //       console.orig.log(subject.value, "DEBUG", value)
-        //     )
-        //   );
-        // }
-        registry.set([subject, type], object);
-        const object_id = register_exotic(object, type);
-        assert([object_id, IMPLEMENTS, subject]);
-      }
+      return registry.register(store, subject, type_name, using);
     },
   };
 

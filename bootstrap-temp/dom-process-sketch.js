@@ -106,7 +106,13 @@ define([
 
     const system = monotonic_system({
       store: representation_graph,
-      drivers: ["domRepresentationDriver", "owlBasicDriver"],
+      drivers: [
+        "domRepresentationDriver",
+        "owlBasicDriver",
+        "streamDriver",
+        // TEMP: Disabled until this can be supported without conflict
+        // "subscriptionDriver",
+      ],
     });
 
     return { representation_graph };
