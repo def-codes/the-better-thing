@@ -1,6 +1,6 @@
 import { Handler } from "../api";
 import { STATUS } from "../constants";
-import * as fs from "fs";
+import * as real_fs from "fs";
 import * as _path from "path";
 
 export const MIME_TYPES = {
@@ -39,17 +39,21 @@ interface Options {
 
   /** Name of the file to look for when a directory is requested. */
   default_document: string;
+
+  /** Optional alternative file system lib. */
+  fs?: typeof real_fs;
 }
 
 const DEFAULT: Options = {
   root: ".",
   default_document: "index.html",
+  fs: real_fs,
 };
 
 export const with_static_files = (
   options: Partial<Options>
 ): Handler => request => {
-  const { root, default_document }: Options = { ...DEFAULT, ...options };
+  const { root, default_document, fs }: Options = { ...DEFAULT, ...options };
 
   const file_path = _path.resolve(root, request.path);
 
