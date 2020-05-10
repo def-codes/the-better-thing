@@ -18,8 +18,11 @@ define([], () => [
 Bob(isa(Man))`,
   },
   {
-    label: "Minimal dataflow example",
-    // Not even sure Bob is needed...
+    label: "A ticker",
+    userland_code: `Alice.hasInterval(1000)`,
+  },
+  {
+    label: "A ticker with a listener",
     userland_code: `Alice.hasInterval(1000)
 Bob.listensTo.Alice`,
   },

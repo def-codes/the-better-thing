@@ -10,6 +10,7 @@ for (const [_, { name, init }] of Object.entries(drivers)) {
 // Not currently imported anywhere
 // export * from "./system";
 export * from "./rdf-hdom";
+export * from "./registry";
 export * from "./system";
 export * from "./value-view";
 export * from "./world";
