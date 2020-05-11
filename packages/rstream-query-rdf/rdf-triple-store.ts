@@ -1,5 +1,10 @@
 import { TripleStore } from "@thi.ng/rstream-query";
-import { PseudoTriples, PseudoTriple } from "./api";
+import {
+  PseudoTriples,
+  PseudoTriple,
+  IRDFTripleSource,
+  IRDFTripleSink,
+} from "./api";
 import { normalize_triple } from "./factory";
 import { MonotonicBlankNodeSpace } from "./blank-node-space";
 import { blank_node_space_registry } from "./blank-node-space-registry";
@@ -8,15 +13,13 @@ import { BlankNode } from "@def.codes/rdf-data-model";
 
 /** An extension to `TripleStore` that uses RDF/JS terms with reference
  * equality. */
-export class RDFTripleStore extends TripleStore
-  implements Iterable<PseudoTriple> {
+export class RDFTripleStore implements IRDFTripleSource, IRDFTripleSink {
   readonly blank_node_space_id: number;
+  private readonly _store = new TripleStore();
   private readonly _bnode_space: MonotonicBlankNodeSpace;
 
   constructor(triples?: PseudoTriples, bnode_space?: number) {
     // Can't add triples until bnode_space is defined.
-    super();
-
     if (typeof bnode_space === "number") {
       this.blank_node_space_id = bnode_space;
       this._bnode_space = blank_node_space_registry.get(bnode_space);
@@ -35,6 +38,18 @@ export class RDFTripleStore extends TripleStore
     if (triples) this.into(triples);
   }
 
+  get triples() {
+    return this._store.triples;
+  }
+
+  get indexS() {
+    return this._store.indexS;
+  }
+
+  addQueryFromSpec(spec) {
+    return this._store.addQueryFromSpec(spec);
+  }
+
   // Assumes bnodes are from same space (as with `into`).
   add(triple: PseudoTriple): boolean {
     const normalized = normalize_triple(triple);
@@ -43,12 +58,12 @@ export class RDFTripleStore extends TripleStore
 
     for (const term of normalized)
       if (is_blank_node(term)) this._bnode_space.add(term);
-    return super.add(normalized);
+    return this._store.add(normalized);
   }
 
   into(triples: Iterable<PseudoTriple>) {
-    // @ts-ignore: this is here just to adapt the signature
-    return super.into(triples);
+    // @ts-expect-error: adapts signature
+    return this._store.into(triples);
   }
 
   mint() {

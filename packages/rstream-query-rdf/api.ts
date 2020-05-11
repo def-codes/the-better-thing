@@ -3,6 +3,7 @@
 // make the public API compatible with RDF/JS and support the pseudo form for
 // convenience in certain places.
 import { Term } from "@def.codes/rdf-data-model";
+import { QuerySpec, QuerySolution } from "@thi.ng/rstream-query";
 
 /** A triple compatible with `rstream-query` using RDF/JS terms.  This works as
  * expected as long as equal terms have reference identity. */
@@ -22,4 +23,17 @@ interface PseudoRuleAction {
 export interface PseudoRule {
   readonly when: PseudoTriple;
   readonly then: (bound_variables: object) => PseudoRuleAction;
+}
+
+// Very preliminary.  Right now mostly represents the parts of
+// @thi.ng/rstream-query TripleStore that I was using anywhere.
+export interface IRDFTripleSource {
+  readonly triples: Iterable<PseudoTriple>;
+  addQueryFromSpec(spec: QuerySpec): QuerySolution;
+  readonly indexS: Map<Term, Set<number>>;
+}
+export interface IRDFTripleSink {
+  add(triple: PseudoTriple): void;
+  into(triples: Iterable<PseudoTriple>): void;
+  import(triples: PseudoTriples): void;
 }

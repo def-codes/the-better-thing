@@ -47,7 +47,7 @@ Every store is associated (immutably) with exactly one *blank node space*.  A
 blank node space is a factory for blank nodes that keeps track of what blank
 node identifiers have been used.
 
-Currently the package uses a provides a monotonic blank node space
+Currently the package uses and provides a monotonic blank node space
 implementation and a registry of these.
 
 ## Note
