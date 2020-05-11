@@ -42,8 +42,8 @@ export class RDFTripleStore implements IRDFTripleSource, IRDFTripleSink {
     return this._store.triples;
   }
 
-  get indexS() {
-    return this._store.indexS;
+  subjects() {
+    return new Set(this._store.indexS.keys());
   }
 
   addQueryFromSpec(spec) {

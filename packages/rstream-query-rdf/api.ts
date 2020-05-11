@@ -2,7 +2,7 @@
 // PseudoTriple pervades throughout all other types.  I may ultimately decide to
 // make the public API compatible with RDF/JS and support the pseudo form for
 // convenience in certain places.
-import { Term } from "@def.codes/rdf-data-model";
+import { Term, NamedNode, BlankNode } from "@def.codes/rdf-data-model";
 import { QuerySpec, QuerySolution } from "@thi.ng/rstream-query";
 
 /** A triple compatible with `rstream-query` using RDF/JS terms.  This works as
@@ -10,6 +10,8 @@ import { QuerySpec, QuerySolution } from "@thi.ng/rstream-query";
 export type PseudoTriple = readonly [Term, Term, Term];
 
 export type PseudoTriples = readonly PseudoTriple[];
+
+export type NodeTerm = NamedNode | BlankNode;
 
 /** To be used with `rstream-query`, at least one of the terms must include a
  * variable. */
@@ -30,7 +32,7 @@ export interface PseudoRule {
 export interface IRDFTripleSource {
   readonly triples: Iterable<PseudoTriple>;
   addQueryFromSpec(spec: QuerySpec): QuerySolution;
-  readonly indexS: Map<Term, Set<number>>;
+  subjects(): Set<NodeTerm>;
 }
 export interface IRDFTripleSink {
   add(triple: PseudoTriple): void;

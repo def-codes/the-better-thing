@@ -105,7 +105,7 @@ define([
           // TEMP: Avoiding REPRESENTS_TRANSITIVE because it's really slow rn
           [rep, REPRESENTS, s],
         ];
-      }, input_graph.indexS.keys()),
+      }, input_graph.subjects()),
     ]);
 
     const system = monotonic_system({
