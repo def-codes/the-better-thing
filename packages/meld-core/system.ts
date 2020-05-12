@@ -6,7 +6,8 @@ import {
   live_query,
   sync_query,
   PseudoTriples,
-  RDFTripleStore,
+  IRDFTripleSource,
+  IRDFTripleSink,
 } from "@def.codes/rstream-query-rdf";
 
 // =============== RDF helpers
@@ -30,9 +31,9 @@ export const sub_blank_nodes = triples => {
 
 // When the asserted triples contain open variables (i.e. any variable terms),
 // this treats them as a “there exists” assertion.
-const expand = (store: RDFTripleStore, triples: PseudoTriples) => {
+const expand = (source: IRDFTripleSource, triples: PseudoTriples) => {
   if (has_open_variables(triples)) {
-    const existing = sync_query(store, triples);
+    const existing = sync_query(source, triples);
     if (!existing || existing.size === 0) return sub_blank_nodes(triples);
   } else return triples;
 };
@@ -76,7 +77,7 @@ export const register_driver = (name, init) =>
 
 const HANDLERS = {
   assert(triples, system) {
-    const expanded = expand(system.store, triples);
+    const expanded = expand(system.source, triples);
     if (expanded) system.assert_all(expanded);
   },
   register_output_port({ name, subject, source }, system) {
@@ -117,9 +118,9 @@ const make_consequent_handler = (then, helpers, system, all) => results => {
         process_effect_definition(key, value, system);
 };
 
-// behavior is undefined if store is not empty
+// behavior is undefined if source is not empty
 // returns a bunch of subscriptions
-const apply_drivers_to = (store, helpers, system, names) => {
+const apply_drivers_to = (source, helpers, system, names) => {
   const subs = [];
   for (const name of names) {
     if (!driver_dictionary.has(name))
@@ -128,7 +129,7 @@ const apply_drivers_to = (store, helpers, system, names) => {
     system.assert_all(claims);
     for (const { when, when_all, then } of rules)
       subs.push(
-        live_query(store, when || when_all).subscribe({
+        live_query(source, when || when_all).subscribe({
           next: make_consequent_handler(then, helpers, system, !!when_all),
           // TODO: formally indicate source
           error: error => console.error("problem appying rule: ", when, error),
@@ -142,11 +143,11 @@ interface MonotonicSystemOptions {
   /** Provisional.  Namespace if there were more than one. */
   readonly id: string;
 
-  /** Should be an empty knowledge base. */
-  readonly store: RDFTripleStore;
+  /** Graph containing given facts. */
+  readonly source: IRDFTripleSource & IRDFTripleSink;
 
-  /** Where to assert to (`store` if undefined) */
-  readonly target: RDFTripleStore;
+  /** Where to assert to (`source` if undefined) */
+  readonly sink?: IRDFTripleSink;
 
   readonly ports?: any;
 
@@ -166,32 +167,31 @@ interface MonotonicSystemOptions {
  * @returns (Provisional) dispose method.
  */
 export const monotonic_system = (options: MonotonicSystemOptions) => {
-  const { id, store, dom_root, ports, target, drivers } = options;
+  const { id, source, dom_root, ports, drivers } = options;
   const registry = options.registry ?? make_registry();
-  const out_store = target ?? store;
+  const sink = options.sink ?? source;
   const driver_names = drivers ?? [...driver_dictionary.keys()];
 
-  const assert = fact => out_store.add(fact);
+  const assert = fact => sink.add(fact);
 
   const find = subject => {
     const got = registry.find(subject);
-    if (!got) console.warn(`Subject ${subject} not in registry`, store.triples);
+    if (!got) console.warn(`Subject ${subject} not in registry`);
     return got;
   };
 
-  const unstable_live_query = where => live_query(store, where);
+  const unstable_live_query = where => live_query(source, where);
 
   // The interface made available to drivers
   //
   // TEMP: Changing handlers to return side-effect descriptions.  Read-only
   // facilities will be added as needed.
   const driver_helpers = {
-    store,
     find,
     unstable_live_query,
   };
   const system = {
-    store,
+    source,
     find,
     register_input_port: (name: string, stream: IStream<any>) => {
       // DISABLED all this as OBE.
@@ -206,14 +206,14 @@ export const monotonic_system = (options: MonotonicSystemOptions) => {
       const stream = system.find(source);
       ports?.add_output(name, stream);
     },
-    assert_all: facts => out_store.into(facts),
-    query_all: where => sync_query(store, where),
+    assert_all: facts => sink.into(facts),
+    query_all: where => sync_query(source, where),
 
     // A single resource can be “implemented” once for each type.  This allows
     // drivers to disambiguate the role for which they are querying
     // implementations.
     register(subject, type_name, using) {
-      return registry.register(store, subject, type_name, using);
+      return registry.register(sink, subject, type_name, using);
     },
   };
 
@@ -231,7 +231,7 @@ export const monotonic_system = (options: MonotonicSystemOptions) => {
   }
 
   const rule_subscriptions = apply_drivers_to(
-    store,
+    source,
     driver_helpers,
     system,
     driver_names

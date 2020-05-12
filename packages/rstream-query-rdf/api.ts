@@ -27,11 +27,15 @@ export interface PseudoRule {
   readonly then: (bound_variables: object) => PseudoRuleAction;
 }
 
+type DeepReadonly<T> = T extends object
+  ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+  : T;
+
 // Very preliminary.  Right now mostly represents the parts of
 // @thi.ng/rstream-query TripleStore that I was using anywhere.
 export interface IRDFTripleSource {
   readonly triples: Iterable<PseudoTriple>;
-  addQueryFromSpec(spec: QuerySpec): QuerySolution;
+  addQueryFromSpec(spec: DeepReadonly<QuerySpec>): QuerySolution;
   subjects(): Set<NodeTerm>;
 }
 export interface IRDFTripleSink {

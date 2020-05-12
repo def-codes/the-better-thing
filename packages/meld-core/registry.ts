@@ -21,13 +21,13 @@ import { EquivMap } from "@thi.ng/associative";
 import rdf from "@def.codes/rdf-data-model";
 import type { Term, NamedNode } from "@def.codes/rdf-data-model";
 import type {
-  RDFTripleStore,
   PseudoTriple,
+  IRDFTripleSink,
 } from "@def.codes/rstream-query-rdf";
 
 export interface Registry {
   register(
-    store: RDFTripleStore,
+    sink: IRDFTripleSink,
     subject: Term,
     type_name: string,
     get_object: () => any
@@ -46,8 +46,8 @@ export const make_registry = (): Registry => {
   const _things = new EquivMap<Term | [Term, Term], any>();
 
   return {
-    register(store, subject, type_name, thunk) {
-      const assert = (fact: PseudoTriple) => store.add(fact);
+    register(sink, subject, type_name, thunk) {
+      const assert = (fact: PseudoTriple) => sink.add(fact);
 
       const register_exotic = (object: any, type: NamedNode) => {
         const object_id = mint_blank(); // TODO: should use IRI's instead

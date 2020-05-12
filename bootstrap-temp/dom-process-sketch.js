@@ -81,7 +81,7 @@ define([
     kitchen_graph.into(recipe_graph.triples);
     const system = monotonic_system({
       id: name,
-      store: kitchen_graph,
+      source: kitchen_graph,
       registry,
       drivers: ["owlBasicDriver", "streamDriver", "subscriptionDriver"],
     });
@@ -110,7 +110,7 @@ define([
 
     const system = monotonic_system({
       id: name,
-      store: representation_graph,
+      source: representation_graph,
       registry,
       drivers: [
         "domRepresentationDriver",

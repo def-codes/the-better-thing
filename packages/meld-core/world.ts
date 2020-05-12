@@ -53,7 +53,7 @@ export const monotonic_world = opts => {
 
     try {
       opts.dom_root.innerHTML = "";
-      dispose_old_system = monotonic_system({ ...opts, store });
+      dispose_old_system = monotonic_system({ ...opts, source: store });
     } catch (error) {
       return { error, when: "creating-system" };
     }
