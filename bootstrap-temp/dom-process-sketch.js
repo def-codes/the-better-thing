@@ -6,10 +6,14 @@ define([
   "@def.codes/expression-reader",
   "./hdom-regions.js",
   "./userland-code-cases.js",
-], async (rs, tx, rdf, core, { read }, dp, examples) => {
-  const { q, make_registry, monotonic_system, interpret } = core;
-  const { factory, Dataset, sync_query, live_query } = rdf;
+  "./dom-operations.js",
+  "./union-interpreter.js",
+], async (rs, tx, rdf, core, { read }, dp, examples, dom_ops, interp) => {
+  const { q, make_registry, interpret } = core;
+  const { factory, Dataset, UnionGraph, sync_query, live_query } = rdf;
   const { namedNode: n, variable: v, blankNode: b, literal: l } = factory;
+  const { assertion_from_css, apply_dom_operations } = dom_ops;
+  const { make_interpreter } = interp;
 
   const ISA = n("isa");
   const DOM_ELEMENT = n("def:DomElement");
@@ -19,84 +23,34 @@ define([
   const CONTAINS = n("def:contains");
   const CONTAINS_TEXT = n("def:containsText");
 
-  const ATTRIBUTE_CONTAINS_WORD = /^\[(.+)~="(.+)"\]$/;
-  const ATTRIBUTE_EQUALS = /^\[(.+)="(.+)"\]$/;
-  const ELEMENT = /^[a-z][a-z0-9]*$/;
-  const assertion_from_css = selector => {
-    // Order matters here
-    const attribute_contains_word = selector.match(ATTRIBUTE_CONTAINS_WORD);
-    if (attribute_contains_word) {
-      const [, name, value] = attribute_contains_word;
-      return { type: "attribute-contains-word", name, value };
-    }
-    const attribute_equals = selector.match(ATTRIBUTE_EQUALS);
-    if (attribute_equals) {
-      const [, name, value] = attribute_equals;
-      return { type: "attribute-equals", name, value };
-    }
-    const element = selector.match(ELEMENT);
-    if (element) {
-      const [name] = element;
-      return { type: "uses-element", name };
-    }
-    return { type: "unknown", selector };
-  };
-
-  // dom operations
-  const apply_dom_operations = operations => {
-    let element = "div";
-    let key = 0;
-    const attributes = {};
-    const children = [];
-    for (const operation of operations) {
-      if (operation.type === "attribute-contains-word") {
-        const { name, value } = operation;
-        attributes[name] = attributes[name]
-          ? attributes[name] + " " + value
-          : value;
-      } else if (operation.type === "attribute-equals") {
-        attributes[operation.name] = operation.value;
-      } else if (operation.type === "uses-element") {
-        element = operation.name;
-      } else if (operation.type === "contains-text") {
-        // Ideally, we'd tie this back to the rule that created it
-        children.push({
-          element: "span",
-          attributes: { key: (key++).toString(), "data-from-rule": "" },
-          children: [operation.text],
-        });
-      } else if (operation.type === "contains") {
-        const { id } = operation;
-        children.push({ element: "placeholder", attributes: { id } });
-      } else {
-        console.warn("unsupported operation!", operation);
-      }
-    }
-    return { element, attributes, children };
-  };
-
   const model_interpreter = (dataset, registry, { recipe_graph }) => {
-    // NOTE: Just copies, doesn't subscribe
-    const { name, graph: kitchen_graph } = dataset.create_graph();
-    kitchen_graph.into(recipe_graph.triples);
-    const system = monotonic_system({
-      id: name,
-      source: kitchen_graph,
-      registry,
-      drivers: ["owlBasicDriver", "streamDriver", "subscriptionDriver"],
-    });
-    return { kitchen_graph };
+    const drivers = ["owlBasicDriver", "streamDriver", "subscriptionDriver"];
+    const { union } = make_interpreter(recipe_graph, { registry, drivers });
+    return { kitchen_graph: union };
   };
 
   const representation_interpreter = (dataset, registry, { input_graph }) => {
-    // NOTE: Just copies, doesn't subscribe.  This might not cut it, though.
-    const { name, graph: representation_graph } = dataset.create_graph();
-    representation_graph.into(input_graph.triples);
+    // TEMP: Disabled subscription until this can be supported without conflict
+    const drivers = [
+      "domRepresentationDriver",
+      "owlBasicDriver",
+      "streamDriver",
+      "subscriptionDriver",
+    ];
+
+    // Reservoir doesn't come from dataset
+    const { union, reservoir } = make_interpreter(input_graph, {
+      // id,
+      registry,
+      drivers,
+    });
 
     // For each incoming subject, assert a representation.
     // Initial representations need to be *a priori* else feedback loop.
     // This could be done by a rule if it weren't subject to feedback
-    representation_graph.into([
+    // As it is, it's done as a one-time write.  Technically the interpreter
+    // should control all access to reservoir.
+    reservoir.into([
       ...tx.mapcat(s => {
         // HACK. avoids blank nodes
         const rep = n(`representationOf${s.value}`);
@@ -108,20 +62,7 @@ define([
       }, input_graph.subjects()),
     ]);
 
-    const system = monotonic_system({
-      id: name,
-      source: representation_graph,
-      registry,
-      drivers: [
-        "domRepresentationDriver",
-        "owlBasicDriver",
-        "streamDriver",
-        // TEMP: Disabled until this can be supported without conflict
-        // "subscriptionDriver",
-      ],
-    });
-
-    return { representation_graph };
+    return { representation_graph: union };
   };
 
   // construct templates from a graph containing representations
@@ -240,6 +181,7 @@ define([
     const dataset = new Dataset();
     const registry = make_registry();
     for (const model of models) {
+      // if (model.label !== "A ticker with a listener") continue;
       const the = cont(model);
       the.model_code.innerText = model.userland_code;
       const recipe_dom_process = dp.make_dom_process();

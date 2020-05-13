@@ -1,8 +1,8 @@
-import { EquivMap, ArraySet, union } from "@thi.ng/associative";
+import { EquivMap, ArraySet } from "@thi.ng/associative";
 import { Stream, sync } from "@thi.ng/rstream";
 import * as tx from "@thi.ng/transducers";
 import type { QuerySpec, QuerySolution, Solution } from "@thi.ng/rstream-query";
-import { NodeTerm, IRDFTripleSource } from "./api";
+import { IRDFTripleSource } from "./api";
 
 // ASSUMES that solutions have the same keys
 // ASSUMES that solution values can use equality comparison
@@ -21,32 +21,27 @@ export class UnionGraph implements IRDFTripleSource {
   private _queries = new EquivMap<QuerySpec, Stream<QuerySolution>>();
 
   subjects() {
-    const subs = new Set<NodeTerm>();
-    for (const s of this._a.subjects()) subs.add(s);
-    for (const s of this._b.subjects()) subs.add(s);
-    return subs;
-  }
-
-  *all_triples() {
-    yield* this._a.triples;
-    yield* this._b.triples;
+    return new Set(tx.concat(this._a.subjects(), this._b.subjects()));
   }
 
   get triples() {
-    return this.all_triples();
+    // technically should dedupe
+    return tx.concat(this._a.triples, this._b.triples);
   }
 
   addQueryFromSpec(spec: QuerySpec): QuerySolution {
     // Maybe just return existing sub?  But probably a mistake
-    if (this._queries.has(spec)) {
-      console.log("This spec already exists", spec);
-      throw new Error("Duplicate spec");
+    const existing = this._queries.get(spec);
+    if (existing) {
+      // console.log("This spec already exists", spec);
+      // @ts-ignore: the types don't match for some reason
+      return existing;
     }
 
     const a = this._a.addQueryFromSpec(spec);
     const b = this._b.addQueryFromSpec(spec);
-    const sub = sync({ src: { a, b } }).transform(
-      tx.map(({ a, b }) => new ArraySet(tx.concat(a, b), OPTS))
+    const sub = sync({ src: { a, b }, mergeOnly: true }).transform(
+      tx.map(({ a, b }) => new ArraySet(tx.concat(a || [], b || []), OPTS))
     );
 
     // @ts-ignore

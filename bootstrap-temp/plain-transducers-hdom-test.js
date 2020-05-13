@@ -6,7 +6,6 @@ define([
   "@thi.ng/hdom",
   "@thi.ng/transducers-hdom",
 ], async (dp, rs, tx, hiccup, hdom, th) => {
-  return;
   const { scan } = tx;
   const { derefContext } = hiccup;
   const { DEFAULT_IMPL, resolveRoot } = hdom;
