@@ -1,5 +1,4 @@
 define([
-  "@thi.ng/rstream",
   "@thi.ng/transducers",
   "@def.codes/rstream-query-rdf",
   "@def.codes/meld-core",
@@ -7,60 +6,15 @@ define([
   "./hdom-regions.js",
   "./userland-code-cases.js",
   "./dom-process-interpreter.js",
-  "./union-interpreter.js",
-], async (rs, tx, rdf, core, { read }, dp, examples, dom_int, interp) => {
+  "./model-interpreter.js",
+  "./representation-interpreter.js",
+], async (tx, rdf, core, { read }, dp, examples, dom_int, mod, r12n) => {
   const { q, make_registry, interpret } = core;
   const { factory, Dataset, UnionGraph, live_query } = rdf;
   const { namedNode: n, variable: v, blankNode: b, literal: l } = factory;
   const { dom_process_interpreter } = dom_int;
-  const { make_interpreter } = interp;
-
-  const ISA = n("isa");
-  const DOM_ELEMENT = n("def:DomElement");
-  const REPRESENTS = n("def:represents");
-  const REPRESENTS_TRANSITIVE = n("def:representsTransitive");
-
-  const model_interpreter = (dataset, registry, { recipe_graph }) => {
-    const drivers = ["owlBasicDriver", "streamDriver", "subscriptionDriver"];
-    const { union } = make_interpreter(recipe_graph, { registry, drivers });
-    return { kitchen_graph: union };
-  };
-
-  const representation_interpreter = (dataset, registry, { input_graph }) => {
-    // TEMP: Disabled subscription until this can be supported without conflict
-    const drivers = [
-      "domRepresentationDriver",
-      "owlBasicDriver",
-      "streamDriver",
-      "subscriptionDriver",
-    ];
-
-    // Reservoir doesn't come from dataset
-    const { union, reservoir } = make_interpreter(input_graph, {
-      // id,
-      registry,
-      drivers,
-    });
-
-    // For each incoming subject, assert a representation.
-    // Initial representations need to be *a priori* else feedback loop.
-    // This could be done by a rule if it weren't subject to feedback
-    // As it is, it's done as a one-time write.  Technically the interpreter
-    // should control all access to reservoir.
-    reservoir.into([
-      ...tx.mapcat(s => {
-        // HACK. avoids blank nodes
-        const rep = n(`representationOf${s.value}`);
-        return [
-          [rep, ISA, DOM_ELEMENT],
-          // TEMP: Avoiding REPRESENTS_TRANSITIVE because it's really slow rn
-          [rep, REPRESENTS, s],
-        ];
-      }, input_graph.subjects()),
-    ]);
-
-    return { representation_graph: union };
-  };
+  const { model_interpreter } = mod;
+  const { representation_interpreter } = r12n;
 
   const create_interpreter_graph = (dataset, registry, spec) => {
     const { id, recipe_facts, recipe_dom_process, kitchen_dom_process } = spec;
@@ -166,11 +120,7 @@ define([
       const { kitchen_graph, recipe_graph } = create_interpreter_graph(
         dataset,
         registry,
-        {
-          recipe_facts,
-          recipe_dom_process,
-          kitchen_dom_process,
-        }
+        { recipe_facts, recipe_dom_process, kitchen_dom_process }
       );
       live_query(kitchen_graph, q("?s ?p ?o")).subscribe({
         next: facts => {

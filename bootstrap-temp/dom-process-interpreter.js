@@ -6,7 +6,7 @@ define([
 ], (tx, rdf, { q }, dom_ops) => {
   const { factory, sync_query } = rdf;
   const { assertion_from_css, apply_dom_operations } = dom_ops;
-  const { namedNode: n, variable: v, blankNode: b, literal: l } = factory;
+  const { namedNode: n, variable: v } = factory;
 
   const MATCHES = n("def:matches");
   const CONTAINS = n("def:contains");
