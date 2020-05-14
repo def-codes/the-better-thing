@@ -1,4 +1,6 @@
-define("@def-codes/meld/document-persistence", [], () => {
+// This doen't load right (from `require`) if a name is given.
+// "@def-codes/meld/document-persistence"
+define([], () => {
   // This only works if the link had its `download` property set.
   function snapshot_and_prompt_download(event) {
     // Here we are handling a click on a link.  `this` refers to the link

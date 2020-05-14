@@ -102,7 +102,7 @@ const make_scanner = collector => {
         //     set = <expr>.name
         //
         // pattern after the fact.
-        if (key === "name") console.log(`name?`, context);
+        // if (key === "name") console.log(`name?`, context);
 
         for (const scope of scopes) if (key in scope) return scope[key];
         return recur_with({ term: key });
