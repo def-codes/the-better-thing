@@ -154,16 +154,24 @@ export default {
         // PROVISIONAL
         name: "SubscribableRepresentationRule",
         when: q(
-          "?thing isa Stream"
-          // "?rep isa def:DomElement",
-          // "?rep def:represents ?thing",
-          // "?stream implements ?thing"
+          "?thing isa Stream",
+          "?rep isa def:DomElement",
+          "?rep def:represents ?thing",
+          "?stream implements ?thing"
         ),
-        then: ({ thing, type, rep, stream }) => {
-          // Subscribe to the stream, or otherwise feed it to representation...
-          console.log("STREAM", thing.value);
+        then: ({ thing, rep, stream }, { find }) => {
+          console.log("STREAM", thing.value, "REP", rep, "STREAM", stream);
 
-          return {};
+          // assert a subscriber that, when implemented,
+          // listens to the thing to be observed
+          // and sets content for the associated representation
+          find(stream).subscribe({
+            next(value) {
+              console.log(`${thing} value`, value);
+            },
+          });
+          const sub = v("sub");
+          return { assert: [[sub, n("listensTo"), stream]] };
         },
       },
     ],

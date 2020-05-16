@@ -38,23 +38,22 @@ define(["@def.codes/meld-core", "./union-interpreter.js"], (
 
     // Extend previous result with representation descriptions (using feedback).
     const representations = dataset.create_graph();
-    // const blueprint = make_union_interpreter(subjects.union, {
-    const blueprint = make_union_interpreter(input_graph, {
+    const blueprint = make_union_interpreter(subjects.union, {
       sink: representations.graph,
       registry, // should not need registry though
       drivers: ["domRepresentationDriver"],
     });
 
     // This is essentially the model interpreter
-    // const rep_kitchen = dataset.create_graph();
-    // const out = make_union_interpreter(blueprint.union, {
-    //   sink: rep_kitchen.graph,
-    //   registry,
-    //   drivers: ["rdfsPlusDriver", "streamDriver", "subscriptionDriver"],
-    // });
+    const rep_kitchen = dataset.create_graph();
+    const out = make_union_interpreter(blueprint.union, {
+      sink: rep_kitchen.graph,
+      registry,
+      drivers: ["rdfsPlusDriver", "streamDriver", "subscriptionDriver"],
+    });
     // { reservoir, union, system }
 
-    return { representation_graph: blueprint.union };
+    return { representation_graph: out.union };
   };
 
   return { representation_interpreter };
