@@ -3,6 +3,7 @@
 // make the public API compatible with RDF/JS and support the pseudo form for
 // convenience in certain places.
 import { Term, NamedNode, BlankNode } from "@def.codes/rdf-data-model";
+import { ISubscribable } from "@thi.ng/rstream";
 import { QuerySpec, QuerySolution } from "@thi.ng/rstream-query";
 
 /** A triple compatible with `rstream-query` using RDF/JS terms.  This works as
@@ -39,7 +40,15 @@ export interface IRDFTripleSource {
   subjects(): Set<NodeTerm>;
 }
 export interface IRDFTripleSink {
-  add(triple: PseudoTriple): void;
+  // Monotonic
+  add(triple: PseudoTriple): boolean;
   into(triples: Iterable<PseudoTriple>): void;
   import(triples: PseudoTriples): void;
+  // Non-monotonic
+  delete(triple: PseudoTriple): boolean;
+}
+
+export interface IRDFTripleEvents {
+  added(): ISubscribable<PseudoTriple>;
+  deleted(): ISubscribable<PseudoTriple>;
 }

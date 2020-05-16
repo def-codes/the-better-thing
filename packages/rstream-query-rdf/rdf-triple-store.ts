@@ -1,9 +1,11 @@
+import { stream } from "@thi.ng/rstream";
 import { TripleStore } from "@thi.ng/rstream-query";
 import {
   PseudoTriples,
   PseudoTriple,
   IRDFTripleSource,
   IRDFTripleSink,
+  IRDFTripleEvents,
 } from "./api";
 import { normalize_triple } from "./factory";
 import { MonotonicBlankNodeSpace } from "./blank-node-space";
@@ -13,10 +15,13 @@ import { BlankNode } from "@def.codes/rdf-data-model";
 
 /** An extension to `TripleStore` that uses RDF/JS terms with reference
  * equality. */
-export class RDFTripleStore implements IRDFTripleSource, IRDFTripleSink {
+export class RDFTripleStore
+  implements IRDFTripleSource, IRDFTripleSink, IRDFTripleEvents {
   readonly blank_node_space_id: number;
   private readonly _store = new TripleStore();
   private readonly _bnode_space: MonotonicBlankNodeSpace;
+  private readonly _added = stream<PseudoTriple>();
+  private readonly _deleted = stream<PseudoTriple>();
 
   constructor(triples?: PseudoTriples, bnode_space?: number) {
     // Can't add triples until bnode_space is defined.
@@ -50,6 +55,14 @@ export class RDFTripleStore implements IRDFTripleSource, IRDFTripleSink {
     return this._store.addQueryFromSpec(spec);
   }
 
+  added() {
+    return this._added;
+  }
+
+  deleted() {
+    return this._deleted;
+  }
+
   // Assumes bnodes are from same space (as with `into`).
   add(triple: PseudoTriple): boolean {
     const normalized = normalize_triple(triple);
@@ -58,7 +71,18 @@ export class RDFTripleStore implements IRDFTripleSource, IRDFTripleSink {
 
     for (const term of normalized)
       if (is_blank_node(term)) this._bnode_space.add(term);
-    return this._store.add(normalized);
+    const was_added = this._store.add(normalized);
+
+    if (was_added) this._added.next(normalized);
+
+    return was_added;
+  }
+
+  delete(triple: PseudoTriple): boolean {
+    const normalized = normalize_triple(triple);
+    const was_deleted = this._store.delete(normalized);
+    if (was_deleted) this._deleted.next(normalized);
+    return was_deleted;
   }
 
   into(triples: Iterable<PseudoTriple>) {
