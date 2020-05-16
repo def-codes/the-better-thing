@@ -476,7 +476,7 @@
     <article>
       <h2>interpreter tests</h2>
       <script>
-        // require(["./bootstrap-temp/test-union-interpreter.js"]);
+        require(["./bootstrap-temp/test-union-interpreter.js"]);
       </script>
       <p>Yeah, this just outputs to the console.</p>
     </article>
@@ -697,7 +697,9 @@
               </p>
 
               <script>
-                require(["@def-codes/meld/document-persistence"], functions => {
+                require([
+                  "./bootstrap-temp/document-persistence.js",
+                ], functions => {
                   functions.wire_save_links();
                 });
               </script>

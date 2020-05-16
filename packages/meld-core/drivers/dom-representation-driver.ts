@@ -154,14 +154,14 @@ export default {
         // PROVISIONAL
         name: "SubscribableRepresentationRule",
         when: q(
-          "?thing isa Subscribable",
-          "?rep isa def:DomElement",
-          "?rep def:represents ?thing",
-          "?stream implements ?thing"
+          "?thing isa Stream"
+          // "?rep isa def:DomElement",
+          // "?rep def:represents ?thing",
+          // "?stream implements ?thing"
         ),
-        then: ({ thing, rep, stream }) => {
+        then: ({ thing, type, rep, stream }) => {
           // Subscribe to the stream, or otherwise feed it to representation...
-          console.log(`thing, rep, stream`, thing, rep, stream);
+          console.log("STREAM", thing.value);
 
           return {};
         },

@@ -1,7 +1,10 @@
-define(["./union-interpreter.js"], ({ make_interpreter }) => {
+define(["./union-interpreter.js"], ({ make_union_interpreter }) => {
   const model_interpreter = (dataset, registry, { recipe_graph }) => {
-    const drivers = ["owlBasicDriver", "streamDriver", "subscriptionDriver"];
-    const { union } = make_interpreter(recipe_graph, { registry, drivers });
+    const drivers = ["rdfsPlusDriver", "streamDriver", "subscriptionDriver"];
+    const { union } = make_union_interpreter(recipe_graph, {
+      registry,
+      drivers,
+    });
     return { kitchen_graph: union };
   };
   return { model_interpreter };

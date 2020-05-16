@@ -1,4 +1,4 @@
-export { default as owlDriver } from "./owl-driver";
+export { default as rdfsPlusDriver } from "./rdfs-plus-driver";
 export { default as transducerDriver } from "./transducer-driver";
 export { default as streamDriver } from "./stream-driver";
 export { default as hostDriver } from "./host-driver";
@@ -7,6 +7,7 @@ export { default as hdomDriver } from "./hdom-driver";
 export { default as viewDriver } from "./view-driver";
 export { default as httpDereferenceDriver } from "./http-dereference-driver";
 export { default as domRepresentationDriver } from "./dom-representation-driver";
+export { default as domRepresentEverythingDriver } from "./dom-represent-everything-driver";
 // export { default as moduleImportDriver } from "./module-import-driver";
 export { default as functionTestDriver } from "./function-test-driver";
 export { default as testDriver } from "./test-driver";

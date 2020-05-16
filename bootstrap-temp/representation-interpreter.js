@@ -1,44 +1,61 @@
-define([
-  "@thi.ng/transducers",
-  "@def.codes/rstream-query-rdf",
-  "./union-interpreter.js",
-], (tx, { factory }, { make_interpreter }) => {
-  const { namedNode: n } = factory;
+define(["@def.codes/meld-core", "./union-interpreter.js"], (
+  { monotonic_system },
+  { make_union_interpreter }
+) => {
+  /*
+      +---F---+
+      |       |
+      |       v
+      |      assert_reps(F)       Non-feedback extension
+      |       |                   asserting representations
+      +-->U1<-+
+          |
+          |    R1<---+
+          v    |     |
+      +---U2<---+    dom_reps(F)   Feedback extension
+      |   |          ^             “fleshing out” representations
+      |   +----------+
+      v
 
-  const ISA = n("isa");
-  const DOM_ELEMENT = n("def:DomElement");
-  const REPRESENTS = n("def:represents");
-  const REPRESENTS_TRANSITIVE = n("def:representsTransitive");
+   */
 
   const representation_interpreter = (dataset, registry, { input_graph }) => {
-    const drivers = [
-      "domRepresentationDriver",
-      "owlBasicDriver",
-      "streamDriver",
-      "subscriptionDriver",
-    ];
+    // console.log(
+    //   `INPUT!!!!!!!!!!!!1`,
+    //   Array.from(input_graph.triples, ([s, p, o]) => `${s} ${p} ${o}`).join(
+    //     "\n"
+    //   )
+    // );
 
-    // Reservoir doesn't come from dataset
-    const interpreter = make_interpreter(input_graph, { registry, drivers });
+    // A non-feedback extension that asserts a representation of all subjects.
+    const representation_requests = dataset.create_graph();
+    const subjects = make_union_interpreter(input_graph, {
+      source: input_graph, // instead of union, hence non-feedback
+      sink: representation_requests.graph,
+      registry, // should not need registry though
+      drivers: ["domRepresentEverythingDriver"],
+    });
 
-    // For each incoming subject, assert a representation.
-    // Initial representations need to be *a priori* else feedback loop.
-    // This could be done by a rule if it weren't subject to feedback
-    // As it is, it's done as a one-time write.  Technically the interpreter
-    // should control all access to reservoir.
-    interpreter.reservoir.into([
-      ...tx.mapcat(s => {
-        // HACK. avoids blank nodes
-        const rep = n(`representationOf${s.value}`);
-        return [
-          [rep, ISA, DOM_ELEMENT],
-          // TEMP: Avoiding REPRESENTS_TRANSITIVE because it's really slow rn
-          [rep, REPRESENTS, s],
-        ];
-      }, input_graph.subjects()),
-    ]);
+    // Extend previous result with representation descriptions (using feedback).
+    const representations = dataset.create_graph();
+    // const blueprint = make_union_interpreter(subjects.union, {
+    const blueprint = make_union_interpreter(input_graph, {
+      sink: representations.graph,
+      registry, // should not need registry though
+      drivers: ["domRepresentationDriver"],
+    });
 
-    return { representation_graph: interpreter.union };
+    // This is essentially the model interpreter
+    // const rep_kitchen = dataset.create_graph();
+    // const out = make_union_interpreter(blueprint.union, {
+    //   sink: rep_kitchen.graph,
+    //   registry,
+    //   drivers: ["rdfsPlusDriver", "streamDriver", "subscriptionDriver"],
+    // });
+    // { reservoir, union, system }
+
+    return { representation_graph: blueprint.union };
   };
+
   return { representation_interpreter };
 });

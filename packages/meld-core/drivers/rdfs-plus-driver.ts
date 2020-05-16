@@ -1,6 +1,13 @@
-// Temporary driver for selected OWL properties.
-// Prefer to implement these as reified (userland) rules, but some pieces are
-// still not in place.
+// Forward-chaining rules implementing several RDFS(+) properties.
+// “RDFS Plus” is a notion from Hendler
+//
+// So yeah these things comes from the OWL namespace, but it would be misleading
+// to call this an OWL driver, since the parts proper to OWL require far more
+// sophistication to implement.
+//
+// https://www.oreilly.com/library/view/semantic-web-for/9780123735560/OEBPS/10_chapter08.htm
+// see also https://docs.cambridgesemantics.com/anzograph/userdoc/inferences.htm
+// http://mlwiki.org/index.php/RDFS-Plus
 import rdf from "@def.codes/rdf-data-model";
 
 const n = rdf.namedNode;
@@ -8,7 +15,7 @@ const n = rdf.namedNode;
 const ISA = n("isa");
 
 export default {
-  name: "owlBasicDriver",
+  name: "rdfsPlusDriver",
   init: ({ q, is_node }) => ({
     claims: q(
       // RDFS:
@@ -19,7 +26,6 @@ export default {
     ),
     // Is Class a Class?
     rules: [
-      // Domain and range are really from RDFS
       {
         name: "PropertyDomainRule",
         when: q("?property domain ?type", "?resource ?property ?any"),
