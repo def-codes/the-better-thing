@@ -1,35 +1,62 @@
-import { EquivMap, ArraySet } from "@thi.ng/associative";
-import { Stream, sync } from "@thi.ng/rstream";
 import * as tx from "@thi.ng/transducers";
 import type { QuerySpec, QuerySolution, Solution } from "@thi.ng/rstream-query";
-import { IRDFTripleSource } from "./api";
+import { IRDFTripleSource, IRDFTripleEvents } from "./api";
+import { RDFTripleStore } from "./rdf-triple-store";
 
+// Not used since switching to a concrete backing store, but may end up useful
+// some other place.
+//
 // ASSUMES that solutions have the same keys
 // ASSUMES that solution values can use equality comparison
-const solution_equals = (a: Solution, b: Solution) =>
-  Object.keys(a).every(k => a[k] === b[k]);
-
+// const solution_equals = (a: Solution, b: Solution) =>
+//   Object.keys(a).every(k => a[k] === b[k]);
+//
 // ArraySet by itself works, but this is optimized for assumptions
-const OPTS = { equiv: solution_equals };
+// const OPTS = { equiv: solution_equals };
 
 /**
  * EXPERIMENTAL: a graph that is part read-only (given) and part writable.  The
  * graph appears as the union of the two parts.
  */
-export class UnionGraph implements IRDFTripleSource {
-  constructor(readonly _a: IRDFTripleSource, readonly _b: IRDFTripleSource) {}
-  private _queries = new EquivMap<QuerySpec, Stream<QuerySolution>>();
+export class UnionGraph implements IRDFTripleSource, IRDFTripleEvents {
+  // This is a “computed” graph, but we need a concrete backing store in order
+  // for queries towork where match spans across unioned inputs.  It may be
+  // possible to do this via some combination of the sources' streams, but this
+  // will have to do for now.  It does simplify the rest of the implementation,
+  // at the cost of duplicate storage.
+  private readonly _store = new RDFTripleStore();
+
+  constructor(
+    readonly _a: IRDFTripleSource & IRDFTripleEvents,
+    readonly _b: IRDFTripleSource & IRDFTripleEvents
+  ) {
+    _a.added().subscribe({ next: triple => this._store.add(triple) });
+    _a.deleted().subscribe({ next: triple => this._store.delete(triple) });
+    _b.added().subscribe({ next: triple => this._store.add(triple) });
+    _b.deleted().subscribe({ next: triple => this._store.delete(triple) });
+    this._store.into(_a.triples);
+    this._store.into(_b.triples);
+  }
 
   subjects() {
-    return new Set(tx.concat(this._a.subjects(), this._b.subjects()));
+    return this._store.subjects();
   }
 
   get triples() {
-    // technically should dedupe
-    return tx.concat(this._a.triples, this._b.triples);
+    return this._store.triples;
+  }
+
+  added() {
+    return this._store.added();
+  }
+
+  deleted() {
+    return this._store.deleted();
   }
 
   addQueryFromSpec(spec: QuerySpec): QuerySolution {
+    return this._store.addQueryFromSpec(spec);
+    /* see above
     // Maybe just return existing sub?  But probably a mistake
     const existing = this._queries.get(spec);
     if (existing) {
@@ -48,5 +75,6 @@ export class UnionGraph implements IRDFTripleSource {
     this._queries.set(spec, sub);
 
     return sub;
+*/
   }
 }
