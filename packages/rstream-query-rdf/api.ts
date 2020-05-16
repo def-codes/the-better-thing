@@ -34,11 +34,14 @@ type DeepReadonly<T> = T extends object
 
 // Very preliminary.  Right now mostly represents the parts of
 // @thi.ng/rstream-query TripleStore that I was using anywhere.
+
 export interface IRDFTripleSource {
   readonly triples: Iterable<PseudoTriple>;
+  has(triples: PseudoTriple): boolean;
   addQueryFromSpec(spec: DeepReadonly<QuerySpec>): QuerySolution;
   subjects(): Set<NodeTerm>;
 }
+
 export interface IRDFTripleSink {
   // Monotonic
   add(triple: PseudoTriple): boolean;

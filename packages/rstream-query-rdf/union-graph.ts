@@ -1,6 +1,5 @@
-import * as tx from "@thi.ng/transducers";
-import type { QuerySpec, QuerySolution, Solution } from "@thi.ng/rstream-query";
-import { IRDFTripleSource, IRDFTripleEvents } from "./api";
+import type { QuerySpec, QuerySolution } from "@thi.ng/rstream-query";
+import { PseudoTriple, IRDFTripleSource, IRDFTripleEvents } from "./api";
 import { RDFTripleStore } from "./rdf-triple-store";
 
 // Not used since switching to a concrete backing store, but may end up useful
@@ -15,8 +14,7 @@ import { RDFTripleStore } from "./rdf-triple-store";
 // const OPTS = { equiv: solution_equals };
 
 /**
- * EXPERIMENTAL: a graph that is part read-only (given) and part writable.  The
- * graph appears as the union of the two parts.
+ * EXPERIMENTAL: a graph that appears as the simple union of two other graphs.
  */
 export class UnionGraph implements IRDFTripleSource, IRDFTripleEvents {
   // This is a “computed” graph, but we need a concrete backing store in order
@@ -31,11 +29,23 @@ export class UnionGraph implements IRDFTripleSource, IRDFTripleEvents {
     readonly _b: IRDFTripleSource & IRDFTripleEvents
   ) {
     _a.added().subscribe({ next: triple => this._store.add(triple) });
-    _a.deleted().subscribe({ next: triple => this._store.delete(triple) });
     _b.added().subscribe({ next: triple => this._store.add(triple) });
-    _b.deleted().subscribe({ next: triple => this._store.delete(triple) });
+    _a.deleted().subscribe({
+      next: triple => {
+        if (!_b.has(triple)) this._store.delete(triple);
+      },
+    });
+    _b.deleted().subscribe({
+      next: triple => {
+        if (!_a.has(triple)) this._store.delete(triple);
+      },
+    });
     this._store.into(_a.triples);
     this._store.into(_b.triples);
+  }
+
+  has(triple: PseudoTriple) {
+    return this._store.has(triple);
   }
 
   subjects() {
@@ -57,7 +67,7 @@ export class UnionGraph implements IRDFTripleSource, IRDFTripleEvents {
   addQueryFromSpec(spec: QuerySpec): QuerySolution {
     return this._store.addQueryFromSpec(spec);
     /* see above
-    // Maybe just return existing sub?  But probably a mistake
+    // This only unions the *solutions*, each must match independently
     const existing = this._queries.get(spec);
     if (existing) {
       // console.log("This spec already exists", spec);

@@ -43,6 +43,11 @@ export class RDFTripleStore
     if (triples) this.into(triples);
   }
 
+  has(triple: PseudoTriple): boolean {
+    // @ts-expect-error: adapts signature
+    return this._store.has(triple);
+  }
+
   get triples() {
     return this._store.triples;
   }
