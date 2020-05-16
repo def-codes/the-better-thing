@@ -2,7 +2,9 @@ define([
   "@def.codes/rstream-query-rdf",
   "@def.codes/meld-core",
   "./union-interpreter.js",
-], async ({ Dataset }, { q, q1 }, { make_union_interpreter }) => {
+], async ({ Dataset, UnionGraph }, { q, q1, monotonic_system }) => {
+  // Does the same thing as make_union_interpreter
+
   const dataset = new Dataset();
   const { graph: recipe } = dataset.create_graph();
 
@@ -29,18 +31,16 @@ define([
   reservoir.added().subscribe({ next: t => log("RESERVOIR ADDED", [t]) });
   reservoir.deleted().subscribe({ next: t => log("RESERVOIR REMOVED", [t]) });
 
+  const union = new UnionGraph(recipe, reservoir);
+  const system = monotonic_system({ source: union, sink: reservoir, drivers });
   reservoir.add(q1("This isa Propagated"));
   reservoir.into(q("This isa AlsoPropagated"));
 
-  const interpreter = make_union_interpreter(recipe, {
-    drivers,
-    sink: reservoir,
-  });
   const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
   await timeout(300);
   log("RECIPE", recipe.triples);
   log("RESERVOIR", reservoir.triples);
-  log("UNION", interpreter.union.triples);
+  log("UNION", union.triples);
 
   recipe.add(q1("Woman subclassOf Person"));
   recipe.delete(q1("Bob isa Man"));

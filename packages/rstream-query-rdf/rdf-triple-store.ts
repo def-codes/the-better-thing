@@ -91,8 +91,15 @@ export class RDFTripleStore
   }
 
   into(triples: Iterable<PseudoTriple>) {
-    // @ts-expect-error: adapts signature
-    return this._store.into(triples);
+    // This ain't a subclass anymore, so calling store.into doesn't call
+    // overridden .add().
+    //
+    // return this._store.into(triples);
+    //
+    // Adapted from base implementation.  Apparently true if *all* are added.
+    let none_skipped = true;
+    for (const f of triples) none_skipped = this.add(f) && none_skipped;
+    return none_skipped;
   }
 
   mint() {
