@@ -49,7 +49,7 @@
     "@types/ws": "6.0.3",
     "prettier": "2.0.2",
     "rollup": "1.26.0",
-    "typescript": "3.9.0-dev.20200329"
+    "typescript": "3.9.2"
   },
   "prettier": {
     "arrowParens": "avoid",
