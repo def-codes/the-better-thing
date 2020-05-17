@@ -7,19 +7,49 @@ define([
   const { model_interpreter } = mod;
   const { representation_interpreter } = r12n;
 
-  const bind_rep = ({ top_level, templates }, dom_process) => {
-    // Construct a main template to contain all top-level items
-    dom_process.content.next({
-      id: "root",
-      content: {
-        element: "div",
-        children: Array.from(top_level, id => templates[id]),
+  const bind_rep = ({ top_level, sources }, dom_process) => {
+    // The subscription mapping each element's template stream to the dom process
+    const comm = new Map();
+
+    top_level.subscribe({
+      next(elements) {
+        // Construct a main template to contain all top-level items
+        dom_process.content.next({
+          id: "root",
+          content: {
+            element: "div",
+            children: Array.from(elements, term => ({
+              element: "placeholder",
+              attributes: { id: term.value },
+            })),
+          },
+        });
+      },
+      error(error) {
+        console.error("BIND_REP: constructing root template:", error);
       },
     });
 
     // Bind all other templates to their placeholders
-    for (const [id, content] of Object.entries(templates))
-      dom_process.content.next({ id, content });
+    // Doesn't handle changes, unsubscription, etc
+    sources.subscribe({
+      next(streams) {
+        // assumes they'll be the same streams each time?
+        // like the unsub in dom-process-interpreter, prob unused for a while
+        for (const [k, v] of comm) if (!streams.has(k)) v.unsubscribe();
+
+        for (const [term, value] of streams) {
+          if (!comm.has(term)) {
+            const sub = value.subscribe({
+              next(content) {
+                dom_process.content.next({ id: term.value, content });
+              },
+            });
+            comm.set(term, sub);
+          }
+        }
+      },
+    });
   };
 
   const create_interpreter_graph = (dataset, registry, spec) => {

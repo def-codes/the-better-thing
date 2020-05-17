@@ -167,7 +167,7 @@ export default {
           // and sets content for the associated representation
           find(stream).subscribe({
             next(value) {
-              console.log(`${thing} value`, value);
+              // console.log(`${thing} value`, value);
             },
           });
           const sub = v("sub");

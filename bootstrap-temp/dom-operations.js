@@ -2,7 +2,7 @@ define([], () => {
   const ATTRIBUTE_CONTAINS_WORD = /^\[(.+)~="(.+)"\]$/;
   const ATTRIBUTE_EQUALS = /^\[(.+)="(.+)"\]$/;
   const ELEMENT = /^[a-z][a-z0-9]*$/;
-  const assertion_from_css = selector => {
+  const css_to_assertion = selector => {
     // Order matters here
     const attribute_contains_word = selector.match(ATTRIBUTE_CONTAINS_WORD);
     if (attribute_contains_word) {
@@ -23,7 +23,7 @@ define([], () => {
   };
 
   // dom operations
-  const apply_dom_operations = operations => {
+  const operations_to_template = operations => {
     let element = "div";
     let key = 0;
     const attributes = {};
@@ -55,5 +55,5 @@ define([], () => {
     return { element, attributes, children };
   };
 
-  return { assertion_from_css, apply_dom_operations };
+  return { css_to_assertion, operations_to_template };
 });

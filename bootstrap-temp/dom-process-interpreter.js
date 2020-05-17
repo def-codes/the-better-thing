@@ -8,12 +8,13 @@
 define([
   "@thi.ng/transducers",
   "@thi.ng/rstream",
+  "@thi.ng/associative",
   "@def.codes/rstream-query-rdf",
   "@def.codes/meld-core",
   "./dom-operations.js",
-], (tx, rs, rdf, { q }, dom_ops) => {
-  const { factory, sync_query } = rdf;
-  const { assertion_from_css, apply_dom_operations } = dom_ops;
+], (tx, rs, { difference }, rdf, { q }, dom_ops) => {
+  const { factory, live_query } = rdf;
+  const { css_to_assertion, operations_to_template } = dom_ops;
   const { namedNode: n, variable: v } = factory;
 
   const MATCHES = n("def:matches");
@@ -26,52 +27,76 @@ define([
       Array.from(triples || [], ([s, p, o]) => `${s} ${p} ${o}`).join("\n")
     );
 
+  // Map a pseudo triple to a corresponding DOM operation (if any).
+  const operation_from = ([, predicate, object]) => {
+    switch (predicate) {
+      case MATCHES:
+        return css_to_assertion(object.value);
+      case CONTAINS:
+        return { type: "contains", id: object.value };
+      case CONTAINS_TEXT:
+        return { type: "contains-text", text: object.value };
+    }
+  };
+
+  // Map pseudo triples to corresponding DOM operations.
+  const facts_to_operations = facts => tx.keep(tx.map(operation_from, facts));
+
   // construct templates from a graph containing representations
   const dom_process_interpreter = ({ representation_graph: graph }) => {
-    // Get all the things that are dom representations and all their facts
-    const reps = sync_query(graph, q("?ele isa def:DomElement")) || [];
-    const contained = new Set(
-      tx.map(
-        _ => _.contained.value,
-        sync_query(graph, q("?x def:contains ?contained")) || []
-      )
-    );
+    // Dictionary of (live) template streams for each dom element.
+    const streams = new Map();
 
-    const facts_about = subject => {
-      // sync_query(graph, [[subject, v("predicate"), v("object")]]);
-      let results;
-      graph
-        .subject(subject)
-        .subscribe({ next: value => (results = [...value]) })
-        .unsubscribe();
-      log(results, subject + ":\n");
+    // Ensure that there's a template stream IFF there's an element now
+    function update_streams(subjects_now) {
+      // clean obsolete subs
+      for (const [id, sub] of streams)
+        if (!subjects_now.has(id)) sub.unsubscribe();
 
-      return results;
-    };
-
-    const templates = {};
-    for (const { ele } of reps) {
-      const operations = [
-        ...tx.keep(
-          tx.map(([, predicate, object]) => {
-            switch (predicate) {
-              case MATCHES:
-                return assertion_from_css(object.value);
-              case CONTAINS:
-                return { type: "contains", id: object.value };
-              case CONTAINS_TEXT:
-                return { type: "contains-text", text: object.value };
-            }
-          }, facts_about(ele))
-        ),
-      ];
-
-      const template = apply_dom_operations(operations);
-      templates[ele.value] = template;
+      // add new subs
+      for (const id of subjects_now)
+        if (!streams.has(id))
+          streams.set(
+            id,
+            graph
+              .subject(id)
+              .transform(
+                tx.map(facts_to_operations),
+                tx.map(operations_to_template)
+              )
+          );
     }
 
-    const top_level = Object.keys(templates).filter(it => !contained.has(it));
-    return { templates, top_level };
+    // Stream a set of all the subjects described as dom elements.
+    const elements = live_query(graph, q("?ele isa def:DomElement")).transform(
+      tx.map(results => new Set(tx.map(_ => _.ele, results)))
+    );
+
+    // THIS is really an effect, but returning the streams as a way to convey to client
+    const sources = elements.transform(
+      tx.map(terms => {
+        update_streams(terms);
+        return streams;
+      })
+    );
+
+    // Stream a set of all the subjects described as having a direct container.
+    const contained = live_query(graph, q("?x def:contains ?ele")).transform(
+      tx.map(results => new Set(tx.map(_ => _.ele, results)))
+    );
+
+    //    elements.subscribe(rs.trace("ELEMENTS"));
+    contained.subscribe(rs.trace("CONTAINED"));
+
+    const top_level = rs
+      .sync({ src: { elements, contained }, mergeOnly: true })
+      .transform(
+        tx.map(({ elements, contained }) =>
+          difference(elements, contained || new Set())
+        )
+      );
+
+    return { sources, top_level };
   };
 
   return { dom_process_interpreter };
