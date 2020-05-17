@@ -31,12 +31,24 @@ TwoSubjects$Bob(isa(Man))`,
 TickerWithListener$Bob.listensTo.Alice`,
   },
   {
+    label: "A ticker with a mapping listener",
+    userland_code: `TickerWithListener$Alice.hasInterval(1000)
+TickerWithListener$Bob.listensTo.TickerWithListener$Alice
+// TickerWithListener$Bob.transformsWith(mapsWith(x => x * x))
+TickerWithListener$Bob.transformsWith(mapsWith(x => ["details", {}, ["summary", {}, ["b", {}, "the state of Alice"]], ["p", {}, x, " ticks"]]))
+`,
+  },
+  {
     label: "Subclass inference",
     userland_code: `SubclassInference$Alice(isa(Woman), name("Alice"))
 SubclassInference$Bob(isa(Man))
 Woman(subclassOf(Person))
 Man(subclassOf(Person))`,
   },
+  //  {
+  //    label: "HDOM region reference",
+  //    userland_code: `placeholder`,
+  //  },
   {
     label: "Model with interpretation and representation",
     userland_code: `

@@ -1,6 +1,11 @@
 define(["./union-interpreter.js"], ({ make_union_interpreter }) => {
   const model_interpreter = (dataset, registry, { recipe_graph }) => {
-    const drivers = ["rdfsPlusDriver", "streamDriver", "subscriptionDriver"];
+    const drivers = [
+      "rdfsPlusDriver",
+      "streamDriver",
+      "subscriptionDriver",
+      "transducerDriver",
+    ];
     const { union } = make_union_interpreter(recipe_graph, {
       registry,
       drivers,

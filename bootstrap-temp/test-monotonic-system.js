@@ -23,7 +23,12 @@ define([
     )
   );
 
-  const drivers = ["rdfsPlusDriver", "streamDriver", "subscriptionDriver"];
+  const drivers = [
+    "rdfsPlusDriver",
+    "streamDriver",
+    "subscriptionDriver",
+    "transducerDriver",
+  ];
   const reservoir = dataset.create_graph().graph;
 
   recipe.added().subscribe({ next: t => log("RECIPE ADDED", [t]) });

@@ -49,7 +49,12 @@ define(["@def.codes/meld-core", "./union-interpreter.js"], (
     const out = make_union_interpreter(blueprint.union, {
       sink: rep_kitchen.graph,
       registry,
-      drivers: ["rdfsPlusDriver", "streamDriver", "subscriptionDriver"],
+      drivers: [
+        "rdfsPlusDriver",
+        "streamDriver",
+        "subscriptionDriver",
+        "transducerDriver",
+      ],
     });
     // { reservoir, union, system }
 
