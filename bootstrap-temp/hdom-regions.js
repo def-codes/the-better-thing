@@ -45,21 +45,20 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
         ];
 
   const make_dom_process = () => {
-    const templates = new Map(); // template by id, would be deleted only by instruction
-    const sources = new Map(); // pubsub topics, same provenance as templates
+    const sources = new Map(); // a read/write subscription for each id
     const elements = new Map(); // needs removal when element dismounted
     const feeds = new Map(); // ditto
 
-    const pluck_content = tx.map(_ => _.content);
-    const content_hub = rs.pubsub({ topic: _ => _.id });
-    const ensure_source = id => {
-      if (!sources.has(id))
-        sources.set(id, content_hub.subscribeTopic(id, pluck_content, OPTS));
-      return sources.get(id);
-    };
-
     const process = {};
     const ctx = { process, mounted: _ => process.mounted.next(_) };
+
+    const ensure_source = id => {
+      if (!sources.has(id)) {
+        sources.set(id, rs.subscription(id, OPTS));
+        connect(id);
+      }
+      return sources.get(id);
+    };
 
     const connect = id => {
       const mounted_elements = elements.get(id);
@@ -68,10 +67,6 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
         // Automatically sends the latest value (if one arrived first)
         for (const element of mounted_elements) {
           if (!feeds.has(element)) {
-            let i = 0;
-            for (const [k, v] of elements) i += v.size;
-            // console.log("NEW FEED", feeds.size, i, id, element);
-
             feeds.set(
               element,
               ensure_source(id)
@@ -87,16 +82,11 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
     };
 
     return Object.assign(process, {
-      content: rs.subscription({
-        next(value) {
-          const { id, content } = value;
-          ensure_source(id);
-          templates.set(id, content);
-          content_hub.next(value);
-          connect(id);
-        },
-        error: error => console.error("error: content", error),
-      }),
+      // WHAT to call this??
+      port: ensure_source,
+      define(id, content) {
+        ensure_source(id).next(content);
+      },
       mounted: rs.subscription({
         next(value) {
           const { id, element } = value;

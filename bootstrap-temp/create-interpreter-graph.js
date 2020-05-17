@@ -14,15 +14,12 @@ define([
     top_level.subscribe({
       next(elements) {
         // Construct a main template to contain all top-level items
-        dom_process.content.next({
-          id: "root",
-          content: {
-            element: "div",
-            children: Array.from(elements, term => ({
-              element: "placeholder",
-              attributes: { id: term.value },
-            })),
-          },
+        dom_process.define("root", {
+          element: "div",
+          children: Array.from(elements, term => ({
+            element: "placeholder",
+            attributes: { id: term.value },
+          })),
         });
       },
       error(error) {
@@ -42,7 +39,7 @@ define([
           if (!comm.has(term)) {
             const sub = value.subscribe({
               next(content) {
-                dom_process.content.next({ id: term.value, content });
+                dom_process.define(term.value, content);
               },
             });
             comm.set(term, sub);

@@ -31,7 +31,7 @@ define(["./hdom-regions"], ({ make_dom_process }) => {
         next: template => {
           // console.log(`content`, id, content);
           const content = expression_from_hdom(template);
-          dom_process.content.next({ id, content });
+          dom_process.define(id, content);
         },
       });
   };
