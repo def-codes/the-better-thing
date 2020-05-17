@@ -13,6 +13,9 @@ export const live_query = (store: IRDFTripleSource, where: PseudoTriples) =>
     q: [{ where: where.map(_ => _.map(rstream_variable)) }],
   });
 
+// !!! WARNING !!! Avoid using this function.  In its current form, I'm pretty
+// !!! sure there's a heap leak.
+//
 // Helper function for TripleStore to get results of a query immediately.
 export const sync_query = (store: IRDFTripleSource, where: PseudoTriples) => {
   let results;
@@ -24,5 +27,9 @@ export const sync_query = (store: IRDFTripleSource, where: PseudoTriples) => {
   // https://github.com/thi-ng/umbrella/issues/91
   // query.unsubscribe();
   // *UPDATE*: That was fixed a while ago.  Need tests here though.
+  //
+  // *UPDATE*: No, it still gives this error.  Setting `closeOut` and/or
+  // `closeIn` to `CloseMode.NEVER` has no effect.  I think the intent was that
+  // those options would be set on the upstream (store's internal streams).
   return results;
 };

@@ -171,7 +171,12 @@ export default {
             },
           });
           const sub = v("sub");
-          return { assert: [[sub, n("listensTo"), stream]] };
+          return {
+            assert: [
+              // [sub, n("listensTo"), stream],
+              [rep, CONTAINS_TEXT, l("monitored!")],
+            ],
+          };
         },
       },
     ],
