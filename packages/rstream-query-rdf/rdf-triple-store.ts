@@ -1,6 +1,8 @@
-import { stream } from "@thi.ng/rstream";
-import { TripleStore } from "@thi.ng/rstream-query";
+import * as tx from "@thi.ng/transducers";
+import { stream, ISubscribable } from "@thi.ng/rstream";
+import { TripleStore, Edit } from "@thi.ng/rstream-query";
 import {
+  NodeTerm,
   PseudoTriples,
   PseudoTriple,
   IRDFTripleSource,
@@ -22,6 +24,10 @@ export class RDFTripleStore
   private readonly _bnode_space: MonotonicBlankNodeSpace;
   private readonly _added = stream<PseudoTriple>();
   private readonly _deleted = stream<PseudoTriple>();
+  private readonly _subject_streams = new Map<
+    NodeTerm,
+    ISubscribable<Iterable<PseudoTriple>>
+  >();
 
   constructor(triples?: PseudoTriples, bnode_space?: number) {
     // Can't add triples until bnode_space is defined.
@@ -54,6 +60,22 @@ export class RDFTripleStore
 
   subjects() {
     return new Set(this._store.indexS.keys());
+  }
+
+  subject(id: NodeTerm): ISubscribable<Iterable<PseudoTriple>> {
+    // This is kind of like a pubsub on indexS
+    if (!this._subject_streams.has(id)) {
+      // TS: inference usually fails on transducer pipelines
+      const sub = this._store.streamS.transform<Edit, Iterable<PseudoTriple>>(
+        tx.filter(edit => edit.key === id),
+        tx.map(edit => tx.map(n => this._store.triples[n], edit.index))
+      );
+      // Fake an edit for this subject so new subscribers get current value.
+      sub.next({ key: id, index: this._store.indexS.get(id) });
+      this._subject_streams.set(id, sub);
+    }
+
+    return this._subject_streams.get(id);
   }
 
   addQueryFromSpec(spec) {

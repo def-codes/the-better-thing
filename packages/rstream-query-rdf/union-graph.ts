@@ -52,6 +52,10 @@ export class UnionGraph implements IRDFTripleSource, IRDFTripleEvents {
     return this._store.subjects();
   }
 
+  subject(id) {
+    return this._store.subject(id);
+  }
+
   get triples() {
     return this._store.triples;
   }
