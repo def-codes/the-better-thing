@@ -19,7 +19,7 @@ define([
   const { operations_to_template } = dom_ops;
 
   // construct templates from a graph containing representations
-  const dom_process_interpreter = ({ representation_graph: graph }) => {
+  const dom_process_interpreter = graph => {
     // Dictionary of (live) template streams for each dom element.
     const streams = new Map();
 

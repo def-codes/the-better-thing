@@ -14,6 +14,11 @@ define([
     top_level.subscribe({
       next(elements) {
         // Construct a main template to contain all top-level items
+        //
+        // This is effectively equivalent to asserting direct containment
+        // between the root and each of the top level items.  Can't currently do
+        // that in a matching rule because it requires a negative assertion
+        // (viz, elements that have no container.).
         dom_process.define("root", {
           element: "div",
           children: Array.from(elements, term => ({
@@ -22,9 +27,7 @@ define([
           })),
         });
       },
-      error(error) {
-        console.error("BIND_REP: constructing root template:", error);
-      },
+      error: error => console.error("BIND_REP:", error),
     });
 
     // Bind all other templates to their placeholders
@@ -66,13 +69,8 @@ define([
       { input_graph: kitchen_graph }
     ).representation_graph;
 
-    const recipe_rep = dom_process_interpreter({
-      representation_graph: model_representation_graph,
-    });
-
-    const kitchen_rep = dom_process_interpreter({
-      representation_graph: kitchen_representation_graph,
-    });
+    const recipe_rep = dom_process_interpreter(model_representation_graph);
+    const kitchen_rep = dom_process_interpreter(kitchen_representation_graph);
 
     bind_rep(recipe_rep, recipe_dom_process);
     bind_rep(kitchen_rep, kitchen_dom_process);

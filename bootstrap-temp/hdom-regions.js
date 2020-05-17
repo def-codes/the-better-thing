@@ -10,17 +10,11 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
   const Template = () => {
     let state = {};
     return {
-      init(element, context, args) {
-        const { id } = args;
-        const { process } = context;
+      init(element, { process }, { id }) {
         state.element = element;
-        // console.log(`INIT!!`, { element, context, args });
         if (id) process.mounted.next({ id, element });
       },
-      render(_ctx, { id }) {
-        // turns out the custom impl is not needed
-        return ["div", { key: id }];
-      },
+      render: (_ctx, { id }) => ["div", { key: id }],
       release({ process: { unmounted } }, { id }) {
         // is id even needed?
         unmounted.next({ id, element: state.element });
@@ -50,9 +44,9 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
     const feeds = new Map(); // ditto
 
     const process = {};
-    const ctx = { process, mounted: _ => process.mounted.next(_) };
+    const ctx = { process };
 
-    const ensure_source = id => {
+    const port = id => {
       if (!sources.has(id)) {
         sources.set(id, rs.subscription(id, OPTS));
         connect(id);
@@ -69,7 +63,7 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
           if (!feeds.has(element)) {
             feeds.set(
               element,
-              ensure_source(id)
+              port(id)
                 .transform(
                   tx.map(transform_expression),
                   th.updateDOM({ root: element, ctx })
@@ -82,10 +76,9 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
     };
 
     return Object.assign(process, {
-      // WHAT to call this??
-      port: ensure_source,
+      port,
       define(id, content) {
-        ensure_source(id).next(content);
+        port(id).next(content);
       },
       mounted: rs.subscription({
         next(value) {
@@ -102,7 +95,6 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
           if (elements.has(id)) elements.get(id).delete(element);
           if (feeds.has(element)) {
             const feed = feeds.get(element);
-            // console.log(`REMOVE FEED:`, feed);
             if (feed) feed.unsubscribe();
             feeds.delete(element);
           }
@@ -110,5 +102,6 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
       }),
     });
   };
+
   return { make_dom_process };
 });

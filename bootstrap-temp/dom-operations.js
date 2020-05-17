@@ -1,28 +1,4 @@
 define([], () => {
-  const ATTRIBUTE_CONTAINS_WORD = /^\[(.+)~="(.+)"\]$/;
-  const ATTRIBUTE_EQUALS = /^\[(.+)="(.+)"\]$/;
-  const ELEMENT = /^[a-z][a-z0-9]*$/;
-  const css_to_assertion = selector => {
-    // Order matters here
-    const attribute_contains_word = selector.match(ATTRIBUTE_CONTAINS_WORD);
-    if (attribute_contains_word) {
-      const [, name, value] = attribute_contains_word;
-      return { type: "attribute-contains-word", name, value };
-    }
-    const attribute_equals = selector.match(ATTRIBUTE_EQUALS);
-    if (attribute_equals) {
-      const [, name, value] = attribute_equals;
-      return { type: "attribute-equals", name, value };
-    }
-    const element = selector.match(ELEMENT);
-    if (element) {
-      const [name] = element;
-      return { type: "uses-element", name };
-    }
-    return { type: "unknown", selector };
-  };
-
-  // dom operations
   const operations_to_template = operations => {
     let element = "div";
     let key = 0;
@@ -55,5 +31,5 @@ define([], () => {
     return { element, attributes, children };
   };
 
-  return { css_to_assertion, operations_to_template };
+  return { operations_to_template };
 });
