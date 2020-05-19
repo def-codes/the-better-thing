@@ -69,14 +69,14 @@
     // Ensure that we've initiated requests for all external dependencies,
     // transitively.
     const fetch_transitive = (base, resolver, module_ids) => {
-      module_ids.map(id => {
-        if (SPECIAL_NAMES.includes(id)) return;
+      for (const id of module_ids) {
+        if (SPECIAL_NAMES.includes(id)) continue;
 
         // Don't do a remote request if we already have a definition.
         // Is this a good idea?  Depends on `definitions` being exposed.
         if (basic_amd.definitions.has(id)) {
           // console.log(id, "already defined as", basic_amd.modules.get(id));
-          return;
+          continue;
         }
 
         // Here we are resolving a dependency id *as originally written* to a
@@ -106,7 +106,7 @@
             const [dependencies] = context.args;
             fetch_transitive(url, resolver, dependencies);
           });
-      });
+      }
     };
 
     // Basic require will wait for dependencies to be resolved, but doesn't do
