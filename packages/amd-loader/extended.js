@@ -72,9 +72,9 @@
       module_ids.map(id => {
         if (SPECIAL_NAMES.includes(id)) return;
 
-        // Don't do a remote request if we already have the module.
-        // Is this a good idea?  Depends on `modules` being exposed.
-        if (basic_amd.modules.has(id)) {
+        // Don't do a remote request if we already have a definition.
+        // Is this a good idea?  Depends on `definitions` being exposed.
+        if (basic_amd.definitions.has(id)) {
           // console.log(id, "already defined as", basic_amd.modules.get(id));
           return;
         }
