@@ -68,16 +68,13 @@
 
     // Ensure that we've initiated requests for all external dependencies,
     // transitively.
-    const fetch_transitive = (base, resolver, module_ids) => {
+    const fetch_transitive = async (base, resolver, module_ids) => {
       for (const id of module_ids) {
         if (SPECIAL_NAMES.includes(id)) continue;
 
         // Don't do a remote request if we already have a definition.
         // Is this a good idea?  Depends on `definitions` being exposed.
-        if (basic_amd.definitions.has(id)) {
-          // console.log(id, "already defined as", basic_amd.modules.get(id));
-          continue;
-        }
+        if (basic_amd.definitions.has(id)) continue;
 
         // Here we are resolving a dependency id *as originally written* to a
         // URL.  If this resolution can be done (or rather the necessary context
@@ -86,26 +83,28 @@
         // different things (in terms of how *its* ids are resolved) may vary
         // based on where it's being requested from.  Is that the case?
         const url = resolver(id, base);
-
-        fetch_module(url)
-          .catch(error => console.warn(`Couldn't load ${url} for ${id}`, error))
-          .then(context => {
-            if (!context) {
-              // No context means that we didn't detect an anonymous define.  If
-              // the module was not defined before but is defined now, then the
-              // module used a named define.
-              // TODO: still wrong if such a module had deps of its own, right?
-              // TODO: restructure, this must be a bug wrt above `pop`
-              if (!basic_amd.modules.has(id))
-                console.warn(`No context for ${url} for ${id}`);
-              return;
-            }
-            // Use window.define to include any later wrapping.
-            window.define(id, ...context.args);
-            // Just defining it here doesn't trigger its factory.
-            const [dependencies] = context.args;
-            fetch_transitive(url, resolver, dependencies);
-          });
+        let context;
+        try {
+          context = await fetch_module(url);
+        } catch (error) {
+          console.warn(`Couldn't load ${url} for ${id}`, error);
+          continue;
+        }
+        if (!context) {
+          // No context means that we didn't detect an anonymous define.  If
+          // the module was not defined before but is defined now, then the
+          // module used a named define.
+          // TODO: still wrong if such a module had deps of its own, right?
+          // TODO: restructure, this must be a bug wrt above `pop`
+          if (!basic_amd.modules.has(id))
+            console.warn(`No context for ${url} for ${id}`);
+          continue;
+        }
+        // Use window.define to include any later wrapping.
+        window.define(id, ...context.args);
+        // Just defining it here doesn't trigger its factory.
+        const [dependencies] = context.args;
+        fetch_transitive(url, resolver, dependencies);
       }
     };
 
