@@ -40,7 +40,7 @@ define([
 
         for (const [term, value] of streams) {
           if (!comm.has(term)) {
-            const sub = value.subscribe(dom_process.port(term.value));
+            const sub = value.subscribe(dom_process.ports.get(term.value));
             comm.set(term, sub);
           }
         }

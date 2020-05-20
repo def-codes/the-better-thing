@@ -34,8 +34,7 @@ TickerWithListener$Bob.listensTo.Alice`,
     label: "A ticker with a mapping listener",
     userland_code: `TickerWithListener$Alice.hasInterval(1000)
 TickerWithListener$Bob.listensTo.TickerWithListener$Alice
-// TickerWithListener$Bob.transformsWith(mapsWith(x => x * x))
-TickerWithListener$Bob.transformsWith(mapsWith(x => ["details", {}, ["summary", {}, ["b", {}, "the state of Alice"]], ["p", {}, x, " ticks"]]))
+TickerWithListener$Bob.transformsWith(mapsWith(x => x * x))
 `,
   },
   {
@@ -45,10 +44,23 @@ SubclassInference$Bob(isa(Man))
 Woman(subclassOf(Person))
 Man(subclassOf(Person))`,
   },
-  //  {
-  //    label: "HDOM region reference",
-  //    userland_code: `placeholder`,
-  //  },
+  {
+    label: "HDOM region reference",
+    // How to assert a connection from Bob's output to an hdom region?
+    userland_code: `TickerWithListener$Alice.hasInterval(1000)
+TickerWithListener$Bob.listensTo.TickerWithListener$Alice
+TickerWithListener$Bob.transformsWith(mapsWith(x => ({
+  element: "details",
+  children: [
+    {
+      element: "summary",
+      children: [{ element: "b", children: ["the state of Alice"] }]
+    },
+    { element: "p", children: [x.toString(), " ticks"] }
+  ]
+})))
+`,
+  },
   {
     label: "Model with interpretation and representation",
     userland_code: `

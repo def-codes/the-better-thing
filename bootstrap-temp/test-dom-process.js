@@ -16,7 +16,7 @@ define(["./hdom-regions.js", "@thi.ng/rstream", "@thi.ng/transducers"], async (
     children: ["Never seen because placeholder never placed"],
   });
   rs.fromInterval(250).subscribe(
-    dom_process.port("def:some-value"),
+    dom_process.ports.get("def:some-value"),
     tx.map(value => ({
       element: "output",
       children: [

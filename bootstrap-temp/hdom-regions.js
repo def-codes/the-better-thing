@@ -1,8 +1,9 @@
-define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
-  rs,
-  tx,
-  th
-) => {
+define([
+  "@thi.ng/rstream",
+  "@thi.ng/transducers",
+  "@thi.ng/transducers-hdom",
+  "./subscription-namespace.js",
+], (rs, tx, th, { subscription_namespace }) => {
   // element is the instance key
 
   // A stateful thing is needed so that the *element* can be released.
@@ -21,7 +22,6 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
       },
     };
   };
-  const OPTS = { closeOut: rs.CloseMode.NEVER };
 
   const transform_expression = expression =>
     expression.element === "placeholder"
@@ -39,20 +39,18 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
         ];
 
   const make_dom_process = () => {
-    const sources = new Map(); // a read/write subscription for each id
     const elements = new Map(); // needs removal when element dismounted
     const feeds = new Map(); // ditto
 
     const process = {};
     const ctx = { process };
 
-    const port = id => {
-      if (!sources.has(id)) {
-        sources.set(id, rs.subscription(id, OPTS));
+    const ports = subscription_namespace();
+    ports.new_key.subscribe({
+      next(id) {
         connect(id);
-      }
-      return sources.get(id);
-    };
+      },
+    });
 
     const connect = id => {
       const mounted_elements = elements.get(id);
@@ -63,7 +61,8 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
           if (!feeds.has(element)) {
             feeds.set(
               element,
-              port(id)
+              ports
+                .get(id)
                 .transform(
                   tx.map(transform_expression),
                   th.updateDOM({ root: element, ctx })
@@ -76,9 +75,9 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
     };
 
     return Object.assign(process, {
-      port,
+      ports,
       define(id, content) {
-        port(id).next(content);
+        ports.set(id, content);
       },
       mounted: rs.subscription({
         next(value) {
