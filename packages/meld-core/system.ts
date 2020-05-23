@@ -73,7 +73,7 @@ export const q = (...clauses: (string | string[])[]) =>
 
 const driver_dictionary = new Map();
 export const register_driver = (name, init) =>
-  driver_dictionary.set(name, init({ q, is_node }));
+  driver_dictionary.set(name, init({ q, is_node, rdf }));
 
 const HANDLERS = {
   assert(triples, system) {
@@ -112,6 +112,8 @@ const make_consequent_handler = (then, helpers, system, all) => results => {
 
   // handlers can return a dictionary of definitions, where each definition is
   // an object describing it, or an array of objects describing it.
+  console.log(`output`, output);
+
   if (output)
     for (const definitions of Array.isArray(output) ? output : [output])
       for (const [key, value] of Object.entries(definitions))
@@ -154,6 +156,9 @@ interface MonotonicSystemOptions {
   /** Document node to be owned by the model. */
   readonly dom_root: Node;
 
+  /* TEMP: transitioning dom process to driver */
+  readonly dom_process?: any;
+
   /** Optional list of driver names to install */
   readonly drivers?: readonly string[];
 
@@ -167,7 +172,7 @@ interface MonotonicSystemOptions {
  * @returns (Provisional) dispose method.
  */
 export const monotonic_system = (options: MonotonicSystemOptions) => {
-  const { id, source, dom_root, ports, drivers } = options;
+  const { id, source, dom_root, dom_process, ports, drivers } = options;
   const registry = options.registry ?? make_registry();
   const sink = options.sink ?? source;
   const driver_names = drivers ?? [...driver_dictionary.keys()];
@@ -189,6 +194,7 @@ export const monotonic_system = (options: MonotonicSystemOptions) => {
   const driver_helpers = {
     find,
     unstable_live_query,
+    dom_process,
   };
   const system = {
     source,
@@ -224,10 +230,14 @@ export const monotonic_system = (options: MonotonicSystemOptions) => {
     },
   });
 
+  const n = rdf.namedNode;
   if (dom_root) {
-    const n = rdf.namedNode;
     // system.assert([n("home"), n("isa"), n("ModelDomRoot")]);
     system.register(n("home"), "Container", () => dom_root);
+  }
+
+  if (dom_process) {
+    system.register(n("domProcess"), "DomProcess", () => dom_process);
   }
 
   const rule_subscriptions = apply_drivers_to(

@@ -67,7 +67,13 @@ define([
       const { kitchen_graph, recipe_graph } = create_interpreter_graph(
         dataset,
         registry,
-        { recipe_facts, recipe_dom_process, kitchen_dom_process }
+        {
+          recipe_facts,
+          recipe_dom_process,
+          kitchen_dom_process,
+          recipe_element: the.recipe_output,
+          kitchen_element: the.kitchen_output,
+        }
       );
       live_query(kitchen_graph, q("?s ?p ?o")).subscribe({
         next: facts => {

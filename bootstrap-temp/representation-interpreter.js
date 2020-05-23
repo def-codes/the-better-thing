@@ -19,7 +19,13 @@ define(["@def.codes/meld-core", "./union-interpreter.js"], (
 
    */
 
-  const representation_interpreter = (dataset, registry, { input_graph }) => {
+  const representation_interpreter = (
+    dataset,
+    registry,
+    dom_process,
+    dom_root,
+    { input_graph }
+  ) => {
     // console.log(
     //   `INPUT!!!!!!!!!!!!1`,
     //   Array.from(input_graph.triples, ([s, p, o]) => `${s} ${p} ${o}`).join(
@@ -49,11 +55,14 @@ define(["@def.codes/meld-core", "./union-interpreter.js"], (
     const out = make_union_interpreter(blueprint.union, {
       sink: rep_kitchen.graph,
       registry,
+      dom_root,
+      dom_process,
       drivers: [
         "rdfsPlusDriver",
         "streamDriver",
         "subscriptionDriver",
         "transducerDriver",
+        "domProcessDriver",
       ],
     });
     // { reservoir, union, system }
