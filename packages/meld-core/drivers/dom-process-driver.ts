@@ -25,7 +25,24 @@ export default {
       },
       {
         when: q(
-          "?region isa DomRegion",
+          "?x emits Templates",
+          "?sub implements ?x",
+          "?sub as Subscribable",
+          "?rep def:represents ?x"
+        ),
+        then: ({ x, sub, rep }, { find, dom_process }) => ({
+          register: {
+            subject: n(`reps/${x}`),
+            as_type: "Subscribable",
+            // we can't say this more directly atm...
+            using: () => find(sub).subscribe(dom_process.ports.get(sub.value)),
+          },
+          assert: [[rep, n("def:contains"), sub]],
+        }),
+      },
+      {
+        when: q(
+          "?region isa XXXXXXXXXXXXXXDomRegion",
           "?region isa Subscribable",
           "?sub implements ?region",
           "?sub as Subscribable"

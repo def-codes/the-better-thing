@@ -1,9 +1,7 @@
 /*
-  GOAL: Graph interpreter that maintains dom process feeds based on templates.
-  
-  This is probably two things:
-  1. construct template-producing function from assertions
-  2. map that content into a dom region/placeholder definition
+  GOAL: Graph interpreter that maintains template functions based on subjects.
+
+  Creates a stream emitting a thunk that 
  */
 define([
   "@thi.ng/transducers",
@@ -25,10 +23,6 @@ define([
 
     // Ensure that there's a template stream IFF there's an element now
     function update_streams(subjects_now) {
-      // clean obsolete subs
-      for (const [id, sub] of streams)
-        if (!subjects_now.has(id)) sub.unsubscribe();
-
       // add new subs
       for (const id of subjects_now)
         if (!streams.has(id))
@@ -38,6 +32,13 @@ define([
               .subject(id)
               .transform(map(facts_to_operations), map(operations_to_template))
           );
+
+      // clean obsolete subs
+      for (const id of [...streams.keys()])
+        if (!subjects_now.has(id)) {
+          streams.get(id).unsubscribe();
+          streams.delete(id);
+        }
     }
 
     // Stream a set of all the subjects described as dom elements.

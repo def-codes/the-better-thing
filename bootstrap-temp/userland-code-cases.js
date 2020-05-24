@@ -50,7 +50,8 @@ Man(subclassOf(Person))`,
     userland_code: `TickerWithListener$Alice.hasInterval(1000)
 // TickerWithListener$Carol.listensTo.TickerWithListener$Bob
 TickerWithListener$Bob.listensTo.TickerWithListener$Alice
-TickerWithListener$Bob.isa.DomRegion
+// TickerWithListener$Bob.isa.DomRegion
+TickerWithListener$Bob.emits.Templates
 TickerWithListener$Bob.transformsWith(mapsWith(x => ({
   element: "details",
   children: [

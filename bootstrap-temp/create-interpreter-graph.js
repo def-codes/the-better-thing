@@ -31,19 +31,22 @@ define([
     });
 
     // Bind all other templates to their placeholders
-    // Doesn't handle changes, unsubscription, etc
     sources.subscribe({
       next(streams) {
-        // assumes they'll be the same streams each time?
-        // like the unsub in dom-process-interpreter, prob unused for a while
-        for (const [k, v] of comm) if (!streams.has(k)) v.unsubscribe();
-
         for (const [term, value] of streams) {
           if (!comm.has(term)) {
             const sub = value.subscribe(dom_process.ports.get(term.value));
             comm.set(term, sub);
           }
         }
+
+        // assumes they'll be the same streams each time?
+        // like the unsub in dom-process-interpreter, prob unused for a while
+        for (const k of [...comm.keys()])
+          if (!streams.has(k)) {
+            comm.get(k).unsubscribe();
+            comm.delete(k);
+          }
       },
     });
   };
