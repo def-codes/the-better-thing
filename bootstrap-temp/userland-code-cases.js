@@ -55,6 +55,10 @@ Woman(subclassOf(Person))
 Man(subclassOf(Person))`,
   },
   {
+    label: "A forcefield",
+    userland_code: `AForcefield$Alice(isa(Forcefield))`,
+  },
+  {
     label: "HDOM region reference",
     // How to assert a connection from Bob's output to an hdom region?
     userland_code: `TickerWithListener$Alice.hasInterval(1000)

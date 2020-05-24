@@ -165,10 +165,14 @@ export default {
         },
       },
       {
-        when: q("?x isa Forcefield"),
-        then({ x }, _) {
-          _.register(x, "Forcefield", () => d3.forceSimulation().stop());
-        },
+        when: q("?subject isa Forcefield"),
+        then: ({ subject }) => ({
+          register: {
+            subject,
+            as_type: "Forcefield",
+            using: () => d3.forceSimulation().stop(),
+          },
+        }),
       },
       {
         when: q(
@@ -302,7 +306,7 @@ export default {
         when: q("?x isa ?type", "?type subclassOf Force", "?x ?p ?v"),
         then: setter,
       },
-      { when: q("?x isa Forcefield", "?x ?p ?v"), then: setter },
+      // { when: q("?x isa Forcefield", "?x ?p ?v"), then: setter },
     ],
   }),
 };

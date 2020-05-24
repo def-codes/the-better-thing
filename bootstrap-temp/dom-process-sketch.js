@@ -50,7 +50,8 @@ define([
       // if (model.label !== "A ticker with a listener") continue;
       // if (model.label !== "A ticker") continue;
       // nif (model.label !== "A ticker with a mapping listener") continue;
-      if (model.label !== "Reuse a transducer") continue;
+      // if (model.label !== "Reuse a transducer") continue;
+      if (model.label !== "A forcefield") continue;
       // if (model.label !== "HDOM region reference") continue;
       const the = cont(model);
       the.model_code.innerText = model.userland_code;
