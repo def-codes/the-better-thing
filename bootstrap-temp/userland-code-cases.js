@@ -66,6 +66,13 @@ AndAForce$Bob(isa(forceX), x(50))
 `,
   },
   {
+    label: "A forcefield with a force",
+    userland_code: `WithAForce$Alice(isa(Forcefield))
+WithAForce$Bob(isa(forceX), x(50))
+WithAForce$Alice(hasForce(WithAForce$Bob))
+`,
+  },
+  {
     label: "HDOM region reference",
     // How to assert a connection from Bob's output to an hdom region?
     userland_code: `TickerWithListener$Alice.hasInterval(1000)

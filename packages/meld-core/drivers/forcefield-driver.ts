@@ -224,18 +224,41 @@ export default {
       {
         // OR, you could use this to imply that
         // OR... you could actually do both.  that's a different kind of rule
-        when: q("?field isa Forcefield", "?field hasForce ?force"),
-        then({ field, force }, system) {
-          const simulation = system.find(field);
-          const force_instance = system.find(force);
+        when: q(
+          "?field isa Forcefield",
+          "?field_impl implements ?field",
+          "?field hasForce ?force",
+          "?force_impl implements ?force"
+        ),
+        then(context, { find }) {
+          const { field, force, field_impl, force_impl } = context;
+          const simulation = find(field_impl);
+          const force_instance = find(force_impl);
 
-          if (!simulation) console.warn(`No such forcefield`, field);
-          else if (!simulation.force)
-            console.warn(`No force method on`, simulation, "for", field);
-          else if (!force_instance)
-            console.warn(`No such force`, force, "for", field);
+          if (!simulation)
+            return {
+              warning: { message: `No such forcefield ${field}`, context },
+            };
+
+          if (!simulation.force)
+            return {
+              warning: {
+                message: `No force method on simulation`,
+                context: { ...context, simulation },
+              },
+            };
+
+          if (!force_instance)
+            return {
+              warning: {
+                message: `No such force ${force} for ${field}`,
+                context,
+              },
+            };
+
           // assume force is an RDF term so value is its key.  or toString
-          else simulation.force(force.value, force_instance);
+          simulation.force(force.value, force_instance);
+          return {}; // TODO: side-effecting!
         },
       },
       {
@@ -317,6 +340,7 @@ export default {
             };
 
           setter(v.value);
+          return {}; // TODO: side-effecting!
         },
       },
       // Possibly reuse above consequent.  Both forces and forcefields use this

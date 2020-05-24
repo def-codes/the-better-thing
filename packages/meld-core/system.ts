@@ -118,7 +118,7 @@ const make_consequent_handler = (then, helpers, system, all) => results => {
     if (!definitions) {
       console.warn(
         `No result from handler.  Are you writing a side-effecting driver???`,
-        then
+        then.toString()
       );
       return;
     }
