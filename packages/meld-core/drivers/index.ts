@@ -4,8 +4,6 @@ export { default as streamDriver } from "./stream-driver";
 export { default as hostDriver } from "./host-driver";
 export { default as domProcessDriver } from "./dom-process-driver";
 export { default as subscriptionDriver } from "./subscription-driver";
-export { default as hdomDriver } from "./hdom-driver";
-export { default as viewDriver } from "./view-driver";
 export { default as httpDereferenceDriver } from "./http-dereference-driver";
 export { default as domRepresentationDriver } from "./dom-representation-driver";
 export { default as domRepresentEverythingDriver } from "./dom-represent-everything-driver";

@@ -26,12 +26,11 @@ define(["@def.codes/meld-core", "./union-interpreter.js"], (
     dom_root,
     { input_graph }
   ) => {
-    // console.log(
-    //   `INPUT!!!!!!!!!!!!1`,
-    //   Array.from(input_graph.triples, ([s, p, o]) => `${s} ${p} ${o}`).join(
-    //     "\n"
-    //   )
-    // );
+    const log = (triples, ...msgs) =>
+      console.log(
+        ...msgs,
+        Array.from(triples, ([s, p, o]) => `${s} ${p} ${o}`).join("\n")
+      );
 
     // A non-feedback extension that asserts a representation of all subjects.
     const representation_requests = dataset.create_graph();
@@ -66,6 +65,7 @@ define(["@def.codes/meld-core", "./union-interpreter.js"], (
       ],
     });
     // { reservoir, union, system }
+    // log(out.union.triples, "REPRESENTATION INTERPRETER OUT");
 
     return { representation_graph: out.union };
   };

@@ -51,9 +51,11 @@ define([
     });
   };
 
-  const create_interpreter_graph = (dataset, registry, spec) => {
+  const create_interpreter_graph = (dataset, spec) => {
     const {
       id,
+      recipe_registry,
+      kitchen_registry,
       recipe_facts,
       recipe_dom_process,
       kitchen_dom_process,
@@ -63,13 +65,13 @@ define([
     const { name, graph: recipe_graph } = dataset.create_graph();
     recipe_graph.into(recipe_facts);
 
-    const { kitchen_graph } = model_interpreter(dataset, registry, {
+    const { kitchen_graph } = model_interpreter(dataset, kitchen_registry, {
       recipe_graph,
     });
 
     const model_representation_graph = representation_interpreter(
       dataset,
-      registry,
+      recipe_registry,
       recipe_dom_process,
       recipe_element,
       { input_graph: recipe_graph }
@@ -77,7 +79,7 @@ define([
 
     const kitchen_representation_graph = representation_interpreter(
       dataset,
-      registry,
+      kitchen_registry,
       kitchen_dom_process,
       kitchen_element,
       { input_graph: kitchen_graph }

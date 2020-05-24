@@ -49,7 +49,8 @@ define([
     for (const model of models) {
       // if (model.label !== "A ticker with a listener") continue;
       // if (model.label !== "A ticker") continue;
-      if (model.label !== "A ticker with a mapping listener") continue;
+      // nif (model.label !== "A ticker with a mapping listener") continue;
+      if (model.label !== "Reuse a transducer") continue;
       // if (model.label !== "HDOM region reference") continue;
       const the = cont(model);
       the.model_code.innerText = model.userland_code;
@@ -66,8 +67,11 @@ define([
       const recipe_facts = interpret(read(model.userland_code));
       const { kitchen_graph, recipe_graph } = create_interpreter_graph(
         dataset,
-        registry,
         {
+          // Ran into an issue when these shared a registry.  Couldn't 100%
+          // explain it, but using separate registries resolves.
+          recipe_registry: make_registry(),
+          kitchen_registry: make_registry(),
           recipe_facts,
           recipe_dom_process,
           kitchen_dom_process,

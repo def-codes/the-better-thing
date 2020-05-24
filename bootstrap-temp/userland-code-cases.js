@@ -32,9 +32,19 @@ TickerWithListener$Bob.listensTo.TickerWithListener$Alice`,
   },
   {
     label: "A ticker with a mapping listener",
-    userland_code: `TickerWithListener$Alice.hasInterval(1000)
-TickerWithListener$Bob.listensTo.TickerWithListener$Alice
-TickerWithListener$Bob.transformsWith(mapsWith(x => x * x))
+    userland_code: `MappingListener$Alice.hasInterval(1000)
+MappingListener$Bob.listensTo.MappingListener$Alice
+// MappingListener$Bob.transformsWith(mapsWith(x => x * x))
+`,
+  },
+  {
+    label: "Reuse a transducer",
+    userland_code: `ReuseTransducer$Alice.hasInterval(1000)
+ReuseTransducer$Bob.listensTo.ReuseTransducer$Alice
+ReuseTransducer$Carol.listensTo.ReuseTransducer$Alice
+ReuseTransducer$Tranny(mapsWith(x => x * x))
+ReuseTransducer$Bob.transformsWith(ReuseTransducer$Tranny)
+ReuseTransducer$Carol.transformsWith(ReuseTransducer$Tranny)
 `,
   },
   {

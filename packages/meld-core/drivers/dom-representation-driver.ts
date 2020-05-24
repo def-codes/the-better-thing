@@ -27,8 +27,10 @@ const SUBJECT = n("rdf:subject");
 const PREDICATE = n("rdf:predicate");
 const OBJECT = n("rdf:object");
 
+const GENERAL_VALUE_MAPPER = n("GeneralValueMapper");
+
 // @ts-ignore
-const value_mapper = l(value => ({
+const general_value_to_template = l(value => ({
   element: "b",
   children: [`I have a value and ${value} is my value`],
 }));
@@ -36,16 +38,19 @@ const value_mapper = l(value => ({
 export default {
   name: "domRepresentationDriver",
   init: ({ q, is_node }) => ({
-    claims: q(
-      // Maybe a bad term because it's “transitive” in an informal way
-      "def:representsTransitive subpropertyOf def:represents",
-      // Relate types with unicode symbols
-      // These are hex strings...
-      `Person def:symbolizedByCodePoint ${0x1f464}`,
-      `Woman def:symbolizedByCodePoint ${0x2640}`,
-      `Man def:symbolizedByCodePoint ${0x2642}`,
-      `name subpropertyOf rdfs:label`
-    ),
+    claims: [
+      ...q(
+        // Maybe a bad term because it's “transitive” in an informal way
+        "def:representsTransitive subpropertyOf def:represents",
+        // Relate types with unicode symbols
+        // These are hex strings...
+        `Person def:symbolizedByCodePoint ${0x1f464}`,
+        `Woman def:symbolizedByCodePoint ${0x2640}`,
+        `Man def:symbolizedByCodePoint ${0x2642}`,
+        `name subpropertyOf rdfs:label`
+      ),
+      [GENERAL_VALUE_MAPPER, n("mapsWith"), general_value_to_template],
+    ],
     rules: [
       {
         name: "RDFaResourceRule",
@@ -166,6 +171,7 @@ export default {
         ),
         then: _ => ({ assert: [[_.thing_rep, CONTAINS, _.impl_rep]] }),
       },
+      // This works in conjunction with a rule in dom-process driver
       {
         // assert a subscriber that, when implemented,
         // listens to the thing to be observed
@@ -178,17 +184,14 @@ export default {
           "?rep isa def:DomElement"
         ),
         then: ({ thing, rep, source }) => {
-          const sub = n(`RepresentationOf/${thing}`);
-          // Though this mapper is actually shared by all
-          const mapper = n(`MapperOf/${thing}`);
+          const sub = n(`ProcessWatching/${thing.value}`);
           return {
             assert: [
+              // Note that we must “listen to” the original thing, but we “emit
+              // templates for” the implementation.
               [sub, n("listensTo"), thing],
-              [sub, n("transformsWith"), mapper],
-              [mapper, n("mapsWith"), value_mapper],
+              [sub, n("transformsWith"), GENERAL_VALUE_MAPPER],
               [sub, n("emitsTemplatesFor"), source],
-              //
-              [rep, CONTAINS_TEXT, l("monitored!")],
             ],
           };
         },

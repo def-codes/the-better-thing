@@ -49,13 +49,6 @@ export const make_registry = (): Registry => {
     register(sink, subject, type_name, thunk) {
       const assert = (fact: PseudoTriple) => sink.add(fact);
 
-      const register_exotic = (object: any, type: NamedNode) => {
-        const object_id = mint_blank(); // TODO: should use IRI's instead
-        _things.set(object_id, object);
-        assert([object_id, AS, type]);
-        return object_id;
-      };
-
       const type = rdf.namedNode(type_name);
       if (!_things.has([subject, type])) {
         let object: any;
@@ -70,9 +63,11 @@ export const make_registry = (): Registry => {
           return;
         }
 
+        const object_id = mint_blank(); // TODO: should use IRI's instead
+        _things.set(object_id, object);
         _things.set([subject, type], object);
-        const object_id = register_exotic(object, type);
         assert([object_id, IMPLEMENTS, subject]);
+        assert([object_id, AS, type]);
       }
     },
     find: implementation => _things.get(implementation),
