@@ -20,6 +20,7 @@ const l = rdf.literal;
 
 const ISA = n("isa");
 const MATCHES = n("def:matches");
+const CONTAINS = n("def:contains");
 const CONTAINS_TEXT = n("def:containsText");
 const REPRESENTS = n("def:represents");
 const SUBJECT = n("rdf:subject");
@@ -151,29 +152,52 @@ export default {
         }),
       },
       {
-        // PROVISIONAL
+        name: "ThingRepContainsImplRep",
+        when: q(
+          "?impl implements ?thing",
+          "?impl_rep def:represents ?impl",
+          "?thing_rep def:represents ?thing"
+        ),
+        then({ thing, impl, thing_rep, impl_rep }) {
+          console.log(
+            "THING CONTAINS IMPL CONTAINS",
+            thing,
+            impl,
+            thing_rep,
+            impl_rep
+          );
+          return { assert: [[thing_rep, CONTAINS, impl_rep]] };
+        },
+      },
+      {
+        // assert a subscriber that, when implemented,
+        // listens to the thing to be observed
+        // and sets content for the associated representation
         name: "SubscribableRepresentationRule",
         when: q(
           "?thing isa Subscribable",
           "?rep isa def:DomElement",
           "?rep def:represents ?thing",
-          "?sub implements ?thing"
+          "?source implements ?thing"
         ),
-        then: ({ thing, rep, sub }, { find }) => {
-          console.log("SUBSCRIBABLE", thing.value, "REP", rep, "IMPL", sub);
-
-          // assert a subscriber that, when implemented,
-          // listens to the thing to be observed
-          // and sets content for the associated representation
-          find(sub).subscribe({
-            next(value) {
-              console.log(`${thing} value`, value);
-            },
-          });
-          // const sub = v("sub");
+        then: ({ thing, rep, source }) => {
+          const sub = n(`RepresentationOf/${thing}`);
+          const mapper = n(`MapperOf/${thing}`);
           return {
             assert: [
-              // [sub, n("listensTo"), stream],
+              [sub, n("listensTo"), source],
+              [sub, n("transformsWith"), mapper],
+              [
+                mapper,
+                n("mapsWith"),
+                // @ts-ignore
+                l(value => ({
+                  element: "b",
+                  children: [`I have a value and ${value} is my value`],
+                })),
+              ],
+              [sub, n("emitsTemplatesFor"), source],
+              //
               [rep, CONTAINS_TEXT, l("monitored!")],
             ],
           };

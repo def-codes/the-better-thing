@@ -47,10 +47,10 @@ define([
     const dataset = new Dataset();
     const registry = make_registry();
     for (const model of models) {
-      // if (model.label !== "A ticker with a listener") continue;
+      if (model.label !== "A ticker with a listener") continue;
       // if (model.label !== "A ticker") continue;
       // if (model.label !== "A ticker with a mapping listener") continue;
-      if (model.label !== "HDOM region reference") continue;
+      // if (model.label !== "HDOM region reference") continue;
       const the = cont(model);
       the.model_code.innerText = model.userland_code;
       const recipe_dom_process = dp.make_dom_process();

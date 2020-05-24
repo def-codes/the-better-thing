@@ -42,6 +42,28 @@ export default {
       },
       {
         when: q(
+          "?x emitsTemplatesFor ?source",
+          "?sub implements ?x",
+          "?sub as Subscribable",
+          "?rep def:represents ?source"
+        ),
+        then: ({ source, sub, rep }, { find, dom_process }) => ({
+          register: {
+            subject: n(`reps2/${source}`),
+            as_type: "Subscribable",
+            using: () => {
+              const port = dom_process.ports.get(sub.value);
+              const source = find(sub);
+              console.log(`TEMPLATES2 port, source`, port, source);
+
+              return source.subscribe(port);
+            },
+          },
+          assert: [[rep, n("def:contains"), sub]],
+        }),
+      },
+      {
+        when: q(
           "?region isa XXXXXXXXXXXXXXDomRegion",
           "?region isa Subscribable",
           "?sub implements ?region",

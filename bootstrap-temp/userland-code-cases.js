@@ -48,9 +48,7 @@ Man(subclassOf(Person))`,
     label: "HDOM region reference",
     // How to assert a connection from Bob's output to an hdom region?
     userland_code: `TickerWithListener$Alice.hasInterval(1000)
-// TickerWithListener$Carol.listensTo.TickerWithListener$Bob
 TickerWithListener$Bob.listensTo.TickerWithListener$Alice
-// TickerWithListener$Bob.isa.DomRegion
 TickerWithListener$Bob.emits.Templates
 TickerWithListener$Bob.transformsWith(mapsWith(x => ({
   element: "details",

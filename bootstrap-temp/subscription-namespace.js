@@ -9,6 +9,17 @@ define(["@def.codes/amd-basic-support", "@thi.ng/rstream"], (basic, rs) => {
    * map-compatible interface where all requests return subscriptions.  which
    * emit values as they are set.
    */
+  // PROBLEMS:
+  //
+  // - This is not symmetrical.  `set` takes values but `get` returns
+  //   subscriptions.
+  //
+  // - You can't actually provide a subscription as the value for a key---they
+  //   all have to originate here.  This is good in that it means you know the
+  //   provenance of all of the subscriptions.  It also means that you can
+  //   guarantee that the streams will be persistent, which is supposed to be an
+  //   invariant.
+
   const subscription_namespace = () => {
     const base = namespace();
     // New key is something we'd like on collections generally as a way of being
