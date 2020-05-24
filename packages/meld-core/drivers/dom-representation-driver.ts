@@ -31,8 +31,10 @@ const GENERAL_VALUE_MAPPER = n("GeneralValueMapper");
 
 // @ts-ignore
 const general_value_to_template = l(value => ({
-  element: "b",
-  children: [`I have a value and ${value} is my value`],
+  element: "output",
+  children: [
+    value === undefined ? "⊥" : value === null ? "∅" : value.toString(),
+  ],
 }));
 
 export default {
