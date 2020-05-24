@@ -28,7 +28,7 @@ TwoSubjects$Bob(isa(Man))`,
   {
     label: "A ticker with a listener",
     userland_code: `TickerWithListener$Alice.hasInterval(1000)
-TickerWithListener$Bob.listensTo.Alice`,
+TickerWithListener$Bob.listensTo.TickerWithListener$Alice`,
   },
   {
     label: "A ticker with a mapping listener",

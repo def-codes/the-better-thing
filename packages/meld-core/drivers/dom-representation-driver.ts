@@ -27,6 +27,12 @@ const SUBJECT = n("rdf:subject");
 const PREDICATE = n("rdf:predicate");
 const OBJECT = n("rdf:object");
 
+// @ts-ignore
+const value_mapper = l(value => ({
+  element: "b",
+  children: [`I have a value and ${value} is my value`],
+}));
+
 export default {
   name: "domRepresentationDriver",
   init: ({ q, is_node }) => ({
@@ -158,16 +164,7 @@ export default {
           "?impl_rep def:represents ?impl",
           "?thing_rep def:represents ?thing"
         ),
-        then({ thing, impl, thing_rep, impl_rep }) {
-          console.log(
-            "THING CONTAINS IMPL CONTAINS",
-            thing,
-            impl,
-            thing_rep,
-            impl_rep
-          );
-          return { assert: [[thing_rep, CONTAINS, impl_rep]] };
-        },
+        then: _ => ({ assert: [[_.thing_rep, CONTAINS, _.impl_rep]] }),
       },
       {
         // assert a subscriber that, when implemented,
@@ -176,26 +173,19 @@ export default {
         name: "SubscribableRepresentationRule",
         when: q(
           "?thing isa Subscribable",
-          "?rep isa def:DomElement",
+          "?source implements ?thing",
           "?rep def:represents ?thing",
-          "?source implements ?thing"
+          "?rep isa def:DomElement"
         ),
         then: ({ thing, rep, source }) => {
           const sub = n(`RepresentationOf/${thing}`);
+          // Though this mapper is actually shared by all
           const mapper = n(`MapperOf/${thing}`);
           return {
             assert: [
-              [sub, n("listensTo"), source],
+              [sub, n("listensTo"), thing],
               [sub, n("transformsWith"), mapper],
-              [
-                mapper,
-                n("mapsWith"),
-                // @ts-ignore
-                l(value => ({
-                  element: "b",
-                  children: [`I have a value and ${value} is my value`],
-                })),
-              ],
+              [mapper, n("mapsWith"), value_mapper],
               [sub, n("emitsTemplatesFor"), source],
               //
               [rep, CONTAINS_TEXT, l("monitored!")],

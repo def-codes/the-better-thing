@@ -112,7 +112,7 @@ const make_consequent_handler = (then, helpers, system, all) => results => {
 
   // handlers can return a dictionary of definitions, where each definition is
   // an object describing it, or an array of objects describing it.
-  console.log(`output`, output);
+  // console.log(`output`, output);
 
   if (output)
     for (const definitions of Array.isArray(output) ? output : [output])
