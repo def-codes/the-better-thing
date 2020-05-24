@@ -114,10 +114,18 @@ const make_consequent_handler = (then, helpers, system, all) => results => {
   // an object describing it, or an array of objects describing it.
   // console.log(`output`, output);
 
-  if (output)
-    for (const definitions of Array.isArray(output) ? output : [output])
-      for (const [key, value] of Object.entries(definitions))
-        process_effect_definition(key, value, system);
+  for (const definitions of Array.isArray(output) ? output : [output]) {
+    if (!definitions) {
+      console.warn(
+        `No result from handler.  Are you writing a side-effecting driver???`,
+        then
+      );
+      return;
+    }
+
+    for (const [key, value] of Object.entries(definitions))
+      process_effect_definition(key, value, system);
+  }
 };
 
 // behavior is undefined if source is not empty

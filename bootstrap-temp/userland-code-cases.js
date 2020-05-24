@@ -59,6 +59,13 @@ Man(subclassOf(Person))`,
     userland_code: `AForcefield$Alice(isa(Forcefield))`,
   },
   {
+    label: "A forcefield and a force",
+    userland_code: `AndAForce$Alice(isa(Forcefield))
+// Eeek, model requires camelcase names for types
+AndAForce$Bob(isa(forceX), x(50))
+`,
+  },
+  {
     label: "HDOM region reference",
     // How to assert a connection from Bob's output to an hdom region?
     userland_code: `TickerWithListener$Alice.hasInterval(1000)

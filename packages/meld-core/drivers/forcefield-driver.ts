@@ -121,20 +121,6 @@ function create_forcefield_dataflow({
   );
 }
 
-// Helper.  Both forces and forcefields use this pattern for setting properties.
-const setter = ({ x, p, v }, { find }) => {
-  const instance = find(x);
-  const property_name = p.value;
-  const value = v.value;
-  if (!instance) {
-    console.warn(`No such ${x} to assign ${p} = ${v}`);
-    return;
-  }
-  if (typeof instance[property_name] === "function")
-    instance[property_name](v.value);
-  else console.warn(`No such property ${property_name}`);
-};
-
 export default {
   name: "forcefieldDriver",
   init: ({ q, is_node }) => ({
@@ -157,12 +143,16 @@ export default {
     ),
     rules: [
       {
-        when: q("?x isa ?type", "?type subclassOf Force"),
-        then: ({ x, type }, system) => {
-          if (typeof d3[type] === "function")
-            system.register(x, "Force", () => d3[type]());
-          else console.warn(`No such d3 force ${type}`);
-        },
+        when: q("?subject isa ?type", "?type subclassOf Force"),
+        then: ({ subject, type }) =>
+          typeof d3[type.value] === "function"
+            ? { register: { subject, as_type: "Force", using: d3[type.value] } }
+            : {
+                warning: {
+                  message: `No such d3 force ${type}`,
+                  context: { d3 },
+                },
+              },
       },
       {
         when: q("?subject isa Forcefield"),
@@ -303,9 +293,35 @@ export default {
       // TEMP avoid need for logic driver
       // { when: q("?x isa Force", "?x ?p ?v"), then: setter },
       {
-        when: q("?x isa ?type", "?type subclassOf Force", "?x ?p ?v"),
-        then: setter,
+        when: q(
+          "?x isa ?type",
+          "?type subclassOf Force",
+          "?impl implements ?x",
+          "?impl as Force",
+          "?x ?p ?v"
+        ),
+        then: ({ x, p, v, impl }, { find }) => {
+          const instance = find(impl);
+          if (!instance)
+            return {
+              warning: { message: `No such ${x} to assign ${p} = ${v}` },
+            };
+
+          const property_name = p.value;
+          const setter = instance[property_name];
+          if (typeof setter !== "function")
+            return {
+              warning: {
+                message: `No such property ${property_name} on force ${x}`,
+              },
+            };
+
+          setter(v.value);
+        },
       },
+      // Possibly reuse above consequent.  Both forces and forcefields use this
+      // pattern for setting properties.
+      //
       // { when: q("?x isa Forcefield", "?x ?p ?v"), then: setter },
     ],
   }),
