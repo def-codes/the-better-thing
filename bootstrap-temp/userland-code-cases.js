@@ -2,6 +2,16 @@
 // entities distinct from each other.  Instead, the reader should apply a
 // namespace from context to local names.  (Note that e.g. classes will
 // presumably come from shared namespaces).
+//
+// TODO: fix issue with reading of literal objects
+const style = nodes =>
+  nodes
+    .map(
+      _ =>
+        `[resource="${_.id.literal}"] { top: ${_.x}px; left: ${_.y}px; position: absolute }`
+    )
+    .join("\n");
+
 define([], () => [
   {
     label: "Single fact with literal",
@@ -107,6 +117,22 @@ FullForce$Evan(
   listensTo(FullForce$Eve), 
   transformsWith(
     mapsWith((x, undefined) => x === undefined ? "(undefined)" : x.x)
+  )
+)
+// third part keeps alice2 from disappearing
+FullForce$Alice2(isa(Space), hasPart(foo), hasPart(bar), hasPart(bat))
+// These won't get representations unless they are subjects
+foo.isa.Thing
+bar.isa.Thing
+bat.isa.Thing
+FullForce$RULZ(
+  listensTo(FullForce$Alice$ticks),
+  emitsTemplatesFor(FullForce$Alice2),
+  transformsWith(
+    mapsWith((nodes) => {
+      const style = ${style.toString()}
+      return { element: "style", children: [style(nodes)] }
+    })
   )
 )
 `,

@@ -173,6 +173,15 @@ export default {
         ),
         then: _ => ({ assert: [[_.thing_rep, CONTAINS, _.impl_rep]] }),
       },
+      {
+        name: "WholeRepContainsPartRep",
+        when: q(
+          "?whole hasPart ?part",
+          "?whole_rep def:represents ?whole",
+          "?part_rep def:represents ?part"
+        ),
+        then: _ => ({ assert: [[_.whole_rep, CONTAINS, _.part_rep]] }),
+      },
       // This works in conjunction with a rule in dom-process driver
       {
         // assert a subscriber that, when implemented,
