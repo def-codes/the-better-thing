@@ -95,6 +95,15 @@ WithBodies$Alice(hasBodies(hasValue([{id: "foo"}, {id:"bar"}])))
 `,
   },
   {
+    label: "A fully-functioning forcefield",
+    userland_code: `FullForce$Alice(isa(Forcefield))
+FullForce$Bob(isa(forceX), x(50))
+FullForce$Alice(hasForce(FullForce$Bob))
+FullForce$Alice(hasBodies(hasValue([{id: "foo"}, {id:"bar"}])))
+FullForce$Alice(hasTicks(hasInterval(500)))
+`,
+  },
+  {
     label: "HDOM region reference",
     // How to assert a connection from Bob's output to an hdom region?
     userland_code: `TickerWithListener$Alice.hasInterval(1000)

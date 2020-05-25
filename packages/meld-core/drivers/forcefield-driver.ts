@@ -166,6 +166,30 @@ export default {
       },
       {
         when: q(
+          "?forcefield hasTicks ?ticks",
+          "?simulation implements ?forcefield",
+          "?source implements ?ticks",
+          "?source as Subscribable"
+        ),
+        then: ({ forcefield, simulation, source }, { find }) => {
+          const sim = find(simulation);
+          return {
+            register: {
+              subject: n(`${forcefield}/TicksListener`),
+              as_type: "Subscribable",
+              using: () =>
+                find(source).subscribe({
+                  next: () => {
+                    console.log("foo ya", ...sim.nodes()); //
+                    sim.tick();
+                  },
+                }),
+            },
+          };
+        },
+      },
+      {
+        when: q(
           "?field hasTicks ?ticks",
           "?source implements ?ticks",
           "?source as Subscribable",
