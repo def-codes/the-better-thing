@@ -264,29 +264,19 @@ export default {
       {
         // assume bodies is a stream
         when: q(
-          "?field hasBodies ?bodies",
+          "?forcefield hasBodies ?bodies",
+          "?simulation implements ?forcefield",
           "?source implements ?bodies",
           "?source as Subscribable"
         ),
-        then: ({ field, bodies, source }, system) => {
-          const simulation = system.find(field);
-          const bodies_instance = system.find(source);
-
-          const nodes_id = mint_blank();
-          system.assert([field, rdf.namedNode("hasNodes"), nodes_id]);
-          system.register(nodes_id, "Subscribable", () =>
-            bodies_instance.transform(
-              tx.trace("BODIES"),
-              tx.map(bodies =>
-                // Hmmmm... depends on query variables
-                // @ts-ignore
-                Array.from(bodies, body => ({ id: body.subject.value }))
-              ),
-              tx.sideEffect(simulation.nodes),
-              tx.trace("NODES!!!")
-            )
-          );
-        },
+        then: ({ forcefield, simulation, source }, { find }) => ({
+          register: {
+            subject: n(`${forcefield}/BodiesListener`),
+            as_type: "Subscribable",
+            using: () =>
+              find(source).subscribe({ next: find(simulation).nodes }),
+          },
+        }),
       },
       /* Special “connects” property */
       {

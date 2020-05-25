@@ -47,14 +47,20 @@ define([
     const dataset = new Dataset();
     const registry = make_registry();
     for (const model of models) {
-      // if (model.label !== "A ticker with a listener") continue;
-      // if (model.label !== "A ticker") continue;
-      // nif (model.label !== "A ticker with a mapping listener") continue;
-      // if (model.label !== "Reuse a transducer") continue;
-      // if (model.label !== "A forcefield with a force") continue;
-      if (model.label !== "A query") continue;
-      // if (model.label !== "A constant stream") continue;
-      // if (model.label !== "HDOM region reference") continue;
+      if (
+        ![
+          // "A ticker with a listener",
+          // "A ticker",
+          // "A ticker with a mapping listener",
+          // "Reuse a transducer",
+          // "A forcefield with a force",
+          "A forcefield with bodies",
+          // "A query",
+          // "A constant stream",
+          // "HDOM region reference",
+        ].includes(model.label)
+      )
+        continue;
       const the = cont(model);
       the.model_code.innerText = model.userland_code;
       const recipe_dom_process = dp.make_dom_process();

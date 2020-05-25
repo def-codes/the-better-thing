@@ -60,7 +60,13 @@ Man(subclassOf(Person))`,
   },
   {
     label: "A query",
-    userland_code: `AQuery$Alice(queryText("?thing isa ?type"))`,
+    userland_code: `AQuery$Alice(queryText("?thing isa ?type"))
+AQuery$Bob(listensTo(AQuery$Alice), transformsWith(mapsWith(function(v) {
+this.console.log("Bob?")
+this.console.log("Bob", v)
+return v
+})))
+`,
   },
   {
     label: "A forcefield",
@@ -81,11 +87,11 @@ WithAForce$Alice(hasForce(WithAForce$Bob))
 `,
   },
   {
-    label: "A forcefield with a body",
-    userland_code: `WithABody$Alice(isa(Forcefield))
-WithABody$Bob(isa(forceX), x(50))
-WithABody$Alice(hasForce(WithABody$Bob))
-WithABody$Alice(hasBody(WithABody$Carol))
+    label: "A forcefield with bodies",
+    userland_code: `WithBodies$Alice(isa(Forcefield))
+WithBodies$Bob(isa(forceX), x(50))
+WithBodies$Alice(hasForce(WithBodies$Bob))
+WithBodies$Alice(hasBodies(hasValue([{id: "foo"}, {id:"bar"}])))
 `,
   },
   {
