@@ -175,15 +175,13 @@ export default {
           const sim = find(simulation);
           return {
             register: {
-              subject: n(`${forcefield}/TicksListener`),
+              subject: n(`${forcefield.value}$ticks`),
               as_type: "Subscribable",
               using: () =>
-                find(source).subscribe({
-                  next: () => {
-                    console.log("foo ya", ...sim.nodes()); //
-                    sim.tick();
-                  },
-                }),
+                find(source).transform(
+                  tx.sideEffect(sim.tick),
+                  tx.map(() => sim.nodes())
+                ),
             },
           };
         },

@@ -101,6 +101,14 @@ FullForce$Bob(isa(forceX), x(50))
 FullForce$Alice(hasForce(FullForce$Bob))
 FullForce$Alice(hasBodies(hasValue([{id: "foo"}, {id:"bar"}])))
 FullForce$Alice(hasTicks(hasInterval(500)))
+FullForce$Eve(listensTo(FullForce$Alice$ticks), transformsWith(plucks(1)))
+// FullForce$Evan(listensTo(FullForce$Eve), transformsWith(plucks("x")))
+FullForce$Evan(
+  listensTo(FullForce$Eve), 
+  transformsWith(
+    mapsWith((x, undefined) => x === undefined ? "(undefined)" : x.x)
+  )
+)
 `,
   },
   {
