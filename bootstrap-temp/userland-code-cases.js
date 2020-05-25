@@ -59,6 +59,10 @@ Woman(subclassOf(Person))
 Man(subclassOf(Person))`,
   },
   {
+    label: "A query",
+    userland_code: `AQuery$Alice(queryText("?thing isa ?type"))`,
+  },
+  {
     label: "A forcefield",
     userland_code: `AForcefield$Alice(isa(Forcefield))`,
   },

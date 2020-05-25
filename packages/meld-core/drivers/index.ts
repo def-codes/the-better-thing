@@ -4,6 +4,7 @@ export { default as streamDriver } from "./stream-driver";
 export { default as forcefieldDriver } from "./forcefield-driver";
 export { default as hostDriver } from "./host-driver";
 export { default as domProcessDriver } from "./dom-process-driver";
+export { default as queryDriver } from "./query-driver";
 export { default as subscriptionDriver } from "./subscription-driver";
 export { default as httpDereferenceDriver } from "./http-dereference-driver";
 export { default as domRepresentationDriver } from "./dom-representation-driver";

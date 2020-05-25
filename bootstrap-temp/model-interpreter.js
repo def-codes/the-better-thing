@@ -6,6 +6,7 @@ define(["./union-interpreter.js"], ({ make_union_interpreter }) => {
       "subscriptionDriver",
       "transducerDriver",
       "forcefieldDriver",
+      "queryDriver",
     ];
     const { union } = make_union_interpreter(recipe_graph, {
       registry,
