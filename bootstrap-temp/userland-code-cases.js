@@ -22,6 +22,10 @@ define([], () => [
 TwoSubjects$Bob(isa(Man))`,
   },
   {
+    label: "A constant stream",
+    userland_code: `ConstantStream$Alice.hasValue(42)`,
+  },
+  {
     label: "A ticker",
     userland_code: `ATicker$Alice.hasInterval(1000)`,
   },
@@ -70,6 +74,14 @@ AndAForce$Bob(isa(forceX), x(50))
     userland_code: `WithAForce$Alice(isa(Forcefield))
 WithAForce$Bob(isa(forceX), x(50))
 WithAForce$Alice(hasForce(WithAForce$Bob))
+`,
+  },
+  {
+    label: "A forcefield with a body",
+    userland_code: `WithABody$Alice(isa(Forcefield))
+WithABody$Bob(isa(forceX), x(50))
+WithABody$Alice(hasForce(WithABody$Bob))
+WithABody$Alice(hasBody(WithABody$Carol))
 `,
   },
   {

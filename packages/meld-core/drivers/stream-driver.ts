@@ -17,7 +17,9 @@ export default {
       "hasSource range StreamSource",
       // not a general stream thing as such
       "Ticker subclassOf Stream",
-      "hasInterval domain Ticker"
+      "hasInterval domain Ticker",
+      "ConstantStream subclassOf Stream",
+      "hasValue domain ConstantStream"
       // "hasInterval range number"
     ),
     rules: [
@@ -47,6 +49,16 @@ export default {
             },
           };
         },
+      },
+      {
+        when: q("?subject hasValue ?constant"),
+        then: ({ subject, constant }) => ({
+          register: {
+            subject,
+            as_type: "Subscribable",
+            using: () => rs.fromIterable([constant.valueOf()], { closeOut: 0 }),
+          },
+        }),
       },
       {
         when: q("?timer hasInterval ?ms"),
