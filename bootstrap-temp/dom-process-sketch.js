@@ -30,7 +30,13 @@ define([
       const model_code_id = `${model.label.replace(/\W+/g, "-")}`;
       const model_code = article.appendChild(h("code"));
       model_code.setAttribute("id", model_code_id);
-      const model_interpretation_code = article.appendChild(h("code"));
+      const kitchen_code_details = h("details");
+      const model_interpretation_code = kitchen_code_details.appendChild(
+        h("code")
+      );
+      article
+        .appendChild(kitchen_code_details)
+        .appendChild(h("summary")).innerText = "kitchen code";
 
       // > A space-separated list of other elements’ ids, indicating that those
       // > elements contributed input values to (or otherwise affected) the
