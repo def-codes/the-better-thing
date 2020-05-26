@@ -283,6 +283,15 @@ export default {
           return {}; // TODO: side-effecting!
         },
       },
+      // Stopgap until we have a general solution for subsystem ports
+      {
+        when: q("?forcefield isa Forcefield"),
+        then: ({ forcefield }) => ({
+          assert: [
+            [forcefield, n("hasBodies"), n(`${forcefield.value}$bodies`)],
+          ],
+        }),
+      },
       {
         // assume bodies is a stream
         when: q(

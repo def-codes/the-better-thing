@@ -2,13 +2,12 @@
 // entities distinct from each other.  Instead, the reader should apply a
 // namespace from context to local names.  (Note that e.g. classes will
 // presumably come from shared namespaces).
-//
-// TODO: fix issue with reading of literal objects
+
 const style = nodes =>
   nodes
     .map(
       _ =>
-        `[resource="${_.id.literal}"] { top: ${_.x}px; left: ${_.y}px; position: absolute }`
+        `[resource="${_.id}"] { top: ${_.x}px; left: ${_.y}px; position: absolute }`
     )
     .join("\n");
 
@@ -101,6 +100,7 @@ WithAForce$Alice(hasForce(WithAForce$Bob))
     userland_code: `WithBodies$Alice(isa(Forcefield))
 WithBodies$Bob(isa(forceX), x(50))
 WithBodies$Alice(hasForce(WithBodies$Bob))
+// TODO: this is broken because of issue with constant stream from literal reader
 WithBodies$Alice(hasBodies(hasValue([{id: "foo"}, {id:"bar"}])))
 `,
   },
@@ -109,7 +109,6 @@ WithBodies$Alice(hasBodies(hasValue([{id: "foo"}, {id:"bar"}])))
     userland_code: `FullForce$Alice(isa(Forcefield))
 FullForce$Bob(isa(forceX), x(50))
 FullForce$Alice(hasForce(FullForce$Bob))
-FullForce$Alice(hasBodies(hasValue([{id: "foo"}, {id:"bar"}])))
 FullForce$Alice(hasTicks(hasInterval(500)))
 FullForce$Eve(listensTo(FullForce$Alice$ticks), transformsWith(plucks(1)))
 // FullForce$Evan(listensTo(FullForce$Eve), transformsWith(plucks("x")))
@@ -121,6 +120,13 @@ FullForce$Evan(
 )
 // third part keeps alice2 from disappearing
 FullForce$Alice2(isa(Space), hasPart(foo), hasPart(bar), hasPart(bat))
+FullForce$Alice$bodies(
+  listensTo(queryText("FullForce$Alice2 hasPart ?part")),
+  transformsWith(mapsWith(function(parts) {
+    return this.Array.from(parts, _ => ({id: _.part.value}))
+  }))
+)
+
 // These won't get representations unless they are subjects
 foo.isa.Thing
 bar.isa.Thing
