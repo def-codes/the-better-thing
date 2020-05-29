@@ -1,8 +1,7 @@
-define([
-  "@def.codes/rstream-query-rdf",
-  "@def.codes/meld-core",
-  "./union-interpreter.js",
-], async ({ Dataset }, { q, q1 }, { make_union_interpreter }) => {
+define(["@def.codes/rstream-query-rdf", "@def.codes/meld-core"], async (
+  { Dataset },
+  { q, q1, make_union_interpreter }
+) => {
   const dataset = new Dataset();
   const { graph: recipe } = dataset.create_graph();
 

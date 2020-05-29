@@ -12,6 +12,7 @@ for (const [_, { name, init }] of Object.entries(drivers)) {
 export * from "./rdf-hdom";
 export * from "./registry";
 export * from "./system";
+export * from "./union-interpreter";
 export * from "./value-view";
 export * from "./world";
 

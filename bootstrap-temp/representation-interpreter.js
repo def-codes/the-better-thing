@@ -1,4 +1,4 @@
-define(["./union-interpreter.js"], ({ make_union_interpreter }) => {
+define(["@def.codes/meld-core"], ({ make_union_interpreter }) => {
   /*
       +---F---+
       |       |

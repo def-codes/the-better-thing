@@ -1,8 +1,7 @@
-define([
-  "@def.codes/rstream-query-rdf",
-  "@def.codes/meld-core",
-  "./union-interpreter.js",
-], async ({ Dataset, UnionGraph }, { q, q1, monotonic_system }) => {
+define(["@def.codes/rstream-query-rdf", "@def.codes/meld-core"], async (
+  { Dataset, UnionGraph },
+  { q, q1, monotonic_system }
+) => {
   // Does the same thing as make_union_interpreter
 
   const dataset = new Dataset();
