@@ -1,0 +1,14 @@
+/* Space and forcefields. */
+[typeof="Space"] {
+  position: relative;
+}
+/* Where else to say this?  On individual things? */
+[typeof="Space"] > * {
+  /* But this has unintended consequences... */
+  /* position: absolute; */
+}
+/* Again, what elements to select? */
+[typeof="Space"] * {
+  top: calc(var(--y) * 1px);
+  left: calc(var(--x) * 1px);
+}

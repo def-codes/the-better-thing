@@ -65,22 +65,3 @@ for i in 1..9
   --box-height 1em
   width var(--box-width)
   height var(--box-height)
-	
-// see only the box structure
-// just need to make text invisible
-//
-// problem is, you can't target text nodes *per se* with CSS
-// hdom does wrap text in spans by default, but I have that turned off
-// 
-//
-// .Boxes
-#hashtags > *
-  // I enabled span for just this item to play with this
-  p span
-    display inline-block
-    overflow hidden
-    border-top-style solid
-    border-left-style solid
-    &:not(:hover)
-      max-width 0
-      max-height 0

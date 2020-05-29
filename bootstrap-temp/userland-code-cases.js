@@ -7,7 +7,7 @@ const style = nodes =>
   nodes
     .map(
       _ =>
-        `[resource="${_.id}"] { top: ${_.x}px; left: ${_.y}px; position: absolute }`
+        `[resource="${_.id}"] { --x: ${_.x}; --y: ${_.y}; position: absolute }`
     )
     .join("\n");
 

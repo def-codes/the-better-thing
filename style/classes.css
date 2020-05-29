@@ -124,13 +124,3 @@ body[drop-effect] {
   width: var(--box-width);
   height: var(--box-height);
 }
-#hashtags > * p span {
-  display: inline-block;
-  overflow: hidden;
-  border-top-style: solid;
-  border-left-style: solid;
-}
-#hashtags > * p span:not(:hover) {
-  max-width: 0;
-  max-height: 0;
-}
