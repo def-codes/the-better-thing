@@ -1,7 +1,7 @@
-define(["@def.codes/rstream-query-rdf", "@def.codes/meld-core"], async (
-  { Dataset },
-  { q, q1, make_union_interpreter }
-) => {
+const { Dataset } = require("@def.codes/rstream-query-rdf");
+const { q, q1, make_union_interpreter } = require("@def.codes/meld-core");
+
+const main = async () => {
   const dataset = new Dataset();
   const { graph: recipe } = dataset.create_graph();
 
@@ -50,4 +50,6 @@ define(["@def.codes/rstream-query-rdf", "@def.codes/meld-core"], async (
   recipe.delete(q1("Bob isa Man"));
   // NOTE currently inferences are not deleted even when supporting facts are
   // i.e. the system is “monotonic” as advertised
-});
+};
+
+main();

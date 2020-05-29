@@ -1,7 +1,7 @@
-define(["@def.codes/rstream-query-rdf", "@def.codes/meld-core"], async (
-  { Dataset, UnionGraph },
-  { q, q1, monotonic_system }
-) => {
+const { Dataset, UnionGraph } = require("@def.codes/rstream-query-rdf");
+const { q, q1, monotonic_system } = require("@def.codes/meld-core");
+
+const main = async () => {
   // Does the same thing as make_union_interpreter
 
   const dataset = new Dataset();
@@ -50,4 +50,6 @@ define(["@def.codes/rstream-query-rdf", "@def.codes/meld-core"], async (
   recipe.delete(q1("Bob isa Man"));
   // NOTE currently inferences are not deleted even when supporting facts are
   // i.e. the system is “monotonic” as advertised
-});
+};
+
+main();

@@ -1,9 +1,11 @@
-define(["@def.codes/rstream-query-rdf", "@def.codes/meld-core"], (
-  rdf,
-  core
-) => {
-  const { factory, Dataset, UnionGraph } = rdf;
-  const { q } = core;
+const {
+  factory,
+  Dataset,
+  UnionGraph,
+} = require("@def.codes/rstream-query-rdf");
+const { q } = require("@def.codes/meld-core");
+
+const main = () => {
   const { namedNode: n } = factory;
   const dataset = new Dataset();
 
@@ -51,4 +53,6 @@ define(["@def.codes/rstream-query-rdf", "@def.codes/meld-core"], (
     owned.graph.into(q("Jesus isa Sailor", "Alice isa Woman"));
     console.log(`AFTER ADDING OWN`, [...hybrid.triples]);
   })();
-});
+};
+
+main();
