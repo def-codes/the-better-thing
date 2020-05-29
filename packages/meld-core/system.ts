@@ -149,20 +149,20 @@ const apply_drivers_to = (source, helpers, system, names) => {
   return subs;
 };
 
-interface MonotonicSystemOptions {
+export interface MonotonicSystemOptions {
   /** Provisional.  Namespace if there were more than one. */
-  readonly id: string;
+  readonly id?: string;
 
   /** Graph containing given facts. */
-  readonly source: IRDFTripleSource & IRDFTripleSink;
+  readonly source: IRDFTripleSource;
 
-  /** Where to assert to (`source` if undefined) */
-  readonly sink?: IRDFTripleSink;
+  /** Where to assert to. */
+  readonly sink: IRDFTripleSink;
 
   readonly ports?: any;
 
   /** Document node to be owned by the model. */
-  readonly dom_root: Node;
+  readonly dom_root?: Node;
 
   /* TEMP: transitioning dom process to driver */
   readonly dom_process?: any;
@@ -180,9 +180,8 @@ interface MonotonicSystemOptions {
  * @returns (Provisional) dispose method.
  */
 export const monotonic_system = (options: MonotonicSystemOptions) => {
-  const { id, source, dom_root, dom_process, ports, drivers } = options;
+  const { id, source, sink, dom_root, dom_process, ports, drivers } = options;
   const registry = options.registry ?? make_registry();
-  const sink = options.sink ?? source;
   const driver_names = drivers ?? [...driver_dictionary.keys()];
 
   const assert = fact => sink.add(fact);

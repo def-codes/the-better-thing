@@ -1,7 +1,4 @@
-define(["@def.codes/meld-core", "./union-interpreter.js"], (
-  { monotonic_system },
-  { make_union_interpreter }
-) => {
+define(["./union-interpreter.js"], ({ make_union_interpreter }) => {
   /*
       +---F---+
       |       |

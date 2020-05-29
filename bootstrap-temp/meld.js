@@ -46,7 +46,12 @@ require([
     const store = dataset.namedGraph(store_name);
     console.log(`store`, store);
 
-    const system = monotonic_system({ source: store, dom_root, ports });
+    const system = monotonic_system({
+      source: store,
+      sink: store,
+      dom_root,
+      ports,
+    });
     systems.set(iri, system);
     return system;
   };
