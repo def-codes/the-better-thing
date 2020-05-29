@@ -1,0 +1,31 @@
+<article id="multiwave-example">
+  <h2>MultiWave voltage</h2>
+  <p>Intent: view the voltage of a MultiWave device</p>
+  <p>
+    Need to know the location of the device interface. Suppose one is reachable
+    at <a href="">http://localhost:1234/</a>
+  </p>
+  <p>Comes from register <code>0x0017</code></p>
+  <p>
+    then we would issue an HTTP <code>POST</code>request to
+    <code>http://localhost:1234/readreg</code> with the payload
+    <code>0x0017</code>
+  </p>
+  <figure>
+    <output>
+      <div>
+        <span property="rdf:value" class="value">115</span>
+        <span property="qudt:??" class="units">Volts</span> (the actual value)
+      </div>
+      <div>
+        ideal range (should span from x1 to x2 where x1 is min good voltage and
+        x2 is max good voltage)
+      </div>
+      <div>
+        full range (should span from xb1 to xb2 where xb1 is min representable
+        voltage (lowest you'd ever expect to see) and xb2 is same for max)
+      </div>
+    </output>
+    <figcaption>voltage</figcaption>
+  </figure>
+</article>

@@ -1,0 +1,38 @@
+<article id="function-representations">
+  <h2>Using function representations</h2>
+  <p>drag something over “apply” to invoke.</p>
+  <p>
+    Idea is that this asserts an invocation somewhere. When the graph has an
+    invocation “driver” (interpreter), this will invoke the function and assert
+    a result. Then a display which is an interpretation of the graph that
+    includes the invocation, will show the result. What graph will that be?
+  </p>
+
+  <article resource="http://def.codes/javascript/math/square">
+    <h2 property="def:name">square</h2>
+    <p>f(x)=x<sup>2</sup></p>
+    <span property="rdfs:range">xsd:number</span>
+    <code property="rdf:value">x => x * x</code>
+    <div>apply</div>
+  </article>
+  <article>
+    <header>square : f(x) = x<sup>2</sup></header>
+    <div>
+      <article>
+        <div>4</div>
+        <output>16</output>
+      </article>
+      <article>
+        <div>55</div>
+        <output>3025</output>
+      </article>
+      <article>
+        <div>234</div>
+        <output>54756</output>
+      </article>
+    </div>
+    <footer>
+      input
+    </footer>
+  </article>
+</article>

@@ -1,0 +1,25 @@
+<article id="oven-simulation">
+  <h2>oven simulation</h2>
+  <p property="rdfs:comment">
+    Illustrates a model that can be used by other models. Also illustrates use
+    of a forcefield to simulate a simple continuous variable.
+  </p>
+  <p>a model .</p>
+  <p>the interface</p>
+  <ul>
+    <li>heatTo a number</li>
+    <li>isDoorOpen a boolean</li>
+    <li>(maybe) roomTemp a number (external stream)</li>
+    <li>currentTemp a number</li>
+  </ul>
+  <p>the implementation</p>
+  <ul>
+    <li>a forcefield</li>
+    <li>a weak forceX at heatTo</li>
+    <li>(maybe) when door is open, a weak forceX at roomTemp</li>
+    <li>ticker hasInterval (250)</li>
+    <li>forcefield listensTo ticker</li>
+    <li>forcefield contains oventemp</li>
+    <li>currentTemp listensTo forcefield, maps with pluck oventemp, x</li>
+  </ul>
+</article>
