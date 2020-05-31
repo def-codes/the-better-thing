@@ -247,6 +247,30 @@ export default {
           assert: [[n("DataflowSpace"), n("hasPart"), sub]],
         }),
       },
+
+      {
+        comment: `Assert a representation of (live) subscription relationships`,
+        when: q("?x listensTo ?y", "?something implements ?x"),
+        // Need a special rule for this because we don't generally assert
+        // representations of all properties as such.
+        then: ({ x, y }) => {
+          const relation = n(`${x.value}/listensTo/${y.value}`);
+          // technically this should represent the statement
+          return {
+            assert: [
+              [relation, n("isa"), n("Relation")],
+              [relation, n("def:represents"), relation],
+              [relation, n("isa"), n("def:DomElement")],
+              // These relations are in the space but are not *bodies* in the
+              // forcefield.
+              //
+              // [n("DataflowSpace"), n("hasPart"), relation],
+              [n("DataflowSpace"), CONTAINS, relation],
+              [relation, CONTAINS_TEXT, l("halioaspdoi")],
+            ],
+          };
+        },
+      },
     ],
   }),
 };
