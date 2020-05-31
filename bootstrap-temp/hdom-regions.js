@@ -1,9 +1,8 @@
-define([
-  "@thi.ng/rstream",
-  "@thi.ng/transducers",
-  "@thi.ng/transducers-hdom",
-  "./subscription-namespace.js",
-], (rs, tx, th, { subscription_namespace }) => {
+define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
+  rs,
+  tx,
+  th
+) => {
   // element is the instance key
 
   // A stateful thing is needed so that the *element* can be released.
@@ -22,6 +21,7 @@ define([
       },
     };
   };
+  const OPTS = { closeOut: rs.CloseMode.NEVER };
 
   const transform_expression = expression =>
     expression.element === "placeholder"
@@ -39,18 +39,21 @@ define([
         ];
 
   const make_dom_process = () => {
+    const sources = new Map(); // a read/write subscription for each id
     const elements = new Map(); // needs removal when element dismounted
     const feeds = new Map(); // ditto
 
     const process = {};
     const ctx = { process };
 
-    const ports = subscription_namespace();
-    ports.new_key.subscribe({
-      next(id) {
+    const port = id => {
+      if (!sources.has(id)) {
+        sources.set(id, rs.subscription(id, OPTS));
         connect(id);
-      },
-    });
+      }
+      return sources.get(id);
+    };
+    const ports = { get: port };
 
     const connect = id => {
       const mounted_elements = elements.get(id);
@@ -61,8 +64,7 @@ define([
           if (!feeds.has(element)) {
             feeds.set(
               element,
-              ports
-                .get(id)
+              port(id)
                 .transform(
                   tx.map(transform_expression),
                   th.updateDOM({ root: element, ctx })
@@ -77,7 +79,7 @@ define([
     return Object.assign(process, {
       ports,
       define(id, content) {
-        ports.set(id, content);
+        port(id).next(content);
       },
       mounted: rs.subscription({
         next(value) {
