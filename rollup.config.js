@@ -14,7 +14,7 @@ const modules = [
   ["console-stream"],
   ["datafy-nav"],
   ["datafy-node", { node_only: true }],
-  // ["hdom-regions"],
+  ["hdom-regions"],
   ["expression-reader"],
   ["function-testing"],
   ["graphs"],

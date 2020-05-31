@@ -107,8 +107,10 @@ WithBodies$Alice(hasBodies(hasValue([{id: "foo"}, {id:"bar"}])))
   {
     label: "A fully-functioning forcefield",
     userland_code: `FullForce$Alice(isa(Forcefield))
-FullForce$Bob(isa(forceX), x(50))
+FullForce$Bob(isa(forceX), x(250))
+FullForce$Joe(isa(forceY), y(250))
 FullForce$Alice(hasForce(FullForce$Bob))
+FullForce$Alice(hasForce(FullForce$Joe))
 FullForce$Alice(hasTicks(hasInterval(500)))
 FullForce$Eve(listensTo(FullForce$Alice$ticks), transformsWith(plucks(1)))
 // FullForce$Evan(listensTo(FullForce$Eve), transformsWith(plucks("x")))
@@ -123,7 +125,11 @@ FullForce$Alice2(isa(Space), hasPart(foo), hasPart(bar), hasPart(bat))
 FullForce$Alice$bodies(
   listensTo(queryText("FullForce$Alice2 hasPart ?part")),
   transformsWith(mapsWith(function(parts) {
-    return this.Array.from(parts, _ => ({id: _.part.value}))
+    return this.Array.from(parts, _ => ({
+      id: _.part.value, 
+      x: this.Math.random() * 500,
+      y: this.Math.random() * 500,
+    }))
   }))
 )
 

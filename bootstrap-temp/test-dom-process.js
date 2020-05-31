@@ -1,9 +1,9 @@
 // Testing dom process usage
-define(["./hdom-regions.js", "@thi.ng/rstream", "@thi.ng/transducers"], async (
-  dp,
-  rs,
-  tx
-) => {
+define([
+  "@def.codes/hdom-regions",
+  "@thi.ng/rstream",
+  "@thi.ng/transducers",
+], async (dp, rs, tx) => {
   const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
 
   const root = document.querySelector("#dom-process-test");

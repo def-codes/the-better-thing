@@ -4,7 +4,7 @@ define([
   "@def.codes/rstream-query-rdf",
   "@def.codes/meld-core",
   "@def.codes/expression-reader",
-  "./hdom-regions.js",
+  "@def.codes/hdom-regions",
   "./userland-code-cases.js",
   "./create-interpreter-graph.js",
 ], async (hiccup, tx, rdf, core, { read }, dp, examples, ing) => {

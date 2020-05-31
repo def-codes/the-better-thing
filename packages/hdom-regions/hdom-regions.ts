@@ -1,18 +1,11 @@
 import * as rs from "@thi.ng/rstream";
 import * as tx from "@thi.ng/transducers";
-import type { ILifecycle } from "@thi.ng/hdom";
-import { updateDOM } from "@thi.ng/transducers-hdom";
-import { CloseMode } from "@thi.ng/rstream";
-import { DomProcess, RegionDefinition } from "./api";
-import type { DomElementExpression } from "./dom-expression";
+import * as th from "@thi.ng/transducers-hdom";
+import { DomElementExpression } from "./dom-expression";
+import { IDomRegionCoordinator } from "./api";
 
-// Empty string ID means root
+const OPTS = { closeOut: rs.CloseMode.NEVER };
 
-// args: {expression}
-
-// For use with HDOM regions processor
-//
-// Associated with an instance of a mounted placeholder
 /*
   Invariants.
   - this instance will only ever be associated with a single dom element
@@ -22,147 +15,104 @@ import type { DomElementExpression } from "./dom-expression";
     - always issue null (or dummy???) for placeholders without definitions
   - expression is already a (possibly normalized) template
  */
-const Region = (): ILifecycle => {
-  const state = { initialized: false, element: null };
 
-  const transform_expression = (expression: DomElementExpression, p) => {
-    // What to do...
-    if (expression.element === "placeholder") {
-      p.add(expression.attributes["id"]);
-      return state.initialized
-        ? [Region, { id: expression.attributes["id"] }]
-        : null;
-    }
-
-    return [
-      expression.element,
-      expression.attributes || {},
-      ...tx.map(
-        expr =>
-          typeof expr === "string" || typeof expr === "number"
-            ? expr.toString()
-            : transform_expression(expr, p),
-        expression.children || []
-      ),
-    ];
-  };
-
+// A stateful thing is needed so that the *element* can be released.
+// Is there any other way to know what element is being released?
+const Template = () => {
+  let state: { element?: Element } = {};
   return {
-    init(element, context, { id }) {
-      context.mounted.next({ id, element });
-      state.initialized = true;
+    init(element, { process }, { id }) {
       state.element = element;
+      if (id) process.mounted.next({ id, element });
     },
-    render(context, { id, expression }) {
-      // it's not this node's responsibility to render that placeholder's content
-      // but it is this node's responsibility to get the element
-      const placeholders = new Set();
-      const template = transform_expression(expression, placeholders);
-      if (placeholders.size)
-        console.log("YOU GOT PLACEHOLDERS", expression, template, placeholders);
-      // but there's more to it, you have to remove if it was there before, etc
-      for (const p of placeholders) inverse_tree.get(p).add(id);
-      tree.set(id, placeholders);
-      return template;
-    },
-    release({ unmounted }, { id }) {
-      unmounted.next({ id });
+    render: (_ctx, { id }) => ["div", { key: id, "data-dom-region": id }],
+    release({ process: { unmounted } }, { id }) {
+      // is id even needed?
+      unmounted.next({ id, element: state.element });
     },
   };
 };
 
-export const make_dom_process = (root: Element): DomProcess => {
-  const elements = new Map(); // mounted element, if any
-  const templates = new Map(); // last-provided template (expression), if any
-  // pubsub subscriber for placeholder
-  const sources = new Map<
-    string,
-    rs.Subscription<RegionDefinition, DomElementExpression>
-  >();
-  const feeds = new Map(); // placeholder content sink.  METASTREAM?
+const transform_expression = (expression: DomElementExpression) =>
+  expression.element === "placeholder"
+    ? [Template(), { id: expression.attributes.id }]
+    : [
+        expression.element,
+        expression.attributes || {},
+        ...tx.mapIndexed(
+          (index, expr) =>
+            typeof expr === "string" || typeof expr === "number"
+              ? expr.toString()
+              : transform_expression(expr),
+          expression.children || []
+        ),
+      ];
 
-  // Placeholder id to a set of placeholder id's referenced by the last defined template
-  const tree = new Map();
-  const inverse_tree = new Map(); // what we actually need
+export const make_dom_process = (): IDomRegionCoordinator => {
+  const sources = new Map(); // a read/write subscription for each id
+  const elements = new Map(); // needs removal when element dismounted
+  const feeds = new Map(); // ditto
 
-  const pluck_content = tx.map((_: RegionDefinition) => _.content);
+  const ctx: { process?: IDomRegionCoordinator } = {};
 
-  const pubsub = rs.pubsub<RegionDefinition, RegionDefinition>({
-    topic: _ => _.id,
-  });
-
-  const ensure_source = (id: string) => {
-    if (!sources.has(id))
-      // Don't tear down when removing last subscriber.
-      // This is meant to persist over use by multiple element feeds
-      sources.set(
-        id,
-        pubsub.subscribeTopic(id, pluck_content, {
-          closeOut: CloseMode.NEVER,
-        })
-      );
+  const port = id => {
+    if (!sources.has(id)) {
+      sources.set(id, rs.subscription(id, OPTS));
+      connect(id);
+    }
     return sources.get(id);
   };
+  const ports = { get: port };
 
-  // Used by template/placeholder component
-  const ctx = {
-    mounted: _ => process.mounted.next(_),
-    unmounted: _ => process.unmounted.next(_),
-  };
+  const connect = id => {
+    const mounted_elements = elements.get(id);
 
-  const connect_if_mounted = id => {
-    const element = id ? elements.get(id) : root;
-    if (element && !feeds.has(id)) {
+    if (mounted_elements) {
       // Automatically sends the latest value (if one arrived first)
-      feeds.set(
-        id,
-        ensure_source(id)
-          .transform(
-            tx.map(expression => [Region, { id, expression }]),
-            updateDOM({ root: element, ctx, span: false, keys: false })
-          )
-          .subscribe({
-            error(error: any) {
-              console.error("UPDATE HDOM ERROR", error);
-            },
-          })
-      );
+      for (const element of mounted_elements) {
+        if (!feeds.has(element)) {
+          feeds.set(
+            element,
+            port(id)
+              .transform(
+                tx.map(transform_expression),
+                th.updateDOM({ root: element, ctx })
+              )
+              .subscribe({ error: error => console.error("UPDATE", error) })
+          );
+        }
+      }
     }
   };
-  const element_feeds = new Map<Element, rs.Subscription<any, any>>();
 
-  const process: DomProcess = {
-    // This should be called `define`? (and placeholder is `require`? except it doesn't)
-    //
-    // stream where client writes content for placeholders
-    content: rs.subscription({
-      next(value) {
-        const { id } = value;
-        // May need to re-render container
-        ensure_source(id);
-        pubsub.next(value);
-        connect_if_mounted(id);
-        // For all elements for which this is mounted, update (dataflow should handle)
-        //
-        // For all regions that contained a reference to this placeholder but
-        // didn't mount it (because they had no definition... or because
-        // they... didn't render it the first time), re-render now, with
-        // knowledge of the new definition
-      },
-    }),
-    // exposed so it can be monitored, but used internally
+  const process: IDomRegionCoordinator = {
+    ports,
+    define(id, content) {
+      port(id).next(content);
+    },
     mounted: rs.subscription({
-      next({ id, element }) {
-        elements.set(id, element);
-        connect_if_mounted(id);
+      next(value) {
+        const { id, element } = value;
+        if (!elements.has(id)) elements.set(id, new Set());
+        elements.get(id).add(element);
+        connect(id);
       },
+      error: error => console.error("error: mounted", error),
     }),
     unmounted: rs.subscription({
-      next({ element }) {
-        element_feeds.get(element)?.unsubscribe();
-        // maybe some other bookkeeping here...
+      // do we even need to know id?  yes, to update element books
+      next({ id, element }) {
+        if (elements.has(id)) elements.get(id).delete(element);
+        if (feeds.has(element)) {
+          const feed = feeds.get(element);
+          if (feed) feed.unsubscribe();
+          feeds.delete(element);
+        }
       },
     }),
   };
+
+  ctx.process = process;
+
   return process;
 };

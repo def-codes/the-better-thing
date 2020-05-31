@@ -11,7 +11,7 @@
     {"path": "packages/function-testing" },
     {"path": "packages/graphs" },
     {"path": "packages/graphviz-format" },
-    /* {"path": "packages/hdom-regions" }, */
+    {"path": "packages/hdom-regions" },
     {"path": "packages/helpers" },
     {"path": "packages/meld" },
     {"path": "packages/meld-cli" },

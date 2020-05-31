@@ -5,10 +5,6 @@ import { DomElementExpression } from "./dom-expression";
 export type ISubscribableSubscriber<T> = rs.ISubscribable<T> &
   rs.ISubscriber<T>;
 
-export interface ElementMessage {
-  readonly element: Element;
-}
-
 export interface Region {
   readonly id: string;
   readonly element: Element;
@@ -19,14 +15,19 @@ export interface RegionDefinition {
   readonly content: DomElementExpression;
 }
 
-// TODO: Name
-export interface DomProcess {
+export interface IDomRegionCoordinator {
+  // “author” writes to this to inject the given content at the given location
+  readonly ports: {
+    // Whats the type here?
+    get(id: string): ISubscribableSubscriber<DomElementExpression>;
+  };
+
+  // Essentially a shortcut
+  define(port: string, content: DomElementExpression): void;
+
   // implementation writes to this when a placeholder gets an element
   readonly mounted: ISubscribableSubscriber<Region>;
 
   // implementation writes to this when an element should no longer be used
-  readonly unmounted: ISubscribableSubscriber<ElementMessage>;
-
-  // “author” writes to this to inject the given content at the given location
-  readonly content: ISubscribableSubscriber<RegionDefinition>;
+  readonly unmounted: ISubscribableSubscriber<Region>;
 }

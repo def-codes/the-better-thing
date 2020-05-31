@@ -1,5 +1,4 @@
-// define(["@def.codes/hdom-regions"], ({ make_dom_process }) => {
-define(["./hdom-regions"], ({ make_dom_process }) => {
+define(["@def.codes/hdom-regions"], ({ make_dom_process }) => {
   // Convert example templates into the form expected by processor.
   const P = Object.getPrototypeOf;
   const is_plain_object = x => x && P(P(x)) === null;

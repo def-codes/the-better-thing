@@ -2,7 +2,7 @@ export type DomExpression = string | number | DomElementExpression;
 
 export interface DomElementExpression {
   readonly element: string;
-  readonly attributes: object;
+  readonly attributes: { [name: string]: any };
   // In practice I've seen this be undefined, maybe just allow it to ensure defense
   readonly children: readonly DomExpression[];
 }
