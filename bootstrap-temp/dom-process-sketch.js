@@ -41,7 +41,11 @@ define([
       // > A space-separated list of other elements’ ids, indicating that those
       // > elements contributed input values to (or otherwise affected) the
       // > calculation.
-      const recipe_output = article.appendChild(h("output"));
+      const recipe_output_details = h("details");
+      article
+        .appendChild(recipe_output_details)
+        .appendChild(h("summary")).innerText = "recipe representation";
+      const recipe_output = recipe_output_details.appendChild(h("output"));
       recipe_output.setAttribute("for", model_code_id);
       const kitchen_output = article.appendChild(h("output"));
       kitchen_output.setAttribute("for", `${model_code_id}-kitchen`);
