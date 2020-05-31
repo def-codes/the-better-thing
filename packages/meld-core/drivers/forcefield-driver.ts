@@ -5,8 +5,28 @@ import * as tx from "@thi.ng/transducers";
 import * as d3 from "d3-force";
 
 const n = rdf.namedNode;
+const l = rdf.literal;
 const v = rdf.variable;
 const mint_blank = () => rdf.blankNode();
+
+const parts_to_bodies = (parts: any[]) =>
+  Array.from(parts, _ => ({
+    id: _.part.value,
+    x: Math.random() * 500,
+    y: Math.random() * 500,
+  }));
+
+const style = nodes =>
+  nodes
+    .map(
+      _ =>
+        `[resource="${_.id}"] { --x: ${_.x}; --y: ${_.y}; position: absolute }`
+    )
+    .join("\n");
+
+const nodes_to_position_style = nodes => {
+  return { element: "style", children: [style(nodes)] };
+};
 
 // should these be here or in layers?
 const thing_position_css = space_id => ({ id, x, y }) =>
@@ -183,6 +203,44 @@ export default {
                   tx.map(() => sim.nodes())
                 ),
             },
+          };
+        },
+      },
+      {
+        when: q("?ff forcefieldFor ?space"),
+        then: ({ ff, space }) => {
+          const bodies = n(`${ff.value}$bodies`);
+          const xform = n(`${ff.value}$bodyxform`);
+          const query = n(`${ff.value}$bodyquery`);
+          const assert = [
+            [query, n("queryText"), l(`${space.value} hasPart ?part`)],
+            [bodies, n("listensTo"), query],
+            [bodies, n("transformsWith"), xform],
+            // @ts-ignore: abuse
+            [xform, n("mapsWith"), l(parts_to_bodies)],
+          ];
+          console.log(`assert`, assert);
+
+          return {
+            assert,
+          };
+        },
+      },
+      {
+        // Yes this is the same predicate as above, but keeping separate as
+        // these are independent.
+        when: q("?ff forcefieldFor ?space"),
+        then: ({ ff, space }) => {
+          const styles = n(`${ff.value}$styles`);
+          const xform = n(`${ff.value}$stylesxform`);
+          return {
+            assert: [
+              [styles, n("listensTo"), n(`${ff.value}$ticks`)],
+              [styles, n("emitsTemplatesFor"), space],
+              [styles, n("transformsWith"), xform],
+              // @ts-ignore: abuse
+              [xform, n("mapsWith"), l(nodes_to_position_style)],
+            ],
           };
         },
       },

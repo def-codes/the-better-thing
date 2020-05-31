@@ -58,16 +58,12 @@ export default {
       {
         name: "InversePropertyRule1",
         when: q("?forward inverseOf ?backward", "?x ?forward ?y"),
-        then: ({ y, backward, x }) => ({
-          assert: [[y, backward, x]],
-        }),
+        then: ({ y, backward, x }) => ({ assert: [[y, backward, x]] }),
       },
       {
         name: "InversePropertyRule2",
         when: q("?forward inverseOf ?backward", "?y ?backward ?x"),
-        then: ({ x, forward, y }) => ({
-          assert: [[x, forward, y]],
-        }),
+        then: ({ x, forward, y }) => ({ assert: [[x, forward, y]] }),
       },
       {
         name: "TransitivePropertyRule",

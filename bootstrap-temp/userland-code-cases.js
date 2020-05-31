@@ -105,12 +105,11 @@ WithBodies$Alice(hasBodies(hasValue([{id: "foo"}, {id:"bar"}])))
 `,
   },
   {
-    label: "A fully-functioning forcefield",
+    label: "A fully-functioning forcefield WIP",
     userland_code: `FullForce$Alice(isa(Forcefield))
 FullForce$Bob(isa(forceX), x(250))
 FullForce$Joe(isa(forceY), y(250))
-FullForce$Alice(hasForce(FullForce$Bob))
-FullForce$Alice(hasForce(FullForce$Joe))
+FullForce$Alice(hasForce(FullForce$Bob, FullForce$Joe))
 FullForce$Alice(hasTicks(hasInterval(500)))
 FullForce$Eve(listensTo(FullForce$Alice$ticks), transformsWith(plucks(1)))
 // FullForce$Evan(listensTo(FullForce$Eve), transformsWith(plucks("x")))
@@ -120,7 +119,6 @@ FullForce$Evan(
     mapsWith((x, undefined) => x === undefined ? "(undefined)" : x.x)
   )
 )
-// third part keeps alice2 from disappearing
 FullForce$Alice2(isa(Space), hasPart(foo), hasPart(bar), hasPart(bat))
 FullForce$Alice$bodies(
   listensTo(queryText("FullForce$Alice2 hasPart ?part")),
@@ -133,10 +131,8 @@ FullForce$Alice$bodies(
   }))
 )
 
-// These won't get representations unless they are subjects
-foo.isa.Thing
-bar.isa.Thing
-bat.isa.Thing
+// The parts won't get representations unless they are subjects, this is a workaround
+partOf.inverseOf.hasPart
 FullForce$RULZ(
   listensTo(FullForce$Alice$ticks),
   emitsTemplatesFor(FullForce$Alice2),
@@ -147,6 +143,17 @@ FullForce$RULZ(
     })
   )
 )
+`,
+  },
+  {
+    label: "A fully-functioning forcefield",
+    userland_code: `FullForce$Bob(isa(forceX), x(250))
+FullForce$Joe(isa(forceY), y(250))
+FullForce$Alice(hasForce(FullForce$Bob, FullForce$Joe), hasTicks(hasInterval(500)))
+// The parts won't get representations unless they are subjects, this is a workaround
+partOf.inverseOf.hasPart
+FullForce$Alice2(isa(Space), hasPart(foo), hasPart(bar), hasPart(bat))
+FullForce$Alice.forcefieldFor.FullForce$Alice2
 `,
   },
   {
