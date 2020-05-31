@@ -182,6 +182,12 @@ export default {
         ),
         then: _ => ({ assert: [[_.whole_rep, CONTAINS, _.part_rep]] }),
       },
+      {
+        // This isn't even really specific to representation
+        comment: "A transducer is part of the node that uses it.",
+        when: q("?node transformsWith ?transformer"),
+        then: _ => ({ assert: [[_.node, n("hasPart"), _.transformer]] }),
+      },
       // This works in conjunction with a rule in dom-process driver
       {
         // assert a subscriber that, when implemented,
