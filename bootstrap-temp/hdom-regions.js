@@ -14,7 +14,7 @@ define(["@thi.ng/rstream", "@thi.ng/transducers", "@thi.ng/transducers-hdom"], (
         state.element = element;
         if (id) process.mounted.next({ id, element });
       },
-      render: (_ctx, { id }) => ["div", { key: id }],
+      render: (_ctx, { id }) => ["div", { key: id, "data-dom-region": id }],
       release({ process: { unmounted } }, { id }) {
         // is id even needed?
         unmounted.next({ id, element: state.element });

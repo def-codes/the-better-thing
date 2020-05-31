@@ -45,6 +45,23 @@
   /* display: block; */
   content: var(--prefix) "\00a0"; /* what was this for? */
 }
+
+/* Dom regions */
+/*
+ * Make placeholder elements invisible.  In effect, revert rules that make
+ * elements visible by default.  We *may* at some point consider getting rid of
+ * the placeholder elements.
+ */
+[data-dom-region] {
+  padding: initial;
+  background-color: initial;
+  border: initial;
+}
+[data-dom-region]::before,
+[data-dom-region]::after {
+  content: initial;
+}
+
 /* RDFa. */
 /* 
 * NOTE, This DOES NOT WORK!  But it would be a great place to use attr() with
