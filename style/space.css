@@ -5,6 +5,10 @@
    * then it will have no natural height.
    */
   min-height: 50vh;
+
+  /* Temp, just helps distinguish */
+  /* background: black; */
+  --luminosity: 10%;
 }
 /* Where else to say this?  On individual things? */
 [typeof="Space"] > * {

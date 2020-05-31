@@ -104,6 +104,7 @@ WithBodies$Alice(hasForce(WithBodies$Bob))
 WithBodies$Alice(hasBodies(hasValue([{id: "foo"}, {id:"bar"}])))
 `,
   },
+  // TODO: get rid of this, it was a scaffold.  but some bits are ok
   {
     label: "A fully-functioning forcefield WIP",
     userland_code: `FullForce$Alice(isa(Forcefield))
@@ -147,13 +148,15 @@ FullForce$RULZ(
   },
   {
     label: "A fully-functioning forcefield",
-    userland_code: `FullForce$Bob(isa(forceX), x(250))
+    userland_code: `FullForce$Alice(isa(Space), hasPart(foo), hasPart(bar), hasPart(bat))
+FullForce$Bob(isa(forceX), x(250))
 FullForce$Joe(isa(forceY), y(250))
-FullForce$Alice(hasForce(FullForce$Bob, FullForce$Joe), hasTicks(hasInterval(500)))
+// Rep driver has a rule that asserts this, but this is for model itself
+FullForce$Alice$forcefield.forcefieldFor(FullForce$Alice)
+FullForce$Alice$forcefield(hasForce(FullForce$Bob, FullForce$Joe), hasTicks(hasInterval(500)))
 // The parts won't get representations unless they are subjects, this is a workaround
 partOf.inverseOf.hasPart
-FullForce$Alice2(isa(Space), hasPart(foo), hasPart(bar), hasPart(bat))
-FullForce$Alice.forcefieldFor.FullForce$Alice2
+
 `,
   },
   {

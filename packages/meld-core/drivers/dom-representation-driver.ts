@@ -207,6 +207,40 @@ export default {
           };
         },
       },
+      // Space rules.  not about forcefields per se
+      {
+        comment: "A space with a representation has a forcefield",
+        when: q("?space isa Space", "?something def:represents ?space"),
+        then: ({ space }) => ({
+          assert: [[n(`${space.value}$forcefield`), n("forcefieldFor"), space]],
+        }),
+      },
+      // Using forcefields to represent dataflow
+      {
+        comment: `If there are any live dataflow nodes, assert a well-known space for representing them in graph form`,
+        when: q("?sub isa Subscribable", "?something implements ?sub"),
+        then: () => ({
+          assert: q(
+            "DataflowSpace isa Space",
+            "DataflowSpace$forcefield hasTicks DataflowSpace$ticker",
+            "DataflowSpace$ticker hasInterval 500",
+            "DataflowSpace$forcefield hasForce DataflowSpace$charge",
+            "DataflowSpace$charge isa forceManyBody",
+            // Need to assert a representation because this wasn't in original
+            // model.
+            "DataflowSpaceEle def:represents DataflowSpace",
+            "DataflowSpaceEle isa def:DomElement"
+          ),
+        }),
+      },
+      {
+        // Yes, repeats above predicate.  Could be done in a single rule
+        comment: `define every live dataflow node as part of a (well-known) dataflow space`,
+        when: q("?sub isa Subscribable", "?something implements ?sub"),
+        then: ({ sub }) => ({
+          assert: [[n("DataflowSpace"), n("hasPart"), sub]],
+        }),
+      },
     ],
   }),
 };

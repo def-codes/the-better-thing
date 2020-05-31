@@ -59,6 +59,8 @@ define(["@def.codes/meld-core"], ({ make_union_interpreter }) => {
         "subscriptionDriver",
         "transducerDriver",
         "domProcessDriver",
+        "queryDriver",
+        "forcefieldDriver",
       ],
     });
     // { reservoir, union, system }

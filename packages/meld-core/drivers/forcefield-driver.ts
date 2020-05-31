@@ -9,7 +9,7 @@ const l = rdf.literal;
 const v = rdf.variable;
 const mint_blank = () => rdf.blankNode();
 
-const parts_to_bodies = (parts: any[]) =>
+const parts_to_bodies = (parts: Iterable<any>) =>
   Array.from(parts, _ => ({
     id: _.part.value,
     x: Math.random() * 500,
@@ -25,7 +25,12 @@ const style = nodes =>
     .join("\n");
 
 const nodes_to_position_style = nodes => {
-  return { element: "style", children: [style(nodes)] };
+  if (!nodes.find(_ => _.id === "foo"))
+    console.log("STYLING NODES", nodes, style(nodes));
+  return {
+    element: "style",
+    children: [style(nodes)],
+  };
 };
 
 // should these be here or in layers?
@@ -154,6 +159,8 @@ export default {
       "hasBodies domain Forcefield",
       "hasTicks domain FrameSimulation",
       "hasTicks range Subscribable",
+      "forcefieldFor domain Forcefield",
+      "forcefieldFor range Space", // maybe too specific
       // range is a set of resources
       "forceCenter subclassOf Force",
       "forceManyBody subclassOf Force",
@@ -212,17 +219,14 @@ export default {
           const bodies = n(`${ff.value}$bodies`);
           const xform = n(`${ff.value}$bodyxform`);
           const query = n(`${ff.value}$bodyquery`);
-          const assert = [
-            [query, n("queryText"), l(`${space.value} hasPart ?part`)],
-            [bodies, n("listensTo"), query],
-            [bodies, n("transformsWith"), xform],
-            // @ts-ignore: abuse
-            [xform, n("mapsWith"), l(parts_to_bodies)],
-          ];
-          console.log(`assert`, assert);
-
           return {
-            assert,
+            assert: [
+              [query, n("queryText"), l(`${space.value} hasPart ?part`)],
+              [bodies, n("listensTo"), query],
+              [bodies, n("transformsWith"), xform],
+              // @ts-ignore: abuse
+              [xform, n("mapsWith"), l(parts_to_bodies)],
+            ],
           };
         },
       },

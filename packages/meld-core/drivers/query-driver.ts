@@ -1,14 +1,20 @@
 // minimal pseudo-query support
 import { metaStream } from "@thi.ng/rstream";
+import { equiv } from "@thi.ng/equiv";
 
 export default {
   name: "queryDriver",
   init: ({ q }) => {
     const make_dynamic_query = live_query => {
       const meta = metaStream(live_query);
+      let last_pattern = undefined;
       return Object.assign(meta, {
         set_query(pattern) {
-          meta.next(pattern);
+          // Avoid pointless changes... also avoids an upstream bug
+          if (!equiv(pattern, last_pattern)) {
+            last_pattern = pattern;
+            meta.next(pattern);
+          }
         },
       });
     };
