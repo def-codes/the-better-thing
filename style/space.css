@@ -1,10 +1,16 @@
 /* Space and forcefields. */
 [typeof="Space"] {
   position: relative;
+  /* Arbitrary.  If everything is a body in a space (and absolutely-positioned),
+   * then it will have no natural height.
+   */
+  min-height: 50vh;
 }
 /* Where else to say this?  On individual things? */
 [typeof="Space"] > * {
   /* But this has unintended consequences... */
+  /* Also, the bodies in the space are generally grandchildren (because of
+   * placeholders). */
   /* position: absolute; */
 }
 /* Again, what elements to select? */
