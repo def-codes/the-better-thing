@@ -140,7 +140,8 @@
                     return `./node_modules/@def.codes/${defcodes}.js`;
                   const [, thing] = module_id.match("^@thi.ng/(.*)$") || [];
                   if (thing)
-                    return `./node_modules/@thi.ng/${thing}/lib/index.umd.js`;
+                    // return `./node_modules/@thi.ng/${thing}/lib/index.umd.js`;
+                    return `./umbrella/packages/${thing}/lib/index.umd.js`;
                   const [, d3] = module_id.match("^(d3-.*)$") || [];
                   if (d3) return `./node_modules/${d3}/dist/${d3}.js`;
                   return default_resolver(module_id, base);
