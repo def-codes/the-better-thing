@@ -26,11 +26,11 @@ const style = nodes =>
 
 const nodes_to_position_style = nodes => {
   if (!nodes.find(_ => _.id === "foo"))
-    console.log("STYLING NODES", nodes, style(nodes));
-  return {
-    element: "style",
-    children: [style(nodes)],
-  };
+    // console.log("STYLING NODES", nodes, style(nodes));
+    return {
+      element: "style",
+      children: [style(nodes)],
+    };
 };
 
 // should these be here or in layers?

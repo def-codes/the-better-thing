@@ -39,8 +39,8 @@ const transform_expression = (expression: DomElementExpression) =>
     : [
         expression.element,
         expression.attributes || {},
-        ...tx.mapIndexed(
-          (index, expr) =>
+        ...tx.map(
+          expr =>
             typeof expr === "string" || typeof expr === "number"
               ? expr.toString()
               : transform_expression(expr),
@@ -75,6 +75,8 @@ export const make_dom_process = (): IDomRegionCoordinator => {
             element,
             port(id)
               .transform(
+                // Not sure where the nullish values come from, but they crash
+                tx.keep(),
                 tx.map(transform_expression),
                 th.updateDOM({ root: element, ctx })
               )
