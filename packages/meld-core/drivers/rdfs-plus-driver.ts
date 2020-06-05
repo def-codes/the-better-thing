@@ -55,6 +55,8 @@ export default {
         when: q("?p isa SymmetricProperty", "?x ?p ?y"),
         then: ({ y, p, x }) => ({ assert: [[y, p, x]] }),
       },
+      // TODO: Could we eliminate one of these by saying inverseOf is a SymmetricProperty?
+      // Would that perform better or worse?
       {
         name: "InversePropertyRule1",
         when: q("?forward inverseOf ?backward", "?x ?forward ?y"),
