@@ -6,11 +6,20 @@ function base_term_equals(other: rdf.Term) {
   return this.termType === other.termType && this.value === other.value;
 }
 
+// Another approach for using this as a hash.
+// function term_toJSON() {
+//   return this.toString();
+// }
+
 function namedNode(value: string) {
   this.value = value;
 }
 namedNode.prototype.termType = "NamedNode";
 namedNode.prototype.equals = base_term_equals;
+// namedNode.prototype.toJSON = term_toJSON;
+namedNode.prototype.toJSON = function () {
+  return { termType: this.termType, value: this.value };
+};
 
 const STRING_DATATYPE = new namedNode(rdf.STRING_TYPE_IRI);
 const LANGUAGE_STRING_DATATYPE = new namedNode(rdf.LANGUAGE_STRING_TYPE_IRI);
@@ -25,12 +34,20 @@ function blankNode(value?: string) {
 }
 add_readonly(blankNode.prototype, "termType", "BlankNode");
 blankNode.prototype.equals = base_term_equals;
+// blankNode.prototype.toJSON = term_toJSON;
+blankNode.prototype.toJSON = function () {
+  return { termType: this.termType, value: this.value };
+};
 
 function variable(value: string) {
   this.value = value;
 }
 add_readonly(variable.prototype, "termType", "Variable");
 variable.prototype.equals = base_term_equals;
+// variable.prototype.toJSON = term_toJSON;
+variable.prototype.toJSON = function () {
+  return { termType: this.termType, value: this.value };
+};
 
 function defaultGraph() {}
 add_readonly(defaultGraph.prototype, "termType", "DefaultGraph");
@@ -59,6 +76,16 @@ literal.prototype.equals = function literal_equals(other: rdf.Term) {
     this.datatype.equals(other.datatype)
   );
 };
+// literal.prototype.toJSON = term_toJSON;
+literal.prototype.toJSON = function () {
+  return {
+    termType: this.termType,
+    value: this.value,
+    language: this.language,
+    datatype: this.datatype,
+  };
+};
+
 /** “This method provides access to a corresponding host environment specific
  * native value, where one exists.” From the first attempt at an RDF interface
  * spec: (https://www.w3.org/TR/rdf-interfaces/#literals) */
