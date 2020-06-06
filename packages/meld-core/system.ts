@@ -123,8 +123,21 @@ const make_consequent_handler = (then, helpers, system, all) => results => {
       return;
     }
 
-    for (const [key, value] of Object.entries(definitions))
+    for (const [key, value] of Object.entries(definitions)) {
+      // Diagnostics
+      const start_time = performance.now();
+      const size_before = system.sink.triples.length;
+
       process_effect_definition(key, value, system);
+
+      // Diagnostics
+      const stop_time = performance.now();
+      const size_after = system.sink.triples.length;
+      const time = stop_time - start_time;
+      const assertions = size_after - size_before;
+      if (time > 100)
+        console.log(`${time} ${assertions} TIME / growth`, key, value);
+    }
   }
 };
 
@@ -132,12 +145,27 @@ const make_consequent_handler = (then, helpers, system, all) => results => {
 // returns a bunch of subscriptions
 const apply_drivers_to = (source, helpers, system, names) => {
   const subs = [];
+
+  // Diagnostics
+  let rule_count = 0;
+  let clause_count = 0;
+  for (const name of names) {
+    const { rules } = driver_dictionary.get(name);
+    for (const { when, disabled } of rules)
+      if (!disabled) clause_count += when.length;
+    rule_count += rules.length;
+  }
+  console.log(
+    `Adding ${clause_count} clauses for ${rule_count} rules for ${names.length} drivers`
+  );
+
   for (const name of names) {
     if (!driver_dictionary.has(name))
       throw new Error(`No such driver: ${name}`);
     const { claims, rules } = driver_dictionary.get(name);
     system.assert_all(claims);
-    for (const { when, when_all, then } of rules)
+    for (const { disabled, when, when_all, then } of rules) {
+      if (disabled) continue;
       subs.push(
         live_query(source, when || when_all).subscribe({
           next: make_consequent_handler(then, helpers, system, !!when_all),
@@ -145,6 +173,7 @@ const apply_drivers_to = (source, helpers, system, names) => {
           error: error => console.error("problem appying rule: ", when, error),
         })
       );
+    }
   }
   return subs;
 };
@@ -205,6 +234,7 @@ export const monotonic_system = (options: MonotonicSystemOptions) => {
   };
   const system = {
     source,
+    sink, // Diagnostics
     find,
     register_input_port: (name: string, stream: IStream<any>) => {
       // DISABLED all this as OBE.

@@ -66,6 +66,7 @@ export default {
             : {},
       },
       {
+        disabled: true,
         name: "RDFaPropertyRepresentationRule",
         comment: `A *transitive* representation of a resource contains a 
           representation of each of its property values`,
@@ -113,6 +114,7 @@ export default {
       //   then: ({ rep }) => ({ assert: [[rep, MATCHES, l(`:first-child`)]] }),
       // },
       {
+        disabled: true,
         name: "something with an element rule",
         when: q(
           "?subject ?property ?object",
@@ -132,6 +134,7 @@ export default {
       },
 
       {
+        disabled: true,
         name: "RDFaPropertyAttributeRule",
         when: q(
           "?subject ?property ?value",
@@ -225,22 +228,27 @@ export default {
       {
         comment: `If there are any live dataflow nodes, assert a well-known space for representing them in graph form`,
         when: q("?sub isa Subscribable", "?something implements ?sub"),
-        then: () => ({
-          assert: q(
-            "DataflowSpace isa Space",
-            "DataflowSpace$forcefield hasTicks DataflowSpace$ticker",
-            "DataflowSpace$ticker hasInterval 500",
-            "DataflowSpace$forcefield hasForce DataflowSpace$charge",
-            "DataflowSpace$charge isa forceManyBody",
-            // Need to assert a representation because this wasn't in original
-            // model.
-            "DataflowSpaceEle def:represents DataflowSpace",
-            "DataflowSpaceEle isa def:DomElement"
-          ),
+        then: ({ sub }) => ({
+          assert: [
+            ...q(
+              "DataflowSpace isa Space",
+              "DataflowSpace$forcefield hasTicks DataflowSpace$ticker",
+              "DataflowSpace$ticker hasInterval 500",
+              "DataflowSpace$forcefield hasForce DataflowSpace$charge",
+              "DataflowSpace$charge isa forceManyBody",
+              // Need to assert a representation because this wasn't in original
+              // model.
+              "DataflowSpaceEle def:represents DataflowSpace",
+              "DataflowSpaceEle isa def:DomElement"
+            ),
+            [n("DataflowSpace"), n("hasPart"), sub],
+          ],
         }),
       },
       {
         // Yes, repeats above predicate.  Could be done in a single rule
+        // BUT: added assertion to above and disabled
+        disabled: true,
         comment: `define every live dataflow node as part of a (well-known) dataflow space`,
         when: q("?sub isa Subscribable", "?something implements ?sub"),
         then: ({ sub }) => ({
