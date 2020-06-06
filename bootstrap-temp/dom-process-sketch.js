@@ -1,13 +1,14 @@
 define([
   "@thi.ng/hiccup",
   "@thi.ng/transducers",
+  "@thi.ng/rstream",
   "@def.codes/rstream-query-rdf",
   "@def.codes/meld-core",
   "@def.codes/expression-reader",
   "@def.codes/hdom-regions",
   "./userland-code-cases.js",
   "./create-interpreter-graph.js",
-], async (hiccup, tx, rdf, core, { read }, dp, examples, ing) => {
+], async (hiccup, tx, rs, rdf, core, { read }, dp, examples, ing) => {
   // TODO: submit patch upstream.
   hiccup.NO_SPANS.style = 1;
 
@@ -88,7 +89,13 @@ define([
         id: "root",
         element: the.kitchen_output,
       });
-      const recipe_facts = interpret(read(model.userland_code));
+      const recipe_code_stream = rs.subscription();
+      const recipe_facts_stream = recipe_code_stream.transform(
+        tx.map(code => interpret(read(code)))
+      );
+
+      recipe_code_stream.next(model.userland_code);
+
       const { kitchen_graph, recipe_graph } = create_interpreter_graph(
         dataset,
         {
@@ -96,7 +103,7 @@ define([
           // explain it, but using separate registries resolves.
           recipe_registry: make_registry(),
           kitchen_registry: make_registry(),
-          recipe_facts,
+          recipe_facts_stream,
           recipe_dom_process,
           kitchen_dom_process,
           recipe_element: the.recipe_output,

@@ -132,8 +132,6 @@ FullForce$Alice$bodies(
   }))
 )
 
-// The parts won't get representations unless they are subjects, this is a workaround
-partOf.inverseOf.hasPart
 FullForce$RULZ(
   listensTo(FullForce$Alice$ticks),
   emitsTemplatesFor(FullForce$Alice2),
@@ -148,16 +146,20 @@ FullForce$RULZ(
   },
   {
     label: "A fully-functioning forcefield",
-    userland_code: `FullForce$Alice(isa(Space), hasPart(foo), hasPart(bar), hasPart(bat))
+    userland_code: `FullForce$Alice(
+  isa(Space),
+   hasPart(foo), hasPart(bar), hasPart(bat)
+)
 FullForce$Bob(isa(forceX), x(250))
 FullForce$Joe(isa(forceY), y(250))
-// Rep driver has a rule that asserts this, but this is for model itself
 FullForce$Alice$forcefield.forcefieldFor(FullForce$Alice)
-FullForce$Alice$forcefield(hasForce(FullForce$Bob, FullForce$Joe), hasTicks(hasInterval(500)))
-// The parts won't get representations unless they are subjects, this is a workaround
-partOf.inverseOf.hasPart
+FullForce$Alice$forcefield(
+  hasForce(FullForce$Bob, FullForce$Joe),
+   hasTicks(hasInterval(500))
+)
 
 `,
+    comment: `Rep driver has a rule that asserts forcefield, but this is for model itself`,
   },
   {
     label: "HDOM region reference",

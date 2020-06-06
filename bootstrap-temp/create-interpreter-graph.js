@@ -56,14 +56,19 @@ define([
       id,
       recipe_registry,
       kitchen_registry,
-      recipe_facts,
+      recipe_facts_stream,
       recipe_dom_process,
       kitchen_dom_process,
       recipe_element,
       kitchen_element,
     } = spec;
     const { name, graph: recipe_graph } = dataset.create_graph();
-    recipe_graph.into(recipe_facts);
+
+    recipe_facts_stream.subscribe({
+      next(recipe_facts) {
+        recipe_graph.into(recipe_facts);
+      },
+    });
 
     const { kitchen_graph } = model_interpreter(dataset, kitchen_registry, {
       recipe_graph,
