@@ -1,7 +1,7 @@
 // support system for monotonic, rule-based drivers of resource implementations.
 import rdf from "@def.codes/rdf-data-model";
 import { IStream } from "@thi.ng/rstream";
-import { Registry, make_registry } from "./registry";
+import { Registry } from "./registry";
 import {
   live_query,
   sync_query,
@@ -210,12 +210,13 @@ export interface MonotonicSystemOptions {
  */
 export const monotonic_system = (options: MonotonicSystemOptions) => {
   const { id, source, sink, dom_root, dom_process, ports, drivers } = options;
-  const registry = options.registry ?? make_registry();
+  const { registry } = options;
   const driver_names = drivers ?? [...driver_dictionary.keys()];
 
   const assert = fact => sink.add(fact);
 
   const find = subject => {
+    if (!registry) throw new Error("cannot use `find`, no registry provided");
     const got = registry.find(subject);
     if (!got) console.warn(`Subject ${subject} not in registry`);
     return got;
@@ -256,6 +257,8 @@ export const monotonic_system = (options: MonotonicSystemOptions) => {
     // drivers to disambiguate the role for which they are querying
     // implementations.
     register(subject, type_name, using) {
+      if (!registry)
+        throw new Error("cannot use `register`, no registry provided");
       return registry.register(sink, subject, type_name, using);
     },
   };
