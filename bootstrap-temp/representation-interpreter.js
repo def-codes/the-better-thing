@@ -1,4 +1,8 @@
-define(["@def.codes/meld-core"], ({ make_union_interpreter }) => {
+define([
+  "@def.codes/meld-core",
+  "@def.codes/rstream-query-rdf",
+  "./model-interpreter.js",
+], ({ make_union_interpreter }, { UnionGraph }, { MODEL_DRIVERS }) => {
   /*
       +---F---+
       |       |
@@ -21,7 +25,7 @@ define(["@def.codes/meld-core"], ({ make_union_interpreter }) => {
     registry,
     dom_process,
     dom_root,
-    { input_graph, subject_graph }
+    { id, input_graph, subject_graph, implementation_graph }
   ) => {
     const log = (triples, ...msgs) =>
       console.log(
@@ -29,44 +33,48 @@ define(["@def.codes/meld-core"], ({ make_union_interpreter }) => {
         Array.from(triples, ([s, p, o]) => `${s} ${p} ${o}`).join("\n")
       );
 
-    // A non-feedback extension that asserts a representation of all subjects.
-    const representation_requests = dataset.create_graph();
-    const subjects = make_union_interpreter(input_graph, {
+    // `dataset ` is currently unused.  It could be used to provide named graphs
+    // as the `sink` option to the interpreters, but it's currently not needed.
+
+    /* ====== Stage C: what is to be represented? ====== */
+
+    // A non-feedback extension that asserts a representation of all resources
+    // from the model.
+    const C = make_union_interpreter(input_graph, {
+      id: `${id}: stage C`,
       source: subject_graph || input_graph, // instead of union, hence non-feedback
-      sink: representation_requests.graph,
-      registry, // should not need registry though
       drivers: ["domRepresentEverythingDriver"],
     });
 
+    /* ====== Stage D: how are things to be represented? ====== */
+
     // Extend previous result with representation descriptions (using feedback).
-    const representations = dataset.create_graph();
-    const blueprint = make_union_interpreter(subjects.union, {
-      sink: representations.graph,
-      registry, // should not need registry though
+    const D = make_union_interpreter(C.union, {
+      id: `${id}: stage D`,
       drivers: ["domRepresentationDriver"],
     });
 
-    // This is essentially the model interpreter
-    const rep_kitchen = dataset.create_graph();
-    const out = make_union_interpreter(blueprint.union, {
-      sink: rep_kitchen.graph,
+    /* ====== Stage E: implement the representations ====== */
+
+    // Stage E should subject to the interpreter anything specially asserted by
+    // stages C and D and nothing more.
+    const Ein = new UnionGraph(
+      D.reservoir,
+      implementation_graph
+        ? new UnionGraph(implementation_graph, C.reservoir)
+        : C.reservoir
+    );
+    log(Ein.triples, `${id}: stage E input`);
+    const E = make_union_interpreter(Ein, {
+      id: `${id}: stage E`,
       registry,
       dom_root,
       dom_process,
-      drivers: [
-        "rdfsPlusDriver",
-        "streamDriver",
-        "subscriptionDriver",
-        "transducerDriver",
-        "domProcessDriver",
-        "queryDriver",
-        "forcefieldDriver",
-      ],
+      drivers: [...MODEL_DRIVERS, "domProcessDriver"],
     });
-    // { reservoir, union, system }
-    // log(out.union.triples, "REPRESENTATION INTERPRETER OUT");
+    const out = new UnionGraph(D.union, E.union);
 
-    return { representation_graph: out.union };
+    return { representation_graph: out };
   };
 
   return { representation_interpreter };

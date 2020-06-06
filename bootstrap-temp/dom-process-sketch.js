@@ -90,7 +90,9 @@ define([
       )
         continue;
       const the = cont(model);
-      the.model_code.innerText = model.userland_code;
+      // TODO: escape.  there is some code for this in packages that takes into
+      // account e.g. </textarea> closing tag
+      the.model_code.innerHTML = model.userland_code;
       const recipe_dom_process = dp.make_dom_process();
       recipe_dom_process.mounted.next({
         id: "root",

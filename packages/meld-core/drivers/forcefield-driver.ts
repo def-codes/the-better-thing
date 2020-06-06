@@ -150,16 +150,16 @@ export default {
   init: ({ q, is_node }) => ({
     claims: q(
       "Force isa Class",
-      "Force subclassOf FrameSimulation",
+      // "Force subclassOf FrameSimulation", // doesn't even make sense
       "forceX subclassOf Force",
       "forceY subclassOf Force",
       "hasForce domain Forcefield",
       "hasForce range Force",
       "hasBodies domain Forcefield",
-      "hasTicks domain FrameSimulation",
+      // "hasTicks domain FrameSimulation",
       "hasTicks range Subscribable",
       "forcefieldFor domain Forcefield",
-      "forcefieldFor range Space", // maybe too specific
+      // "forcefieldFor range Space", // maybe too specific
       // range is a set of resources
       "forceCenter subclassOf Force",
       "forceManyBody subclassOf Force",
@@ -236,6 +236,7 @@ export default {
         then: ({ ff, space }) => {
           const styles = n(`${ff.value}$styles`);
           const xform = n(`${ff.value}$stylesxform`);
+          console.log(ff, "FORCEFIELD FOR", space);
           return {
             assert: [
               [styles, n("listensTo"), n(`${ff.value}$ticks`)],
@@ -366,7 +367,7 @@ export default {
         ),
         then: ({ forcefield, simulation, source }, { find }) => ({
           register: {
-            subject: n(`${forcefield}/BodiesListener`),
+            subject: n(`${forcefield.value}$BodiesListener`),
             as_type: "Subscribable",
             using: () =>
               find(source).subscribe({ next: find(simulation).nodes }),

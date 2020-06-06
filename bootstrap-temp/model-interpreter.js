@@ -1,18 +1,20 @@
 define(["@def.codes/meld-core"], ({ make_union_interpreter }) => {
+  const MODEL_DRIVERS = [
+    "rdfsPlusDriver",
+    "streamDriver",
+    "subscriptionDriver",
+    "transducerDriver",
+    "forcefieldDriver",
+    "queryDriver",
+  ];
+
   const model_interpreter = (dataset, registry, { recipe_graph }) => {
-    const drivers = [
-      "rdfsPlusDriver",
-      "streamDriver",
-      "subscriptionDriver",
-      "transducerDriver",
-      "forcefieldDriver",
-      "queryDriver",
-    ];
-    const { union } = make_union_interpreter(recipe_graph, {
+    const drivers = MODEL_DRIVERS;
+    const { union, reservoir } = make_union_interpreter(recipe_graph, {
       registry,
       drivers,
     });
-    return { kitchen_graph: union };
+    return { kitchen_graph: union, implementation_graph: reservoir };
   };
-  return { model_interpreter };
+  return { MODEL_DRIVERS, model_interpreter };
 });

@@ -151,11 +151,11 @@ FullForce$RULZ(
    hasPart(foo), hasPart(bar), hasPart(bat)
 )
 FullForce$Bob(isa(forceX), x(250))
-FullForce$Joe(isa(forceY), y(250))
+FullForce$Joe(isa(forceY), y(150))
 FullForce$Alice$forcefield.forcefieldFor(FullForce$Alice)
 FullForce$Alice$forcefield(
   hasForce(FullForce$Bob, FullForce$Joe),
-   hasTicks(hasInterval(500))
+  hasTicks(hasInterval(500))
 )
 
 `,
@@ -163,6 +163,7 @@ FullForce$Alice$forcefield(
   },
   {
     label: "HDOM region reference",
+    // TODO: get rid of this?  disabling ‘emits’ rule because this is the only place it's used
     // How to assert a connection from Bob's output to an hdom region?
     userland_code: `TickerWithListener$Alice.hasInterval(1000)
 TickerWithListener$Bob.listensTo.TickerWithListener$Alice

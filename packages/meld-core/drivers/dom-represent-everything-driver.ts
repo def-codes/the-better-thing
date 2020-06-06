@@ -10,14 +10,14 @@ const REPRESENTS_TRANSITIVE = n("def:representsTransitive");
 
 export default {
   name: "domRepresentEverythingDriver",
-  init: ({ q }) => ({
+  init: ({ q, is_node }) => ({
     claims: q(),
     rules: [
       {
         name: "RepresentAllSubjectsRule",
         when: q("?subject ?predicate ?object"),
         then: ({ subject }) => {
-          const rep = n(`${subject.value}/representation`);
+          const rep = n(`${subject.value}$representation`);
           return {
             assert: [
               [rep, ISA, DOM_ELEMENT],
@@ -31,8 +31,9 @@ export default {
         name: "RepresentObjectResourcesRule",
         when: q("?subject ?predicate ?object"),
         then: ({ object }) => {
-          if (object.termType === "NamedNode") {
-            const rep = n(`${object.value}/representation`);
+          // Should this include blank nodes too?  Why wouldn't it?
+          if (is_node(object)) {
+            const rep = n(`${object.value}$representation`);
             return {
               assert: [
                 [rep, ISA, DOM_ELEMENT],
@@ -40,7 +41,7 @@ export default {
               ],
             };
           }
-          return { assert: [] };
+          return {};
         },
       },
     ],

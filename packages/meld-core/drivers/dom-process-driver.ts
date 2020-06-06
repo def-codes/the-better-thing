@@ -7,6 +7,8 @@ export default {
     claims: q("DomProcess isa Class"),
     rules: [
       {
+        // Must have been a WIP
+        disabled: true,
         when: q("?home as Container", "?domProcess as DomProcess"),
         then({ home, domProcess }, { find }) {
           console.log("DOM PROCESS DRIVER", find(home), find(domProcess));
@@ -24,6 +26,8 @@ export default {
         },
       },
       {
+        // TODO: kill this after deciding on approach.  only used from one example
+        disabled: true,
         when: q(
           "?x emits Templates",
           "?sub implements ?x",
@@ -57,8 +61,10 @@ export default {
         }),
       },
       {
+        // TODO: as above.  also must have been an earlier attempt
+        disabled: true,
         when: q(
-          "?region isa XXXXXXXXXXXXXXDomRegion",
+          "?region isa DomRegion",
           "?region isa Subscribable",
           "?sub implements ?region",
           "?sub as Subscribable"

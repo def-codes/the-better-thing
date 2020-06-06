@@ -7,6 +7,9 @@ require([
   const { dataset } = system;
   const { defaultGraph, factory } = dataset;
 
+  // TODO: move/kill this
+  return;
+
   const TYPE = factory.namedNode("rdf:type");
   const GRAPH = factory.namedNode("rdfg:Graph");
 

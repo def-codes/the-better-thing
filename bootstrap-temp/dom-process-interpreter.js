@@ -61,7 +61,9 @@ define([
 
     const top_level = rs
       .sync({ src: { elements, contained }, mergeOnly: true })
-      .transform(map(_ => difference(_.elements, _.contained || new Set())));
+      .transform(
+        map(_ => difference(_.elements || new Set(), _.contained || new Set()))
+      );
 
     return { sources, top_level };
   };

@@ -58,7 +58,7 @@ export default {
       {
         name: "RDFaResourceRule",
         when: q("?rep isa def:DomElement", "?rep def:represents ?thing"),
-        // TODO: s/b in filter
+        // TODO: conditions s/b in filter
         then: ({ rep, thing }) =>
           thing.termType === "NamedNode"
             ? { assert: [[rep, MATCHES, l(`[resource="${thing.value}"]`)]] }
@@ -104,16 +104,17 @@ export default {
           assert: [[rep, MATCHES, l(`[typeof~="${type.value}"]`)]],
         }),
       },
-      // {
-      //   name: "LabelAtStartRule",
-      //   when: q(
-      //     "?statement rdf:predicate rdfs:label",
-      //     "?rep isa def:DomElement",
-      //     "?rep def:represents ?statement"
-      //   ),
-      //   // PROVISIONAL
-      //   then: ({ rep }) => ({ assert: [[rep, MATCHES, l(`:first-child`)]] }),
-      // },
+      {
+        disabled: true,
+        name: "LabelAtStartRule",
+        when: q(
+          "?statement rdf:predicate rdfs:label",
+          "?rep isa def:DomElement",
+          "?rep def:represents ?statement"
+        ),
+        // PROVISIONAL
+        then: ({ rep }) => ({ assert: [[rep, MATCHES, l(`:first-child`)]] }),
+      },
       {
         disabled: true,
         name: "something with an element rule",
@@ -251,7 +252,7 @@ export default {
         comment: `If something has a representation and an implementation, then its implementation also has a representation`,
         when: q("?rep def:represents ?thing", "?impl implements ?thing"),
         then: _ => {
-          const it = n(`${_.impl.value}/representation`);
+          const it = n(`${_.impl.value}$representation`);
           return {
             assert: [
               [it, ISA, DOM_ELEMENT],
