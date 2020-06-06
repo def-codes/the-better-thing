@@ -66,6 +66,23 @@ body[drop-effect] {
 .Luminosity9 {
   --luminosity: 90%;
 }
+
+/* Models */
+.model {
+  display: flex;
+}
+.model::before {
+  position: absolute; /* take out of flex  */
+}
+.model [data-part] {
+  flex: 1 1 50%;
+}
+textarea.recipe {
+  max-width: 40vw;
+  min-height: 75vh;
+}
+
+/* TODO: get rid of all this stuff */
 .Porthole {
   cursor: pointer;
   font-size: 100%;

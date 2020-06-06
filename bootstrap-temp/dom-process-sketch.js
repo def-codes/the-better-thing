@@ -28,29 +28,41 @@ define([
     const cont = model => {
       const article = h("article");
       article.setAttribute("resource", model.label);
+      article.setAttribute("class", "model");
       const model_code_id = `${model.label.replace(/\W+/g, "-")}`;
-      const model_code = article.appendChild(h("code"));
+
+      const recipe_part = article.appendChild(h("section"));
+      recipe_part.setAttribute("data-part", "recipe");
+      const kitchen_part = article.appendChild(h("section"));
+      kitchen_part.setAttribute("data-part", "kitchen");
+
+      const model_code = recipe_part.appendChild(h("textarea"));
       model_code.setAttribute("id", model_code_id);
-      const kitchen_code_details = h("details");
-      const model_interpretation_code = kitchen_code_details.appendChild(
-        h("code")
-      );
-      article
-        .appendChild(kitchen_code_details)
-        .appendChild(h("summary")).innerText = "kitchen code";
+      model_code.setAttribute("class", "recipe");
+      model_code.setAttribute("spellcheck", "false");
 
       // > A space-separated list of other elements’ ids, indicating that those
       // > elements contributed input values to (or otherwise affected) the
       // > calculation.
       const recipe_output_details = h("details");
-      article
+      recipe_output_details.setAttribute("open", "true");
+      recipe_part
         .appendChild(recipe_output_details)
         .appendChild(h("summary")).innerText = "recipe representation";
       const recipe_output = recipe_output_details.appendChild(h("output"));
       recipe_output.setAttribute("for", model_code_id);
-      const kitchen_output = article.appendChild(h("output"));
+      const kitchen_output = kitchen_part.appendChild(h("output"));
       kitchen_output.setAttribute("for", `${model_code_id}-kitchen`);
+      const kitchen_code_details = h("details");
+      const model_interpretation_code = kitchen_code_details.appendChild(
+        h("code")
+      );
+      kitchen_part
+        .appendChild(kitchen_code_details)
+        .appendChild(h("summary")).innerText = "kitchen code";
+
       root.appendChild(article);
+
       return {
         model_code,
         model_interpretation_code,
