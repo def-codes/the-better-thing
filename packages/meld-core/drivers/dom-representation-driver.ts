@@ -26,6 +26,7 @@ const REPRESENTS = n("def:represents");
 const SUBJECT = n("rdf:subject");
 const PREDICATE = n("rdf:predicate");
 const OBJECT = n("rdf:object");
+const DOM_ELEMENT = n("def:DomElement");
 
 const GENERAL_VALUE_MAPPER = n("GeneralValueMapper");
 
@@ -244,6 +245,20 @@ export default {
             [n("DataflowSpace"), n("hasPart"), sub],
           ],
         }),
+      },
+      {
+        disabled: true,
+        comment: `If something has a representation and an implementation, then its implementation also has a representation`,
+        when: q("?rep def:represents ?thing", "?impl implements ?thing"),
+        then: _ => {
+          const it = n(`${_.impl.value}/representation`);
+          return {
+            assert: [
+              [it, ISA, DOM_ELEMENT],
+              [it, REPRESENTS, _.impl],
+            ],
+          };
+        },
       },
       {
         // Yes, repeats above predicate.  Could be done in a single rule

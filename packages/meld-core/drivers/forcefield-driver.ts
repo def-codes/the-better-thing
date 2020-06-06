@@ -25,12 +25,11 @@ const style = nodes =>
     .join("\n");
 
 const nodes_to_position_style = nodes => {
-  if (!nodes.find(_ => _.id === "foo"))
-    // console.log("STYLING NODES", nodes, style(nodes));
-    return {
-      element: "style",
-      children: [style(nodes)],
-    };
+  // console.log("STYLING NODES", nodes, style(nodes));
+  return {
+    element: "style",
+    children: [style(nodes)],
+  };
 };
 
 // should these be here or in layers?
@@ -249,6 +248,8 @@ export default {
         },
       },
       {
+        // I think this was from an earlier iteration
+        disabled: true,
         when: q(
           "?field hasTicks ?ticks",
           "?source implements ?ticks",
@@ -258,6 +259,7 @@ export default {
           "?nodesource as Subscribable"
         ),
         then({ field, ticks, source, nodesource }, system) {
+          console.log("OBSOLETE!!");
           const nodes_stream = system.find(nodesource);
           const simulation = system.find(field);
           const tick_stream = system.find(source);
@@ -375,6 +377,7 @@ export default {
       {
         // let the type be implicit
         // when: q("?force connects ?property"),
+        disabled: true,
         when: q("?force isa forceLink", "?force connects ?property"),
         then({ force, property }, system) {
           const force_instance = system.find(force);

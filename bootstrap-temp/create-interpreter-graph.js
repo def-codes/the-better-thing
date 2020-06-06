@@ -82,7 +82,10 @@ define([
       kitchen_registry,
       kitchen_dom_process,
       kitchen_element,
-      { input_graph: kitchen_graph }
+      {
+        input_graph: kitchen_graph,
+        subject_graph: recipe_graph,
+      }
     ).representation_graph;
 
     const recipe_rep = dom_process_interpreter(model_representation_graph);

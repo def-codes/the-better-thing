@@ -14,12 +14,10 @@ export default {
     claims: q(),
     rules: [
       {
-        // PROVISIONAL
-        name: "RepresentEverythingRule",
-        when: q("?subject ?p ?o"),
+        name: "RepresentAllSubjectsRule",
+        when: q("?subject ?predicate ?object"),
         then: ({ subject }) => {
-          // HACK. avoids blank nodes
-          const rep = n(`representationOf${subject.value}`);
+          const rep = n(`${subject.value}/representation`);
           return {
             assert: [
               [rep, ISA, DOM_ELEMENT],
@@ -27,6 +25,22 @@ export default {
               [rep, REPRESENTS, subject],
             ],
           };
+        },
+      },
+      {
+        name: "RepresentObjectResourcesRule",
+        when: q("?subject ?predicate ?object"),
+        then: ({ object }) => {
+          if (object.termType === "NamedNode") {
+            const rep = n(`${object.value}/representation`);
+            return {
+              assert: [
+                [rep, ISA, DOM_ELEMENT],
+                [rep, REPRESENTS, object],
+              ],
+            };
+          }
+          return { assert: [] };
         },
       },
     ],

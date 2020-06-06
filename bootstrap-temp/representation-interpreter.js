@@ -21,7 +21,7 @@ define(["@def.codes/meld-core"], ({ make_union_interpreter }) => {
     registry,
     dom_process,
     dom_root,
-    { input_graph }
+    { input_graph, subject_graph }
   ) => {
     const log = (triples, ...msgs) =>
       console.log(
@@ -32,7 +32,7 @@ define(["@def.codes/meld-core"], ({ make_union_interpreter }) => {
     // A non-feedback extension that asserts a representation of all subjects.
     const representation_requests = dataset.create_graph();
     const subjects = make_union_interpreter(input_graph, {
-      source: input_graph, // instead of union, hence non-feedback
+      source: subject_graph || input_graph, // instead of union, hence non-feedback
       sink: representation_requests.graph,
       registry, // should not need registry though
       drivers: ["domRepresentEverythingDriver"],
