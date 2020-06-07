@@ -4,6 +4,8 @@ import * as th from "@thi.ng/transducers-hdom";
 import { DomElementExpression } from "./dom-expression";
 import { IDomRegionCoordinator } from "./api";
 
+const EMPTY_OBJECT = {};
+const EMPTY_ARRAY = [];
 const OPTS = { closeOut: rs.CloseMode.NEVER };
 
 /*
@@ -38,13 +40,13 @@ const transform_expression = (expression: DomElementExpression) =>
     ? [Template(), { id: expression.attributes.id }]
     : [
         expression.element,
-        expression.attributes || {},
+        expression.attributes || EMPTY_OBJECT,
         ...tx.map(
           expr =>
             typeof expr === "string" || typeof expr === "number"
               ? expr.toString()
               : transform_expression(expr),
-          expression.children || []
+          expression.children || EMPTY_ARRAY
         ),
       ];
 
