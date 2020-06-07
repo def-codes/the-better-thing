@@ -193,6 +193,22 @@ export default {
         when: q("?node transformsWith ?transformer"),
         then: _ => ({ assert: [[_.node, n("hasPart"), _.transformer]] }),
       },
+      {
+        // Wait why is this disabled?
+        // enabling it, you can see (at least some of) the node content (in dataflow space)
+        // disabled: true,
+        comment: `If something has a representation and an implementation, then its implementation also has a representation`,
+        when: q("?rep def:represents ?thing", "?impl implements ?thing"),
+        then: _ => {
+          const it = n(`${_.impl.value}$representation`);
+          return {
+            assert: [
+              [it, ISA, DOM_ELEMENT],
+              [it, REPRESENTS, _.impl],
+            ],
+          };
+        },
+      },
       // This works in conjunction with a rule in dom-process driver
       {
         // assert a subscriber that, when implemented,
@@ -248,20 +264,6 @@ export default {
         }),
       },
       {
-        disabled: true,
-        comment: `If something has a representation and an implementation, then its implementation also has a representation`,
-        when: q("?rep def:represents ?thing", "?impl implements ?thing"),
-        then: _ => {
-          const it = n(`${_.impl.value}$representation`);
-          return {
-            assert: [
-              [it, ISA, DOM_ELEMENT],
-              [it, REPRESENTS, _.impl],
-            ],
-          };
-        },
-      },
-      {
         // Yes, repeats above predicate.  Could be done in a single rule
         // BUT: added assertion to above and disabled
         disabled: true,
@@ -271,7 +273,6 @@ export default {
           assert: [[n("DataflowSpace"), n("hasPart"), sub]],
         }),
       },
-
       {
         comment: `Assert a representation of (live) subscription relationships`,
         when: q("?x listensTo ?y", "?something implements ?x"),

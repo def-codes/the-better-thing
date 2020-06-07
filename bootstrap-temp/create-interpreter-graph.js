@@ -13,6 +13,7 @@ define([
 
     top_level.subscribe({
       next(elements) {
+        // console.log("TOP LEVEL");
         // Construct a main template to contain all top-level items
         //
         // This is effectively equivalent to asserting direct containment
@@ -66,7 +67,16 @@ define([
 
     recipe_facts_stream.subscribe({
       next(recipe_facts) {
-        recipe_graph.into(recipe_facts);
+        const count_before = recipe_graph.triples.length;
+        const inserted = recipe_graph.into(recipe_facts);
+        const count_after = recipe_graph.triples.length;
+        console.log(
+          `${id} INCOMING FACTS`,
+          count_before,
+          count_after,
+          inserted,
+          recipe_facts
+        );
       },
     });
 
@@ -76,13 +86,19 @@ define([
       { recipe_graph }
     );
 
-    const model_representation_graph = representation_interpreter(
-      dataset,
-      recipe_registry,
-      recipe_dom_process,
-      recipe_element,
-      { id: "recipe", input_graph: recipe_graph }
-    ).representation_graph;
+    const represent_recipe = false;
+    if (represent_recipe) {
+      const model_representation_graph = representation_interpreter(
+        dataset,
+        recipe_registry,
+        recipe_dom_process,
+        recipe_element,
+        { id: "recipe", input_graph: recipe_graph }
+      ).representation_graph;
+
+      const recipe_rep = dom_process_interpreter(model_representation_graph);
+      bind_rep(recipe_rep, recipe_dom_process);
+    }
 
     const kitchen_representation_graph = representation_interpreter(
       dataset,
@@ -97,10 +113,7 @@ define([
       }
     ).representation_graph;
 
-    const recipe_rep = dom_process_interpreter(model_representation_graph);
     const kitchen_rep = dom_process_interpreter(kitchen_representation_graph);
-
-    bind_rep(recipe_rep, recipe_dom_process);
     bind_rep(kitchen_rep, kitchen_dom_process);
 
     return { recipe_graph, kitchen_graph };
