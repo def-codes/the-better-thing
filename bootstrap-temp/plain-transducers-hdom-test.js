@@ -1,11 +1,10 @@
 define([
-  "./dom-process-new.js",
   "@thi.ng/rstream",
   "@thi.ng/transducers",
   "@thi.ng/hiccup",
   "@thi.ng/hdom",
   "@thi.ng/transducers-hdom",
-], async (dp, rs, tx, hiccup, hdom, th) => {
+], async (rs, tx, hiccup, hdom, th) => {
   const { scan } = tx;
   const { derefContext } = hiccup;
   const { DEFAULT_IMPL, resolveRoot } = hdom;

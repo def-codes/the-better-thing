@@ -83,6 +83,7 @@ define([
           // "A forcefield with a force",
           // "A forcefield with bodies",
           "A fully-functioning forcefield",
+          // "HDOM regions bug repro",
           // "A query",
           // "A constant stream",
           // "HDOM region reference",
@@ -113,6 +114,7 @@ define([
       const { kitchen_graph, recipe_graph } = create_interpreter_graph(
         dataset,
         {
+          id: `interpreter for ‘${model.label}’`,
           // Ran into an issue when these shared a registry.  Couldn't 100%
           // explain it, but using separate registries resolves.
           recipe_registry: make_registry(),
@@ -124,6 +126,7 @@ define([
           kitchen_element: the.kitchen_output,
         }
       );
+
       live_query(kitchen_graph, q("?s ?p ?o")).subscribe({
         next: facts => {
           the.model_interpretation_code.innerText = Array.from(

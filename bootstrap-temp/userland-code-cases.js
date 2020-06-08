@@ -162,6 +162,15 @@ FullForce$Alice$forcefield(
     comment: `Rep driver has a rule that asserts forcefield, but this is for model itself`,
   },
   {
+    label: "HDOM regions bug repro",
+    userland_code: `
+bug$Alice(isa(bug$Space))
+// bug$Alice(hasPart(bug$foo))
+// bug$Alice(hasPart(bug$bar))
+// bug$Carol(bug$hasThing(bug$Bob))
+`,
+  },
+  {
     label: "HDOM region reference",
     // TODO: get rid of this?  disabling ‘emits’ rule because this is the only place it's used
     // How to assert a connection from Bob's output to an hdom region?

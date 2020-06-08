@@ -13,7 +13,6 @@ define([
 
     top_level.subscribe({
       next(elements) {
-        // console.log("TOP LEVEL");
         // Construct a main template to contain all top-level items
         //
         // This is effectively equivalent to asserting direct containment
