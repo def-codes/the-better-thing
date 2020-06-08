@@ -1,5 +1,161 @@
 define(["@thi.ng/rstream", "@thi.ng/transducers"], (rs, tx) => {
   return {
+    repro_OKAY_no_duplicate_because_not_empty: {
+      label: "Just Alice",
+      fn: () => ({
+        root: rs.fromIterable([
+          ["div", "clear"],
+          ["div", ["placeholder", { id: "Alice" }]],
+        ]),
+        Alice: rs.fromIterable([["div", { resource: "Alice" }]]),
+      }),
+    },
+    repro_duplicates_following_attributes: {
+      label: "Just Alice",
+      fn: () => ({
+        root: rs.fromIterable([
+          ["div", { id: "something" }],
+          ["div", ["placeholder", { id: "Alice" }]],
+        ]),
+        Alice: rs.fromIterable([["div", { resource: "Alice" }]]),
+      }),
+    },
+    repro_duplicates_Alice_minimal: {
+      label: "Just Alice",
+      fn: () => ({
+        root: rs.fromIterable([
+          ["div"],
+          ["div", ["placeholder", { id: "Alice" }]],
+        ]),
+        Alice: rs.fromIterable([["div", { resource: "Alice" }]]),
+      }),
+    },
+    repro_OKAY_clear: {
+      label: "Empty",
+      fn: () => ({
+        root: rs.fromIterable([
+          ["div", ["placeholder", { id: "Alice" }]],
+          ["div"],
+        ]),
+        Alice: rs.fromIterable([["div", { resource: "Alice" }]]),
+      }),
+    },
+    repro_duplicates_Alice_after_clear: {
+      label: "Just Alice",
+      fn: () => ({
+        root: rs.fromIterable([
+          ["div", ["placeholder", { id: "Alice" }]],
+          ["div"],
+          ["div", ["placeholder", { id: "Alice" }]],
+        ]),
+        Alice: rs.fromIterable([["div", { resource: "Alice" }]]),
+      }),
+    },
+    repro_duplicates_separator: {
+      comment: `Is this the only wrong case that doesn't involve an empty div followed by something else?`,
+      label: "Alice / holy spirit / Bob",
+      fn: () => ({
+        root: rs.fromIterable([
+          [
+            "div",
+            ["placeholder", { id: "Alice" }],
+            ["placeholder", { id: "Bob" }],
+          ],
+          [
+            "div",
+            ["placeholder", { id: "Alice" }],
+            ["b", "holy spirit"],
+            ["placeholder", { id: "Bob" }],
+          ],
+        ]),
+        Alice: rs.fromIterable([["div", { resource: "Alice" }]]),
+        Bob: rs.fromIterable([["div", { resource: "Bob" }, "boy"]]),
+      }),
+    },
+    repro_kills_Bob: {
+      label: "Alice & Bob",
+      fn: () => ({
+        root: rs.fromIterable([
+          [
+            "div",
+            ["placeholder", { id: "Alice" }],
+            ["b", "holy spirit"],
+            ["placeholder", { id: "Bob" }],
+          ],
+          [
+            "div",
+            ["placeholder", { id: "Alice" }],
+            ["placeholder", { id: "Bob" }],
+          ],
+        ]),
+        Alice: rs.fromIterable([["div", { resource: "Alice" }]]),
+        Bob: rs.fromIterable([["div", { resource: "Bob" }, "boy"]]),
+      }),
+    },
+    repro_duplicates_Alice: {
+      label: "Alice & Bob",
+      fn: () => ({
+        root: rs.fromIterable([
+          ["div", ["placeholder", { id: "Bob" }]],
+          [
+            "div",
+            ["placeholder", { id: "Alice" }],
+            ["placeholder", { id: "Bob" }],
+          ],
+        ]),
+        Alice: rs.fromIterable([["div", { resource: "Alice" }]]),
+        Bob: rs.fromIterable([["div", { resource: "Bob" }, "boy"]]),
+      }),
+    },
+    repro_duplicates_Bob: {
+      label: "Alice & Bob",
+      fn: () => ({
+        root: rs.fromIterable([
+          ["div", ["placeholder", { id: "Alice" }]],
+          [
+            "div",
+            ["placeholder", { id: "Alice" }],
+            ["placeholder", { id: "Bob" }],
+          ],
+        ]),
+        Alice: rs.fromIterable([["div", { resource: "Alice" }]]),
+        Bob: rs.fromIterable([["div", { resource: "Bob" }, "boy"]]),
+      }),
+    },
+    repro_duplicates_both_alternating: {
+      label: "Alice & Bob",
+      fn: () => ({
+        root: rs.fromIterable([
+          ["div"],
+          [
+            "div",
+            ["placeholder", { id: "Alice" }],
+            ["placeholder", { id: "Bob" }],
+          ],
+        ]),
+        Alice: rs.fromIterable([["div", { resource: "Alice" }]]),
+        Bob: rs.fromIterable([["div", { resource: "Bob" }, "boy"]]),
+      }),
+    },
+    repro_duplicates_both: {
+      comment: "same result as previous",
+      label: "Alice & Bob",
+      fn: () => ({
+        root: rs.fromIterable([
+          ["div"],
+          [
+            "div",
+            ["placeholder", { id: "Alice" }],
+            ["placeholder", { id: "Bob" }],
+          ],
+        ]),
+        Alice: rs.fromIterable([
+          ["div", { resource: "Alice" }],
+          ["div", { resource: "Alice" }, "woman"],
+        ]),
+        Bob: rs.fromIterable([["div", { resource: "Bob" }, "boy"]]),
+      }),
+    },
     simplest: () => ({
       root: rs.fromIterable([""]).transform(
         tx.map(n => [

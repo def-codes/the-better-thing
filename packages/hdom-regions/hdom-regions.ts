@@ -73,6 +73,9 @@ export const make_dom_process = (): IDomRegionCoordinator => {
       // Automatically sends the latest value (if one arrived first)
       for (const element of mounted_elements) {
         if (!feeds.has(element)) {
+          // Block this from getting hit again while the new subscription is set
+          // up.
+          feeds.set(element, true);
           feeds.set(
             element,
             port(id)
@@ -109,7 +112,7 @@ export const make_dom_process = (): IDomRegionCoordinator => {
         if (elements.has(id)) elements.get(id).delete(element);
         if (feeds.has(element)) {
           const feed = feeds.get(element);
-          if (feed) feed.unsubscribe();
+          if (feed && typeof feed === "object") feed.unsubscribe();
           feeds.delete(element);
         }
       },

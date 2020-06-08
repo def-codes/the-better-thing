@@ -19,9 +19,12 @@ define(["@def.codes/hdom-regions"], ({ make_dom_process }) => {
     };
   };
 
-  const run_test_case = (test_case, root) => {
-    const streams = test_case();
-    const element = root.appendChild(document.createElement("article"));
+  const run_test_case = (item, root, id) => {
+    const { fn, label = id } = typeof item === "function" ? { fn: item } : item;
+    const streams = fn();
+    const container = root.appendChild(document.createElement("article"));
+    container.appendChild(document.createElement("p")).innerText = label;
+    const element = container.appendChild(document.createElement("output"));
     // region coordinator, whatever
     const dom_process = make_dom_process();
     dom_process.mounted.next({ id: "root", element });
@@ -29,7 +32,9 @@ define(["@def.codes/hdom-regions"], ({ make_dom_process }) => {
       stream.subscribe({
         next: template => {
           // console.log(`content`, id, content);
-          const content = expression_from_hdom(template);
+          const content = Array.isArray(template)
+            ? expression_from_hdom(template)
+            : template;
           dom_process.define(id, content);
         },
       });

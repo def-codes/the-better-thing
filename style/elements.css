@@ -183,7 +183,10 @@ style {
 }
 output {
   --type: "Output";
-  display: inline-block;
+  /* why was this */
+  /* display: inline-block; */
+  /* and why is this not default? */
+  display: block;
 }
 output[for] {
   --prefix: "Output for " attr(for);
