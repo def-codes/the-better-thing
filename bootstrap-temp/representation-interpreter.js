@@ -64,7 +64,7 @@ define([
         ? new UnionGraph(implementation_graph, C.reservoir)
         : C.reservoir
     );
-    log(Ein.triples, `${id}: stage E input`);
+    // log(Ein.triples, `${id}: stage E input`);
     const E = make_union_interpreter(Ein, {
       id: `${id}: stage E`,
       registry,

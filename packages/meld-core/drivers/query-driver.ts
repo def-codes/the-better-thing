@@ -1,5 +1,5 @@
 // minimal pseudo-query support
-import { metaStream } from "@thi.ng/rstream";
+import { metaStream, trace } from "@thi.ng/rstream";
 import { equiv } from "@thi.ng/equiv";
 
 export default {
@@ -33,7 +33,11 @@ export default {
             register: {
               subject,
               as_type: "Subscribable",
-              using: () => make_dynamic_query(unstable_live_query),
+              using: () => {
+                const ret = make_dynamic_query(unstable_live_query);
+                ret.subscribe(trace(`${subject} query RESULT`));
+                return ret;
+              },
             },
           }),
         },

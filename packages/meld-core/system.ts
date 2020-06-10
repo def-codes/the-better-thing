@@ -135,8 +135,9 @@ const make_consequent_handler = (then, helpers, system, all) => results => {
       const size_after = system.sink.triples.length;
       const time = stop_time - start_time;
       const assertions = size_after - size_before;
-      if (time > 100)
-        console.log(`${time} ${assertions} TIME / growth`, key, value);
+      if (time > 100) {
+        // console.log(`${time} ${assertions} TIME / growth`, key, value);
+      }
     }
   }
 };
@@ -155,9 +156,9 @@ const apply_drivers_to = (source, helpers, system, names) => {
       if (!disabled) clause_count += when.length;
     rule_count += rules.length;
   }
-  console.log(
-    `Adding ${clause_count} clauses for ${rule_count} rules for ${names.length} drivers`
-  );
+  // console.log(
+  //   `Adding ${clause_count} clauses for ${rule_count} rules for ${names.length} drivers`
+  // );
 
   for (const name of names) {
     if (!driver_dictionary.has(name))

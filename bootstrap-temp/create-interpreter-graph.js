@@ -66,16 +66,16 @@ define([
 
     recipe_facts_stream.subscribe({
       next(recipe_facts) {
-        const count_before = recipe_graph.triples.length;
+        // const count_before = recipe_graph.triples.length;
         const inserted = recipe_graph.into(recipe_facts);
-        const count_after = recipe_graph.triples.length;
-        console.log(
-          `${id} INCOMING FACTS`,
-          count_before,
-          count_after,
-          inserted,
-          recipe_facts
-        );
+        // const count_after = recipe_graph.triples.length;
+        // console.log(
+        //   `${id} INCOMING FACTS`,
+        //   count_before,
+        //   count_after,
+        //   inserted,
+        //   recipe_facts
+        // );
       },
     });
 

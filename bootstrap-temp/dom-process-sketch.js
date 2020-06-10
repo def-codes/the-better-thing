@@ -109,8 +109,9 @@ define([
         tx.map(code => interpret(read(code)))
       );
 
-      recipe_code_stream.next(model.userland_code);
-
+      recipe_code_stream.next(`
+// FullForce$Alice$forcefield.forcefieldFor(FullForce$Alice)
+`);
       const { kitchen_graph, recipe_graph } = create_interpreter_graph(
         dataset,
         {
@@ -126,6 +127,17 @@ define([
           kitchen_element: the.kitchen_output,
         }
       );
+      recipe_code_stream.next(model.userland_code);
+      setTimeout(() => {
+        recipe_code_stream.next(
+          model.userland_code + "\nFullForce$Alice(hasPart(buzz))"
+        );
+      }, 1000);
+      setTimeout(() => {
+        recipe_code_stream.next(
+          model.userland_code + "\nFullForce$Alice(hasPart(buzz, chop))"
+        );
+      }, 2000);
 
       live_query(kitchen_graph, q("?s ?p ?o")).subscribe({
         next: facts => {

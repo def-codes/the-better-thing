@@ -9,13 +9,15 @@ const l = rdf.literal;
 const v = rdf.variable;
 const mint_blank = () => rdf.blankNode();
 
-const parts_to_bodies = (parts: Iterable<any>) =>
-  Array.from(parts, _ => ({
+const parts_to_bodies = (parts: Iterable<any>) => {
+  console.log(`SPACEFORCEparts`, parts);
+
+  return Array.from(parts, _ => ({
     id: _.part.value,
     x: Math.random() * 500,
     y: Math.random() * 500,
   }));
-
+};
 const style = nodes =>
   nodes
     .map(
@@ -213,37 +215,31 @@ export default {
         },
       },
       {
+        // this rule does two independent things
         when: q("?ff forcefieldFor ?space"),
         then: ({ ff, space }) => {
           const bodies = n(`${ff.value}$bodies`);
-          const xform = n(`${ff.value}$bodyxform`);
+          const bodiesxform = n(`${ff.value}$bodyxform`);
           const query = n(`${ff.value}$bodyquery`);
+
+          const styles = n(`${ff.value}$styles`);
+          const stylexform = n(`${ff.value}$stylesxform`);
+
+          console.log(`${ff} FORCEFIELD FOR ${space}`);
           return {
             assert: [
+              [n(`${ff.value}$tq`), n("queryText"), l(`?s hasPart ?part`)],
               [query, n("queryText"), l(`${space.value} hasPart ?part`)],
               [bodies, n("listensTo"), query],
-              [bodies, n("transformsWith"), xform],
+              [bodies, n("transformsWith"), bodiesxform],
               // @ts-ignore: abuse
-              [xform, n("mapsWith"), l(parts_to_bodies)],
-            ],
-          };
-        },
-      },
-      {
-        // Yes this is the same predicate as above, but keeping separate as
-        // these are independent.
-        when: q("?ff forcefieldFor ?space"),
-        then: ({ ff, space }) => {
-          const styles = n(`${ff.value}$styles`);
-          const xform = n(`${ff.value}$stylesxform`);
-          console.log(ff, "FORCEFIELD FOR", space);
-          return {
-            assert: [
+              [bodiesxform, n("mapsWith"), l(parts_to_bodies)],
+
               [styles, n("listensTo"), n(`${ff.value}$ticks`)],
               [styles, n("emitsTemplatesFor"), space],
-              [styles, n("transformsWith"), xform],
+              [styles, n("transformsWith"), stylexform],
               // @ts-ignore: abuse
-              [xform, n("mapsWith"), l(nodes_to_position_style)],
+              [stylexform, n("mapsWith"), l(nodes_to_position_style)],
             ],
           };
         },
@@ -420,11 +416,13 @@ export default {
           const property_name = p.value;
           const setter = instance[property_name];
           if (typeof setter !== "function")
-            return {
-              warning: {
-                message: `No such property ${property_name} on force ${x}`,
-              },
-            };
+            return property_name === "isa"
+              ? {}
+              : {
+                  warning: {
+                    message: `No such property ${property_name} on force ${x}`,
+                  },
+                };
 
           setter(v.value);
           return {}; // TODO: side-effecting!

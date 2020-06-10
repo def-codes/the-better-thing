@@ -1,3 +1,4 @@
+// TODO: kill this module, it's not used
 // TODO: This should not have path, should be relative to this
 require([
   "./bootstrap-temp/meld-system.js",
@@ -6,9 +7,6 @@ require([
 ], ({ system }, { monotonic_system }, rs) => {
   const { dataset } = system;
   const { defaultGraph, factory } = dataset;
-
-  // TODO: move/kill this
-  return;
 
   const TYPE = factory.namedNode("rdf:type");
   const GRAPH = factory.namedNode("rdfg:Graph");

@@ -148,7 +148,7 @@ FullForce$RULZ(
     label: "A fully-functioning forcefield",
     userland_code: `FullForce$Alice(
   isa(Space),
-   hasPart(foo), hasPart(bar), hasPart(bat)
+  hasPart(foo, bar, bat)
 )
 FullForce$Bob(isa(forceX), x(250))
 FullForce$Joe(isa(forceY), y(150))
