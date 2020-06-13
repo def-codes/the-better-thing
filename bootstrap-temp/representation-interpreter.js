@@ -41,7 +41,8 @@ define([
     // A non-feedback extension that asserts a representation of all resources
     // from the model.
     const C = make_union_interpreter(input_graph, {
-      id: `${id}: stage C`,
+      id: `${id}/C`,
+      sink: dataset.create_graph(dataset.factory.namedNode(`${id}/C`)).graph,
       source: subject_graph || input_graph, // instead of union, hence non-feedback
       drivers: ["domRepresentEverythingDriver"],
     });
@@ -50,7 +51,8 @@ define([
 
     // Extend previous result with representation descriptions (using feedback).
     const D = make_union_interpreter(C.union, {
-      id: `${id}: stage D`,
+      id: `${id}/D`,
+      sink: dataset.create_graph(dataset.factory.namedNode(`${id}/D`)).graph,
       drivers: ["domRepresentationDriver"],
     });
 
@@ -66,7 +68,8 @@ define([
     );
     // log(Ein.triples, `${id}: stage E input`);
     const E = make_union_interpreter(Ein, {
-      id: `${id}: stage E`,
+      id: `${id}/E`,
+      sink: dataset.create_graph(dataset.factory.namedNode(`${id}/E`)).graph,
       registry,
       dom_root,
       dom_process,

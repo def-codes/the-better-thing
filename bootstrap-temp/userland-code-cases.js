@@ -11,39 +11,48 @@ const style = nodes =>
     )
     .join("\n");
 
+// TODO: require ID / make this a dictionary, etc
 define([], () => [
   {
+    id: "SingleFactLiteral",
     label: "Single fact with literal",
     userland_code: `SingleFactLiteral$Alice(name("Alice"))`,
     // name(rdfs.subpropertyOf(rdf.label))
   },
   {
+    id: "SingleFactObject",
     label: "Single fact with object value",
     userland_code: `SingleFactObject$Alice(isa(Person))`,
   },
   {
+    id: "TwoFactsOneSubject",
     label: "Two facts about one subject",
     userland_code: `TwoFactsOneSubject$Alice(isa(Person), name("Alice"))`,
   },
   {
+    id: "TwoSubjects",
     label: "Two subjects",
     userland_code: `TwoSubjects$Alice(isa(Woman))
 TwoSubjects$Bob(isa(Man))`,
   },
   {
+    id: "ConstantStream",
     label: "A constant stream",
     userland_code: `ConstantStream$Alice.hasValue(42)`,
   },
   {
+    id: "ATicker",
     label: "A ticker",
     userland_code: `ATicker$Alice.hasInterval(1000)`,
   },
   {
+    id: "TickerWithListener",
     label: "A ticker with a listener",
     userland_code: `TickerWithListener$Alice.hasInterval(1000)
 TickerWithListener$Bob.listensTo.TickerWithListener$Alice`,
   },
   {
+    id: "MappingListener",
     label: "A ticker with a mapping listener",
     userland_code: `MappingListener$Alice.hasInterval(1000)
 MappingListener$Bob.listensTo.MappingListener$Alice
@@ -51,6 +60,7 @@ MappingListener$Bob.listensTo.MappingListener$Alice
 `,
   },
   {
+    id: "ReuseTransducer",
     label: "Reuse a transducer",
     userland_code: `ReuseTransducer$Alice.hasInterval(1000)
 ReuseTransducer$Bob.listensTo.ReuseTransducer$Alice
@@ -61,6 +71,7 @@ ReuseTransducer$Carol.transformsWith(ReuseTransducer$Tranny)
 `,
   },
   {
+    id: "SubclassInference",
     label: "Subclass inference",
     userland_code: `SubclassInference$Alice(isa(Woman), name("Alice"))
 SubclassInference$Bob(isa(Man))
@@ -68,6 +79,7 @@ Woman(subclassOf(Person))
 Man(subclassOf(Person))`,
   },
   {
+    id: "AQuery",
     label: "A query",
     userland_code: `AQuery$Alice(queryText("?thing isa ?type"))
 AQuery$Bob(listensTo(AQuery$Alice), transformsWith(mapsWith(function(v) {
@@ -78,10 +90,12 @@ return v
 `,
   },
   {
+    id: "AForcefield",
     label: "A forcefield",
     userland_code: `AForcefield$Alice(isa(Forcefield))`,
   },
   {
+    id: "AndAForce",
     label: "A forcefield and a force",
     userland_code: `AndAForce$Alice(isa(Forcefield))
 // Eeek, model requires camelcase names for types
@@ -89,6 +103,7 @@ AndAForce$Bob(isa(forceX), x(50))
 `,
   },
   {
+    id: "WithAForce",
     label: "A forcefield with a force",
     userland_code: `WithAForce$Alice(isa(Forcefield))
 WithAForce$Bob(isa(forceX), x(50))
@@ -96,6 +111,7 @@ WithAForce$Alice(hasForce(WithAForce$Bob))
 `,
   },
   {
+    id: "WithBodies",
     label: "A forcefield with bodies",
     userland_code: `WithBodies$Alice(isa(Forcefield))
 WithBodies$Bob(isa(forceX), x(50))
@@ -145,6 +161,7 @@ FullForce$RULZ(
 `,
   },
   {
+    id: "FullForce",
     label: "A fully-functioning forcefield",
     userland_code: `FullForce$Alice(
   isa(Space),
@@ -162,12 +179,10 @@ FullForce$Alice$forcefield(
     comment: `Rep driver has a rule that asserts forcefield, but this is for model itself`,
   },
   {
+    id: "HDOMbug",
     label: "HDOM regions bug repro",
     userland_code: `
-bug$Alice(isa(bug$Space))
-// bug$Alice(hasPart(bug$foo))
-// bug$Alice(hasPart(bug$bar))
-// bug$Carol(bug$hasThing(bug$Bob))
+HDOMbug$Alice(isa(HDOMbug$Space))
 `,
   },
   {

@@ -28,8 +28,16 @@ export class UnionGraph implements IRDFTripleSource, IRDFTripleEvents {
     readonly _a: IRDFTripleSource & IRDFTripleEvents,
     readonly _b: IRDFTripleSource & IRDFTripleEvents
   ) {
-    _a.added().subscribe({ next: triple => this._store.add(triple) });
-    _b.added().subscribe({ next: triple => this._store.add(triple) });
+    _a.added().subscribe({
+      // TODO: TEMP HACK!!!!! Here and below, work around an unrelated problem.
+      // This can and should be synchronous.
+      // next: triple => this._store.add(triple),
+      next: triple => setTimeout(() => this._store.add(triple), 1),
+    });
+    _b.added().subscribe({
+      // next: triple => this._store.add(triple),
+      next: triple => setTimeout(() => this._store.add(triple), 1),
+    });
     _a.deleted().subscribe({
       next: triple => {
         if (!_b.has(triple)) this._store.delete(triple);

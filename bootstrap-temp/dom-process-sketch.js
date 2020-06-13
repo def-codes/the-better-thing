@@ -109,13 +109,16 @@ define([
         tx.map(code => interpret(read(code)))
       );
 
-      recipe_code_stream.next(`
-// FullForce$Alice$forcefield.forcefieldFor(FullForce$Alice)
-`);
+      // Too soon
+      //       recipe_code_stream.next(`
+      // // FullForce$Alice$forcefield.forcefieldFor(FullForce$Alice)
+      // `);
+
       const { kitchen_graph, recipe_graph } = create_interpreter_graph(
         dataset,
         {
-          id: `interpreter for ‘${model.label}’`,
+          // TODO: require models to have an actual identifier
+          id: model.id || model.label,
           // Ran into an issue when these shared a registry.  Couldn't 100%
           // explain it, but using separate registries resolves.
           recipe_registry: make_registry(),
@@ -128,25 +131,44 @@ define([
         }
       );
       recipe_code_stream.next(model.userland_code);
-      setTimeout(() => {
-        recipe_code_stream.next(
-          model.userland_code + "\nFullForce$Alice(hasPart(buzz))"
-        );
-      }, 1000);
-      setTimeout(() => {
-        recipe_code_stream.next(
-          model.userland_code + "\nFullForce$Alice(hasPart(buzz, chop))"
-        );
-      }, 2000);
 
-      live_query(kitchen_graph, q("?s ?p ?o")).subscribe({
-        next: facts => {
-          the.model_interpretation_code.innerText = Array.from(
-            facts,
-            ({ s, p, o }) => `${s} ${p} ${o}`
-          ).join("\n");
-        },
-      });
+      // Note that this does not dump all of the graphs involved, just the facts
+      // introduced by each node.
+      const dump = false;
+      if (dump)
+        console.log(
+          "RESERVIORS",
+          Array.from(dataset.namedGraphs, ([name, graph]) =>
+            graph.triples
+              .map(([s, p, o]) =>
+                `${name} | ${s} ${p} ${o}`.replace(/\n/g, "\\n")
+              )
+              .sort()
+              .join("\n")
+          )
+        );
+
+      // too soon
+      // setTimeout(() => {
+      //   recipe_code_stream.next(
+      //     model.userland_code + "\nFullForce$Alice(hasPart(buzz))"
+      //   );
+      // }, 1000);
+      // setTimeout(() => {
+      //   recipe_code_stream.next(
+      //     model.userland_code + "\nFullForce$Alice(hasPart(buzz, chop))"
+      //   );
+      // }, 2000);
+
+      if (kitchen_graph)
+        live_query(kitchen_graph, q("?s ?p ?o")).subscribe({
+          next: facts => {
+            the.model_interpretation_code.innerText = Array.from(
+              facts,
+              ({ s, p, o }) => `${s} ${p} ${o}`
+            ).join("\n");
+          },
+        });
     }
   };
 

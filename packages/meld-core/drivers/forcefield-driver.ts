@@ -9,15 +9,12 @@ const l = rdf.literal;
 const v = rdf.variable;
 const mint_blank = () => rdf.blankNode();
 
-const parts_to_bodies = (parts: Iterable<any>) => {
-  console.log(`SPACEFORCEparts`, parts);
-
-  return Array.from(parts, _ => ({
+const parts_to_bodies = (parts: Iterable<any>) =>
+  Array.from(parts, _ => ({
     id: _.part.value,
     x: Math.random() * 500,
     y: Math.random() * 500,
   }));
-};
 const style = nodes =>
   nodes
     .map(
@@ -225,7 +222,6 @@ export default {
           const styles = n(`${ff.value}$styles`);
           const stylexform = n(`${ff.value}$stylesxform`);
 
-          console.log(`${ff} FORCEFIELD FOR ${space}`);
           return {
             assert: [
               [n(`${ff.value}$tq`), n("queryText"), l(`?s hasPart ?part`)],

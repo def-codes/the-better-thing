@@ -62,7 +62,9 @@ define([
       recipe_element,
       kitchen_element,
     } = spec;
-    const { name, graph: recipe_graph } = dataset.create_graph();
+    const { name, graph: recipe_graph } = dataset.create_graph(
+      dataset.factory.namedNode(`${id}/recipe/A`)
+    );
 
     recipe_facts_stream.subscribe({
       next(recipe_facts) {
@@ -79,41 +81,51 @@ define([
       },
     });
 
-    const { kitchen_graph, implementation_graph } = model_interpreter(
-      dataset,
-      kitchen_registry,
-      { recipe_graph }
-    );
-
+    // ACDE and ABCDE
     const represent_recipe = false;
+    const represent_kitchen = true;
+
     if (represent_recipe) {
       const model_representation_graph = representation_interpreter(
         dataset,
         recipe_registry,
         recipe_dom_process,
         recipe_element,
-        { id: "recipe", input_graph: recipe_graph }
+        { id: `${id}/recipe`, input_graph: recipe_graph }
       ).representation_graph;
 
       const recipe_rep = dom_process_interpreter(model_representation_graph);
       bind_rep(recipe_rep, recipe_dom_process);
     }
 
-    const kitchen_representation_graph = representation_interpreter(
-      dataset,
-      kitchen_registry,
-      kitchen_dom_process,
-      kitchen_element,
-      {
-        id: "kitchen",
-        input_graph: kitchen_graph,
-        subject_graph: recipe_graph,
-        implementation_graph,
-      }
-    ).representation_graph;
+    let kitchen_graph;
+    if (represent_kitchen) {
+      const { kitchen_graph: kg, implementation_graph } = model_interpreter(
+        dataset,
+        kitchen_registry,
+        {
+          recipe_graph,
+          id: `${id}/kitchen/B`,
+        }
+      );
+      kitchen_graph = kg;
 
-    const kitchen_rep = dom_process_interpreter(kitchen_representation_graph);
-    bind_rep(kitchen_rep, kitchen_dom_process);
+      const kitchen_representation_graph = representation_interpreter(
+        dataset,
+        kitchen_registry,
+        kitchen_dom_process,
+        kitchen_element,
+        {
+          id: `${id}/kitchen`,
+          input_graph: kitchen_graph,
+          subject_graph: recipe_graph,
+          implementation_graph,
+        }
+      ).representation_graph;
+
+      const kitchen_rep = dom_process_interpreter(kitchen_representation_graph);
+      bind_rep(kitchen_rep, kitchen_dom_process);
+    }
 
     return { recipe_graph, kitchen_graph };
   };

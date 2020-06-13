@@ -83,7 +83,7 @@ export default {
           console.log(`prop rep rule`);
           return {
             assert: [
-              [rep, n("def:contains"), prop],
+              [rep, CONTAINS, prop],
               [prop, ISA, n("def:DomElement")],
               [prop, REPRESENTS, trip],
               [trip, SUBJECT, s],
