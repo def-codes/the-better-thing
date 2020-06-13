@@ -21,6 +21,7 @@ const rando = () => Math.round(Math.random() * 1e12);
 // can also use that with @thi.ng RNG's
 const generate_iri = () => `http://def.codes/u/${rando()}-${rando()}`;
 
+// TODO: use consistent naming
 export class Dataset {
   readonly defaultGraph: IGraph = new RDFTripleStore();
   readonly namedGraphs: Map<GraphName, IGraph> = new Map();
@@ -37,12 +38,13 @@ export class Dataset {
     return this.namedGraphs.get(name);
   }
 
-  create_graph(): { name: NamedNode; graph: IGraph } {
+  // TODO: What if this name is already used?
+  // could change the contract so that this is ‘get or create’
+  create_graph(name?: NamedNode): { name: NamedNode; graph: IGraph } {
     const graph = new RDFTripleStore();
 
     // record some info about the existence of this store
-    const graph_iri = generate_iri();
-    const name = namedNode(graph_iri);
+    name = name || namedNode(generate_iri());
     const predicate = TYPE;
     const object = GRAPH;
 
@@ -53,7 +55,7 @@ export class Dataset {
   }
 
   // TODO: deprecate, this is a bad name
-  create(): IGraph {
-    return this.create_graph().graph;
-  }
+  // create(): IGraph {
+  //   return this.create_graph().graph;
+  // }
 }
