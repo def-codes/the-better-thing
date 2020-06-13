@@ -53,7 +53,7 @@ const transform_expression = (expression: DomElementExpression) =>
 export const make_dom_process = (): IDomRegionCoordinator => {
   const sources = new Map(); // a read/write subscription for each id
   const elements = new Map(); // needs removal when element dismounted
-  const feeds = new Map(); // ditto
+  const feeds = new WeakMap(); // ditto
 
   const ctx: { process?: IDomRegionCoordinator } = {};
 
