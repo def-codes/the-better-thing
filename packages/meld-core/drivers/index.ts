@@ -1,4 +1,5 @@
 export { default as rdfsPlusDriver } from "./rdfs-plus-driver";
+export { default as spaceDriver } from "./space-driver";
 export { default as transducerDriver } from "./transducer-driver";
 export { default as streamDriver } from "./stream-driver";
 export { default as forcefieldDriver } from "./forcefield-driver";

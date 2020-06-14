@@ -4,6 +4,7 @@ define(["@def.codes/meld-core"], ({ make_union_interpreter }) => {
     "streamDriver",
     "subscriptionDriver",
     "transducerDriver",
+    "spaceDriver",
     "forcefieldDriver",
     "queryDriver",
   ];

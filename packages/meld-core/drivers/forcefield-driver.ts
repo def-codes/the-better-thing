@@ -15,18 +15,6 @@ const parts_to_bodies = (parts: Iterable<any>) =>
     x: Math.random() * 500,
     y: Math.random() * 500,
   }));
-const style = nodes =>
-  nodes
-    .map(_ => `[resource="${_.id}"] { --x: ${_.x}; --y: ${_.y};  }`)
-    .join("\n");
-
-const nodes_to_position_style = nodes => {
-  // console.log("STYLING NODES", nodes, style(nodes));
-  return {
-    element: "style",
-    children: [style(nodes)],
-  };
-};
 
 // should these be here or in layers?
 const thing_position_css = space_id => ({ id, x, y }) =>
@@ -216,9 +204,6 @@ export default {
           const bodiesxform = n(`${ff.value}$bodyxform`);
           const query = n(`${ff.value}$bodyquery`);
 
-          const styles = n(`${ff.value}$styles`);
-          const stylexform = n(`${ff.value}$stylesxform`);
-
           return {
             assert: [
               [n(`${ff.value}$tq`), n("queryText"), l(`?s hasPart ?part`)],
@@ -228,73 +213,13 @@ export default {
               // @ts-ignore: abuse
               [bodiesxform, n("mapsWith"), l(parts_to_bodies)],
 
-              [styles, n("listensTo"), n(`${ff.value}$ticks`)],
-              [styles, n("emitsTemplatesFor"), space],
-              [styles, n("transformsWith"), stylexform],
-              // @ts-ignore: abuse
-              [stylexform, n("mapsWith"), l(nodes_to_position_style)],
+              [
+                n(`${space.value}$styles`),
+                n("listensTo"),
+                n(`${ff.value}$ticks`),
+              ],
             ],
           };
-        },
-      },
-      {
-        // I think this was from an earlier iteration
-        disabled: true,
-        when: q(
-          "?field hasTicks ?ticks",
-          "?source implements ?ticks",
-          "?source as Subscribable",
-          "?field hasNodes ?nodes",
-          "?nodesource implements ?nodes",
-          "?nodesource as Subscribable"
-        ),
-        then({ field, ticks, source, nodesource }, system) {
-          console.log("OBSOLETE!!");
-          const nodes_stream = system.find(nodesource);
-          const simulation = system.find(field);
-          const tick_stream = system.find(source);
-          const nodes = simulation.nodes();
-
-          const nodes_by_id = tx.transduce(
-            tx.map(node => [node["id"], node]),
-            tx.assocObj(),
-            nodes
-          );
-          console.log(`nodes_by_id`, nodes_by_id);
-          console.log(`system.dom_root`, system.dom_root);
-
-          const properties_style = system.dom_root.appendChild(
-            document.createElement("style")
-          );
-          console.log(`properties_style`, properties_style);
-
-          const properties = Array.from(
-            system.query_all([[v("s"), v("p"), v("o")]]),
-            ({ s, p, o }) => [s, p, o]
-          );
-
-          tick_stream.transform(
-            tx.sideEffect(simulation.tick),
-            tx.map(() =>
-              [
-                ...tx.iterator(
-                  tx.comp(
-                    tx.map(triple => ({
-                      layer_id: "forcefield",
-                      triple,
-                      source: nodes_by_id[triple[0].value],
-                      target: nodes_by_id[triple[2].value],
-                    })),
-                    // @ts-ignore
-                    tx.filter(_ => _["source"] && _.target),
-                    tx.map(property_placement_css)
-                  ),
-                  properties
-                ),
-              ].join("\n")
-            ),
-            tx.sideEffect(css => (properties_style.innerHTML = css))
-          );
         },
       },
       {
