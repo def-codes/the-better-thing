@@ -56,7 +56,21 @@ TickerWithListener$Bob.listensTo.TickerWithListener$Alice`,
     label: "A ticker with a mapping listener",
     userland_code: `MappingListener$Alice.hasInterval(1000)
 MappingListener$Bob.listensTo.MappingListener$Alice
-// MappingListener$Bob.transformsWith(mapsWith(x => x * x))
+MappingListener$Bob.transformsWith(mapsWith(x => x * x))
+`,
+  },
+  {
+    id: "MultipleListeners",
+    label: "A ticker with multiple listeners",
+    userland_code: `MultipleListeners$Alice.hasInterval(500)
+MultipleListeners$Bob(
+  listensTo.MultipleListeners$Alice,
+  transformsWith(mapsWith(x => x * x))
+)
+MultipleListeners$Eve(
+  listensTo.MultipleListeners$Alice,
+  transformsWith(filtersWith(x => x % 2 === 0))
+)
 `,
   },
   {

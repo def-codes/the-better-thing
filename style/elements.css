@@ -1,6 +1,6 @@
 [id]:not([id=""]) {
   --prefix: "#" attr(id);
-  font-size: 100%;
+  /* font-size: 100%; WHY? */
   --type: "Indicator";
 }
 [id]:not([id=""])::before {
@@ -18,6 +18,12 @@
   --alpha: 66%;
   box-shadow: 0 0 2em -0.5em;
 }
+
+/* RESET */
+textarea {
+  font-size: 100%; /* beat user agent default */
+}
+
 /* Flag items lacking any recognized semantic */
 div:not([class], [resource], [property], [content]),
 div[class=""] {

@@ -254,6 +254,8 @@ export default {
               "DataflowSpace$ticker hasInterval 500",
               "DataflowSpace$forcefield hasForce DataflowSpace$charge",
               "DataflowSpace$charge isa forceManyBody",
+              "DataflowSpace$forcefield hasForce DataflowSpace$center",
+              "DataflowSpace$center isa forceCenter",
               // Need to assert a representation because this wasn't in original
               // model.
               "DataflowSpaceEle def:represents DataflowSpace",

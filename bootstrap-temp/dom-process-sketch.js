@@ -86,19 +86,22 @@ define([
     const registry = make_registry();
     for (const model of models) {
       if (
-        ![
-          // "A ticker with a listener",
-          // "A ticker",
-          // "A ticker with a mapping listener",
-          // "Reuse a transducer",
-          // "A forcefield with a force",
-          // "A forcefield with bodies",
-          "A fully-functioning forcefield",
-          // "HDOM regions bug repro",
-          // "A query",
-          // "A constant stream",
-          // "HDOM region reference",
-        ].includes(model.label)
+        !(
+          ["MultipleListeners"].includes(model.id) ||
+          [
+            // "A ticker with a listener",
+            // "A ticker",
+            // "A ticker with a mapping listener",
+            // "Reuse a transducer",
+            // "A forcefield with a force",
+            // "A forcefield with bodies",
+            // "A fully-functioning forcefield",
+            // "HDOM regions bug repro",
+            // "A query",
+            // "A constant stream",
+            // "HDOM region reference",
+          ].includes(model.label)
+        )
       )
         continue;
       const the = cont(model);
