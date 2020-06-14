@@ -3,26 +3,21 @@ import * as rs from "@thi.ng/rstream";
 // Wrapper for stream merge that supports dynamic setting of transform.
 // This makes the API much more amenable to use with the system.
 const metamerge = id => {
-  let current;
+  let current: rs.StreamMerge<any, any>;
   let current_xform;
 
-  const make_merge = opts => {
-    const merge = rs.merge({ id: `${id} merge`, close: false, ...opts });
-    // DUMMY subscription.  This prevents the merge from unsubscribing its
-    // sources when it's being swapped out in the meta-stream.  If we had to
-    // truly tear down this node (e.g. for non-monotonic dataflows), we'd want
-    // to unsubscribe this as well.  A way to opt out of this behavior is
-    // under consideration: https://github.com/thi-ng/umbrella/issues/74
-    merge.subscribe({}, { id: `dummy for ${id} merge` });
-    return merge;
-  };
+  const make_merge = (opts?: Partial<rs.StreamMergeOpts<any, any>>) =>
+    rs.merge({
+      id: `${id} metamerge`,
+      closeIn: rs.CloseMode.NEVER,
+      ...(opts || {}),
+    });
 
   // Returning the same stream as the current one (which shouldn't happen),
   // will break because it will first unsubscribe it.
-  const meta = rs.metaStream(
-    // @ts-ignore
+  const meta = rs.metaStream<any, any>(
     sub => (current === sub ? null : (current = sub)),
-    `${id} metamerge`
+    { id: `${id} metamerge` }
   );
   // @ts-ignore
   meta.next(make_merge());
@@ -44,6 +39,33 @@ const metamerge = id => {
   });
 };
 
+// Same as metamerge but for sync nodes
+const metasync = id => {
+  let current: rs.StreamSync<any, any>;
+  let current_xform;
+
+  const make_sync = (opts?: Partial<rs.StreamSyncOpts<any, any>>) =>
+    rs.sync({ id, closeIn: rs.CloseMode.NEVER, ...opts });
+
+  const meta = rs.metaStream<any, any>(
+    sub => (current === sub ? null : (current = sub)),
+    { id: `${id} metasync`, closeIn: rs.CloseMode.NEVER }
+  );
+  meta.next(make_sync());
+
+  return Object.assign(meta, {
+    add(source, alias) {
+      current.add(source, alias);
+    },
+    set_transform(xform) {
+      if (xform !== current_xform)
+        meta.next(make_sync({ src: current.getSources(), xform }));
+
+      current_xform = xform;
+    },
+  });
+};
+
 export default {
   name: "subscriptionDriver",
   init: ({ q }) => ({
@@ -51,7 +73,9 @@ export default {
       "Subscribable isa Class",
       // We need a class that does not include Streams
       "Listener subclassOf Subscribable",
-      "listensTo isa Property",
+      // "listensTo isa Property", // implicit, it has a domain
+      "StreamSync subclassOf Subscribable",
+      "syncs domain StreamSync",
       // In effect, we implement these with StreamMerge
       // StreamSync will have to be its own thing with its own descriptions
       "listensTo domain Listener"
@@ -67,6 +91,31 @@ export default {
             using: () => metamerge(subject.value),
           },
         }),
+      },
+      {
+        when: q("?subject isa StreamSync"),
+        then: ({ subject }) => ({
+          register: {
+            subject,
+            as_type: "Subscribable",
+            using: () => metasync(subject.toString()),
+          },
+        }),
+      },
+      {
+        when: q(
+          "?sync isa StreamSync",
+          "?impl implements ?sync",
+          "?sync syncs ?input",
+          "?input alias ?alias",
+          "?input source ?source",
+          "?sub implements ?source"
+        ),
+        then: ({ impl, alias, source, sub }, { find }) => {
+          find(impl).add(find(sub), alias.value);
+          // SIDE EFFECTING!!! TODO
+          return {};
+        },
       },
       {
         when: q(

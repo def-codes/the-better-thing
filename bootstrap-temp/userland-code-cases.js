@@ -52,6 +52,51 @@ TwoSubjects$Bob(isa(Man))`,
 TickerWithListener$Bob.listensTo.TickerWithListener$Alice`,
   },
   {
+    id: "Merge",
+    label: "A merge node",
+    userland_code: `Merge$Alice.hasInterval(1000)
+Merge$Bob.hasInterval(500)
+Merge$Carol(listensTo(Merge$Alice, Merge$Bob))
+`,
+  },
+  {
+    id: "MergeTrans",
+    label: "A merge node with a transformer",
+    userland_code: `MergeTrans$Alice.hasInterval(1000)
+MergeTrans$Bob.hasInterval(500)
+MergeTrans$Eve(
+  listensTo(MergeTrans$Alice, MergeTrans$Bob),
+  transformsWith(filtersWith(x => x % 2 === 0))
+)
+
+`,
+  },
+  {
+    id: "Sync",
+    label: "A sync node",
+    userland_code: `Sync$Alice.hasInterval(1000)
+Sync$Bob.hasInterval(500)
+// No way to write these as blank nodes currently
+Sync$Source1(alias("a"), source(Sync$Alice))
+Sync$Source2(alias("b"), source(Sync$Bob))
+Sync$Carol(syncs(Sync$Source1, Sync$Source2))
+
+`,
+  },
+  {
+    id: "SyncTrans",
+    label: "A sync node with a transform",
+    userland_code: `SyncTrans$Alice.hasInterval(1000)
+SyncTrans$Bob.hasInterval(500)
+// No way to write these as blank nodes currently
+SyncTrans$Source1(alias("a"), source(SyncTrans$Alice))
+SyncTrans$Source2(alias("b"), source(SyncTrans$Bob))
+SyncTrans$Carol(syncs(SyncTrans$Source1, SyncTrans$Source2))
+SyncTrans$Carol(transformsWith(mapsWith(x => x.a + x.b)))
+
+`,
+  },
+  {
     id: "MappingListener",
     label: "A ticker with a mapping listener",
     userland_code: `MappingListener$Alice.hasInterval(1000)

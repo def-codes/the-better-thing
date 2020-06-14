@@ -34,7 +34,8 @@ const GENERAL_VALUE_MAPPER = n("GeneralValueMapper");
 const general_value_to_template = l(value => ({
   element: "output",
   children: [
-    value === undefined ? "⊥" : value === null ? "∅" : value.toString(),
+    // value === undefined ? "⊥" : value === null ? "∅" : value.toString(),
+    value === undefined ? "⊥" : value === null ? "∅" : JSON.stringify(value),
   ],
 }));
 
