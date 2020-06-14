@@ -60,6 +60,42 @@ MappingListener$Bob.transformsWith(mapsWith(x => x * x))
 `,
   },
   {
+    id: "PluckNullish",
+    label:
+      "Pluck returns undefined if the plucked key doesn't exist (as with key access)",
+    userland_code: `PluckNullish$Alice.hasInterval(500)
+PluckNullish$Bob(listensTo(PluckNullish$Alice), transformsWith(partitionsBy(5)))
+PluckNullish$Carol(
+  listensTo(PluckNullish$Bob),
+  transformsWith(mapsWith(function(x) {
+    // TODO: re test for slice, see bug about first value of partition
+    return x.slice && x.slice(0, this.Math.round(5 * this.Math.random()))
+  }))
+)
+PluckNullish$Thurston(listensTo(PluckNullish$Carol), plucks(3))
+`,
+  },
+  {
+    id: "PluckNullishInput",
+    label: "Pluck should not crash if the input is undefined (say I)",
+    userland_code: `PluckNullishInput$Alice.hasInterval(500)
+PluckNullishInput$Bob(
+  listensTo(PluckNullishInput$Alice),
+  transformsWith(partitionsBy(5))
+)
+PluckNullishInput$Carol(
+  listensTo(PluckNullishInput$Bob),
+  transformsWith(mapsWith(function(x, undefined) {
+    return this.Math.random() < 0.5 ? x : null
+  }))
+)
+PluckNullishInput$Thurston(
+  listensTo(PluckNullishInput$Carol), 
+  transformsWith(plucks(3))
+)
+`,
+  },
+  {
     id: "MultipleListeners",
     label: "A ticker with multiple listeners",
     userland_code: `MultipleListeners$Alice.hasInterval(500)

@@ -78,12 +78,16 @@ export default {
         }),
       },
       {
+        comment: `A special case of map that returns the specified key from the input.  Nullish *input* values will forward themselves.`,
         when: q("?subject plucks ?key"),
         then: ({ subject, key }) => ({
           register: {
             subject,
             as_type: "Transducer",
-            using: () => tx.pluck(key.valueOf()),
+            using: () => {
+              const k = key.valueOf();
+              return tx.map(value => value?.[k]);
+            },
           },
         }),
       },
