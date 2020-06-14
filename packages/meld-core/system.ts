@@ -1,6 +1,6 @@
 // support system for monotonic, rule-based drivers of resource implementations.
 import rdf from "@def.codes/rdf-data-model";
-import { IStream } from "@thi.ng/rstream";
+import * as rs from "@thi.ng/rstream";
 import { Registry } from "./registry";
 import {
   live_query,
@@ -165,15 +165,16 @@ const apply_drivers_to = (source, helpers, system, names) => {
       throw new Error(`No such driver: ${name}`);
     const { claims, rules } = driver_dictionary.get(name);
     system.assert_all(claims);
-    for (const { disabled, when, when_all, then } of rules) {
+    for (const rule of rules) {
+      const { disabled, when, when_all, then, trace, comment, name } = rule;
       if (disabled) continue;
-      subs.push(
-        live_query(source, when || when_all).subscribe({
-          next: make_consequent_handler(then, helpers, system, !!when_all),
-          // TODO: formally indicate source
-          error: error => console.error("problem appying rule: ", when, error),
-        })
-      );
+      const rule_sub = live_query(source, when || when_all).subscribe({
+        next: make_consequent_handler(then, helpers, system, !!when_all),
+        // TODO: formally indicate source
+        error: error => console.error("problem appying rule: ", when, error),
+      });
+      subs.push(rule_sub);
+      if (trace) rule_sub.subscribe(rs.trace(`rule ${name || comment || "?"}`));
     }
   }
   return subs;
@@ -238,7 +239,7 @@ export const monotonic_system = (options: MonotonicSystemOptions) => {
     source,
     sink, // Diagnostics
     find,
-    register_input_port: (name: string, stream: IStream<any>) => {
+    register_input_port: (name: string, stream: rs.IStream<any>) => {
       // DISABLED all this as OBE.
       // const impl = register_exotic(stream, rdf.namedNode("Subscribable"));
       //  This is wack.  listensTo rule doesn't fire unless the source node
