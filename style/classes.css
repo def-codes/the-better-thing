@@ -79,7 +79,10 @@ body[drop-effect] {
 }
 textarea.recipe {
   max-width: 40vw;
-  min-height: 75vh;
+  min-height: 50vh;
+}
+textarea.recipe--assert {
+  min-height: 10em;
 }
 
 /* TODO: get rid of all this stuff */

@@ -40,6 +40,15 @@ define([
       model_code.setAttribute("id", model_code_id);
       model_code.setAttribute("class", "recipe");
       model_code.setAttribute("spellcheck", "false");
+      const model_assert_code = recipe_part.appendChild(h("textarea"));
+      model_assert_code.setAttribute("class", "recipe recipe--assert");
+      model_assert_code.setAttribute("spellcheck", "false");
+
+      const recipe_code_details = h("details");
+      const recipe_code = recipe_code_details.appendChild(h("code"));
+      recipe_part
+        .appendChild(recipe_code_details)
+        .appendChild(h("summary")).innerText = "recipe code";
 
       // > A space-separated list of other elements’ ids, indicating that those
       // > elements contributed input values to (or otherwise affected) the
@@ -64,7 +73,9 @@ define([
       root.appendChild(article);
 
       return {
+        recipe_code,
         model_code,
+        model_assert_code,
         model_interpretation_code,
         recipe_output,
         kitchen_output,
@@ -109,10 +120,20 @@ define([
         tx.map(code => interpret(read(code)))
       );
 
-      // Too soon
-      //       recipe_code_stream.next(`
-      // // FullForce$Alice$forcefield.forcefieldFor(FullForce$Alice)
-      // `);
+      // For adding to model
+      const recipe_assert_stream = rs.subscription();
+      recipe_assert_stream.transform(
+        tx.map(code => interpret(read(code))),
+        tx.sideEffect(facts => recipe_graph.into(facts))
+      );
+      the.model_assert_code.innerHTML = "";
+
+      rs.fromEvent(the.model_assert_code, "keypress")
+        .transform(
+          tx.filter(_ => _.key === "Enter"),
+          tx.map(_ => _.target.value)
+        )
+        .subscribe(recipe_assert_stream);
 
       const { kitchen_graph, recipe_graph } = create_interpreter_graph(
         dataset,
@@ -132,6 +153,10 @@ define([
       );
       recipe_code_stream.next(model.userland_code);
 
+      the.model_code.addEventListener("input", event => {
+        recipe_code_stream.next(event.target.value);
+      });
+
       // Note that this does not dump all of the graphs involved, just the facts
       // introduced by each node.
       const dump = false;
@@ -148,27 +173,20 @@ define([
           )
         );
 
-      // too soon
-      // setTimeout(() => {
-      //   recipe_code_stream.next(
-      //     model.userland_code + "\nFullForce$Alice(hasPart(buzz))"
-      //   );
-      // }, 1000);
-      // setTimeout(() => {
-      //   recipe_code_stream.next(
-      //     model.userland_code + "\nFullForce$Alice(hasPart(buzz, chop))"
-      //   );
-      // }, 2000);
+      const trace_facts = (graph, element) => {
+        if (graph)
+          live_query(graph, q("?s ?p ?o")).subscribe({
+            next: facts => {
+              element.innerText = Array.from(
+                facts,
+                ({ s, p, o }) => `${s} ${p} ${o}`
+              ).join("\n");
+            },
+          });
+      };
 
-      if (kitchen_graph)
-        live_query(kitchen_graph, q("?s ?p ?o")).subscribe({
-          next: facts => {
-            the.model_interpretation_code.innerText = Array.from(
-              facts,
-              ({ s, p, o }) => `${s} ${p} ${o}`
-            ).join("\n");
-          },
-        });
+      trace_facts(recipe_graph, the.recipe_code);
+      trace_facts(kitchen_graph, the.model_interpretation_code);
     }
   };
 
