@@ -9,16 +9,16 @@
   /* Temp, just helps distinguish */
   /* background: black; */
   --luminosity: 10%;
+
+  /* Possibly this should be contextual */
+  overflow: hidden;
+  box-shadow: inset 0 0 2em -0.5em;
 }
-/* Where else to say this?  On individual things? */
-[typeof="Space"] > * {
-  /* But this has unintended consequences... */
-  /* Also, the bodies in the space are generally grandchildren (because of
-   * placeholders). */
-  /* position: absolute; */
-}
-/* Again, what elements to select? */
-[typeof="Space"] * {
+/* Items in space are positioned (skipping placeholder elements) */
+[typeof="Space"] > :not([data-dom-region]),
+[typeof="Space"] > [data-dom-region] > * {
+  position: absolute;
   top: calc(var(--y) * 1px);
   left: calc(var(--x) * 1px);
+  --luminosity: 50%; /* Reset to help offset elements against space */
 }

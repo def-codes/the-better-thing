@@ -17,10 +17,7 @@ const parts_to_bodies = (parts: Iterable<any>) =>
   }));
 const style = nodes =>
   nodes
-    .map(
-      _ =>
-        `[resource="${_.id}"] { --x: ${_.x}; --y: ${_.y}; position: absolute }`
-    )
+    .map(_ => `[resource="${_.id}"] { --x: ${_.x}; --y: ${_.y};  }`)
     .join("\n");
 
 const nodes_to_position_style = nodes => {
