@@ -185,6 +185,18 @@ return v
 `,
   },
   {
+    id: "ASpace",
+    label: "A space",
+    userland_code: `ASpace$Alice(isa(Space))`,
+  },
+  {
+    id: "NonEmptySpace",
+    label: "A non-empty space",
+    userland_code: `ASpace$Alice(isa(Space))
+ASpace$Alice(hasPart(ASpace$Bob))
+`,
+  },
+  {
     id: "AForcefield",
     label: "A forcefield",
     userland_code: `AForcefield$Alice(isa(Forcefield))`,

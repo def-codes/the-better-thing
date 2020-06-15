@@ -27,6 +27,7 @@ const SUBJECT = n("rdf:subject");
 const PREDICATE = n("rdf:predicate");
 const OBJECT = n("rdf:object");
 const DOM_ELEMENT = n("def:DomElement");
+const HAS_PART = n("hasPart");
 
 const GENERAL_VALUE_MAPPER = n("GeneralValueMapper");
 
@@ -192,12 +193,9 @@ export default {
         // This isn't even really specific to representation
         comment: "A transducer is part of the node that uses it.",
         when: q("?node transformsWith ?transformer"),
-        then: _ => ({ assert: [[_.node, n("hasPart"), _.transformer]] }),
+        then: _ => ({ assert: [[_.node, HAS_PART, _.transformer]] }),
       },
       {
-        // Wait why is this disabled?
-        // enabling it, you can see (at least some of) the node content (in dataflow space)
-        // disabled: true,
         comment: `If something has a representation and an implementation, then its implementation also has a representation`,
         when: q("?rep def:represents ?thing", "?impl implements ?thing"),
         then: _ => {
@@ -243,6 +241,28 @@ export default {
           assert: [[n(`${space.value}$forcefield`), n("forcefieldFor"), space]],
         }),
       },
+      // Representing space
+      {
+        name: "SpaceRepHasAxes",
+        comment: `A representation of a space has an X and Y axis`,
+        when: q("?space isa Space", "?representation def:represents ?space"),
+        trace: true,
+        then: ({ space, representation }) => {
+          const x_axis = n(`${space.value}$x-axis`);
+          const y_axis = n(`${space.value}$y-axis`);
+          return {
+            assert: [
+              // hasPart may make more sense here?
+              [representation, CONTAINS, x_axis],
+              [representation, CONTAINS, y_axis],
+              [x_axis, ISA, DOM_ELEMENT],
+              [x_axis, MATCHES, l(`[data-axis="x"]`)],
+              [y_axis, ISA, DOM_ELEMENT],
+              [y_axis, MATCHES, l(`[data-axis="y"]`)],
+            ],
+          };
+        },
+      },
       // Using forcefields to represent dataflow
       {
         comment: `If there are any live dataflow nodes, assert a well-known space for representing them in graph form`,
@@ -263,7 +283,7 @@ export default {
               "DataflowSpaceEle def:represents DataflowSpace",
               "DataflowSpaceEle isa def:DomElement"
             ),
-            [n("DataflowSpace"), n("hasPart"), sub],
+            [n("DataflowSpace"), HAS_PART, sub],
           ],
         }),
       },
@@ -274,7 +294,7 @@ export default {
         comment: `define every live dataflow node as part of a (well-known) dataflow space`,
         when: q("?sub isa Subscribable", "?something implements ?sub"),
         then: ({ sub }) => ({
-          assert: [[n("DataflowSpace"), n("hasPart"), sub]],
+          assert: [[n("DataflowSpace"), HAS_PART, sub]],
         }),
       },
       {
@@ -293,7 +313,7 @@ export default {
               // These relations are in the space but are not *bodies* in the
               // forcefield.
               //
-              // [n("DataflowSpace"), n("hasPart"), relation],
+              // [n("DataflowSpace"), HAS_PART, relation],
               [n("DataflowSpace"), CONTAINS, relation],
               [relation, CONTAINS_TEXT, l("halioaspdoi")],
             ],
