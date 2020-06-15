@@ -24,6 +24,11 @@ define([], () => {
       } else if (operation.type === "contains") {
         const { id } = operation;
         children.push({ element: "placeholder", attributes: { id } });
+      } else if (operation.type === "has-style") {
+        // Special case for style because hiccup expects an object, not a string
+        const { property, value } = operation;
+        if (!attributes.style) attributes.style = {};
+        attributes.style[property] = value;
       } else {
         console.warn("unsupported operation!", operation);
       }

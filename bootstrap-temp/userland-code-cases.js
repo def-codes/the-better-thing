@@ -36,6 +36,12 @@ define([], () => [
 TwoSubjects$Bob(isa(Man))`,
   },
   {
+    id: "Colors",
+    label: "Two subjects",
+    userland_code: `Colors$Alice(hasColor("red"))
+Colors$Bob(hasColor("blue"))`,
+  },
+  {
     id: "ConstantStream",
     label: "A constant stream",
     userland_code: `ConstantStream$Alice.hasValue(42)`,

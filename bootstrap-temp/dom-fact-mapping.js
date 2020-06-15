@@ -29,6 +29,7 @@ define(["@thi.ng/transducers", "@def.codes/rstream-query-rdf"], (
   const MATCHES = n("def:matches");
   const CONTAINS = n("def:contains");
   const CONTAINS_TEXT = n("def:containsText");
+  const HAS_STYLE = n("def:hasStyle");
 
   // Map a pseudo triple to a corresponding DOM operation (if any).
   const operation_from = ([, predicate, object]) => {
@@ -39,6 +40,9 @@ define(["@thi.ng/transducers", "@def.codes/rstream-query-rdf"], (
         return { type: "contains", id: object.value };
       case CONTAINS_TEXT:
         return { type: "contains-text", text: object.value };
+      case HAS_STYLE:
+        const [, property, value] = object.value.match(/(\S+):(.*)/) || [];
+        return { type: "has-style", property, value };
     }
   };
 

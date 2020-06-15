@@ -23,6 +23,7 @@ const MATCHES = n("def:matches");
 const CONTAINS = n("def:contains");
 const CONTAINS_TEXT = n("def:containsText");
 const REPRESENTS = n("def:represents");
+const HAS_STYLE = n("def:hasStyle");
 const SUBJECT = n("rdf:subject");
 const PREDICATE = n("rdf:predicate");
 const OBJECT = n("rdf:object");
@@ -232,6 +233,31 @@ export default {
             ],
           };
         },
+      },
+      {
+        name: `CSSRepresentationProperties`,
+        comment: "CSS properties set on representations",
+        when: q("?rep isa def:DomElement", "?rep ?prop ?value"),
+        // HACK: pseudo curie.  idea is you have a namespace for CSS
+        then: ({ rep, prop, value }) =>
+          prop.value.startsWith("css:")
+            ? {
+                assert: [
+                  [rep, HAS_STYLE, l(`${prop.value.slice(4)}:${value.value}`)],
+                ],
+              }
+            : {},
+      },
+      {
+        comment: "A DOM representation of a thing has its color",
+        when: q(
+          "?thing hasColor ?color",
+          "?rep def:represents ?thing",
+          "?rep isa def:DomElement"
+        ),
+        then: _ => ({
+          assert: [[_.rep, n(`css:background-color`), l(_.color.value)]],
+        }),
       },
       // Space rules.  not about forcefields per se
       {

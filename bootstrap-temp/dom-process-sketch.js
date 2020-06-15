@@ -93,7 +93,8 @@ define([
             // "PluckNullishInput",
             // "MergeTrans",
             // "SyncTrans",
-            "NonEmptySpace",
+            // "NonEmptySpace",
+            "Colors",
           ].includes(model.id) ||
           [
             // "A ticker with a listener",
