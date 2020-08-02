@@ -3,6 +3,7 @@ export * from "./connected-components";
 export * from "./from-facts";
 export * from "./graph";
 export * from "./paths";
+export * from "./rdf-triple-store-graph";
 export * from "./roots";
 export * from "./subgraph-view";
 export * from "./traverse";

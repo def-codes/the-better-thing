@@ -1,0 +1,25 @@
+digraph {
+	subgraph cluster_B {
+		label="B\nkitchen\n(interpretation)"
+		"whatever\nis added by\ndrivers"
+		subgraph cluster_A {
+			label="A\nrecipe\n(model)"
+			Bob
+			Alice -> {foo, bar, bat} [label="hasPart"]
+			FF -> Alice [label="forcefieldFor"]
+		}
+	}
+	subgraph cluster_C {
+		label="C\nselect\nsubjects\nto represent"
+		Alice_rep -> Alice [label="represents"]
+		Bob_rep -> Bob [label="represents"]
+	}
+	subgraph cluster_D {
+		label="D\ndescribe\nrepresentation"
+		"Alice_box" -> Alice_rep
+	}
+	subgraph cluster_E {
+		label="E\nimplement\nrepresentation"
+		Alice_rep_impl -> Alice_rep
+	}
+}

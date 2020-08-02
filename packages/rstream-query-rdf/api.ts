@@ -40,6 +40,7 @@ export interface IRDFTripleSource {
   has(triples: PseudoTriple): boolean;
   addQueryFromSpec(spec: DeepReadonly<QuerySpec>): QuerySolution;
   subjects(): Set<NodeTerm>;
+  nodes(): Set<NodeTerm>;
   // Technically it's a *set* of triples
   subject(subject: NodeTerm): ISubscribable<Iterable<PseudoTriple>>;
 }

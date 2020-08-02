@@ -5,6 +5,7 @@ const {
   from_facts,
   subgraph_view,
   triple_store_graph,
+  rdf_triple_store_graph,
 } = require("@def.codes/graphs");
 const { RDFTripleStore } = require("@def.codes/rstream-query-rdf");
 const show = require("./lib/show");
@@ -101,7 +102,7 @@ function do_test_case({ name, facts, triples, ...predicates }) {
   if (facts) graph = from_facts(facts);
   else if (triples) {
     store = new RDFTripleStore(triples);
-    graph = triple_store_graph(store);
+    graph = rdf_triple_store_graph({ store });
   } else throw `No input for ${name}`;
   const subgraph = subgraph_view(graph, { ...predicates });
   return { store, graph, subgraph };

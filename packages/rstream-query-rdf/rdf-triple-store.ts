@@ -12,7 +12,7 @@ import {
 import { normalize_triple } from "./factory";
 import { MonotonicBlankNodeSpace } from "./blank-node-space";
 import { blank_node_space_registry } from "./blank-node-space-registry";
-import { is_blank_node, map_terms } from "./terms";
+import { is_blank_node, map_terms, is_node } from "./terms";
 import { BlankNode } from "@def.codes/rdf-data-model";
 
 /** An extension to `TripleStore` that uses RDF/JS terms with reference
@@ -60,6 +60,13 @@ export class RDFTripleStore
 
   subjects() {
     return new Set(this._store.indexS.keys());
+  }
+
+  // Constructs a new set every time...
+  nodes() {
+    return new Set(
+      tx.concat(this.subjects(), tx.filter(is_node, this._store.indexO.keys()))
+    );
   }
 
   subject(id: NodeTerm): ISubscribable<Iterable<PseudoTriple>> {

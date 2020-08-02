@@ -1,5 +1,8 @@
-import { PseudoTriple } from "./api";
+import { PseudoTriple, NodeTerm } from "./api";
 import { Term, Variable, BlankNode } from "@def.codes/rdf-data-model";
+
+export const is_node = (term: Term): term is NodeTerm =>
+  term.termType === "NamedNode" || term.termType === "BlankNode";
 
 export const is_variable = (term: Term): term is Variable =>
   term.termType === "Variable";

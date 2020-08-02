@@ -3,7 +3,7 @@ import { IGraphIterator, IAdjacencyListReader } from "./api";
 import { TraversalSpec, traverse } from "./traverse";
 
 // iterate the nodes of a graph with labels grouping them by maximally-connected
-// components.
+// components (subgraphs).
 export function* component_nodes<ID>(
   graph: IGraphIterator<ID, any, any> & IAdjacencyListReader<ID, any>
 ): IterableIterator<{ subject: ID; group: number }> {
@@ -31,8 +31,14 @@ export const connected_component_nodes = <ID>(
   ...tx
     .groupByMap(
       {
+        // src -> key
         key: _ => _.group,
-        group: [() => new Set<ID>(), , (acc, val) => acc.add(val.subject)],
+        // reducer: group -> source
+        group: [
+          () => new Set<ID>(),
+          acc => acc,
+          (acc, val) => acc.add(val.subject),
+        ],
       },
       component_nodes(graph)
     )
