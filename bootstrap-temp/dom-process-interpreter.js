@@ -10,11 +10,9 @@ define([
   "@def.codes/rstream-query-rdf",
   "@def.codes/meld-core",
   "@def.codes/dom-rules",
-  "./dom-fact-mapping.js",
-], ({ map }, rs, { difference }, rdf, { q }, dom_ops, dom_fact) => {
+], ({ map }, rs, { difference }, rdf, { q }, dom_ops) => {
   const { live_query } = rdf;
-  const { facts_to_operations } = dom_fact;
-  const { operations_to_template } = dom_ops;
+  const { operations_to_template, facts_to_operations } = dom_ops;
 
   // construct templates from a graph containing representations
   const dom_process_interpreter = graph => {

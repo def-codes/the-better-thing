@@ -1,4 +1,5 @@
 export type DomAssertion =
+  | { readonly type: "unknown"; selector: string }
   | { readonly type: "uses-element"; name: string }
   | { readonly type: "contains"; id: string }
   | { readonly type: "contains-text"; text: string }

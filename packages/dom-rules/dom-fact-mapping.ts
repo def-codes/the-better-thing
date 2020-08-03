@@ -1,13 +1,14 @@
+import type { DomAssertion } from "./api";
 import { keep, map } from "@thi.ng/transducers";
 import { factory } from "@def.codes/rstream-query-rdf";
 
-const { namedNode: n, variable: v } = factory;
+const { namedNode: n } = factory;
 
 const ATTRIBUTE_CONTAINS_WORD = /^\[(.+)~="(.+)"\]$/;
 const ATTRIBUTE_EQUALS = /^\[(.+)="(.+)"\]$/;
 const ELEMENT = /^[a-z][a-z0-9]*$/;
 
-const css_to_assertion = selector => {
+const css_to_assertion = (selector: string): DomAssertion => {
   // Order matters here
   const attribute_contains_word = selector.match(ATTRIBUTE_CONTAINS_WORD);
   if (attribute_contains_word) {
@@ -24,6 +25,7 @@ const css_to_assertion = selector => {
     const [name] = element;
     return { type: "uses-element", name };
   }
+
   return { type: "unknown", selector };
 };
 
@@ -33,7 +35,7 @@ const CONTAINS_TEXT = n("def:containsText");
 const HAS_STYLE = n("def:hasStyle");
 
 // Map a pseudo triple to a corresponding DOM operation (if any).
-const operation_from = ([, predicate, object]) => {
+const operation_from = ([, predicate, object]): DomAssertion | undefined => {
   switch (predicate) {
     case MATCHES:
       return css_to_assertion(object.value);
