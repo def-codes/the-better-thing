@@ -1,5 +1,7 @@
 import * as rs from "@thi.ng/rstream";
-import { DomElementExpression } from "./dom-expression";
+import type { DomElementExpression } from "./dom-expression";
+
+export * from "./dom-expression";
 
 // rstream has this but other type is `any`
 export type ISubscribableSubscriber<T> = rs.ISubscribable<T> &

@@ -9,9 +9,9 @@ define([
   "@thi.ng/associative",
   "@def.codes/rstream-query-rdf",
   "@def.codes/meld-core",
+  "@def.codes/dom-rules",
   "./dom-fact-mapping.js",
-  "./dom-operations.js",
-], ({ map }, rs, { difference }, rdf, { q }, dom_fact, dom_ops) => {
+], ({ map }, rs, { difference }, rdf, { q }, dom_ops, dom_fact) => {
   const { live_query } = rdf;
   const { facts_to_operations } = dom_fact;
   const { operations_to_template } = dom_ops;

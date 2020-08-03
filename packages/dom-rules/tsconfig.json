@@ -1,0 +1,8 @@
+{
+  "extends": "../tsconfig-composite",
+  "references": [
+    { "path": "../rdf-data-model" },
+    { "path": "../hdom-regions" },
+    { "path": "../rstream-query-rdf" }
+  ]
+}
