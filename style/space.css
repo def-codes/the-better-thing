@@ -22,6 +22,11 @@
   left: calc(var(--x) * 1px);
   --luminosity: 50%; /* Reset to help offset elements against space */
 }
+/* Sorry, if you don't have this intermediate container, no centering. */
+[typeof="Space"] > [data-dom-region] {
+  top: 50%;
+  left: 50%;
+}
 [typeof="Space"] > [data-dom-region] > [data-axis]::before,
 [typeof="Space"] > [data-dom-region] > [data-axis]::after {
   display: none;
