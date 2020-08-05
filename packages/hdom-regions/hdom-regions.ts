@@ -1,7 +1,7 @@
 import * as rs from "@thi.ng/rstream";
 import * as tx from "@thi.ng/transducers";
 import * as th from "@thi.ng/transducers-hdom";
-import { DomElementExpression } from "./dom-expression";
+import { DomExpression, DomElementExpression } from "./dom-expression";
 import { IDomRegionCoordinator } from "./api";
 
 const EMPTY_OBJECT = {};
@@ -35,7 +35,9 @@ const Template = () => {
   };
 };
 
-const transform_expression = (expression: DomElementExpression) =>
+const defined = <T>(t: T | undefined): t is T => !!t;
+
+const transform_expression_inner = (expression: DomElementExpression) =>
   expression.element === "placeholder"
     ? [Template(), { id: expression.attributes.id }]
     : [
@@ -45,10 +47,22 @@ const transform_expression = (expression: DomElementExpression) =>
           expr =>
             typeof expr === "string" || typeof expr === "number"
               ? expr.toString()
-              : transform_expression(expr),
-          expression.children || EMPTY_ARRAY
+              : transform_expression_inner(expr),
+          tx.keep(expression.children || EMPTY_ARRAY) as Iterable<DomExpression>
         ),
       ];
+
+const transform_expression = (expression: DomElementExpression) => {
+  if (expression == null) {
+    throw new RangeError("Expected expression");
+  }
+  try {
+    return transform_expression_inner(expression);
+  } catch (error) {
+    console.error("Problem with expression", expression, error);
+    throw new RangeError("Problem with expression");
+  }
+};
 
 export const make_dom_process = (): IDomRegionCoordinator => {
   const sources = new Map(); // a read/write subscription for each id

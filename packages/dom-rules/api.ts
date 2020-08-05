@@ -1,5 +1,8 @@
+import type { DomElementExpression } from "@def.codes/hdom-regions";
+
 export type DomAssertion =
   | { readonly type: "unknown"; selector: string }
+  | { readonly type: "is"; expr: DomElementExpression }
   | { readonly type: "uses-element"; name: string }
   | { readonly type: "contains"; id: string }
   | { readonly type: "contains-text"; text: string }

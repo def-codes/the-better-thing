@@ -12,6 +12,9 @@ export const operations_to_template = (
   const children = [];
 
   for (const operation of operations) {
+    // Short-cirtuiting: if you have the expr, return it right now.
+    if (operation.type === "is") return operation.expr;
+
     if (operation.type === "attribute-contains-word") {
       const { name, value } = operation;
       attributes[name] = attributes[name]

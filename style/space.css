@@ -14,6 +14,10 @@
   overflow: hidden;
   box-shadow: inset 0 0 2em -0.5em;
 }
+/* For those special cases */
+[typeof="Space"] {
+  border-radius: 50%;
+}
 /* Items in space are positioned (skipping placeholder elements) */
 [typeof="Space"] > :not([data-dom-region]),
 [typeof="Space"] > [data-dom-region] > * {

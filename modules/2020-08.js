@@ -6,12 +6,12 @@ define([
   "@def.codes/hdom-regions",
   "./examples/index.js",
 ], (d3, rs, tx, dom_rules, dp, examples) => {
-  console.log(`examples`, examples);
+  // console.log(`examples`, examples);
 
   const { facts_to_operations, operations_to_template } = dom_rules;
 
   const make_space = spec => {
-    const { id, dom_process } = spec;
+    const { id: space_id, sink } = spec;
     const sim = d3.forceSimulation().stop();
     const nodes = rs.subscription({ next: sim.nodes });
     const forces = rs.subscription({ next() {} });
@@ -40,29 +40,40 @@ define([
       // tx.sideEffect(nodes => console.log("WUUT", ...nodes))
     );
 
-    ticker.transform(
-      tx.map(nodes =>
-        nodes
-          .map(
-            _ =>
-              `
-#${id}, [data-x-source="${id}"] { --x:${Math.round(_.x)}; }
-#${id}, [data-y-source="${id}"] { --y:${Math.round(-_.y)}; }
-#${id}, [data-vx-source="${id}"] { --vx:${Math.round(_.vx)}; }
-#${id}, [data-vy-source="${id}"] { --vy:${Math.round(-_.vy)}; }
-`
-          )
-          .join("\n")
-      ),
-      tx.sideEffect(css => {
-        // Update all positions
-        dom_process.define(`${id}.styles`, {
-          element: "style",
-          attributes: {},
-          children: [css],
-        });
-      })
-    );
+    const styles_id = `${space_id}.styles`;
+    sink(["dom-assert", space_id, { type: "contains", id: styles_id }]);
+
+    ticker
+      .transform(
+        tx.map(nodes =>
+          nodes
+            .map(_ => {
+              const id = `${space_id}.${_.id}`;
+              return `
+[id="${id}"], [data-x-source="${id}"] { --x:${Math.round(_.x)}; }
+[id="${id}"], [data-y-source="${id}"] { --y:${Math.round(-_.y)}; }
+[id="${id}"], [data-vx-source="${id}"] { --vx:${Math.round(_.vx)}; }
+[id="${id}"], [data-vy-source="${id}"] { --vy:${Math.round(-_.vy)}; }
+`;
+            })
+            .join("\n")
+        ),
+        tx.sideEffect(css => {
+          sink([
+            "dom-assert",
+            styles_id,
+            {
+              type: "is",
+              expr: { element: "style", attributes: {}, children: [css] },
+            },
+          ]);
+        })
+      )
+      .subscribe({
+        error(error) {
+          console.error("ERROR IN SPACE STREAM", error);
+        },
+      });
 
     const streams = { ticker, nodes, forces };
 
@@ -103,7 +114,7 @@ define([
     },
   };
 
-  function* make(spec, dom_process, path = []) {
+  function* make(spec, sink, path = []) {
     const { a, ...props } = spec;
 
     const id = path.join(".");
@@ -131,6 +142,8 @@ define([
         // basically prototypes but with protocol composition
         // prototype_props = type_spec;
       }
+    } else {
+      console.warn("no type in:", ...path, spec);
     }
 
     const effective_props = { ...prototype_props, ...props };
@@ -138,14 +151,14 @@ define([
     for (const [name, child_spec] of Object.entries(effective_props)) {
       const child_path = [...path, name].join(".");
       yield ["dom-assert", id, { type: "contains", id: child_path }];
-      yield* make(child_spec, dom_process, [...path, name]);
+      yield* make(child_spec, sink, [...path, name]);
     }
 
     if (a === "Space") {
       const names = Object.keys(props);
       const nodes = names.map(box_id);
-      const { streams } = make_space({ id, dom_process });
-      console.log(`names, nodes, streams`, names, nodes, streams);
+      const { streams } = make_space({ id, sink });
+      // console.log(`names, nodes, streams`, names, nodes, streams);
       streams.nodes.next(nodes);
     }
   }
@@ -154,42 +167,47 @@ define([
     const root = document.getElementById("August-2020-space");
 
     const dom_process = dp.make_dom_process();
-    dom_process.mounted.next({ id: "root", element: root });
+    dom_process.mounted.next({ id: "world", element: root });
 
     const spec_1 = {
       a: "Panel",
-      space1: { a: "Space", styles: {}, Alice: {}, Bob: {}, Carol: {} },
-      space2: { a: "Space", styles: {}, Dave: {}, Edie: {}, Frank: {} },
-      space3: { a: "Space", styles: {}, Joe: {}, Al: {}, Sue: {} },
+      space1: {
+        a: "Space",
+        // styles: {},
+        Alice: {
+          a: "Space",
+          // styles: {},
+          Greg: {},
+          Jimbo: {},
+        },
+        Bob: {},
+        Carol: {},
+      },
+      space2: { a: "Space", Dave: {}, Edie: {}, Frank: {} },
+      space3: { a: "Space", Joe: {}, Al: {}, Sue: {} },
     };
 
     const dom_claims = {};
-    // HACK: passing dom_process for now to get it through to space
-    // need a way for its mixin to stream that itself but indirectly
-    for (const ass of make(spec_1, dom_process)) {
-      const [tag, ...args] = ass;
+
+    function sink([tag, ...args]) {
       if (tag === "dom-assert") {
         const [id, claim] = args;
-        if (!dom_claims[id]) dom_claims[id] = [];
-        dom_claims[id].push(claim);
+        if (claim.type === "is") {
+          dom_claims[id] = [claim];
+        } else {
+          // FF actually runs this
+          // (dom_claims[id] ??= []).push(claim);
+          if (!dom_claims[id]) dom_claims[id] = [];
+          dom_claims[id].push(claim);
+        }
+        // Could create a stream from this
+        dom_process.define(id, operations_to_template(dom_claims[id]));
       } else {
         console.warn("no handler for", tag);
       }
     }
 
-    dom_process.define(
-      "root",
-      operations_to_template(
-        // Object.keys(dom_claims).map(id => ({ type: "contains", id }))
-        // No the keys of the spec
-        Object.keys(spec_1).map(id => ({ type: "contains", id }))
-      )
-    );
-    for (const [id, claims] of Object.entries(dom_claims)) {
-      dom_process.define(id, operations_to_template(claims));
-    }
-
-    // ////////////////////////////////////////////////////////
+    for (const claim of make(spec_1, sink, ["world"])) sink(claim);
 
     const mouse_moves = rs.fromEvent(document.body, "mousemove");
     // mouse_moves.transform(tx.trace("fbalsdf"));
