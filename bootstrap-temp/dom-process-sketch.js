@@ -1,5 +1,4 @@
 define([
-  "@thi.ng/hiccup",
   "@thi.ng/transducers",
   "@thi.ng/rstream",
   "@def.codes/rstream-query-rdf",
@@ -8,10 +7,7 @@ define([
   "@def.codes/hdom-regions",
   "./userland-code-cases.js",
   "./create-interpreter-graph.js",
-], async (hiccup, tx, rs, rdf, core, { read }, dp, examples, ing) => {
-  // TODO: submit patch upstream.
-  hiccup.NO_SPANS.style = 1;
-
+], async (tx, rs, rdf, core, { read }, dp, examples, ing) => {
   const { q, make_registry, interpret } = core;
   const { factory, Dataset, UnionGraph, live_query } = rdf;
   const { namedNode: n, variable: v, blankNode: b, literal: l } = factory;

@@ -14,38 +14,50 @@ define([
     const forces = rs.subscription({ next() {} });
 
     // Default forces (just for testing)
-    sim.force("x-axis", d3.forceX(0));
-    sim.force("y-axis", d3.forceY(0));
+    sim.force("charge", d3.forceManyBody(-2000));
+    sim.force("x-axis", d3.forceX(0).strength(0.5));
+    sim.force("y-axis", d3.forceY(0).strength(0.4));
     sim.force("center", d3.forceCenter());
-    sim.force("charge", d3.forceManyBody());
+
+    // temp: periodically (disturb nodes and) re-warm alpha
+    rs.fromInterval(1000).subscribe({
+      next: () => {
+        for (const node of sim.nodes()) {
+          node.x = Math.random() * 1000 - 500;
+          node.y = Math.random() * 1000 - 500;
+        }
+        sim.alpha(1);
+      },
+    });
 
     // const ticker = rs.fromInterval(150)
-    rs.fromInterval(1000).subscribe({ next: () => sim.restart() });
     const ticker = rs.fromRAF().transform(
       tx.sideEffect(() => sim.tick()),
       tx.map(() => sim.nodes())
+      // tx.sideEffect(nodes => console.log("WUUT", ...nodes))
     );
-    ticker.subscribe({
-      next: css => {
+
+    ticker.transform(
+      tx.map(nodes =>
+        nodes
+          .map(
+            _ =>
+              `#${_.id}{` +
+              `--x:${Math.round(_.x)};--y:${Math.round(-_.y)};` +
+              `--fx:${Math.round(_.fx)};--fy:${Math.round(-_.fy)};` +
+              `--vx:${Math.round(_.vx)};--fy:${Math.round(-_.vy)}}`
+          )
+          .join("\n")
+      ),
+      tx.sideEffect(css => {
         // Update all positions
-        dom_process.define(`${id} styles`, {
+        dom_process.define(`${id}.styles`, {
           element: "style",
           attributes: {},
-          children: [
-            sim
-              .nodes()
-              .map(
-                _ =>
-                  `#${_.id}{` +
-                  `--x:${Math.round(_.x)};--y:${Math.round(_.y)};` +
-                  `--fx:${Math.round(_.fx)};--fy:${Math.round(_.fy)};` +
-                  `--vx:${Math.round(_.vx)};--fy:${Math.round(_.vy)}}`
-              )
-              .join("\n"),
-          ],
+          children: [css],
         });
-      },
-    });
+      })
+    );
 
     const streams = { ticker, nodes, forces };
 
@@ -71,9 +83,67 @@ define([
   // If something is a space, then create a manager/process object for it
   const box_id = id => ({
     id,
-    x: Math.random() * 1000,
-    y: Math.random() * 1000,
+    x: Math.random() * 1000 - 500,
+    y: Math.random() * 1000 - 500,
   });
+
+  const types = {
+    Panel: {},
+    XAxis: { dom: [{ matches: '[data-axis="x"]' }] },
+    YAxis: { dom: [{ matches: '[data-axis="y"]' }] },
+    Space: {
+      styles: {},
+      "x-axis": { a: "XAxis" },
+      "y-axis": { a: "YAxis" },
+    },
+  };
+
+  function* make(spec, dom_process, path = []) {
+    const { a, ...props } = spec;
+
+    const id = path.join(".");
+    let prototype_props = {};
+
+    yield [
+      "dom-assert",
+      id,
+      { type: "attribute-equals", name: "id", value: id },
+    ];
+
+    // Type is the first line of defense
+    if (a) {
+      yield [
+        "dom-assert",
+        id,
+        { type: "attribute-equals", name: "typeof", value: a },
+      ];
+
+      const type_spec = types[a];
+      if (!type_spec) {
+        console.warn("I don't know about this type of thing");
+      } else {
+        // There should be multiple types, and types are a mixin
+        // basically prototypes but with protocol composition
+        // prototype_props = type_spec;
+      }
+    }
+
+    const effective_props = { ...prototype_props, ...props };
+
+    for (const [name, child_spec] of Object.entries(effective_props)) {
+      const child_path = [...path, name].join(".");
+      yield ["dom-assert", id, { type: "contains", id: child_path }];
+      yield* make(child_spec, dom_process, [...path, name]);
+    }
+
+    if (a === "Space") {
+      const names = Object.keys(props);
+      const nodes = names.map(box_id);
+      const { streams } = make_space({ id, dom_process });
+      console.log(`names, nodes, streams`, names, nodes, streams);
+      streams.nodes.next(nodes);
+    }
+  }
 
   function main() {
     const root = document.getElementById("August-2020-space");
@@ -81,47 +151,41 @@ define([
     const dom_process = dp.make_dom_process();
     dom_process.mounted.next({ id: "root", element: root });
 
-    const spaces = {
-      space1: { names: "Alice Bob Carol".split(" ") },
-      space2: { names: "Dave Edie Frank".split(" ") },
-      space3: { names: "Joe Al Sue".split(" ") },
+    const spec_1 = {
+      a: "Panel",
+      space1: { a: "Space", Alice: {}, Bob: {}, Carol: {} },
+      space2: { a: "Space", Dave: {}, Edie: {}, Frank: {} },
+      space3: { a: "Space", Joe: {}, Al: {}, Sue: {} },
     };
-    const space_entries = Object.entries(spaces);
+
+    const dom_claims = {};
+    // HACK: passing dom_process for now to get it through to space
+    // need a way for its mixin to stream that itself but indirectly
+    for (const ass of make(spec_1, dom_process)) {
+      const [tag, ...args] = ass;
+      if (tag === "dom-assert") {
+        const [id, claim] = args;
+        if (!dom_claims[id]) dom_claims[id] = [];
+        dom_claims[id].push(claim);
+      } else {
+        console.warn("no handler for", tag);
+      }
+    }
 
     dom_process.define(
       "root",
-      operations_to_template([
-        { type: "attribute-contains-word", name: "class", value: "panels" },
-        ...space_entries.map(([id]) => ({ type: "contains", id })),
-      ])
+      operations_to_template(
+        Object.keys(dom_claims).map(id => ({ type: "contains", id }))
+      )
     );
-
-    for (const [space, { names }] of space_entries) {
-      dom_process.define(
-        space,
-        operations_to_template([
-          { type: "attribute-equals", name: "typeof", value: "Space" },
-          { type: "contains", id: `${space} styles` },
-          ...names.map(id => ({ type: "contains", id })),
-        ])
-      );
-      for (const name of names)
-        dom_process.define(
-          name,
-          operations_to_template([
-            { type: "uses-element", name: "b" },
-            { type: "attribute-equals", name: "id", value: name },
-            {
-              type: "contains-text",
-              text: `My name is ${name.toUpperCase()} fool!`,
-            },
-          ])
-        );
-
-      const { streams } = make_space({ dom_process, id: space });
-      // const { ticker, nodes, forces } = streams;
-      streams.nodes.next(names.map(box_id));
+    for (const [id, claims] of Object.entries(dom_claims)) {
+      dom_process.define(id, operations_to_template(claims));
     }
+
+    // ////////////////////////////////////////////////////////
+
+    const mouse_moves = rs.fromEvent(document.body, "mousemove");
+    // mouse_moves.transform(tx.trace("fbalsdf"));
   }
 
   main();
