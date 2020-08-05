@@ -4,7 +4,10 @@ define([
   "@thi.ng/transducers",
   "@def.codes/dom-rules",
   "@def.codes/hdom-regions",
-], (d3, rs, tx, dom_rules, dp) => {
+  "./examples/index.js",
+], (d3, rs, tx, dom_rules, dp, examples) => {
+  console.log(`examples`, examples);
+
   const { facts_to_operations, operations_to_template } = dom_rules;
 
   const make_space = spec => {
@@ -42,10 +45,12 @@ define([
         nodes
           .map(
             _ =>
-              `#${_.id}{` +
-              `--x:${Math.round(_.x)};--y:${Math.round(-_.y)};` +
-              `--fx:${Math.round(_.fx)};--fy:${Math.round(-_.fy)};` +
-              `--vx:${Math.round(_.vx)};--fy:${Math.round(-_.vy)}}`
+              `
+#${id}, [data-x-source="${id}"] { --x:${Math.round(_.x)}; }
+#${id}, [data-y-source="${id}"] { --y:${Math.round(-_.y)}; }
+#${id}, [data-vx-source="${id}"] { --vx:${Math.round(_.vx)}; }
+#${id}, [data-vy-source="${id}"] { --vy:${Math.round(-_.vy)}; }
+`
           )
           .join("\n")
       ),
@@ -153,9 +158,9 @@ define([
 
     const spec_1 = {
       a: "Panel",
-      space1: { a: "Space", Alice: {}, Bob: {}, Carol: {} },
-      space2: { a: "Space", Dave: {}, Edie: {}, Frank: {} },
-      space3: { a: "Space", Joe: {}, Al: {}, Sue: {} },
+      space1: { a: "Space", styles: {}, Alice: {}, Bob: {}, Carol: {} },
+      space2: { a: "Space", styles: {}, Dave: {}, Edie: {}, Frank: {} },
+      space3: { a: "Space", styles: {}, Joe: {}, Al: {}, Sue: {} },
     };
 
     const dom_claims = {};
@@ -175,7 +180,9 @@ define([
     dom_process.define(
       "root",
       operations_to_template(
-        Object.keys(dom_claims).map(id => ({ type: "contains", id }))
+        // Object.keys(dom_claims).map(id => ({ type: "contains", id }))
+        // No the keys of the spec
+        Object.keys(spec_1).map(id => ({ type: "contains", id }))
       )
     );
     for (const [id, claims] of Object.entries(dom_claims)) {
