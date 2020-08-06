@@ -29,10 +29,12 @@
   --luminosity: 50%; /* Reset to help offset elements against space */
 
   /* TEMP: see things in space as dots */
-  /* transition: none; */
+  /* beat default: anyway it's crazy to have a default transition on all properties */
+  transition: none;
   background: rgba(255, 0, 0, 0.5);
-  width: 1em;
-  height: 1em;
+  width: 0.5em;
+  height: 0.5em;
+  padding: 0;
   overflow: hidden;
   border-radius: 50%;
 }

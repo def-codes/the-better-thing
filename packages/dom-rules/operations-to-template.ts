@@ -10,7 +10,7 @@ export const operations_to_template = (
   let key = 0;
   const attributes = {};
   const children = [];
-
+  let text_is: string | undefined;
   for (const operation of operations) {
     // Short-cirtuiting: if you have the expr, return it right now.
     if (operation.type === "is") return operation.expr;
@@ -20,6 +20,9 @@ export const operations_to_template = (
       attributes[name] = attributes[name]
         ? attributes[name] + " " + value
         : value;
+    } else if (operation.type === "text-is") {
+      // Overrides any other child assertions
+      text_is = operation.text;
     } else if (operation.type === "attribute-equals") {
       attributes[operation.name] = operation.value;
     } else if (operation.type === "uses-element") {
@@ -44,5 +47,9 @@ export const operations_to_template = (
     }
   }
 
-  return { element, attributes, children };
+  return {
+    element,
+    attributes,
+    children: text_is !== undefined ? [text_is] : children,
+  };
 };

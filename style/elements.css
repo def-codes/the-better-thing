@@ -249,6 +249,6 @@ sup {
 
 /* Container labels */
 /* add `[id]` for specificity, to beat same */
-[id][data-local-name] {
-  --prefix: attr(data-local-name);
+[id][name] {
+  --prefix: attr(name);
 }

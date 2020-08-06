@@ -21,13 +21,13 @@ define([
     const forces = rs.subscription({ next() {} });
 
     // Default forces (just for testing)
-    sim.force("charge", d3.forceManyBody(-2000));
-    sim.force("x-axis", d3.forceX(0).strength(0.5));
-    sim.force("y-axis", d3.forceY(0).strength(0.4));
+    sim.force("charge", d3.forceManyBody());
+    sim.force("x-axis", d3.forceX(0));
+    sim.force("y-axis", d3.forceY(0));
     sim.force("center", d3.forceCenter());
 
     // temp: periodically (disturb nodes and) re-warm alpha
-    rs.fromInterval(1000).subscribe({
+    rs.fromInterval(3000).subscribe({
       next: () => {
         for (const node of sim.nodes()) {
           node.x = Math.random() * 2000 - 1000;
@@ -37,7 +37,7 @@ define([
       },
     });
 
-    // const ticker = rs.fromInterval(150)
+    // const ticker = rs.fromInterval(1000).transform(
     const ticker = rs.fromRAF().transform(
       tx.sideEffect(() => sim.tick()),
       tx.map(() => sim.nodes())
@@ -46,6 +46,7 @@ define([
 
     const styles_id = `${space_id}.styles`;
     sink(["dom-assert", space_id, { type: "contains", id: styles_id }]);
+    sink(["dom-assert", styles_id, { type: "uses-element", name: "style" }]);
 
     ticker
       .transform(
@@ -55,10 +56,10 @@ define([
             .map(_ => {
               const id = `${space_id}.${_.id}`;
               return `
-[id="${id}"], [data-x-source="${id}"] { --x:${Math.round(_.x)}; }
-[id="${id}"], [data-y-source="${id}"] { --y:${Math.round(-_.y)}; }
-[id="${id}"], [data-vx-source="${id}"] { --vx:${Math.round(_.vx)}; }
-[id="${id}"], [data-vy-source="${id}"] { --vy:${Math.round(-_.vy)}; }
+[id="${id}"], [data-x-source="${id}"] { --x:${_.x.toFixed(1)}; }
+[id="${id}"], [data-y-source="${id}"] { --y:${-_.y.toFixed(1)}; }
+[id="${id}"], [data-vx-source="${id}"] { --vx:${_.vx.toFixed(1)}; }
+[id="${id}"], [data-vy-source="${id}"] { --vy:${-_.vy.toFixed(1)}; }
 `;
             })
             .join("\n");
@@ -77,14 +78,11 @@ define([
           return css;
         }),
         tx.sideEffect(css => {
-          sink([
-            "dom-assert",
-            styles_id,
-            {
-              type: "is",
-              expr: { element: "style", attributes: {}, children: [css] },
-            },
-          ]);
+          sink(["dom-assert", styles_id, { type: "text-is", text: css }]);
+          // {
+          //   type: "is",
+          //   expr: { element: "style", attributes: {}, children: [css] },
+          // },
         })
       )
       .subscribe({
@@ -107,9 +105,9 @@ define([
   // - listeners to the subjects in the model
   //
   // - representation of model subjects
-  //   - place to get dom assertions
-  //   - way to match dom assertions
-  //   - compute: aggregate dom assertions into templates
+  //   - place to get dom assertions (DONE: allow as “global” message)
+  //   - way to match dom assertions (DONE: they must identify a subject)
+  //   - compute: aggregate dom assertions into templates (DONE)
   //
   // set up dataflow to listen to rule source changes
   // create graph (if not dataset) to represent model
@@ -144,7 +142,7 @@ define([
         id,
         {
           type: "attribute-equals",
-          name: "data-local-name",
+          name: "name",
           value: path[path.length - 1],
         },
       ],
@@ -191,6 +189,8 @@ define([
 
     const dom_process = dp.make_dom_process();
     dom_process.mounted.next({ id: "world", element: root });
+
+    const spec_0 = { a: "Space", Joe: {}, Al: {}, Sue: {} };
 
     const spec_1 = {
       a: "Panel",
