@@ -31,12 +31,12 @@
   /* TEMP: see things in space as dots */
   /* beat default: anyway it's crazy to have a default transition on all properties */
   transition: none;
-  background: rgba(255, 0, 0, 0.5);
-  width: 0.5em;
-  height: 0.5em;
-  padding: 0;
+  /* background: rgba(255, 0, 0, 0.5); */
+  /* width: 0.5em; */
+  /* height: 0.5em; */
+  /* padding: 0; */
   overflow: hidden;
-  border-radius: 50%;
+  /* border-radius: 50%; */
 }
 /* Sorry, if you don't have this intermediate container, no centering. */
 [typeof="Space"] > [data-dom-region] {

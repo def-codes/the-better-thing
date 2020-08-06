@@ -24,18 +24,26 @@ define([
     sim.force("charge", d3.forceManyBody());
     sim.force("x-axis", d3.forceX(0));
     sim.force("y-axis", d3.forceY(0));
+    sim.force(
+      "pull spaces to left",
+      d3.forceX(-250).strength(node => {
+        const ret = node.a === "Space" ? 0.5 : 0;
+        console.log("Assessing strength", ret, "for node", node);
+        return ret;
+      })
+    );
     sim.force("center", d3.forceCenter());
 
     // temp: periodically (disturb nodes and) re-warm alpha
-    rs.fromInterval(3000).subscribe({
-      next: () => {
-        for (const node of sim.nodes()) {
-          node.x = Math.random() * 2000 - 1000;
-          node.y = Math.random() * 2000 - 1000;
-        }
-        sim.alpha(1);
-      },
-    });
+    // rs.fromInterval(3000).subscribe({
+    //   next: () => {
+    //     for (const node of sim.nodes()) {
+    //       node.x = Math.random() * 2000 - 1000;
+    //       node.y = Math.random() * 2000 - 1000;
+    //     }
+    //     sim.alpha(1);
+    //   },
+    // });
 
     // const ticker = rs.fromInterval(1000).transform(
     const ticker = rs.fromRAF().transform(
@@ -175,8 +183,10 @@ define([
     }
 
     if (a === "Space") {
-      const names = Object.keys(props);
-      const nodes = names.map(box_id);
+      // Let d3 mutate the object & still read the properties
+      const nodes = Object.entries(props).map(([id, node]) =>
+        Object.create(node, { id: { value: id } })
+      );
       const space = make_space({ id, sink });
       yield ["new-space", id, space];
       const { streams } = space;
@@ -190,25 +200,18 @@ define([
     const dom_process = dp.make_dom_process();
     dom_process.mounted.next({ id: "world", element: root });
 
-    const spec_0 = { a: "Space", Joe: {}, Al: {}, Sue: {} };
-
-    const spec_1 = {
+    const EXAMPLE = {
       a: "Panel",
       space1: {
         a: "Space",
-        // styles: {},
-        Alice: {
-          a: "Space",
-          // styles: {},
-          Greg: {},
-          Jimbo: {},
-        },
+        Alice: { a: "Space", Greg: {}, Jimbo: {} },
         Bob: {},
         Carol: {},
       },
       space2: { a: "Space", Dave: {}, Edie: {}, Frank: {} },
       space3: { a: "Space", Joe: {}, Al: {}, Sue: {} },
     };
+    const spec_1 = EXAMPLE.space1;
 
     const dom_claims = {};
     const node_streams = {};
@@ -261,8 +264,11 @@ define([
         const node_stream = node_streams[container_id];
         if (node_stream) {
           const nodes = node_stream.deref();
+          // Object.create(description);
           if (nodes) {
             nodes.push(box_id(name));
+            // Let d3 mutate this I guess?
+            //nodes.push({ id: name });
             node_stream.next(nodes);
             console.log({ id, nodes });
             sims[container_id]?.alpha(1);
