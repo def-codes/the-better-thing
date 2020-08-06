@@ -47,6 +47,12 @@ span[class=""]::before {
 }
 html {
   background: none;
+  padding: 0; /* beat default */
+}
+body {
+  font-family: sans-serif;
+  margin: 0; /* beat default */
+  scroll-behavior: smooth;
 }
 body,
 .Space {
@@ -239,4 +245,10 @@ sub,
 sup {
   --is-phrasing: 1;
   --prefix: "";
+}
+
+/* Container labels */
+/* add `[id]` for specificity, to beat same */
+[id][data-local-name] {
+  --prefix: attr(data-local-name);
 }

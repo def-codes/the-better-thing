@@ -13,7 +13,11 @@ define([
   const make_space = spec => {
     const { id: space_id, sink } = spec;
     const sim = d3.forceSimulation().stop();
-    const nodes = rs.subscription({ next: sim.nodes });
+    const nodes = rs.subscription({
+      next(nodes) {
+        sim.nodes(nodes);
+      },
+    });
     const forces = rs.subscription({ next() {} });
 
     // Default forces (just for testing)
@@ -26,8 +30,8 @@ define([
     rs.fromInterval(1000).subscribe({
       next: () => {
         for (const node of sim.nodes()) {
-          node.x = Math.random() * 1000 - 500;
-          node.y = Math.random() * 1000 - 500;
+          node.x = Math.random() * 2000 - 1000;
+          node.y = Math.random() * 2000 - 1000;
         }
         sim.alpha(1);
       },
@@ -45,8 +49,9 @@ define([
 
     ticker
       .transform(
-        tx.map(nodes =>
-          nodes
+        tx.map(nodes => {
+          const css = sim
+            .nodes()
             .map(_ => {
               const id = `${space_id}.${_.id}`;
               return `
@@ -56,8 +61,21 @@ define([
 [id="${id}"], [data-vy-source="${id}"] { --vy:${Math.round(-_.vy)}; }
 `;
             })
-            .join("\n")
-        ),
+            .join("\n");
+          // if (space_id.includes("2")) {
+          //   console.log("CSS", css);
+          //   // console.log(`nodes`, nodes);
+          //   // console.log(`sim.nodes()`, sim.nodes());
+          //   // console.log(
+          //   //   `sim.nodes() === nodes`,
+          //   //   nodes.length,
+          //   //   sim.nodes() === nodes,
+          //   //   ...nodes
+          //   // );
+          // }
+
+          return css;
+        }),
         tx.sideEffect(css => {
           sink([
             "dom-assert",
@@ -77,7 +95,7 @@ define([
 
     const streams = { ticker, nodes, forces };
 
-    return { streams };
+    return { streams, sim };
   };
 
   // Things you still don't have here:
@@ -118,12 +136,18 @@ define([
     const { a, ...props } = spec;
 
     const id = path.join(".");
-    let prototype_props = {};
 
-    yield [
-      "dom-assert",
-      id,
-      { type: "attribute-equals", name: "id", value: id },
+    yield* [
+      ["dom-assert", id, { type: "attribute-equals", name: "id", value: id }],
+      [
+        "dom-assert",
+        id,
+        {
+          type: "attribute-equals",
+          name: "data-local-name",
+          value: path[path.length - 1],
+        },
+      ],
     ];
 
     // Type is the first line of defense
@@ -136,9 +160,9 @@ define([
 
       const type_spec = types[a];
       if (!type_spec) {
-        console.warn("I don't know about this type of thing");
+        console.warn("I don't know about this type of thing:", a);
       } else {
-        // There should be multiple types, and types are a mixin
+        // There should be multiple types, and types are live mixins
         // basically prototypes but with protocol composition
         // prototype_props = type_spec;
       }
@@ -146,9 +170,7 @@ define([
       console.warn("no type in:", ...path, spec);
     }
 
-    const effective_props = { ...prototype_props, ...props };
-
-    for (const [name, child_spec] of Object.entries(effective_props)) {
+    for (const [name, child_spec] of Object.entries(props)) {
       const child_path = [...path, name].join(".");
       yield ["dom-assert", id, { type: "contains", id: child_path }];
       yield* make(child_spec, sink, [...path, name]);
@@ -157,8 +179,9 @@ define([
     if (a === "Space") {
       const names = Object.keys(props);
       const nodes = names.map(box_id);
-      const { streams } = make_space({ id, sink });
-      // console.log(`names, nodes, streams`, names, nodes, streams);
+      const space = make_space({ id, sink });
+      yield ["new-space", id, space];
+      const { streams } = space;
       streams.nodes.next(nodes);
     }
   }
@@ -188,6 +211,8 @@ define([
     };
 
     const dom_claims = {};
+    const node_streams = {};
+    const sims = {};
 
     function sink([tag, ...args]) {
       if (tag === "dom-assert") {
@@ -202,12 +227,49 @@ define([
         }
         // Could create a stream from this
         dom_process.define(id, operations_to_template(dom_claims[id]));
+      } else if (tag === "new-space") {
+        const [id, space] = args;
+        console.log("new space", id, space);
+        const { streams, sim } = space;
+        const { ticker, nodes } = streams;
+        node_streams[id] = nodes;
+        sims[id] = sim;
+        // remember all this
       } else {
         console.warn("no handler for", tag);
       }
     }
 
     for (const claim of make(spec_1, sink, ["world"])) sink(claim);
+
+    const more_names = "Joey Gary Eddie Susan Leo Sadie Sally Betty Freddie".split(
+      " "
+    );
+
+    rs.fromIterable(more_names, { delay: 1000 }).subscribe({
+      next(name) {
+        const spec = { a: "Person" };
+        const space_name = "space2";
+        const container_id = `world.${space_name}`;
+        const id = `${container_id}.${name}`;
+
+        for (const claim of make(spec, sink, ["world", "space2", name]))
+          sink(claim);
+        sink(["dom-assert", container_id, { type: "contains", id }]);
+
+        // const [, any] = Object.keys(node_streams);
+        const node_stream = node_streams[container_id];
+        if (node_stream) {
+          const nodes = node_stream.deref();
+          if (nodes) {
+            nodes.push(box_id(name));
+            node_stream.next(nodes);
+            console.log({ id, nodes });
+            sims[container_id]?.alpha(1);
+          }
+        }
+      },
+    });
 
     const mouse_moves = rs.fromEvent(document.body, "mousemove");
     // mouse_moves.transform(tx.trace("fbalsdf"));
