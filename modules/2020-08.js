@@ -33,7 +33,6 @@ define([
   const box_simulation_node = (node, id) => {
     // for hidden classes, ensure that objects have a uniform structure.
     const { x, y, vx, vy } = node;
-    console.log("IDD", id, x, y, vx, vy, node);
     return Object.create(node, {
       id: { value: id },
       x: { writable: true, value: typeof x === "number" ? x : 0 },
@@ -79,7 +78,6 @@ define([
     // temp: periodically (disturb nodes and) re-warm alpha
     rs.fromInterval(5000).subscribe({
       next: () => {
-        console.log("ENTROPY", sim.nodes().length);
         for (const node of sim.nodes()) {
           node.x = Math.random() * 1000 - 500;
           node.y = Math.random() * 1000 - 500;
@@ -507,7 +505,7 @@ ${Object.entries(properties)
       next(name) {
         const spec = { a: "Person" };
         const container_path = [`world`, "dataflow"];
-        const new_thing_path = [container_path, name];
+        const new_thing_path = [...container_path, name];
         const container_id = container_path.join(".");
         const id = new_thing_path.join(".");
 
@@ -523,11 +521,10 @@ ${Object.entries(properties)
         if (node_stream) {
           const nodes = node_stream.deref();
           if (nodes) {
-            nodes.push(box_simulation_node(random_point(), id));
+            nodes.push(box_simulation_node(random_point(), name));
             // Let d3 mutate this I guess?
             //nodes.push({ id: name });
             node_stream.next(nodes);
-            console.log({ id, nodes });
             sims[container_id]?.alpha(1);
           } else {
             console.warn(`No cached nodes for ${container_id}!`);
