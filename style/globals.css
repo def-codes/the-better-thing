@@ -21,7 +21,9 @@
   color: var(--color);
   --prefix: var(--type);
   --space-background: #222;
+
   --hue: 0deg;
+  /* --hue: calc((1 - var(--heat)) * 240deg); */
   --saturation: 0%;
   --luminosity: 50%;
   --alpha: 20%;

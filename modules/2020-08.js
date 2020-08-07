@@ -413,20 +413,11 @@ ${Object.entries(properties)
   .map(([key, value]) => `${key}:${value};`)
   .join("\n")}
 }`;
-          // aggregate into CSS claims?
-          // or write as dom assertions
-          const assertions_id = `${claimant}.css-assertions`;
-
-          // Two of these don't need to be done each time on each assert...
-          if (!dom_claims[claimant]) dom_claims[claimant] = [];
-          dom_claims[claimant].push({ type: "contains", id: assertions_id });
-
-          if (!dom_claims[assertions_id]) dom_claims[assertions_id] = [];
-          dom_claims[assertions_id].push({
-            type: "uses-element",
-            name: "style",
-          });
-          dom_claims[assertions_id].push({ type: "text-is", text: css });
+          // The first two of these don't need to be done each time on each assert
+          const ass_id = `${claimant}.css-assertions`;
+          sink(["dom-assert", claimant, { type: "contains", id: ass_id }]);
+          sink(["dom-assert", ass_id, { type: "uses-element", name: "style" }]);
+          sink(["dom-assert", ass_id, { type: "text-is", text: css }]);
         } catch (error) {
           console.log("Problem processing CSS assert");
         }

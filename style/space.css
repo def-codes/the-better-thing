@@ -1,5 +1,5 @@
 /* Space and forcefields. */
-[typeof="Space"] {
+[typeof~="Space"] {
   position: relative;
   /* Arbitrary.  If everything is a body in a space (and absolutely-positioned),
    * then it will have no natural height.
@@ -8,14 +8,19 @@
 
   /* Temp, just helps distinguish */
   /* background: black; */
-  --luminosity: 10%;
+  /* --luminosity: 10%; */
 
   /* Possibly this should be contextual */
   overflow: hidden;
   box-shadow: inset 0 0 2em -0.5em;
+
+  /* “heat” idea is wip.  rather than go between red and blue, just add red */
+  --heat: var(--simulation-alpha);
+  /* --hue: calc((1 - var(--heat)) * 240deg); */
+  --saturation: calc(var(--simulation-alpha) * 100%);
 }
 /* Nested space (space-within-a-space) */
-[typeof="Space"] [typeof="Space"] {
+[typeof~="Space"] [typeof~="Space"] {
   min-height: initial; /* reset rule that is only meant for flow position */
 
   /* A space within a space should not appear in front of other non-space
@@ -47,17 +52,17 @@
   perspective-origin: center;
   perspective: 100rem;
 }
-/* [typeof="Space"] [typeof="Space"]:hover { */
+/* [typeof~="Space"] [typeof~="Space"]:hover { */
 /*   transform: translateZ(1rem); */
 /* } */
 
 /* For those special cases */
-[typeof="Space"] {
+[typeof~="Space"] {
   border-radius: 50%;
 }
 /* Items in space are positioned (skipping placeholder elements) */
-[typeof="Space"] > :not([data-dom-region]),
-[typeof="Space"] > [data-dom-region] > * {
+[typeof~="Space"] > :not([data-dom-region]),
+[typeof~="Space"] > [data-dom-region] > * {
   position: absolute;
   top: calc(var(--y) * 1px);
   left: calc(var(--x) * 1px);
@@ -76,28 +81,28 @@
   /* border-radius: 50%; */
 }
 /* Objects in a space-within-a-space */
-[typeof="Space"] [typeof="Space"] > :not([data-dom-region]),
-[typeof="Space"] [typeof="Space"] > [data-dom-region] > * {
+[typeof~="Space"] [typeof~="Space"] > :not([data-dom-region]),
+[typeof~="Space"] [typeof~="Space"] > [data-dom-region] > * {
   /* background: red; */
   /* z-index: -1; */
 }
 /* Sorry, if you don't have this intermediate container, no centering. */
-[typeof="Space"] > [data-dom-region] {
+[typeof~="Space"] > [data-dom-region] {
   position: absolute;
   top: 50%;
   left: 50%;
 }
-[typeof="Space"] > [data-dom-region] > [data-axis]::before,
-[typeof="Space"] > [data-dom-region] > [data-axis]::after {
+[typeof~="Space"] > [data-dom-region] > [data-axis]::before,
+[typeof~="Space"] > [data-dom-region] > [data-axis]::after {
   display: none;
 }
-[typeof="Space"] > [data-dom-region] > [data-axis] {
+[typeof~="Space"] > [data-dom-region] > [data-axis] {
   position: absolute;
   overflow: hidden;
   padding: 0;
   border: none;
 }
-[typeof="Space"] > [data-dom-region] > [data-axis="x"] {
+[typeof~="Space"] > [data-dom-region] > [data-axis="x"] {
   top: 0;
   left: 0;
   /*right: -50%;*/
@@ -105,23 +110,23 @@
   height: 1em;
   border-top: 3px dashed red; /* rgba(255, 255, 255, 0.5); */
 }
-[typeof="Space"] > [data-dom-region] > [data-axis="y"] {
+[typeof~="Space"] > [data-dom-region] > [data-axis="y"] {
   top: -50%;
   left: 0;
   width: 0;
   height: 100%;
   border-left: 3px dashed red; /* rgba(255, 255, 255, 0.5); */
 }
-[typeof="Panel"],
+[typeof~="Panel"],
 .panels {
   display: flex;
 }
-[typeof="Panel"] > *,
+[typeof~="Panel"] > *,
 .panels > * {
   position: relative;
   flex: 1 1 50%;
 }
-[typeof="Counter"] *,
-[typeof="Counter"] {
+[typeof~="Counter"] *,
+[typeof~="Counter"] {
   background: #ace !important;
 }
