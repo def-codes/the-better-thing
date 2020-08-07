@@ -115,3 +115,7 @@
   position: relative;
   flex: 1 1 50%;
 }
+[typeof="Counter"] *,
+[typeof="Counter"] {
+  background: #ace !important;
+}

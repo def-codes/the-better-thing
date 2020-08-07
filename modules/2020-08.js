@@ -8,7 +8,18 @@ define([
 ], (d3, rs, tx, dom_rules, dp, examples) => {
   // console.log(`examples`, examples);
 
+  const meld = new Proxy({}, {});
+  const { css } = meld;
+
   const { facts_to_operations, operations_to_template } = dom_rules;
+
+  const trap_map = () => {
+    const map = new Map();
+    const has = key => map.has(key);
+    const get = key => map.get(key);
+    const set = (key, value) => map.set(key, value);
+    return { has, get, set };
+  };
 
   const make_space = spec => {
     const { id: space_id, sink } = spec;
@@ -83,26 +94,11 @@ define([
 `;
             })
             .join("\n");
-          // if (space_id.includes("2")) {
-          //   console.log("CSS", css);
-          //   // console.log(`nodes`, nodes);
-          //   // console.log(`sim.nodes()`, sim.nodes());
-          //   // console.log(
-          //   //   `sim.nodes() === nodes`,
-          //   //   nodes.length,
-          //   //   sim.nodes() === nodes,
-          //   //   ...nodes
-          //   // );
-          // }
 
           return css;
         }),
         tx.sideEffect(css => {
           sink(["dom-assert", styles_id, { type: "text-is", text: css }]);
-          // {
-          //   type: "is",
-          //   expr: { element: "style", attributes: {}, children: [css] },
-          // },
         })
       )
       .subscribe({
@@ -139,13 +135,22 @@ define([
     y: Math.random() * 1000 - 500,
   });
 
-  const types = {
+  const TYPES = {
     Panel: {},
     XAxis: { dom: [{ matches: '[data-axis="x"]' }] },
     YAxis: { dom: [{ matches: '[data-axis="y"]' }] },
     Person: {
       name: "",
     },
+    [meld.d3]: {},
+    Collection: {},
+    Simulation: {},
+    ForceManyBody: {},
+    Map: {},
+    Stream: {},
+    Sink: {},
+    Source: {},
+    StreamSync: { subclassOf: "Stream" },
     Space: {
       styles: {},
       "x-axis": { a: "XAxis" },
@@ -154,38 +159,38 @@ define([
   };
 
   function* make(spec, sink, path = []) {
+    if (typeof spec !== "object") {
+      // console.warn(`spec of type ${typeof spec} is not supported! ${spec}`);
+      return;
+    }
+
+    if (Array.isArray(spec)) {
+      let i = 0;
+      for (const item of spec) yield* make(item, sink, [...path, i++]);
+      return;
+    }
+
     const { a, ...props } = spec;
 
     const id = path.join(".");
-
+    const name = path[path.length - 1];
+    // Would rather something like
+    // return { dom: { matches: `[id="${id}"]` } };
+    // return { dom: { matches: `[name="${name}"]` } };
     yield* [
       ["dom-assert", id, { type: "attribute-equals", name: "id", value: id }],
       [
         "dom-assert",
         id,
-        {
-          type: "attribute-equals",
-          name: "name",
-          value: path[path.length - 1],
-        },
+        { type: "attribute-equals", name: "name", value: name },
       ],
     ];
 
     // Type is the first line of defense
     if (a) {
-      // Shouldn't this just be a type assertion?
       if (Array.isArray(a))
         for (const type of a) yield ["assert-type", id, type];
       else yield ["assert-type", id, a];
-
-      const type_spec = types[a];
-      if (!type_spec) {
-        console.warn("I don't know about this type of thing:", a);
-      } else {
-        // There should be multiple types, and types are live mixins
-        // basically prototypes but with protocol composition
-        // prototype_props = type_spec;
-      }
     } else {
       console.warn("no type in:", ...path, spec);
     }
@@ -219,10 +224,13 @@ define([
       dataflow: {
         a: "Space",
         things: {
-          // You maybe don't need to state this, as it's implied by the
+          a: "Collection",
+          // You maybe don't need to state this, as it's implied by the forces
           sim1: { a: "Simulation" },
+          trace_me: { a: "Runner", x: { a: "Counter" }, y: {} },
         },
         forces: {
+          a: "Map",
           charge: {
             comment: "causes things to repel each other",
             a: "ForceManyBody",
@@ -235,14 +243,14 @@ define([
         },
         dataflow: {
           assertions: {
-            comment: {},
+            a: "StreamSync",
+            comment: "coordinate all dom assertions about representations",
           },
+          [meld.dom_sink]: { a: "Sink" },
           step: {
             a: "Source",
             comment:
               "the simulation does not schedule itself.  for best results, feed it at regular intervals",
-            // But it's connected to an internal thing
-            // sim.tick is a message sink provided by the simulation instance
             transforms_with: [["map", () => sim.tick()]],
           },
           css: {
@@ -282,13 +290,6 @@ define([
           // D3 has some of its own internal dataflow
           // each time a force definition is updated
           // the force values have to be recomputed
-          node4: {
-            transforms_with: {},
-          },
-          node5: {
-            transforms_with: {},
-          },
-          node6: {},
         },
       },
       space1: {
@@ -318,10 +319,11 @@ define([
     };
     const spec_1 = EXAMPLE.dataflow;
 
-    const by_type = new Map();
     const dom_claims = {};
     const node_streams = {};
     const sims = {};
+
+    const by_type = trap_map();
 
     function sink([tag, ...args]) {
       if (tag === "dom-assert") {
@@ -338,16 +340,34 @@ define([
         dom_process.define(id, operations_to_template(dom_claims[id]));
       } else if (tag === "assert-type") {
         const [id, type] = args;
+        if (!type) throw new Error(`type assertion missing object`);
+
+        // Special index by type
+        // Again... this could be a subscriber
+        // What do you do with this, anyway?
+        // Maybe visit all instances when a prototype is updated
         if (!by_type.has(type)) by_type.set(type, new Set());
         by_type.get(type).add(id);
 
-        // Should subscribe to the by-type map...
-        // Also how do we feel about sinking from here?
-        sink([
-          "dom-assert",
-          id,
-          { type: "attribute-contains-word", name: "typeof", value: type },
-        ]);
+        const type_spec = TYPES[type];
+        if (!type_spec) {
+          console.warn("I don't know about this type of thing:", type);
+        } else {
+          // There should be multiple types, and types are live mixins
+          // basically prototypes but with protocol composition
+          // prototype_props = type_spec;
+
+          // Should subscribe to the by-type map...
+          // Also how do we feel about sinking from here?
+          // Would rather say
+          //
+          // sink(["dom-assert", { id, matches: `[typeof~="${type}"]` }]);
+          sink([
+            "dom-assert",
+            id,
+            { type: "attribute-contains-word", name: "typeof", value: type },
+          ]);
+        }
       } else if (tag === "new-space") {
         const [id, space] = args;
         console.log("new space", id, space);
