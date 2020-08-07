@@ -24,16 +24,28 @@ define([
     return { has, get, set };
   };
 
+  // see node-provenance.md
+  const box_simulation_node = (node, id) => {
+    // for hidden classes, ensure that objects have a uniform structure.
+    const { x, y, vx, vy } = node;
+    return Object.create(node, {
+      id: { value: id },
+      x: { value: x },
+      y: { value: y },
+      vx: { value: vx },
+      vy: { value: vy },
+      // x: { value: typeof x === "number" ? x : 0 },
+      // y: { value: typeof y === "number" ? y : 0 },
+      // vx: { value: typeof vx === "number" ? vx : 0 },
+      // vy: { value: typeof vy === "number" ? vy : 0 },
+    });
+  };
+
   const make_space = spec => {
     const { id: space_id, sink } = spec;
     const sim = d3.forceSimulation().stop();
     const ticker = rs.subscription();
     const nodes = rs.subscription({ next: sim.nodes });
-    // const nodes = rs.subscription({
-    //   next(nodes) {
-    //     sim.nodes(nodes);
-    //   },
-    // });
     const forces = rs.subscription({ next() {} });
 
     // Default forces (just for testing)
@@ -79,7 +91,7 @@ define([
       // tx.sideEffect(nodes => console.log("WUUT", ...nodes))
     );
 
-    const styles_id = `${space_id}.styles`;
+    const styles_id = `${space_id}.xy-styles`;
     // What you really want is a css assert
     // But (very) non-monotonic
     // Update-in-place, "non-knowledge"
@@ -114,7 +126,11 @@ define([
         },
       });
 
-    const streams = { ticker, nodes, forces };
+    // Alpha updates on every frame.  This really should be a stream.  There's
+    // no reason to create it if there aren't any subscribers.
+    const alpha = ticker.transform(tx.map(() => sim.alpha()));
+
+    const streams = { ticker, nodes, alpha, forces };
 
     return { streams, sim };
   };
@@ -143,6 +159,10 @@ define([
   });
 
   const TYPES = {
+    Sequence: {
+      comment:
+        "runtime has `Iterable` protocol.  Turtle has list syntax; RDF otherwise strictly unordered",
+    },
     Panel: {},
     XAxis: { dom: [{ matches: '[data-axis="x"]' }] },
     YAxis: { dom: [{ matches: '[data-axis="y"]' }] },
@@ -243,9 +263,11 @@ define([
 
     // If it's a space, call Space's elaborate init routine
     if (has_type(spec, "Space")) {
-      // Let d3 mutate the object & still read the properties
+      // This mapping creates a new object that uses
+      // force parameter initializer functions can still read itsthe nodes at-large
+      // properties.
       const nodes = Object.entries(props).map(([id, node]) =>
-        Object.create(node, { id: { value: id } })
+        box_simulation_node(node, id)
       );
       const space = make_space({ id, sink });
       yield ["new-space", id, space];
@@ -267,12 +289,16 @@ define([
         // you're creating a view, a container, and you would describe the things that
         // should be included in this space.  with various kinds of matching at your disposal
         a: "Space",
+        Billy: { a: "Person" },
+        Nellie: { a: "Person" },
         things: {
           a: "Space",
           // a: "Collection",
           sim1: { a: "Simulation" },
           trace_me: { a: "Runner", x: { a: "Counter" }, y: {} },
         },
+      },
+      foo: {
         forces: {
           a: "Map",
           charge: {
@@ -357,16 +383,17 @@ define([
       space3: {
         a: "Space",
         Joe: { a: "Person" },
-        Al: {},
+        Al: { a: "Person" },
         Sue: { a: "Person" },
       },
     };
-    const spec_1 = EXAMPLE.dataflow;
+    const spec_1 = EXAMPLE;
 
     const dom_claims = {};
     const node_streams = {};
     const sims = {};
 
+    const by_id = trap_map();
     const by_type = trap_map();
 
     function sink([tag, ...args]) {
@@ -382,6 +409,30 @@ define([
         }
         // Could create a stream from this
         dom_process.define(id, operations_to_template(dom_claims[id]));
+      } else if (tag === "css-assert") {
+        try {
+          const [claimant, selector, properties] = args;
+          const css = `${selector} {
+${Object.entries(properties)
+  .map(([key, value]) => `${key}:${value};`)
+  .join("\n")}
+}`;
+          // aggregate into CSS claims?
+          // or write as dom assertions
+          const assertions_id = `${claimant}.css-assertions`;
+          // Two of these don't need to be done each time on each assert...
+          if (!dom_claims[claimant]) dom_claims[claimant] = [];
+          dom_claims[claimant].push({ type: "contains", id: assertions_id });
+
+          if (!dom_claims[assertions_id]) dom_claims[assertions_id] = [];
+          dom_claims[assertions_id].push({
+            type: "uses-element",
+            name: "style",
+          });
+          dom_claims[assertions_id].push({ type: "text-is", text: css });
+        } catch (error) {
+          console.log("Problem processing CSS assert");
+        }
       } else if (tag === "assert-type") {
         const [id, type] = args;
         if (!type) throw new Error(`type assertion missing object`);
@@ -425,12 +476,22 @@ define([
       } else if (tag === "new-space") {
         const [id, space] = args;
         const { streams, sim } = space;
-        const { ticker, nodes } = streams;
+        const { ticker, nodes, alpha } = streams;
         node_streams[id] = nodes;
         sims[id] = sim;
         // actually start the simulation
         // rs.fromInterval(1000).subscribe(ticker);
         rs.fromRAF().subscribe(ticker);
+        alpha.subscribe({
+          next(value) {
+            sink([
+              "css-assert",
+              id,
+              `[id="${id}"], [data-simulation-alpha-source="${id}"]`,
+              { "--simulation-alpha": value.toFixed(2) },
+            ]);
+          },
+        });
         // remember all this
       } else {
         console.warn("no handler for", tag);
@@ -446,13 +507,20 @@ define([
     rs.fromIterable(more_names, { delay: 1000 }).subscribe({
       next(name) {
         const spec = { a: "Person" };
-        const space_name = "dataflow";
-        const container_id = `world.${space_name}`;
+        const container_path = [`world`, "dataflow"];
+        const container_id = container_path.join(".");
         const id = `${container_id}.${name}`;
 
-        for (const claim of make(spec, sink, ["world", space_name, name]))
+        for (const claim of make(spec, sink, [container_path, name]))
           sink(claim);
         sink(["dom-assert", container_id, { type: "contains", id }]);
+        // Why doesn't dataflow appear as a space?
+        //
+        // sink([
+        //   "dom-assert",
+        //   id,
+        //   { type: "contains-text", text: `my name is ${name}!` },
+        // ]);
 
         // const [, any] = Object.keys(node_streams);
         const node_stream = node_streams[container_id];
@@ -466,7 +534,11 @@ define([
             node_stream.next(nodes);
             console.log({ id, nodes });
             sims[container_id]?.alpha(1);
+          } else {
+            console.warn(`No cached nodes for ${container_id}!`);
           }
+        } else {
+          console.warn(`No node stream for ${container_id}!`);
         }
       },
     });
