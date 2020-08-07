@@ -21,9 +21,20 @@ define([
     const forces = rs.subscription({ next() {} });
 
     // Default forces (just for testing)
-    sim.force("charge", d3.forceManyBody());
-    sim.force("x-axis", d3.forceX(0));
-    sim.force("y-axis", d3.forceY(0));
+    sim.force("charge", d3.forceManyBody(2000));
+    sim.force("x-axis", d3.forceX(0).strength(0.01));
+    sim.force("y-axis", d3.forceY(0).strength(0.01));
+
+    // sim.force("center", d3.forceCenter());
+
+    // sim.force(
+    //   "stronger",
+    //   d3.forceX(250).strength(node => {
+    //     const ret = node.a === "Space" ? 0 : 0.25;
+    //     console.log("Assessing strength", ret, "for node", node);
+    //     return ret;
+    //   })
+    // );
 
     if (false)
       sim.force(
@@ -34,14 +45,13 @@ define([
           return ret;
         })
       );
-    // sim.force("center", d3.forceCenter());
 
     // temp: periodically (disturb nodes and) re-warm alpha
     rs.fromInterval(3000).subscribe({
       next: () => {
         for (const node of sim.nodes()) {
-          node.x = Math.random() * 2000 - 1000;
-          node.y = Math.random() * 2000 - 1000;
+          node.x = Math.random() * 1000 - 500;
+          node.y = Math.random() * 1000 - 500;
         }
         sim.alpha(1);
       },
@@ -133,6 +143,9 @@ define([
     Panel: {},
     XAxis: { dom: [{ matches: '[data-axis="x"]' }] },
     YAxis: { dom: [{ matches: '[data-axis="y"]' }] },
+    Person: {
+      name: "",
+    },
     Space: {
       styles: {},
       "x-axis": { a: "XAxis" },
@@ -164,23 +177,6 @@ define([
       if (Array.isArray(a))
         for (const type of a) yield ["assert-type", id, type];
       else yield ["assert-type", id, a];
-
-      // Multiple types are always allowed
-      // if (Array.isArray(a)) {
-      //   // yield { matches: '[typeof*="${type}"]' };
-      //   for (const value of a)
-      //     yield [
-      //       "dom-assert",
-      //       id,
-      //       { type: "attribute-contains-word", name: "typeof", value },
-      //     ];
-      // } else {
-      //   yield [
-      //     "dom-assert",
-      //     id,
-      //     { type: "attribute-contains-word", name: "typeof", value: a },
-      //   ];
-      // }
 
       const type_spec = types[a];
       if (!type_spec) {
@@ -222,12 +218,78 @@ define([
       a: "Panel",
       dataflow: {
         a: "Space",
-        node1: {},
-        node2: {},
-        node3: {},
-        node4: {},
-        node5: {},
-        node6: {},
+        things: {
+          // You maybe don't need to state this, as it's implied by the
+          sim1: { a: "Simulation" },
+        },
+        forces: {
+          charge: {
+            comment: "causes things to repel each other",
+            a: "ForceManyBody",
+            strength: 1, // "expression goeth here",
+            // Could be a constant expression
+            // Could be a source description
+            // Could be a function (of the node)
+            // Could be a source that emits functions?
+          },
+        },
+        dataflow: {
+          assertions: {
+            comment: {},
+          },
+          step: {
+            a: "Source",
+            comment:
+              "the simulation does not schedule itself.  for best results, feed it at regular intervals",
+            // But it's connected to an internal thing
+            // sim.tick is a message sink provided by the simulation instance
+            transforms_with: [["map", () => sim.tick()]],
+          },
+          css: {
+            a: "Sink",
+            comment:
+              "map variable assignments from simulation nodes to css.  could be done via writing dom nodes with serialized style rules, or possibly by direct manipulation of host interfaces representing those rules.  I'm assuming there's some difference in overhead.",
+            listens_to: { id: "step" },
+            transforms_with: [
+              [
+                "map",
+                bodies =>
+                  bodies.map(
+                    _ =>
+                      css.rules(
+                        ...["x", "y", "vx", "vy"].map(
+                          v => [
+                            `[id="${_.id}"]`,
+                            `[data-${v}-source]`,
+                            { [`--${v}`]: _[v]?.toFixed(1) },
+                          ],
+                          []
+                        )
+                      ),
+                    // “Unrolled” version (which lumps all together)
+                    // Name might not be a legal ID
+                    css.rule([`[id="${_.id}"]`, "[]"], {
+                      "--x": _.x,
+                      "--y": _.y,
+                      "--vx": _.vx,
+                      "--vy": _.vy,
+                    })
+                  ),
+              ],
+            ],
+          },
+
+          // D3 has some of its own internal dataflow
+          // each time a force definition is updated
+          // the force values have to be recomputed
+          node4: {
+            transforms_with: {},
+          },
+          node5: {
+            transforms_with: {},
+          },
+          node6: {},
+        },
       },
       space1: {
         // Space is a way of viewing something, not (always) the thing itself

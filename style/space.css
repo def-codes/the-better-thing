@@ -4,7 +4,7 @@
   /* Arbitrary.  If everything is a body in a space (and absolutely-positioned),
    * then it will have no natural height.
    */
-  min-height: 50vh;
+  min-height: 80vh;
 
   /* Temp, just helps distinguish */
   /* background: black; */
