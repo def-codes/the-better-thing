@@ -148,6 +148,8 @@ define([
     ForceManyBody: {},
     Map: {},
     Stream: {},
+    Runner: { comment: "something that runs about" },
+    Counter: { comment: "monotonic increment (source, sync, proc)" },
     Sink: {},
     Source: {},
     StreamSync: { subclassOf: "Stream" },
@@ -201,6 +203,25 @@ define([
       yield* make(child_spec, sink, [...path, name]);
     }
 
+    if (a === "Counter") {
+      // well then
+      const counter = rs.fromInterval(500);
+      // where does the energy come from?
+      // the counter can be pull (lazy, non-strict), this is not about time, right?
+      const counter_id = [...path, "counter:Process"].join(".");
+      yield ["dom-assert", id, { type: "contains", id: counter_id }];
+      counter.subscribe({
+        next(value) {
+          sink([
+            "dom-assert",
+            counter_id,
+            { type: "text-is", text: `${value}!` },
+          ]);
+        },
+      });
+      // What does the recipe say about when this thing dies?
+    }
+
     if (a === "Space") {
       // Let d3 mutate the object & still read the properties
       const nodes = Object.entries(props).map(([id, node]) =>
@@ -224,8 +245,8 @@ define([
       dataflow: {
         a: "Space",
         things: {
-          a: "Collection",
-          // You maybe don't need to state this, as it's implied by the forces
+          a: "Space",
+          // a: "Collection",
           sim1: { a: "Simulation" },
           trace_me: { a: "Runner", x: { a: "Counter" }, y: {} },
         },
@@ -356,18 +377,28 @@ define([
           // There should be multiple types, and types are live mixins
           // basically prototypes but with protocol composition
           // prototype_props = type_spec;
-
-          // Should subscribe to the by-type map...
-          // Also how do we feel about sinking from here?
-          // Would rather say
-          //
-          // sink(["dom-assert", { id, matches: `[typeof~="${type}"]` }]);
-          sink([
-            "dom-assert",
-            id,
-            { type: "attribute-contains-word", name: "typeof", value: type },
-          ]);
         }
+
+        // This is a general rule.
+        //
+        // Emit this anyway because CSS rules might know about it
+        //
+        // ?x a ?t . ?e represents ?x -> ?e typeof contains ?t
+        //
+        // Non-monotonic: if this is retracted, the assertions need to be
+        // recomputed.  The assertions are downstream from the type definitions
+        // and upstream from the dom templates.
+
+        // Should subscribe to the by-type map...
+        // Also how do we feel about sinking from here?
+        // Would rather say
+        //
+        // sink(["dom-assert", { id, matches: `[typeof~="${type}"]` }]);
+        sink([
+          "dom-assert",
+          id,
+          { type: "attribute-contains-word", name: "typeof", value: type },
+        ]);
       } else if (tag === "new-space") {
         const [id, space] = args;
         console.log("new space", id, space);

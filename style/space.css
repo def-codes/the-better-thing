@@ -14,9 +14,14 @@
   overflow: hidden;
   box-shadow: inset 0 0 2em -0.5em;
 }
-/* Nested space (space within a space) */
+/* Nested space (space-within-a-space) */
 [typeof="Space"] [typeof="Space"] {
   min-height: initial; /* reset rule that is only meant for flow position */
+
+  /* A space within a space should not appear in front of other non-space
+   objects. */
+  z-index: -1;
+  /* opacity: 1; */
 
   /* border: 1em solid rgba(255, 255, 255, 0.1); */
   /* border: none; */
