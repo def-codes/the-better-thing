@@ -14,6 +14,37 @@
   overflow: hidden;
   box-shadow: inset 0 0 2em -0.5em;
 }
+/* Nested space (space within a space) */
+[typeof="Space"] [typeof="Space"] {
+  min-height: initial; /* reset rule that is only meant for flow position */
+
+  /* border: 1em solid rgba(255, 255, 255, 0.1); */
+  /* border: none; */
+  /* background-image: radial-gradient( */
+  /*   transparent, */
+  /*   transparent 80%, */
+  /*   red 80%, */
+  /*   red 100% */
+  /* ); */
+
+  /* No: positioning container is (now) data-dom-region... */
+  /* width: 25%; */
+  /* height: 25%; */
+  --space-width: 7em;
+  --space-height: 7em;
+  width: var(--space-width);
+  height: var(--space-height);
+
+  transition: transform 0.5s;
+  transform-origin: center;
+  transform-style: preserve3d;
+  perspective-origin: center;
+  perspective: 100rem;
+}
+/* [typeof="Space"] [typeof="Space"]:hover { */
+/*   transform: translateZ(1rem); */
+/* } */
+
 /* For those special cases */
 [typeof="Space"] {
   border-radius: 50%;
@@ -35,8 +66,14 @@
   /* width: 0.5em; */
   /* height: 0.5em; */
   /* padding: 0; */
-  overflow: hidden;
+  /* overflow: hidden; */
   /* border-radius: 50%; */
+}
+/* Objects in a space-within-a-space */
+[typeof="Space"] [typeof="Space"] > :not([data-dom-region]),
+[typeof="Space"] [typeof="Space"] > [data-dom-region] > * {
+  /* background: red; */
+  /* z-index: -1; */
 }
 /* Sorry, if you don't have this intermediate container, no centering. */
 [typeof="Space"] > [data-dom-region] {

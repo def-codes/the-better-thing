@@ -24,26 +24,28 @@ define([
     sim.force("charge", d3.forceManyBody());
     sim.force("x-axis", d3.forceX(0));
     sim.force("y-axis", d3.forceY(0));
-    sim.force(
-      "pull spaces to left",
-      d3.forceX(-250).strength(node => {
-        const ret = node.a === "Space" ? 0.5 : 0;
-        console.log("Assessing strength", ret, "for node", node);
-        return ret;
-      })
-    );
-    sim.force("center", d3.forceCenter());
+
+    if (false)
+      sim.force(
+        "pull non-spaces to right",
+        d3.forceX(250).strength(node => {
+          const ret = node.a === "Space" ? 0 : 0.25;
+          console.log("Assessing strength", ret, "for node", node);
+          return ret;
+        })
+      );
+    // sim.force("center", d3.forceCenter());
 
     // temp: periodically (disturb nodes and) re-warm alpha
-    // rs.fromInterval(3000).subscribe({
-    //   next: () => {
-    //     for (const node of sim.nodes()) {
-    //       node.x = Math.random() * 2000 - 1000;
-    //       node.y = Math.random() * 2000 - 1000;
-    //     }
-    //     sim.alpha(1);
-    //   },
-    // });
+    rs.fromInterval(3000).subscribe({
+      next: () => {
+        for (const node of sim.nodes()) {
+          node.x = Math.random() * 2000 - 1000;
+          node.y = Math.random() * 2000 - 1000;
+        }
+        sim.alpha(1);
+      },
+    });
 
     // const ticker = rs.fromInterval(1000).transform(
     const ticker = rs.fromRAF().transform(
@@ -158,11 +160,27 @@ define([
 
     // Type is the first line of defense
     if (a) {
-      yield [
-        "dom-assert",
-        id,
-        { type: "attribute-equals", name: "typeof", value: a },
-      ];
+      // Shouldn't this just be a type assertion?
+      if (Array.isArray(a))
+        for (const type of a) yield ["assert-type", id, type];
+      else yield ["assert-type", id, a];
+
+      // Multiple types are always allowed
+      // if (Array.isArray(a)) {
+      //   // yield { matches: '[typeof*="${type}"]' };
+      //   for (const value of a)
+      //     yield [
+      //       "dom-assert",
+      //       id,
+      //       { type: "attribute-contains-word", name: "typeof", value },
+      //     ];
+      // } else {
+      //   yield [
+      //     "dom-assert",
+      //     id,
+      //     { type: "attribute-contains-word", name: "typeof", value: a },
+      //   ];
+      // }
 
       const type_spec = types[a];
       if (!type_spec) {
@@ -202,17 +220,43 @@ define([
 
     const EXAMPLE = {
       a: "Panel",
-      space1: {
+      dataflow: {
         a: "Space",
-        Alice: { a: "Space", Greg: {}, Jimbo: {} },
-        Bob: {},
-        Carol: {},
+        node1: {},
+        node2: {},
+        node3: {},
+        node4: {},
+        node5: {},
+        node6: {},
       },
-      space2: { a: "Space", Dave: {}, Edie: {}, Frank: {} },
-      space3: { a: "Space", Joe: {}, Al: {}, Sue: {} },
+      space1: {
+        // Space is a way of viewing something, not (always) the thing itself
+        a: "Space",
+        SomeGroup: {
+          a: "Space",
+          Greg: { a: "Person" },
+          Jimbo: { a: "Person" },
+          Johnson: { a: "Space", Fred: { a: "Person" }, Bob: { a: "Person" } },
+        },
+        Bob: { a: "Person" },
+        Carol: { a: "Person" },
+      },
+      space2: {
+        a: "Space",
+        Dave: { a: "Person" },
+        Edie: { a: "Person" },
+        Frank: { a: "Person" },
+      },
+      space3: {
+        a: "Space",
+        Joe: { a: "Person" },
+        Al: {},
+        Sue: { a: "Person" },
+      },
     };
-    const spec_1 = EXAMPLE.space1;
+    const spec_1 = EXAMPLE.dataflow;
 
+    const by_type = new Map();
     const dom_claims = {};
     const node_streams = {};
     const sims = {};
@@ -230,6 +274,18 @@ define([
         }
         // Could create a stream from this
         dom_process.define(id, operations_to_template(dom_claims[id]));
+      } else if (tag === "assert-type") {
+        const [id, type] = args;
+        if (!by_type.has(type)) by_type.set(type, new Set());
+        by_type.get(type).add(id);
+
+        // Should subscribe to the by-type map...
+        // Also how do we feel about sinking from here?
+        sink([
+          "dom-assert",
+          id,
+          { type: "attribute-contains-word", name: "typeof", value: type },
+        ]);
       } else if (tag === "new-space") {
         const [id, space] = args;
         console.log("new space", id, space);
