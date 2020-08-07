@@ -24,20 +24,22 @@ define([
     return { has, get, set };
   };
 
+  const random_point = () => ({
+    x: Math.random() * 1000 - 500,
+    y: Math.random() * 1000 - 500,
+  });
+
   // see node-provenance.md
   const box_simulation_node = (node, id) => {
     // for hidden classes, ensure that objects have a uniform structure.
     const { x, y, vx, vy } = node;
+    console.log("IDD", id, x, y, vx, vy, node);
     return Object.create(node, {
       id: { value: id },
-      x: { value: x },
-      y: { value: y },
-      vx: { value: vx },
-      vy: { value: vy },
-      // x: { value: typeof x === "number" ? x : 0 },
-      // y: { value: typeof y === "number" ? y : 0 },
-      // vx: { value: typeof vx === "number" ? vx : 0 },
-      // vy: { value: typeof vy === "number" ? vy : 0 },
+      x: { writable: true, value: typeof x === "number" ? x : 0 },
+      y: { writable: true, value: typeof y === "number" ? y : 0 },
+      vx: { writable: true, value: typeof vx === "number" ? vx : 0 },
+      vy: { writable: true, value: typeof vy === "number" ? vy : 0 },
     });
   };
 
@@ -77,6 +79,7 @@ define([
     // temp: periodically (disturb nodes and) re-warm alpha
     rs.fromInterval(5000).subscribe({
       next: () => {
+        console.log("ENTROPY", sim.nodes().length);
         for (const node of sim.nodes()) {
           node.x = Math.random() * 1000 - 500;
           node.y = Math.random() * 1000 - 500;
@@ -152,11 +155,6 @@ define([
   // create graph (if not dataset) to represent model
   //
   // If something is a space, then create a manager/process object for it
-  const box_id = id => ({
-    id,
-    x: Math.random() * 1000 - 500,
-    y: Math.random() * 1000 - 500,
-  });
 
   const TYPES = {
     Sequence: {
@@ -291,12 +289,12 @@ define([
         a: "Space",
         Billy: { a: "Person" },
         Nellie: { a: "Person" },
-        things: {
-          a: "Space",
-          // a: "Collection",
-          sim1: { a: "Simulation" },
-          trace_me: { a: "Runner", x: { a: "Counter" }, y: {} },
-        },
+        // things: {
+        //   a: "Space",
+        //   // a: "Collection",
+        //   sim1: { a: "Simulation" },
+        //   trace_me: { a: "Runner", x: { a: "Counter" }, y: {} },
+        // },
       },
       foo: {
         forces: {
@@ -420,6 +418,7 @@ ${Object.entries(properties)
           // aggregate into CSS claims?
           // or write as dom assertions
           const assertions_id = `${claimant}.css-assertions`;
+
           // Two of these don't need to be done each time on each assert...
           if (!dom_claims[claimant]) dom_claims[claimant] = [];
           dom_claims[claimant].push({ type: "contains", id: assertions_id });
@@ -508,27 +507,23 @@ ${Object.entries(properties)
       next(name) {
         const spec = { a: "Person" };
         const container_path = [`world`, "dataflow"];
+        const new_thing_path = [container_path, name];
         const container_id = container_path.join(".");
-        const id = `${container_id}.${name}`;
+        const id = new_thing_path.join(".");
 
-        for (const claim of make(spec, sink, [container_path, name]))
-          sink(claim);
+        for (const claim of make(spec, sink, new_thing_path)) sink(claim);
         sink(["dom-assert", container_id, { type: "contains", id }]);
-        // Why doesn't dataflow appear as a space?
-        //
         // sink([
         //   "dom-assert",
         //   id,
         //   { type: "contains-text", text: `my name is ${name}!` },
         // ]);
 
-        // const [, any] = Object.keys(node_streams);
         const node_stream = node_streams[container_id];
         if (node_stream) {
           const nodes = node_stream.deref();
-          // Object.create(description);
           if (nodes) {
-            nodes.push(box_id(name));
+            nodes.push(box_simulation_node(random_point(), id));
             // Let d3 mutate this I guess?
             //nodes.push({ id: name });
             node_stream.next(nodes);

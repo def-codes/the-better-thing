@@ -10,6 +10,7 @@ export const operations_to_template = (
   let key = 0;
   const attributes = {};
   const children = [];
+  let contents: Set<string> | undefined = undefined;
   let text_is: string | undefined;
   for (const operation of operations) {
     // Short-cirtuiting: if you have the expr, return it right now.
@@ -35,8 +36,8 @@ export const operations_to_template = (
         children: [operation.text],
       });
     } else if (operation.type === "contains") {
-      const { id } = operation;
-      children.push({ element: "placeholder", attributes: { id } });
+      if (contents === undefined) contents = new Set();
+      contents.add(operation.id);
     } else if (operation.type === "has-style") {
       // Special case for style because hiccup expects an object, not a string
       const { property, value } = operation;
@@ -46,6 +47,12 @@ export const operations_to_template = (
       console.warn("unsupported operation!", operation);
     }
   }
+
+  // `content` is a functional assertion; only one per id
+  // I suppose we could sort by ID here to make it (less non-) deterministic
+  if (contents)
+    for (const id of contents)
+      children.push({ element: "placeholder", attributes: { id } });
 
   return {
     element,
