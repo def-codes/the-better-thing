@@ -13,6 +13,9 @@ define([
 
   const { facts_to_operations, operations_to_template } = dom_rules;
 
+  const has_type = (thing, type) =>
+    thing.a === type || (Array.isArray(thing.a) && thing.a.includes(type));
+
   const trap_map = () => {
     const map = new Map();
     const has = key => map.has(key);
@@ -24,11 +27,13 @@ define([
   const make_space = spec => {
     const { id: space_id, sink } = spec;
     const sim = d3.forceSimulation().stop();
-    const nodes = rs.subscription({
-      next(nodes) {
-        sim.nodes(nodes);
-      },
-    });
+    const ticker = rs.subscription();
+    const nodes = rs.subscription({ next: sim.nodes });
+    // const nodes = rs.subscription({
+    //   next(nodes) {
+    //     sim.nodes(nodes);
+    //   },
+    // });
     const forces = rs.subscription({ next() {} });
 
     // Default forces (just for testing)
@@ -41,7 +46,7 @@ define([
     // sim.force(
     //   "stronger",
     //   d3.forceX(250).strength(node => {
-    //     const ret = node.a === "Space" ? 0 : 0.25;
+    //     const ret = has_type(node, "Space") ? 0 : 0.25;
     //     console.log("Assessing strength", ret, "for node", node);
     //     return ret;
     //   })
@@ -51,14 +56,14 @@ define([
       sim.force(
         "pull non-spaces to right",
         d3.forceX(250).strength(node => {
-          const ret = node.a === "Space" ? 0 : 0.25;
+          const ret = has_type(node, "Space") ? 0 : 0.25;
           console.log("Assessing strength", ret, "for node", node);
           return ret;
         })
       );
 
     // temp: periodically (disturb nodes and) re-warm alpha
-    rs.fromInterval(3000).subscribe({
+    rs.fromInterval(5000).subscribe({
       next: () => {
         for (const node of sim.nodes()) {
           node.x = Math.random() * 1000 - 500;
@@ -68,14 +73,16 @@ define([
       },
     });
 
-    // const ticker = rs.fromInterval(1000).transform(
-    const ticker = rs.fromRAF().transform(
+    ticker.transform(
       tx.sideEffect(() => sim.tick()),
       tx.map(() => sim.nodes())
       // tx.sideEffect(nodes => console.log("WUUT", ...nodes))
     );
 
     const styles_id = `${space_id}.styles`;
+    // What you really want is a css assert
+    // But (very) non-monotonic
+    // Update-in-place, "non-knowledge"
     sink(["dom-assert", space_id, { type: "contains", id: styles_id }]);
     sink(["dom-assert", styles_id, { type: "uses-element", name: "style" }]);
 
@@ -160,6 +167,18 @@ define([
     },
   };
 
+  const rules = [
+    {
+      comment: "simulation alpha.  good for heat map",
+      when: ["?x a d3?ForceSimulation"],
+      then: {
+        // you can represent its alpha variable as a CSS variable
+        // reading-to-CSS var could be a good pipeline template
+        // what is the matching scope
+      },
+    },
+  ];
+
   function* make(spec, sink, path = []) {
     if (typeof spec !== "object") {
       // console.warn(`spec of type ${typeof spec} is not supported! ${spec}`);
@@ -203,7 +222,7 @@ define([
       yield* make(child_spec, sink, [...path, name]);
     }
 
-    if (a === "Counter") {
+    if (has_type(spec, "Counter")) {
       // well then
       const counter = rs.fromInterval(500);
       // where does the energy come from?
@@ -222,7 +241,8 @@ define([
       // What does the recipe say about when this thing dies?
     }
 
-    if (a === "Space") {
+    // If it's a space, call Space's elaborate init routine
+    if (has_type(spec, "Space")) {
       // Let d3 mutate the object & still read the properties
       const nodes = Object.entries(props).map(([id, node]) =>
         Object.create(node, { id: { value: id } })
@@ -243,6 +263,9 @@ define([
     const EXAMPLE = {
       a: "Panel",
       dataflow: {
+        // What this would actually be.... not you writing out all of the things, but
+        // you're creating a view, a container, and you would describe the things that
+        // should be included in this space.  with various kinds of matching at your disposal
         a: "Space",
         things: {
           a: "Space",
@@ -269,7 +292,7 @@ define([
           },
           [meld.dom_sink]: { a: "Sink" },
           step: {
-            a: "Source",
+            a: ["Source", "Counter"],
             comment:
               "the simulation does not schedule itself.  for best results, feed it at regular intervals",
             transforms_with: [["map", () => sim.tick()]],
@@ -401,11 +424,13 @@ define([
         ]);
       } else if (tag === "new-space") {
         const [id, space] = args;
-        console.log("new space", id, space);
         const { streams, sim } = space;
         const { ticker, nodes } = streams;
         node_streams[id] = nodes;
         sims[id] = sim;
+        // actually start the simulation
+        // rs.fromInterval(1000).subscribe(ticker);
+        rs.fromRAF().subscribe(ticker);
         // remember all this
       } else {
         console.warn("no handler for", tag);
@@ -421,11 +446,11 @@ define([
     rs.fromIterable(more_names, { delay: 1000 }).subscribe({
       next(name) {
         const spec = { a: "Person" };
-        const space_name = "space2";
+        const space_name = "dataflow";
         const container_id = `world.${space_name}`;
         const id = `${container_id}.${name}`;
 
-        for (const claim of make(spec, sink, ["world", "space2", name]))
+        for (const claim of make(spec, sink, ["world", space_name, name]))
           sink(claim);
         sink(["dom-assert", container_id, { type: "contains", id }]);
 

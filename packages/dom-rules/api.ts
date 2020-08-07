@@ -11,3 +11,11 @@ export type DomAssertion =
   | { readonly type: "attribute-contains-word"; name: string; value: string }
   // Special case for style because hiccup expects an object, not a string
   | { readonly type: "has-style"; property: string; value: string };
+
+// provisional.  CSS rules are essentially assertions
+export type CssAssertion = {
+  selector: string;
+  properties: {
+    [property: string]: string | number;
+  };
+};
