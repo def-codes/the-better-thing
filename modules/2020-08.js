@@ -6,12 +6,7 @@ define([
   "@def.codes/hdom-regions",
   "./examples/index.js",
 ], (d3, rs, tx, dom_rules, dp, examples) => {
-  // console.log(`examples`, examples);
-
-  const meld = new Proxy({}, {});
-  const { css } = meld;
-
-  const { facts_to_operations, operations_to_template } = dom_rules;
+  const { operations_to_template } = dom_rules;
 
   const has_type = (thing, type) =>
     thing.a === type || (Array.isArray(thing.a) && thing.a.includes(type));
@@ -28,6 +23,22 @@ define([
     x: Math.random() * 1000 - 500,
     y: Math.random() * 1000 - 500,
   });
+
+  const datafy_mouse_event = _ => {
+    return {
+      type: "https://www.w3.org/TR/uievents/#mouseevent",
+      timestamp: _.timeStamp,
+      x: _.clientX,
+      y: _.clientY,
+      movementX: _.movementX,
+      movementY: _.movementY,
+      button: _.button,
+      ctrlKey: _.ctrlKey,
+      shiftKey: _.shiftKey,
+      altKey: _.altKey,
+      metaKey: _.metaKey,
+    };
+  };
 
   // see node-provenance.md
   const box_simulation_node = (node, id) => {
@@ -75,17 +86,6 @@ define([
         }
       })
     );
-
-    // temp: periodically (disturb nodes and) re-warm alpha
-    // rs.fromInterval(5000).subscribe({
-    //   next: () => {
-    //     for (const node of sim.nodes()) {
-    //       node.x = Math.random() * 1000 - 500;
-    //       node.y = Math.random() * 1000 - 500;
-    //     }
-    //     sim.alpha(1);
-    //   },
-    // });
 
     ticker.transform(
       tx.sideEffect(() => sim.tick()),
@@ -137,24 +137,6 @@ define([
     return { streams, sim };
   };
 
-  // Things you still don't have here:
-  //
-  // - Input source:
-  //   - a model
-  //     - an RDFTripleStore
-  //
-  // - listeners to the subjects in the model
-  //
-  // - representation of model subjects
-  //   - place to get dom assertions (DONE: allow as “global” message)
-  //   - way to match dom assertions (DONE: they must identify a subject)
-  //   - compute: aggregate dom assertions into templates (DONE)
-  //
-  // set up dataflow to listen to rule source changes
-  // create graph (if not dataset) to represent model
-  //
-  // If something is a space, then create a manager/process object for it
-
   const TYPES = {
     Sequence: {
       comment:
@@ -176,7 +158,6 @@ define([
     Person: {
       name: "",
     },
-    [meld.d3]: {},
     Collection: {},
     Simulation: {},
     ForceManyBody: {},
@@ -193,24 +174,6 @@ define([
       "y-axis": { a: "YAxis" },
     },
   };
-
-  const rules = [
-    {
-      // This is currently being done via some hardcoding using the css var --simulation-alpha
-      // in concert with a static rule in space.css
-      comment: "simulation alpha.  good for heat map",
-      when: ["?x a d3?ForceSimulation"],
-      then: {},
-    },
-    {
-      comment: "a buffer can indicate its cardinality with dots",
-      when: ["?x a Buffer"],
-      then: {
-        /* there exist |buffer| dots in the buffer's representation */
-        /* as distributed as possible, so you can see the count  */
-      },
-    },
-  ];
 
   function* scan(spec, sink, path = []) {
     if (typeof spec !== "object") {
@@ -276,9 +239,9 @@ define([
 
     // If it's a space, call Space's elaborate init routine
     if (has_type(spec, "Space")) {
-      // This mapping creates a new object that uses
-      // force parameter initializer functions can still read itsthe nodes at-large
-      // properties.
+      // This mapping creates a new object that uses the “real” object as its
+      // prototype.  This way force (parameter) initializer
+      // functions can still read the nodes' at-large properties.
       const nodes = Object.entries(props).map(([id, node]) =>
         box_simulation_node(node, id)
       );
@@ -290,185 +253,11 @@ define([
     }
   }
 
-  const other_forces_unused = () => {
-    // sim.force("center", d3.forceCenter());
-
-    // sim.force(
-    //   "stronger",
-    //   d3.forceX(250).strength(node => {
-    //     const ret = has_type(node, "Space") ? 0 : 0.25;
-    //     console.log("Assessing strength", ret, "for node", node);
-    //     return ret;
-    //   })
-    // );
-
-    if (false)
-      sim.force(
-        "pull non-spaces to right",
-        d3.forceX(250).strength(node => {
-          const ret = has_type(node, "Space") ? 0 : 0.25;
-          console.log("Assessing strength", ret, "for node", node);
-          return ret;
-        })
-      );
-  };
-
-  const DEFAULT_FORCES = {
-    // But expressions could go in place of the (parameter) constants
-    charge: { a: "d3:forceManyBody" },
-    "x-axis": { a: "d3:forceX", x: 0, strength: 0.01 },
-    "y-axis": { a: "d3:forceY", y: 0, strength: 0.01 },
-  };
-
-  function main() {
+  function main(recipe) {
     const root = document.getElementById("August-2020-space");
 
     const dom_process = dp.make_dom_process();
     dom_process.mounted.next({ id: "world", element: root });
-
-    const EXAMPLE = {
-      a: ["Fullscreen", "Panel"],
-      alpha: {
-        a: ["Space"],
-        "d3:forces": { temp: { a: "d3:forceX", x: 250 } },
-        ball: { a: "Thing" },
-      },
-      views: {
-        a: "Panel",
-        pane1: {
-          a: "Space",
-          ["d3:forces"]: {
-            // View the default forces in a space using the default forces
-            // a: "Space",
-            // ["d3:forces"]: DEFAULT_FORCES,
-            ...DEFAULT_FORCES,
-          },
-          What: {},
-          Define: {},
-          Require: {},
-        },
-        pane2: {
-          a: ["Table", "Space"],
-          ["d3:forces"]: DEFAULT_FORCES,
-          Sherry: { a: "Woman" },
-          Sue: { a: "Woman" },
-          dataflow: {
-            // What this would actually be.... not you writing out all of the things, but
-            // you're creating a view, a container, and you would describe the things that
-            // should be included in this space.  with various kinds of matching at your disposal
-            a: "Space",
-            ["d3:forces"]: {
-              charge: { a: "d3:forceManyBody" },
-              "x-axis": { a: "d3:forceX", x: 0, strength: 0.01 },
-              "y-axis": { a: "d3:forceY", y: 0, strength: 0.01 },
-            },
-            Billy: { a: "Person" },
-            Nellie: { a: "Person" },
-            // things: {
-            //   a: "Space",
-            //   // a: "Collection",
-            //   sim1: { a: "Simulation" },
-            //   trace_me: { a: "Runner", x: { a: "Counter" }, y: {} },
-            // },
-          },
-          foo: {
-            a: "Space",
-            ["d3:forces"]: DEFAULT_FORCES,
-            forces: {
-              a: "Map",
-              charge: {
-                comment: "causes things to repel each other",
-                a: "ForceManyBody",
-                strength: 1, // "expression goeth here",
-                // Could be a constant expression
-                // Could be a source description
-                // Could be a function (of the node)
-                // Could be a source that emits functions?
-              },
-            },
-            dataflow: {
-              assertions: {
-                a: "StreamSync",
-                comment: "coordinate all dom assertions about representations",
-              },
-              [meld.dom_sink]: { a: "Sink" },
-              step: {
-                a: ["Source", "Counter"],
-                comment:
-                  "the simulation does not schedule itself.  for best results, feed it at regular intervals",
-                transforms_with: [["map", () => sim.tick()]],
-              },
-              css: {
-                a: "Sink",
-                comment:
-                  "map variable assignments from simulation nodes to css.  could be done via writing dom nodes with serialized style rules, or possibly by direct manipulation of host interfaces representing those rules.  I'm assuming there's some difference in overhead.",
-                listens_to: { id: "step" },
-                transforms_with: [
-                  [
-                    "map",
-                    bodies =>
-                      bodies.map(
-                        _ =>
-                          css.rules(
-                            ...["x", "y", "vx", "vy"].map(
-                              v => [
-                                `[id="${_.id}"]`,
-                                `[data-${v}-source]`,
-                                { [`--${v}`]: _[v]?.toFixed(1) },
-                              ],
-                              []
-                            )
-                          ),
-                        // “Unrolled” version (which lumps all together)
-                        // Name might not be a legal ID
-                        css.rule([`[id="${_.id}"]`, "[]"], {
-                          "--x": _.x,
-                          "--y": _.y,
-                          "--vx": _.vx,
-                          "--vy": _.vy,
-                        })
-                      ),
-                  ],
-                ],
-              },
-
-              // D3 has some of its own internal dataflow
-              // each time a force definition is updated
-              // the force values have to be recomputed
-            },
-          },
-          space1: {
-            // Space is a way of viewing something, not (always) the thing itself
-            a: "Space",
-            SomeGroup: {
-              a: "Space",
-              Greg: { a: "Person" },
-              Jimbo: { a: "Person" },
-              Johnson: {
-                a: "Space",
-                Fred: { a: "Person" },
-                Bob: { a: "Person" },
-              },
-            },
-            Bob: { a: "Person" },
-            Carol: { a: "Person" },
-          },
-          space2: {
-            a: "Space",
-            Dave: { a: "Person" },
-            Edie: { a: "Person" },
-            Frank: { a: "Person" },
-          },
-          space3: {
-            a: "Space",
-            Joe: { a: "Person" },
-            Al: { a: "Person" },
-            Sue: { a: "Person" },
-          },
-        },
-      },
-    };
-    const spec_1 = EXAMPLE;
 
     const dom_claims = {};
     const node_streams = {};
@@ -525,22 +314,6 @@ ${Object.entries(properties)
           // basically prototypes but with protocol composition
           // prototype_props = type_spec;
         }
-
-        // This is a general rule.
-        //
-        // Emit this anyway because CSS rules might know about it
-        //
-        // ?x a ?t . ?e represents ?x -> ?e typeof contains ?t
-        //
-        // Non-monotonic: if this is retracted, the assertions need to be
-        // recomputed.  The assertions are downstream from the type definitions
-        // and upstream from the dom templates.
-
-        // Should subscribe to the by-type map...
-        // Also how do we feel about sinking from here?
-        // Would rather say
-        //
-        // sink(["dom-assert", { id, matches: `[typeof~="${type}"]` }]);
         sink([
           "dom-assert",
           id,
@@ -553,7 +326,6 @@ ${Object.entries(properties)
         node_streams[id] = nodes;
         sims[id] = sim;
         // actually start the simulation
-        // rs.fromInterval(1000).subscribe(ticker);
         const forcefield_energy_source = rs.fromRAF();
         forcefield_energy_source.subscribe(ticker);
         alpha.transform(
@@ -585,63 +357,11 @@ ${Object.entries(properties)
       }
     }
 
-    for (const claim of scan(spec_1, sink, ["world"])) sink(claim);
-
-    const more_names = "Joey Gary Eddie Susan Leo Sadie Sally Betty Freddie".split(
-      " "
-    );
-
-    rs.fromIterable(more_names, { delay: 1000 }).subscribe({
-      next(name) {
-        const spec = { a: "Person" };
-        const container_path = [`world`, "dataflow"];
-        const new_thing_path = [...container_path, name];
-        const container_id = container_path.join(".");
-        const id = new_thing_path.join(".");
-
-        for (const claim of scan(spec, sink, new_thing_path)) sink(claim);
-        sink(["dom-assert", container_id, { type: "contains", id }]);
-        // sink([
-        //   "dom-assert",
-        //   id,
-        //   { type: "contains-text", text: `my name is ${name}!` },
-        // ]);
-
-        const node_stream = node_streams[container_id];
-        if (node_stream) {
-          const nodes = node_stream.deref();
-          if (nodes) {
-            nodes.push(box_simulation_node(random_point(), name));
-            // Let d3 mutate this I guess?
-            //nodes.push({ id: name });
-            node_stream.next(nodes);
-            sims[container_id]?.alpha(1);
-          } else {
-            console.warn(`No cached nodes for ${container_id}!`);
-          }
-        } else {
-          console.warn(`No node stream for ${container_id}!`);
-        }
-      },
-    });
+    for (const claim of scan(recipe, sink, ["world"])) sink(claim);
 
     const mouse_moves = rs.fromEvent(document.body, "mousemove");
     mouse_moves.transform(
-      tx.map(_ => {
-        return {
-          type: "https://www.w3.org/TR/uievents/#mouseevent",
-          timestamp: _.timeStamp,
-          x: _.clientX,
-          y: _.clientY,
-          movementX: _.movementX,
-          movementY: _.movementY,
-          button: _.button,
-          ctrlKey: _.ctrlKey,
-          shiftKey: _.shiftKey,
-          altKey: _.altKey,
-          metaKey: _.metaKey,
-        };
-      }),
+      tx.map(datafy_mouse_event),
       tx.sideEffect(record => {
         // assert this record into the graph
         // console.log("yeay", record);
@@ -649,5 +369,8 @@ ${Object.entries(properties)
     );
   }
 
-  main();
+  // TODO: loader should get this at relative path.
+  require(["./modules/recipe.js"], ({ RECIPE }) => {
+    main(RECIPE);
+  });
 });
