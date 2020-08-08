@@ -1,8 +1,15 @@
 .Stack {
---stack-blur-factor
+  /* --stack-blur-factor */
   transform-style: preserve-3d;
   perspective: 10em;
 }
+.Stack > * {
+  position: absolute;
+  --z: -var(--child-index);
+  transform: translate3d(0, 0, -var(--child-index));
+  transform: translate3d(0, 0, -var(--child-index)) rotate3d(0, 0, 10deg);
+}
+/*
 .Stack > :nth-child(2) {
   --z: -2em;
   transform: translate3d(0, 0, -2em);
@@ -498,6 +505,4 @@
   transform: translate3d(0, 0, -100em);
   transform: translate3d(0, 0, -100em) rotate3d(0, 0, 500deg);
 }
-.Stack > * {
-  position: absolute;
-}
+*/

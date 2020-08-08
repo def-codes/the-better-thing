@@ -7,8 +7,14 @@
 [typeof~="Panel"] {
   display: flex;
   --before-position: absolute;
+  /* doesn't do anything because there is no gap */
+  justify-content: space-between;
 }
 [typeof~="Panel"] > * {
   position: relative;
   flex: 1 1 50%;
+}
+[typeof~="Panel"] > * + * {
+  /* HACK: this is for “portholes” as panel items, it breaks illusion when they are flush */
+  margin-left: 1em;
 }

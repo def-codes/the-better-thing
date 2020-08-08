@@ -1,3 +1,5 @@
+@import "./child-index.css";
+
 * {
   --type: "(unknown)";
   box-sizing: border-box;
@@ -43,7 +45,7 @@
   );
 }
 *::before {
-  opacity: 0.5;
+  opacity: 0.8;
   position: var(--before-position, initial);
   /* display: block; */
   content: var(--prefix) "\00a0"; /* what was this for? */
@@ -59,6 +61,9 @@
   padding: initial;
   background-color: initial;
   border: initial;
+}
+[data-dom-region]:hover {
+  box-shadow: initial;
 }
 [data-dom-region]::before,
 [data-dom-region]::after {

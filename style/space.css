@@ -64,7 +64,6 @@
 /*   transform: translateZ(1rem); */
 /* } */
 
-/* For those special cases */
 [typeof~="Space"] {
   border-radius: 50%;
   border-radius: 4em;

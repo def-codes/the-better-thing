@@ -1,0 +1,306 @@
+/* Support doing computations based on child index. */
+/*
+for (let i = 0; i < 100; i++) {
+  console.log(`:nth-child(${i}) { --child-index: ${i};}`);
+}
+*/
+:nth-child(0) {
+  --child-index: 0;
+}
+:nth-child(1) {
+  --child-index: 1;
+}
+:nth-child(2) {
+  --child-index: 2;
+}
+:nth-child(3) {
+  --child-index: 3;
+}
+:nth-child(4) {
+  --child-index: 4;
+}
+:nth-child(5) {
+  --child-index: 5;
+}
+:nth-child(6) {
+  --child-index: 6;
+}
+:nth-child(7) {
+  --child-index: 7;
+}
+:nth-child(8) {
+  --child-index: 8;
+}
+:nth-child(9) {
+  --child-index: 9;
+}
+:nth-child(10) {
+  --child-index: 10;
+}
+:nth-child(11) {
+  --child-index: 11;
+}
+:nth-child(12) {
+  --child-index: 12;
+}
+:nth-child(13) {
+  --child-index: 13;
+}
+:nth-child(14) {
+  --child-index: 14;
+}
+:nth-child(15) {
+  --child-index: 15;
+}
+:nth-child(16) {
+  --child-index: 16;
+}
+:nth-child(17) {
+  --child-index: 17;
+}
+:nth-child(18) {
+  --child-index: 18;
+}
+:nth-child(19) {
+  --child-index: 19;
+}
+:nth-child(20) {
+  --child-index: 20;
+}
+:nth-child(21) {
+  --child-index: 21;
+}
+:nth-child(22) {
+  --child-index: 22;
+}
+:nth-child(23) {
+  --child-index: 23;
+}
+:nth-child(24) {
+  --child-index: 24;
+}
+:nth-child(25) {
+  --child-index: 25;
+}
+:nth-child(26) {
+  --child-index: 26;
+}
+:nth-child(27) {
+  --child-index: 27;
+}
+:nth-child(28) {
+  --child-index: 28;
+}
+:nth-child(29) {
+  --child-index: 29;
+}
+:nth-child(30) {
+  --child-index: 30;
+}
+:nth-child(31) {
+  --child-index: 31;
+}
+:nth-child(32) {
+  --child-index: 32;
+}
+:nth-child(33) {
+  --child-index: 33;
+}
+:nth-child(34) {
+  --child-index: 34;
+}
+:nth-child(35) {
+  --child-index: 35;
+}
+:nth-child(36) {
+  --child-index: 36;
+}
+:nth-child(37) {
+  --child-index: 37;
+}
+:nth-child(38) {
+  --child-index: 38;
+}
+:nth-child(39) {
+  --child-index: 39;
+}
+:nth-child(40) {
+  --child-index: 40;
+}
+:nth-child(41) {
+  --child-index: 41;
+}
+:nth-child(42) {
+  --child-index: 42;
+}
+:nth-child(43) {
+  --child-index: 43;
+}
+:nth-child(44) {
+  --child-index: 44;
+}
+:nth-child(45) {
+  --child-index: 45;
+}
+:nth-child(46) {
+  --child-index: 46;
+}
+:nth-child(47) {
+  --child-index: 47;
+}
+:nth-child(48) {
+  --child-index: 48;
+}
+:nth-child(49) {
+  --child-index: 49;
+}
+:nth-child(50) {
+  --child-index: 50;
+}
+:nth-child(51) {
+  --child-index: 51;
+}
+:nth-child(52) {
+  --child-index: 52;
+}
+:nth-child(53) {
+  --child-index: 53;
+}
+:nth-child(54) {
+  --child-index: 54;
+}
+:nth-child(55) {
+  --child-index: 55;
+}
+:nth-child(56) {
+  --child-index: 56;
+}
+:nth-child(57) {
+  --child-index: 57;
+}
+:nth-child(58) {
+  --child-index: 58;
+}
+:nth-child(59) {
+  --child-index: 59;
+}
+:nth-child(60) {
+  --child-index: 60;
+}
+:nth-child(61) {
+  --child-index: 61;
+}
+:nth-child(62) {
+  --child-index: 62;
+}
+:nth-child(63) {
+  --child-index: 63;
+}
+:nth-child(64) {
+  --child-index: 64;
+}
+:nth-child(65) {
+  --child-index: 65;
+}
+:nth-child(66) {
+  --child-index: 66;
+}
+:nth-child(67) {
+  --child-index: 67;
+}
+:nth-child(68) {
+  --child-index: 68;
+}
+:nth-child(69) {
+  --child-index: 69;
+}
+:nth-child(70) {
+  --child-index: 70;
+}
+:nth-child(71) {
+  --child-index: 71;
+}
+:nth-child(72) {
+  --child-index: 72;
+}
+:nth-child(73) {
+  --child-index: 73;
+}
+:nth-child(74) {
+  --child-index: 74;
+}
+:nth-child(75) {
+  --child-index: 75;
+}
+:nth-child(76) {
+  --child-index: 76;
+}
+:nth-child(77) {
+  --child-index: 77;
+}
+:nth-child(78) {
+  --child-index: 78;
+}
+:nth-child(79) {
+  --child-index: 79;
+}
+:nth-child(80) {
+  --child-index: 80;
+}
+:nth-child(81) {
+  --child-index: 81;
+}
+:nth-child(82) {
+  --child-index: 82;
+}
+:nth-child(83) {
+  --child-index: 83;
+}
+:nth-child(84) {
+  --child-index: 84;
+}
+:nth-child(85) {
+  --child-index: 85;
+}
+:nth-child(86) {
+  --child-index: 86;
+}
+:nth-child(87) {
+  --child-index: 87;
+}
+:nth-child(88) {
+  --child-index: 88;
+}
+:nth-child(89) {
+  --child-index: 89;
+}
+:nth-child(90) {
+  --child-index: 90;
+}
+:nth-child(91) {
+  --child-index: 91;
+}
+:nth-child(92) {
+  --child-index: 92;
+}
+:nth-child(93) {
+  --child-index: 93;
+}
+:nth-child(94) {
+  --child-index: 94;
+}
+:nth-child(95) {
+  --child-index: 95;
+}
+:nth-child(96) {
+  --child-index: 96;
+}
+:nth-child(97) {
+  --child-index: 97;
+}
+:nth-child(98) {
+  --child-index: 98;
+}
+:nth-child(99) {
+  --child-index: 99;
+}

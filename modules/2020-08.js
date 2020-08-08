@@ -47,34 +47,34 @@ define([
     const sim = d3.forceSimulation().stop();
     const ticker = rs.subscription();
     const nodes = rs.subscription({ next: sim.nodes });
-    // const forces = rs.subscription({ next() {} });
+    const forces = rs.subscription();
 
-    // ugh another one-time init
-    const force_specs = spec["d3:forces"];
-    if (force_specs) {
-      console.log(`yay we got`, force_specs);
+    forces.transform(
+      tx.sideEffect(force_specs => {
+        for (const [force_name, force_spec] of Object.entries(force_specs)) {
+          const force_type = force_spec.a.replace(/^d3:/, "");
 
-      for (const [force_name, force_spec] of Object.entries(force_specs)) {
-        const force_type = force_spec.a.replace(/^d3:/, "");
-        if (typeof d3[force_type] !== "function") {
-          console.warn(`no such force type: ${force_type}`);
-          return;
-        }
-        const instance = d3[force_type]();
-        sim.force(force_name, instance);
-
-        for (const [param, value_expr] of Object.entries(force_spec)) {
-          const setter = instance[param];
-
-          if (typeof setter !== "function") {
-            console.warn(`skipping: no such param ${param} on ${force_type}`);
-            continue;
+          if (typeof d3[force_type] === "function") {
+            const instance = d3[force_type]();
+            sim.force(force_name, instance);
+            for (const [param, value_expr] of Object.entries(force_spec)) {
+              // skip type indicator
+              if (param !== "a") {
+                if (typeof instance[param] === "function") {
+                  instance[param](value_expr);
+                } else {
+                  console.warn(
+                    `skipping: no such param ${param} on ${force_type}`
+                  );
+                }
+              }
+            }
+          } else {
+            console.warn(`skipping: no such force type: ${force_type}`);
           }
-          console.log(`set ${param} to`, value_expr);
-          setter(value_expr);
         }
-      }
-    }
+      })
+    );
 
     // temp: periodically (disturb nodes and) re-warm alpha
     // rs.fromInterval(5000).subscribe({
@@ -132,7 +132,7 @@ define([
     // no reason to create it if there aren't any subscribers.
     const alpha = ticker.transform(tx.map(() => sim.alpha()));
 
-    const streams = { ticker, nodes, alpha };
+    const streams = { ticker, nodes, alpha, forces };
 
     return { streams, sim };
   };
@@ -286,8 +286,39 @@ define([
       yield ["new-space", id, space];
       const { streams } = space;
       streams.nodes.next(nodes);
+      if (spec["d3:forces"]) streams.forces.next(spec["d3:forces"]);
     }
   }
+
+  const other_forces_unused = () => {
+    // sim.force("center", d3.forceCenter());
+
+    // sim.force(
+    //   "stronger",
+    //   d3.forceX(250).strength(node => {
+    //     const ret = has_type(node, "Space") ? 0 : 0.25;
+    //     console.log("Assessing strength", ret, "for node", node);
+    //     return ret;
+    //   })
+    // );
+
+    if (false)
+      sim.force(
+        "pull non-spaces to right",
+        d3.forceX(250).strength(node => {
+          const ret = has_type(node, "Space") ? 0 : 0.25;
+          console.log("Assessing strength", ret, "for node", node);
+          return ret;
+        })
+      );
+  };
+
+  const DEFAULT_FORCES = {
+    // But expressions could go in place of the (parameter) constants
+    charge: { a: "d3:forceManyBody" },
+    "x-axis": { a: "d3:forceX", x: 0, strength: 0.01 },
+    "y-axis": { a: "d3:forceY", y: 0, strength: 0.01 },
+  };
 
   function main() {
     const root = document.getElementById("August-2020-space");
@@ -299,38 +330,14 @@ define([
       a: "Panel",
       pane1: {
         a: "Space",
-        ["d3:forces"]: {
-          // But expressions could go in place of the constants
-          charge: { a: "d3:forceManyBody", strength: 2000 },
-          "x-axis": { a: "d3:forceX", x: 0, strength: 0.01 },
-          "y-axis": { a: "d3:forceY", x: 0, strength: 0.01 },
-          others() {
-            // sim.force("center", d3.forceCenter());
-
-            // sim.force(
-            //   "stronger",
-            //   d3.forceX(250).strength(node => {
-            //     const ret = has_type(node, "Space") ? 0 : 0.25;
-            //     console.log("Assessing strength", ret, "for node", node);
-            //     return ret;
-            //   })
-            // );
-
-            if (false)
-              sim.force(
-                "pull non-spaces to right",
-                d3.forceX(250).strength(node => {
-                  const ret = has_type(node, "Space") ? 0 : 0.25;
-                  console.log("Assessing strength", ret, "for node", node);
-                  return ret;
-                })
-              );
-          },
-        },
-        What: define, // {},
+        ["d3:forces"]: DEFAULT_FORCES,
+        What: {},
+        Define: {},
+        Require: {},
       },
       pane2: {
         a: "Space",
+        ["d3:forces"]: DEFAULT_FORCES,
         Sherry: { a: "Woman" },
         Sue: { a: "Woman" },
         dataflow: {
@@ -338,6 +345,11 @@ define([
           // you're creating a view, a container, and you would describe the things that
           // should be included in this space.  with various kinds of matching at your disposal
           a: "Space",
+          ["d3:forces"]: {
+            charge: { a: "d3:forceManyBody" },
+            "x-axis": { a: "d3:forceX", x: 0, strength: 0.01 },
+            "y-axis": { a: "d3:forceY", y: 0, strength: 0.01 },
+          },
           Billy: { a: "Person" },
           Nellie: { a: "Person" },
           // things: {
@@ -349,6 +361,7 @@ define([
         },
         foo: {
           a: "Space",
+          ["d3:forces"]: DEFAULT_FORCES,
           forces: {
             a: "Map",
             charge: {
@@ -541,7 +554,7 @@ ${Object.entries(properties)
         alpha.subscribe({
           done(value) {
             // Yep, it stops when reaching alpha target
-            console.log("DONE", id, value);
+            // console.log("DONE", id, value);
             // What is the disposition of a dead process?  disposal
           },
           next(value) {
