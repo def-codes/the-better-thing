@@ -1,0 +1,14 @@
+/* DEBUG */
+[typeof~="Counter"] *,
+[typeof~="Counter"] {
+  background: #ace !important;
+}
+
+[typeof~="Panel"] {
+  display: flex;
+  --before-position: absolute;
+}
+[typeof~="Panel"] > * {
+  position: relative;
+  flex: 1 1 50%;
+}

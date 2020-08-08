@@ -47,44 +47,45 @@ define([
     const sim = d3.forceSimulation().stop();
     const ticker = rs.subscription();
     const nodes = rs.subscription({ next: sim.nodes });
-    const forces = rs.subscription({ next() {} });
+    // const forces = rs.subscription({ next() {} });
 
-    // Default forces (just for testing)
-    sim.force("charge", d3.forceManyBody(2000));
-    sim.force("x-axis", d3.forceX(0).strength(0.01));
-    sim.force("y-axis", d3.forceY(0).strength(0.01));
+    // ugh another one-time init
+    const force_specs = spec["d3:forces"];
+    if (force_specs) {
+      console.log(`yay we got`, force_specs);
 
-    // sim.force("center", d3.forceCenter());
+      for (const [force_name, force_spec] of Object.entries(force_specs)) {
+        const force_type = force_spec.a.replace(/^d3:/, "");
+        if (typeof d3[force_type] !== "function") {
+          console.warn(`no such force type: ${force_type}`);
+          return;
+        }
+        const instance = d3[force_type]();
+        sim.force(force_name, instance);
 
-    // sim.force(
-    //   "stronger",
-    //   d3.forceX(250).strength(node => {
-    //     const ret = has_type(node, "Space") ? 0 : 0.25;
-    //     console.log("Assessing strength", ret, "for node", node);
-    //     return ret;
-    //   })
-    // );
+        for (const [param, value_expr] of Object.entries(force_spec)) {
+          const setter = instance[param];
 
-    if (false)
-      sim.force(
-        "pull non-spaces to right",
-        d3.forceX(250).strength(node => {
-          const ret = has_type(node, "Space") ? 0 : 0.25;
-          console.log("Assessing strength", ret, "for node", node);
-          return ret;
-        })
-      );
+          if (typeof setter !== "function") {
+            console.warn(`skipping: no such param ${param} on ${force_type}`);
+            continue;
+          }
+          console.log(`set ${param} to`, value_expr);
+          setter(value_expr);
+        }
+      }
+    }
 
     // temp: periodically (disturb nodes and) re-warm alpha
-    rs.fromInterval(5000).subscribe({
-      next: () => {
-        for (const node of sim.nodes()) {
-          node.x = Math.random() * 1000 - 500;
-          node.y = Math.random() * 1000 - 500;
-        }
-        sim.alpha(1);
-      },
-    });
+    // rs.fromInterval(5000).subscribe({
+    //   next: () => {
+    //     for (const node of sim.nodes()) {
+    //       node.x = Math.random() * 1000 - 500;
+    //       node.y = Math.random() * 1000 - 500;
+    //     }
+    //     sim.alpha(1);
+    //   },
+    // });
 
     ticker.transform(
       tx.sideEffect(() => sim.tick()),
@@ -131,7 +132,7 @@ define([
     // no reason to create it if there aren't any subscribers.
     const alpha = ticker.transform(tx.map(() => sim.alpha()));
 
-    const streams = { ticker, nodes, alpha, forces };
+    const streams = { ticker, nodes, alpha };
 
     return { streams, sim };
   };
@@ -159,6 +160,16 @@ define([
       comment:
         "runtime has `Iterable` protocol.  Turtle has list syntax; RDF otherwise strictly unordered",
     },
+    Queue: {
+      comment:
+        "well-known interface.  can has transducer.  async, blocking read/write.",
+    },
+    "d3:forceManyBody": {},
+    "d3:forceX": {},
+    "d3:forceY": {},
+    WindowingBuffer: {},
+    FixedBuffer: { subclassOf: "WindowingBuffer" },
+    SlidingBuffer: { subclassOf: "WindowingBuffer" },
     Panel: {},
     XAxis: { dom: [{ matches: '[data-axis="x"]' }] },
     YAxis: { dom: [{ matches: '[data-axis="y"]' }] },
@@ -185,17 +196,23 @@ define([
 
   const rules = [
     {
+      // This is currently being done via some hardcoding using the css var --simulation-alpha
+      // in concert with a static rule in space.css
       comment: "simulation alpha.  good for heat map",
       when: ["?x a d3?ForceSimulation"],
+      then: {},
+    },
+    {
+      comment: "a buffer can indicate its cardinality with dots",
+      when: ["?x a Buffer"],
       then: {
-        // you can represent its alpha variable as a CSS variable
-        // reading-to-CSS var could be a good pipeline template
-        // what is the matching scope
+        /* there exist |buffer| dots in the buffer's representation */
+        /* as distributed as possible, so you can see the count  */
       },
     },
   ];
 
-  function* make(spec, sink, path = []) {
+  function* scan(spec, sink, path = []) {
     if (typeof spec !== "object") {
       // console.warn(`spec of type ${typeof spec} is not supported! ${spec}`);
       return;
@@ -203,7 +220,7 @@ define([
 
     if (Array.isArray(spec)) {
       let i = 0;
-      for (const item of spec) yield* make(item, sink, [...path, i++]);
+      for (const item of spec) yield* scan(item, sink, [...path, i++]);
       return;
     }
 
@@ -235,7 +252,7 @@ define([
     for (const [name, child_spec] of Object.entries(props)) {
       const child_path = [...path, name].join(".");
       yield ["dom-assert", id, { type: "contains", id: child_path }];
-      yield* make(child_spec, sink, [...path, name]);
+      yield* scan(child_spec, sink, [...path, name]);
     }
 
     if (has_type(spec, "Counter")) {
@@ -280,107 +297,149 @@ define([
 
     const EXAMPLE = {
       a: "Panel",
-      dataflow: {
-        // What this would actually be.... not you writing out all of the things, but
-        // you're creating a view, a container, and you would describe the things that
-        // should be included in this space.  with various kinds of matching at your disposal
+      pane1: {
         a: "Space",
-        Billy: { a: "Person" },
-        Nellie: { a: "Person" },
-        // things: {
-        //   a: "Space",
-        //   // a: "Collection",
-        //   sim1: { a: "Simulation" },
-        //   trace_me: { a: "Runner", x: { a: "Counter" }, y: {} },
-        // },
-      },
-      foo: {
-        forces: {
-          a: "Map",
-          charge: {
-            comment: "causes things to repel each other",
-            a: "ForceManyBody",
-            strength: 1, // "expression goeth here",
-            // Could be a constant expression
-            // Could be a source description
-            // Could be a function (of the node)
-            // Could be a source that emits functions?
-          },
-        },
-        dataflow: {
-          assertions: {
-            a: "StreamSync",
-            comment: "coordinate all dom assertions about representations",
-          },
-          [meld.dom_sink]: { a: "Sink" },
-          step: {
-            a: ["Source", "Counter"],
-            comment:
-              "the simulation does not schedule itself.  for best results, feed it at regular intervals",
-            transforms_with: [["map", () => sim.tick()]],
-          },
-          css: {
-            a: "Sink",
-            comment:
-              "map variable assignments from simulation nodes to css.  could be done via writing dom nodes with serialized style rules, or possibly by direct manipulation of host interfaces representing those rules.  I'm assuming there's some difference in overhead.",
-            listens_to: { id: "step" },
-            transforms_with: [
-              [
-                "map",
-                bodies =>
-                  bodies.map(
-                    _ =>
-                      css.rules(
-                        ...["x", "y", "vx", "vy"].map(
-                          v => [
-                            `[id="${_.id}"]`,
-                            `[data-${v}-source]`,
-                            { [`--${v}`]: _[v]?.toFixed(1) },
-                          ],
-                          []
-                        )
-                      ),
-                    // “Unrolled” version (which lumps all together)
-                    // Name might not be a legal ID
-                    css.rule([`[id="${_.id}"]`, "[]"], {
-                      "--x": _.x,
-                      "--y": _.y,
-                      "--vx": _.vx,
-                      "--vy": _.vy,
-                    })
-                  ),
-              ],
-            ],
-          },
+        ["d3:forces"]: {
+          // But expressions could go in place of the constants
+          charge: { a: "d3:forceManyBody", strength: 2000 },
+          "x-axis": { a: "d3:forceX", x: 0, strength: 0.01 },
+          "y-axis": { a: "d3:forceY", x: 0, strength: 0.01 },
+          others() {
+            // sim.force("center", d3.forceCenter());
 
-          // D3 has some of its own internal dataflow
-          // each time a force definition is updated
-          // the force values have to be recomputed
+            // sim.force(
+            //   "stronger",
+            //   d3.forceX(250).strength(node => {
+            //     const ret = has_type(node, "Space") ? 0 : 0.25;
+            //     console.log("Assessing strength", ret, "for node", node);
+            //     return ret;
+            //   })
+            // );
+
+            if (false)
+              sim.force(
+                "pull non-spaces to right",
+                d3.forceX(250).strength(node => {
+                  const ret = has_type(node, "Space") ? 0 : 0.25;
+                  console.log("Assessing strength", ret, "for node", node);
+                  return ret;
+                })
+              );
+          },
         },
+        What: define, // {},
       },
-      space1: {
-        // Space is a way of viewing something, not (always) the thing itself
+      pane2: {
         a: "Space",
-        SomeGroup: {
+        Sherry: { a: "Woman" },
+        Sue: { a: "Woman" },
+        dataflow: {
+          // What this would actually be.... not you writing out all of the things, but
+          // you're creating a view, a container, and you would describe the things that
+          // should be included in this space.  with various kinds of matching at your disposal
           a: "Space",
-          Greg: { a: "Person" },
-          Jimbo: { a: "Person" },
-          Johnson: { a: "Space", Fred: { a: "Person" }, Bob: { a: "Person" } },
+          Billy: { a: "Person" },
+          Nellie: { a: "Person" },
+          // things: {
+          //   a: "Space",
+          //   // a: "Collection",
+          //   sim1: { a: "Simulation" },
+          //   trace_me: { a: "Runner", x: { a: "Counter" }, y: {} },
+          // },
         },
-        Bob: { a: "Person" },
-        Carol: { a: "Person" },
-      },
-      space2: {
-        a: "Space",
-        Dave: { a: "Person" },
-        Edie: { a: "Person" },
-        Frank: { a: "Person" },
-      },
-      space3: {
-        a: "Space",
-        Joe: { a: "Person" },
-        Al: { a: "Person" },
-        Sue: { a: "Person" },
+        foo: {
+          a: "Space",
+          forces: {
+            a: "Map",
+            charge: {
+              comment: "causes things to repel each other",
+              a: "ForceManyBody",
+              strength: 1, // "expression goeth here",
+              // Could be a constant expression
+              // Could be a source description
+              // Could be a function (of the node)
+              // Could be a source that emits functions?
+            },
+          },
+          dataflow: {
+            assertions: {
+              a: "StreamSync",
+              comment: "coordinate all dom assertions about representations",
+            },
+            [meld.dom_sink]: { a: "Sink" },
+            step: {
+              a: ["Source", "Counter"],
+              comment:
+                "the simulation does not schedule itself.  for best results, feed it at regular intervals",
+              transforms_with: [["map", () => sim.tick()]],
+            },
+            css: {
+              a: "Sink",
+              comment:
+                "map variable assignments from simulation nodes to css.  could be done via writing dom nodes with serialized style rules, or possibly by direct manipulation of host interfaces representing those rules.  I'm assuming there's some difference in overhead.",
+              listens_to: { id: "step" },
+              transforms_with: [
+                [
+                  "map",
+                  bodies =>
+                    bodies.map(
+                      _ =>
+                        css.rules(
+                          ...["x", "y", "vx", "vy"].map(
+                            v => [
+                              `[id="${_.id}"]`,
+                              `[data-${v}-source]`,
+                              { [`--${v}`]: _[v]?.toFixed(1) },
+                            ],
+                            []
+                          )
+                        ),
+                      // “Unrolled” version (which lumps all together)
+                      // Name might not be a legal ID
+                      css.rule([`[id="${_.id}"]`, "[]"], {
+                        "--x": _.x,
+                        "--y": _.y,
+                        "--vx": _.vx,
+                        "--vy": _.vy,
+                      })
+                    ),
+                ],
+              ],
+            },
+
+            // D3 has some of its own internal dataflow
+            // each time a force definition is updated
+            // the force values have to be recomputed
+          },
+        },
+        space1: {
+          // Space is a way of viewing something, not (always) the thing itself
+          a: "Space",
+          SomeGroup: {
+            a: "Space",
+            Greg: { a: "Person" },
+            Jimbo: { a: "Person" },
+            Johnson: {
+              a: "Space",
+              Fred: { a: "Person" },
+              Bob: { a: "Person" },
+            },
+          },
+          Bob: { a: "Person" },
+          Carol: { a: "Person" },
+        },
+        space2: {
+          a: "Space",
+          Dave: { a: "Person" },
+          Edie: { a: "Person" },
+          Frank: { a: "Person" },
+        },
+        space3: {
+          a: "Space",
+          Joe: { a: "Person" },
+          Al: { a: "Person" },
+          Sue: { a: "Person" },
+        },
       },
     };
     const spec_1 = EXAMPLE;
@@ -469,8 +528,22 @@ ${Object.entries(properties)
         sims[id] = sim;
         // actually start the simulation
         // rs.fromInterval(1000).subscribe(ticker);
-        rs.fromRAF().subscribe(ticker);
+        const forcefield_energy_source = rs.fromRAF();
+        forcefield_energy_source.subscribe(ticker);
+        alpha.transform(
+          // Remember, this threshold is itself a var, i.e. this is a sync node
+          // so yeah you can't have any constant, you really need to understand these exprs
+          // but how do you do arbitrary, stateful, side-effecting lambdas?
+          // yeah and why??
+          tx.filter(a => a < 0.1),
+          tx.sideEffect(() => forcefield_energy_source.done())
+        );
         alpha.subscribe({
+          done(value) {
+            // Yep, it stops when reaching alpha target
+            console.log("DONE", id, value);
+            // What is the disposition of a dead process?  disposal
+          },
           next(value) {
             sink([
               "css-assert",
@@ -486,7 +559,7 @@ ${Object.entries(properties)
       }
     }
 
-    for (const claim of make(spec_1, sink, ["world"])) sink(claim);
+    for (const claim of scan(spec_1, sink, ["world"])) sink(claim);
 
     const more_names = "Joey Gary Eddie Susan Leo Sadie Sally Betty Freddie".split(
       " "
@@ -500,7 +573,7 @@ ${Object.entries(properties)
         const container_id = container_path.join(".");
         const id = new_thing_path.join(".");
 
-        for (const claim of make(spec, sink, new_thing_path)) sink(claim);
+        for (const claim of scan(spec, sink, new_thing_path)) sink(claim);
         sink(["dom-assert", container_id, { type: "contains", id }]);
         // sink([
         //   "dom-assert",

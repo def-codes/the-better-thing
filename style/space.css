@@ -1,3 +1,5 @@
+@import "./types.css";
+
 /* Space and forcefields. */
 [typeof~="Space"] {
   position: relative;
@@ -16,8 +18,14 @@
 
   /* “heat” idea is wip.  rather than go between red and blue, just add red */
   --heat: var(--simulation-alpha);
+  --alpha-min: 0.1;
   /* --hue: calc((1 - var(--heat)) * 240deg); */
-  --saturation: calc(var(--simulation-alpha) * 100%);
+  --saturation: calc((var(--alpha-min) - var(--simulation-alpha)) * 100%);
+}
+[typeof~="Space"]::before,
+[typeof~="Space"] *::before {
+  flex: none;
+  position: absolute;
 }
 /* Nested space (space-within-a-space) */
 [typeof~="Space"] [typeof~="Space"] {
@@ -59,10 +67,13 @@
 /* For those special cases */
 [typeof~="Space"] {
   border-radius: 50%;
+  border-radius: 4em;
 }
 /* Items in space are positioned (skipping placeholder elements) */
 [typeof~="Space"] > :not([data-dom-region]),
 [typeof~="Space"] > [data-dom-region] > * {
+  /* --saturation: 0%; */
+
   position: absolute;
   top: calc(var(--y) * 1px);
   left: calc(var(--x) * 1px);
@@ -115,18 +126,6 @@
   left: 0;
   width: 0;
   height: 100%;
+  --before-position: absolute;
   border-left: 3px dashed red; /* rgba(255, 255, 255, 0.5); */
-}
-[typeof~="Panel"],
-.panels {
-  display: flex;
-}
-[typeof~="Panel"] > *,
-.panels > * {
-  position: relative;
-  flex: 1 1 50%;
-}
-[typeof~="Counter"] *,
-[typeof~="Counter"] {
-  background: #ace !important;
 }

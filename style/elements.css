@@ -6,6 +6,7 @@
 [id]:not([id=""])::before {
   font-size: 200%;
   background: #fff;
+  background: rgba(255, 255, 255, 0.8);
 }
 [class]:not([class=""]) {
   --type: "." attr(class);
@@ -15,7 +16,8 @@
 }
 :hover {
   --luminosity: 100%;
-  --alpha: 66%;
+  /* --alpha: 66%; */
+  /* --saturation: 10%; */
   box-shadow: 0 0 2em -0.5em;
 }
 
