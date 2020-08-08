@@ -628,10 +628,9 @@ ${Object.entries(properties)
     const mouse_moves = rs.fromEvent(document.body, "mousemove");
     mouse_moves.transform(
       tx.map(_ => {
-        console.log(_);
         return {
           type: "https://www.w3.org/TR/uievents/#mouseevent",
-          timestamp: _.timestamp,
+          timestamp: _.timeStamp,
           x: _.clientX,
           y: _.clientY,
           movementX: _.movementX,
@@ -645,7 +644,7 @@ ${Object.entries(properties)
       }),
       tx.sideEffect(record => {
         // assert this record into the graph
-        console.log("yeay", record);
+        // console.log("yeay", record);
       })
     );
   }

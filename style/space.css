@@ -128,9 +128,52 @@
   --before-position: absolute;
   border-left: 3px dashed red; /* rgba(255, 255, 255, 0.5); */
 }
+[typeof~="Table"],
+[typeof~="Space"] {
+  /* appears not to transition removal of `inset` anyway  */
+  /* transition: box-shadow 1s !important; */
+}
+
+[typeof~="Space"]:hover,
 [typeof~="Table"] {
   box-shadow: 0 0 2em -0.5em;
 }
+[typeof~="Space"]:hover,
 [typeof~="Table"]:hover {
   overflow: visible;
+}
+[typeof~="Space"]:hover > *,
+[typeof~="Table"]:hover > * {
+  z-index: 2;
+}
+
+/* A full-screen  */
+[typeof~="Space"]:hover::before,
+[typeof~="Table"]:hover::before {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* A non-full-screen “halo” around the object, also nice. */
+[typeof~="Space"]:hover::before,
+[typeof~="Table"]:hover::before {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.8);
+  /* Doesn't appear to work */
+  transition: width height 0.5s;
+
+  pointer-events: none;
+  z-index: 1;
 }
