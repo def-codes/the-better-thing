@@ -128,3 +128,9 @@
   --before-position: absolute;
   border-left: 3px dashed red; /* rgba(255, 255, 255, 0.5); */
 }
+[typeof~="Table"] {
+  box-shadow: 0 0 2em -0.5em;
+}
+[typeof~="Table"]:hover {
+  overflow: visible;
+}

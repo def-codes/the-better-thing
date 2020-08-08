@@ -6,10 +6,17 @@
 
 [typeof~="Panel"] {
   display: flex;
+  flex-direction: column;
+  height: 100%;
   --before-position: absolute;
   /* doesn't do anything because there is no gap */
-  justify-content: space-between;
+  /* justify-content: space-between; */
 }
+/* Star is for dom-region placeholder */
+[typeof~="Panel"] > * > [typeof~="Panel"] {
+  flex-direction: row;
+}
+
 [typeof~="Panel"] > * {
   position: relative;
   flex: 1 1 50%;
@@ -17,4 +24,12 @@
 [typeof~="Panel"] > * + * {
   /* HACK: this is for “portholes” as panel items, it breaks illusion when they are flush */
   margin-left: 1em;
+}
+
+[typeof~="Panel"] > * [typeof~="Space"] {
+  min-height: 10rem; /* beat larger default for flow context */
+}
+
+[typeof~="Fullscreen"] {
+  min-height: 90vh !important;
 }
