@@ -27,22 +27,6 @@ define([
     y: Math.random() * 1000 - 500,
   });
 
-  const datafy_mouse_event = _ => {
-    return {
-      type: "https://www.w3.org/TR/uievents/#mouseevent",
-      timestamp: _.timeStamp,
-      x: _.clientX,
-      y: _.clientY,
-      movementX: _.movementX,
-      movementY: _.movementY,
-      button: _.button,
-      ctrlKey: _.ctrlKey,
-      shiftKey: _.shiftKey,
-      altKey: _.altKey,
-      metaKey: _.metaKey,
-    };
-  };
-
   const make_space = spec => {
     const { id: space_id, sink } = spec;
     const sim = d3.forceSimulation().stop();

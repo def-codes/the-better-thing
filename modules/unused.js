@@ -140,6 +140,22 @@ const by_type = trap_map();
 if (!by_type.has(type)) by_type.set(type, new Set());
 by_type.get(type).add(id);
 
+const datafy_mouse_event = _ => {
+  return {
+    type: "https://www.w3.org/TR/uievents/#mouseevent",
+    timestamp: _.timeStamp,
+    x: _.clientX,
+    y: _.clientY,
+    movementX: _.movementX,
+    movementY: _.movementY,
+    button: _.button,
+    ctrlKey: _.ctrlKey,
+    shiftKey: _.shiftKey,
+    altKey: _.altKey,
+    metaKey: _.metaKey,
+  };
+};
+
 const mouse_moves = rs.fromEvent(document.body, "mousemove");
 mouse_moves.transform(
   tx.map(datafy_mouse_event),
