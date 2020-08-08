@@ -5,8 +5,11 @@ define([
   "@def.codes/dom-rules",
   "@def.codes/hdom-regions",
   "./examples/index.js",
-], (d3, rs, tx, dom_rules, dp, examples) => {
+  "./d3-driver.js",
+  "./types.js",
+], (d3, rs, tx, dom_rules, dp, examples, d3d, { TYPES }) => {
   const { operations_to_template } = dom_rules;
+  const { box_simulation_node, force_from_description } = d3d;
 
   const has_type = (thing, type) =>
     thing.a === type || (Array.isArray(thing.a) && thing.a.includes(type));
@@ -40,19 +43,6 @@ define([
     };
   };
 
-  // see node-provenance.md
-  const box_simulation_node = (node, id) => {
-    // for hidden classes, ensure that objects have a uniform structure.
-    const { x, y, vx, vy } = node;
-    return Object.create(node, {
-      id: { value: id },
-      x: { writable: true, value: typeof x === "number" ? x : 0 },
-      y: { writable: true, value: typeof y === "number" ? y : 0 },
-      vx: { writable: true, value: typeof vx === "number" ? vx : 0 },
-      vy: { writable: true, value: typeof vy === "number" ? vy : 0 },
-    });
-  };
-
   const make_space = spec => {
     const { id: space_id, sink } = spec;
     const sim = d3.forceSimulation().stop();
@@ -63,26 +53,7 @@ define([
     forces.transform(
       tx.sideEffect(force_specs => {
         for (const [force_name, force_spec] of Object.entries(force_specs)) {
-          const force_type = force_spec.a.replace(/^d3:/, "");
-
-          if (typeof d3[force_type] === "function") {
-            const instance = d3[force_type]();
-            sim.force(force_name, instance);
-            for (const [param, value_expr] of Object.entries(force_spec)) {
-              // skip type indicator
-              if (param !== "a") {
-                if (typeof instance[param] === "function") {
-                  instance[param](value_expr);
-                } else {
-                  console.warn(
-                    `skipping: no such param ${param} on ${force_type}`
-                  );
-                }
-              }
-            }
-          } else {
-            console.warn(`skipping: no such force type: ${force_type}`);
-          }
+          sim.force(force_name, force_from_description(force_spec));
         }
       })
     );
@@ -137,50 +108,13 @@ define([
     return { streams, sim };
   };
 
-  const TYPES = {
-    Sequence: {
-      comment:
-        "runtime has `Iterable` protocol.  Turtle has list syntax; RDF otherwise strictly unordered",
-    },
-    Queue: {
-      comment:
-        "well-known interface.  can has transducer.  async, blocking read/write.",
-    },
-    "d3:forceManyBody": {},
-    "d3:forceX": {},
-    "d3:forceY": {},
-    WindowingBuffer: {},
-    FixedBuffer: { subclassOf: "WindowingBuffer" },
-    SlidingBuffer: { subclassOf: "WindowingBuffer" },
-    Panel: {},
-    XAxis: { dom: [{ matches: '[data-axis="x"]' }] },
-    YAxis: { dom: [{ matches: '[data-axis="y"]' }] },
-    Person: {
-      name: "",
-    },
-    Collection: {},
-    Simulation: {},
-    ForceManyBody: {},
-    Map: {},
-    Stream: {},
-    Runner: { comment: "something that runs about" },
-    Counter: { comment: "monotonic increment (source, sync, proc)" },
-    Sink: {},
-    Source: {},
-    StreamSync: { subclassOf: "Stream" },
-    Space: {
-      styles: {},
-      "x-axis": { a: "XAxis" },
-      "y-axis": { a: "YAxis" },
-    },
-  };
-
   function* scan(spec, sink, path = []) {
     if (typeof spec !== "object") {
       // console.warn(`spec of type ${typeof spec} is not supported! ${spec}`);
       return;
     }
 
+    // Recur into arrays
     if (Array.isArray(spec)) {
       let i = 0;
       for (const item of spec) yield* scan(item, sink, [...path, i++]);
@@ -253,7 +187,7 @@ define([
     }
   }
 
-  function main(recipe) {
+  function interpret(recipe) {
     const root = document.getElementById("August-2020-space");
 
     const dom_process = dp.make_dom_process();
@@ -264,7 +198,6 @@ define([
     const sims = {};
 
     const by_id = trap_map();
-    const by_type = trap_map();
 
     function sink([tag, ...args]) {
       if (tag === "dom-assert") {
@@ -299,13 +232,6 @@ ${Object.entries(properties)
         const [id, type] = args;
         if (!type) throw new Error(`type assertion missing object`);
 
-        // Special index by type
-        // Again... this could be a subscriber
-        // What do you do with this, anyway?
-        // Maybe visit all instances when a prototype is updated
-        if (!by_type.has(type)) by_type.set(type, new Set());
-        by_type.get(type).add(id);
-
         const type_spec = TYPES[type];
         if (!type_spec) {
           console.warn("I don't know about this type of thing:", type);
@@ -336,12 +262,9 @@ ${Object.entries(properties)
           tx.filter(a => a < 0.1),
           tx.sideEffect(() => forcefield_energy_source.done())
         );
+
+        // Feed simulation alpha value to a CSS variable
         alpha.subscribe({
-          done(value) {
-            // Yep, it stops when reaching alpha target
-            // console.log("DONE", id, value);
-            // What is the disposition of a dead process?  disposal
-          },
           next(value) {
             sink([
               "css-assert",
@@ -351,6 +274,7 @@ ${Object.entries(properties)
             ]);
           },
         });
+
         // remember all this
       } else {
         console.warn("no handler for", tag);
@@ -358,19 +282,8 @@ ${Object.entries(properties)
     }
 
     for (const claim of scan(recipe, sink, ["world"])) sink(claim);
-
-    const mouse_moves = rs.fromEvent(document.body, "mousemove");
-    mouse_moves.transform(
-      tx.map(datafy_mouse_event),
-      tx.sideEffect(record => {
-        // assert this record into the graph
-        // console.log("yeay", record);
-      })
-    );
   }
 
-  // TODO: loader should get this at relative path.
-  require(["./modules/recipe.js"], ({ RECIPE }) => {
-    main(RECIPE);
-  });
+  // TODO: loader should get this at relative path--which works for define above
+  require(["./modules/recipe.js"], ({ RECIPE }) => interpret(RECIPE));
 });

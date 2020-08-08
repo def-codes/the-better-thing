@@ -123,3 +123,28 @@ function add_more_nodes_somewhere() {
     },
   });
 }
+alpha.subscribe({
+  done(value) {
+    // Yep, it stops when reaching alpha target
+    // console.log("DONE", id, value);
+    // What is the disposition of a dead process?  disposal
+  },
+});
+
+// Special index by type
+// Again... this could be a subscriber
+// What do you do with this, anyway?
+// Maybe visit all instances when a prototype is updated
+const by_type = trap_map();
+// ...
+if (!by_type.has(type)) by_type.set(type, new Set());
+by_type.get(type).add(id);
+
+const mouse_moves = rs.fromEvent(document.body, "mousemove");
+mouse_moves.transform(
+  tx.map(datafy_mouse_event),
+  tx.sideEffect(record => {
+    // assert this record into the graph
+    // console.log("yeay", record);
+  })
+);
