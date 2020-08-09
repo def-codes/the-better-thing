@@ -1,4 +1,5 @@
 define([
+  "./meld.js",
   "d3-force",
   "@thi.ng/rstream",
   "@thi.ng/transducers",
@@ -7,7 +8,13 @@ define([
   "./examples/index.js",
   "./d3-driver.js",
   "./types.js",
-], (d3, rs, tx, dom_rules, dp, examples, d3d, { TYPES }) => {
+  "./scanner.js",
+  "./space.js",
+], (_meld, d3, rs, tx, dom_rules, dp, examples, d3d, types, scanner, sp) => {
+  // console.log("meld is", meld);
+  // console.log("meld.foo is", meld.foo);
+
+  const { TYPES } = types;
   const { operations_to_template } = dom_rules;
   const { box_simulation_node, force_from_description } = d3d;
 
@@ -27,72 +34,13 @@ define([
     y: Math.random() * 1000 - 500,
   });
 
-  const make_space = spec => {
-    const { id: space_id, sink } = spec;
-    const sim = d3.forceSimulation().stop();
-    const ticker = rs.subscription();
-    const nodes = rs.subscription({ next: sim.nodes });
-    const forces = rs.subscription();
+  function* scan(spec, path = []) {
+    console.groupCollapsed(`${path.join(" / ")}`);
+    yield* scan_impl(spec, path);
+    console.groupEnd();
+  }
 
-    forces.transform(
-      tx.sideEffect(force_specs => {
-        for (const [force_name, force_spec] of Object.entries(force_specs)) {
-          sim.force(force_name, force_from_description(force_spec));
-        }
-      })
-    );
-
-    ticker.transform(
-      tx.sideEffect(() => sim.tick()),
-      tx.map(() => sim.nodes())
-      // tx.sideEffect(nodes => console.log("WUUT", ...nodes))
-    );
-
-    const styles_id = `${space_id}.xy-styles`;
-    // What you really want is a css assert
-    // But (very) non-monotonic
-    // Update-in-place, "non-knowledge"
-    sink(["dom-assert", space_id, { type: "contains", id: styles_id }]);
-    sink(["dom-assert", styles_id, { type: "uses-element", name: "style" }]);
-
-    ticker
-      .transform(
-        tx.map(nodes => {
-          const css = sim
-            .nodes()
-            .map(_ => {
-              const id = `${space_id}.${_.id}`;
-              return `
-[id="${id}"], [data-x-source="${id}"] { --x:${_.x.toFixed(1)}; }
-[id="${id}"], [data-y-source="${id}"] { --y:${-_.y.toFixed(1)}; }
-[id="${id}"], [data-vx-source="${id}"] { --vx:${_.vx.toFixed(1)}; }
-[id="${id}"], [data-vy-source="${id}"] { --vy:${-_.vy.toFixed(1)}; }
-`;
-            })
-            .join("\n");
-
-          return css;
-        }),
-        tx.sideEffect(css => {
-          sink(["dom-assert", styles_id, { type: "text-is", text: css }]);
-        })
-      )
-      .subscribe({
-        error(error) {
-          console.error("ERROR IN SPACE STREAM", error);
-        },
-      });
-
-    // Alpha updates on every frame.  This really should be a stream.  There's
-    // no reason to create it if there aren't any subscribers.
-    const alpha = ticker.transform(tx.map(() => sim.alpha()));
-
-    const streams = { ticker, nodes, alpha, forces };
-
-    return { streams, sim };
-  };
-
-  function* scan(spec, sink, path = []) {
+  function* scan_impl(spec, path = []) {
     if (typeof spec !== "object") {
       // console.warn(`spec of type ${typeof spec} is not supported! ${spec}`);
       return;
@@ -101,7 +49,7 @@ define([
     // Recur into arrays
     if (Array.isArray(spec)) {
       let i = 0;
-      for (const item of spec) yield* scan(item, sink, [...path, i++]);
+      for (const item of spec) yield* scan(item, [...path, i++]);
       return;
     }
 
@@ -133,45 +81,23 @@ define([
     for (const [name, child_spec] of Object.entries(props)) {
       const child_path = [...path, name].join(".");
       yield ["dom-assert", id, { type: "contains", id: child_path }];
-      yield* scan(child_spec, sink, [...path, name]);
-    }
-
-    if (has_type(spec, "Counter")) {
-      // well then
-      const counter = rs.fromInterval(500);
-      // where does the energy come from?
-      // the counter can be pull (lazy, non-strict), this is not about time, right?
-      const counter_id = [...path, "counter:Process"].join(".");
-      yield ["dom-assert", id, { type: "contains", id: counter_id }];
-      counter.subscribe({
-        next(value) {
-          sink([
-            "dom-assert",
-            counter_id,
-            { type: "text-is", text: `${value}!` },
-          ]);
-        },
-      });
-      // What does the recipe say about when this thing dies?
-    }
-
-    // If it's a space, call Space's elaborate init routine
-    if (has_type(spec, "Space")) {
-      // This mapping creates a new object that uses the “real” object as its
-      // prototype.  This way force (parameter) initializer
-      // functions can still read the nodes' at-large properties.
-      const nodes = Object.entries(props).map(([id, node]) =>
-        box_simulation_node(node, id)
-      );
-      const space = make_space({ id, sink });
-      yield ["new-space", id, space];
-      const { streams } = space;
-      streams.nodes.next(nodes);
-      if (spec["d3:forces"]) streams.forces.next(spec["d3:forces"]);
+      yield* scan(child_spec, [...path, name]);
     }
   }
 
   function interpret(recipe) {
+    const rules = [sp.scan_rule];
+    const { scan_with } = scanner;
+    for (const result of scan_with(recipe, rules)) {
+      const [tag, stuff] = result;
+      if (tag === "apply-rule") {
+        const { path, result } = stuff;
+        console.log(`path ${path} said`, result);
+      } else {
+        console.warn(`I don't know how to interpret ${tag} from scanner`);
+      }
+    }
+
     const root = document.getElementById("August-2020-space");
 
     const dom_process = dp.make_dom_process();
@@ -229,43 +155,12 @@ ${Object.entries(properties)
           id,
           { type: "attribute-contains-word", name: "typeof", value: type },
         ]);
-      } else if (tag === "new-space") {
-        const [id, space] = args;
-        const { streams, sim } = space;
-        const { ticker, nodes, alpha } = streams;
-        node_streams[id] = nodes;
-        sims[id] = sim;
-        // actually start the simulation
-        const forcefield_energy_source = rs.fromRAF();
-        forcefield_energy_source.subscribe(ticker);
-        alpha.transform(
-          // Remember, this threshold is itself a var, i.e. this is a sync node
-          // so yeah you can't have any constant, you really need to understand these exprs
-          // but how do you do arbitrary, stateful, side-effecting lambdas?
-          // yeah and why??
-          tx.filter(a => a < 0.1),
-          tx.sideEffect(() => forcefield_energy_source.done())
-        );
-
-        // Feed simulation alpha value to a CSS variable
-        alpha.subscribe({
-          next(value) {
-            sink([
-              "css-assert",
-              id,
-              `[id="${id}"], [data-simulation-alpha-source="${id}"]`,
-              { "--simulation-alpha": value.toFixed(2) },
-            ]);
-          },
-        });
-
-        // remember all this
       } else {
         console.warn("no handler for", tag);
       }
     }
 
-    for (const claim of scan(recipe, sink, ["world"])) sink(claim);
+    for (const claim of scan(recipe, ["world"])) sink(claim);
   }
 
   // TODO: loader should get this at relative path--which works for define above

@@ -50,40 +50,6 @@ const other_forces_unused = () => {
     );
 };
 
-const rules = [
-  {
-    // This is currently being done via some hardcoding using the css var --simulation-alpha
-    // in concert with a static rule in space.css
-    comment: "simulation alpha.  good for heat map",
-    when: ["?x a d3?ForceSimulation"],
-    then: {},
-  },
-  {
-    comment: "a buffer can indicate its cardinality with dots",
-    when: ["?x a Buffer"],
-    then: {
-      /* there exist |buffer| dots in the buffer's representation */
-      /* as distributed as possible, so you can see the count  */
-    },
-  },
-];
-
-// This is a general rule.
-//
-// Emit this anyway because CSS rules might know about it
-//
-// ?x a ?t . ?e represents ?x -> ?e typeof contains ?t
-//
-// Non-monotonic: if this is retracted, the assertions need to be
-// recomputed.  The assertions are downstream from the type definitions
-// and upstream from the dom templates.
-
-// Should subscribe to the by-type map...
-// Also how do we feel about sinking from here?
-// Would rather say
-//
-// sink(["dom-assert", { id, matches: `[typeof~="${type}"]` }]);
-
 function add_more_nodes_somewhere() {
   const more_names = "Joey Gary Eddie Susan Leo Sadie Sally Betty Freddie".split(
     " "
@@ -164,3 +130,24 @@ mouse_moves.transform(
     // console.log("yeay", record);
   })
 );
+
+function* scan_frag() {
+  if (has_type(spec, "Counter")) {
+    // well then
+    const counter = rs.fromInterval(500);
+    // where does the energy come from?
+    // the counter can be pull (lazy, non-strict), this is not about time, right?
+    const counter_id = [...path, "counter:Process"].join(".");
+    yield [("dom-assert", id, { type: "contains", id: counter_id })];
+    counter.subscribe({
+      next(value) {
+        sink([
+          "dom-assert",
+          counter_id,
+          { type: "text-is", text: `${value}!` },
+        ]);
+      },
+    });
+    // What does the recipe say about when this thing dies?
+  }
+}
