@@ -3,7 +3,11 @@
 
   QUESTION: What is the protocol for the `then` function?
   - assert?
-  - possibilities
+  - possibilities that include assert
+
+  QUESTION: What is the knowledge interface of a rule?  Does it have anything to
+  do with a “tuple space” or “value space” as such?  Or is the tuple space just
+  a kind of mechanism for applying rules.
 
   QUESTION: If there are multiple match (`when`) types (spec | SPARQL), do all
   consequents (`then`) assume the same signature / binding result?
