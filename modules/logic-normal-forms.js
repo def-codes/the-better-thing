@@ -1,4 +1,9 @@
-// Pseudocode... specs for
+/*
+  Pseudocode... specs for standard logical normal forms.
+
+  Can the `$spec` references be implicit?  i.e. can you just recognize the spec
+  by value or context?
+ */
 define(["./rdf-names"], ({ mint }) => {
   const L = mint("expressions in first-order logic");
 
@@ -8,9 +13,8 @@ define(["./rdf-names"], ({ mint }) => {
       // How to indicate a variable? $.variable?
       variable: { a: "Variable" },
       negation: [L.not, { a: "Variable" }],
-      // Should these spec references be wrapped in {$spec}?
-      conjunction: [L.and, L.nnf, L.nnf],
-      disjunction: [L.or, L.nnf, L.nnf],
+      conjunction: [L.and, { $spec: L.nnf }, { $spec: L.nnf }],
+      disjunction: [L.or, { $spec: L.nnf }, { $spec: L.nnf }],
     },
   };
 
@@ -19,7 +23,7 @@ define(["./rdf-names"], ({ mint }) => {
       variable: { a: "Variable" },
       negation: [L.not, { a: "Variable" }],
       // No... this should be cnf1, right?
-      disjunction: [L.or, L.nnf, L.nnf],
+      disjunction: [L.or, { $spec: L.nnf }, { $spec: L.nnf }],
     },
   };
 
@@ -27,7 +31,7 @@ define(["./rdf-names"], ({ mint }) => {
     seeAlso: "https://en.wikipedia.org/wiki/Conjunctive_normal_form",
     $or: {
       cnf1: L.cnf1,
-      conjunction: [L.and, L.cnf1, L.cnf1],
+      conjunction: [L.and, { $spec: L.cnf1 }, { $spec: L.cnf1 }],
     },
   };
 });

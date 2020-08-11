@@ -10,7 +10,7 @@
 //
 // Written here using a prefix notation with tuples for expression
 define(["./rdf-names"], ({ mint }) => {
-  const L = mint("expressions in first-order logic");
+  const L = mint("http://def.codes/unk/logic expressions in first-order logic");
   const $ = mint("variable expression");
 
   // These are each themselves well-known things
