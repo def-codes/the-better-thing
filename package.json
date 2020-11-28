@@ -41,7 +41,10 @@
     "@thi.ng/transducers-hdom": "2.0.49",
     "d3-force": "2.0.1",
     "d3-require": "1.2.2",
+    "level": "6.0.1",
+    "levelgraph": "2.1.1",
     "requirejs": "2.3.6",
+    "sparql-engine": "0.8.0",
     "tslib": "1.10.0",
     "ws": "7.2.0"
   },

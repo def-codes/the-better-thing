@@ -1,2 +1,4 @@
 node_modules/
 build/
+# Local settings used by server
+env.json
