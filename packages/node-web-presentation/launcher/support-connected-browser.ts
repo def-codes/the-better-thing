@@ -57,7 +57,7 @@ export function support_connected_browser(
             response: {
               headers: { "Content-type": "application/javascript" },
               status: 200,
-              content: bootstrap_script,
+              body: bootstrap_script,
             },
           }),
         },
@@ -67,7 +67,7 @@ export function support_connected_browser(
             response: {
               headers: { "Content-type": "text/html" },
               status: 200,
-              content: html,
+              body: html,
             },
           }),
         },

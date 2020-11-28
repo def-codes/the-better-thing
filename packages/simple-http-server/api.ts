@@ -20,6 +20,6 @@ export interface Response {
   status: number;
   message: string; // should just be a lookup.
   // Or even AsyncIterable<string | Buffer>
-  content?: Buffer | string; // | Iterable<string | Buffer> like WSGI
+  body?: Buffer | string; // | Iterable<string | Buffer> like WSGI
   headers?: {};
 }

@@ -18,7 +18,7 @@ export const with_error_boundary = (options: Options): Handler => request => {
     console.log(error);
     return {
       ...STATUS.INTERNAL_SERVER_ERROR,
-      ...(!debug ? {} : { content: error.toString() }),
+      ...(!debug ? {} : { body: error.toString() }),
     };
   }
 };

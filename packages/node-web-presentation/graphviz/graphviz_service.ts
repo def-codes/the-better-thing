@@ -20,7 +20,7 @@ export const graphviz_service = () =>
             return {
               ...STATUS.OK,
               headers: { "Content-type": "image/svg+xml" },
-              content: svg,
+              body: svg,
             };
           } catch (error) {
             return { ...STATUS.BAD_REQUEST, content: error.toString() };

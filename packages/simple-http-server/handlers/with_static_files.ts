@@ -76,11 +76,11 @@ export const with_static_files = (
 
   const extension = _path.extname(file_to_serve);
   const mime_type = MIME_TYPES[extension] || "application/octet-stream";
-  const content = fs.readFileSync(file_to_serve);
+  const file_content = fs.readFileSync(file_to_serve);
 
   return {
     ...STATUS.OK,
-    content,
+    body: file_content,
     headers: {
       "Content-type": mime_type,
       "Cache-Control": "no-cache, no-store, must-revalidate",

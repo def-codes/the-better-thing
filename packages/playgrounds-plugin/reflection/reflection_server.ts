@@ -69,14 +69,14 @@ const emit_handler = (
     ? {
         status: 200,
         message: "OK",
-        content: result.emit.outputFiles[0].text,
+        body: result.emit.outputFiles[0].text,
       }
     : {
         // This is not really an internal server error, the source doc
         // is just in a bad state.
         status: 500,
         message: "Internal Server Error",
-        content: JSON.stringify(result && result.diagnostics),
+        body: JSON.stringify(result && result.diagnostics),
       };
 };
 
@@ -120,7 +120,7 @@ function* create_site_server(
         handler: with_constant({
           response: {
             headers: { "Content-type": "text/html" },
-            content: `<!DOCTYPE html>
+            body: `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />

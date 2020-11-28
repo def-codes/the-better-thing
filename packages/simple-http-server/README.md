@@ -1,12 +1,13 @@
 # Simple HTTP server
 
-A minimal, extensible, location-agnostic HTTP server.
+A minimal, extensible, location-agnostic HTTP server for local usage.
 
 It's “location agnostic” in that handlers see only the path, which is not
-necessarily the same as the original request path.  Handlers should not set the
+necessarily the same as the original request path. Handlers should not set the
 `Content-length` header; it is set automatically.
 
 Notable features that are not present:
+
 - conditional GET using timestamp
 - conditional GET using hash
 - gzip suppport (for pre-zipped files having `.gz` extension)

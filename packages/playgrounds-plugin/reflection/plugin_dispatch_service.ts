@@ -7,7 +7,7 @@ import {
 const response = (status: keyof typeof STATUS, content: object): Response => ({
   ...STATUS[status],
   headers: { "Content-type": "application/json" },
-  content: JSON.stringify(content),
+  body: JSON.stringify(content),
 });
 
 /** Create a handler to execute code against a tsserver instance. */

@@ -1,3 +1,4 @@
+// Node has built-in 'querystring' package for this
 import { dictionary_from } from "@def.codes/helpers";
 
 /** Return a plain javascript object representing a given URL query string. */

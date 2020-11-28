@@ -43,7 +43,7 @@ export const create_server = (options: Partial<HttpServerOptions>) => {
         for (let key of Object.keys(response.headers))
           res.setHeader(key, response.headers[key]);
 
-      const content = response.content || response.message || "";
+      const content = response.body || response.message || "";
       const buffer =
         typeof content === "string" ? new Buffer(content, "utf8") : content;
 

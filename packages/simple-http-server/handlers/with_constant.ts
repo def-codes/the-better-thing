@@ -13,11 +13,14 @@ const DEFAULT_HEADERS = {
   Pragma: "no-cache",
   Expires: "0",
 };
-
-export const with_constant = ({
-  response: { headers, ...rest },
-}: Options): Handler => _request => ({
-  ...DEFAULT_STATUS,
-  headers: { DEFAULT_HEADERS, ...headers },
-  ...rest,
-});
+{
+}
+export const with_constant = (options: Options): Handler => _request => {
+  const { response } = options;
+  const { headers, ...rest } = response;
+  return {
+    ...DEFAULT_STATUS,
+    headers: { ...DEFAULT_HEADERS, ...headers },
+    ...rest,
+  };
+};
