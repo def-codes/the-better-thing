@@ -5,4 +5,5 @@ export const STATUS = {
   NOT_FOUND: { status: 404, message: "Not found" },
   METHOD_NOT_ALLOWED: { status: 406, message: "Method not allowed" },
   INTERNAL_SERVER_ERROR: { status: 500, message: "Internal server error" },
+  NOT_IMPLEMENTED: { status: 501, message: "Not implemented" },
 };

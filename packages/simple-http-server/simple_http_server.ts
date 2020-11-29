@@ -1,10 +1,10 @@
 import * as http from "http";
 import { parse as parse_url } from "url";
-import { Request, Response, Handler } from "./api";
+import type { Request, Response, Handler } from "./api";
 import { STATUS } from "./constants";
 import { with_error_boundary } from "./handlers/with_error_handler";
-import { Readable } from "stream";
-import { deserialize_query } from "./url-query";
+import type { Readable } from "stream";
+import * as querystring from "querystring";
 
 const read_to_end = (stream: Readable) =>
   new Promise<string>((resolve, reject) => {
@@ -43,7 +43,8 @@ export const create_server = (options: Partial<HttpServerOptions>) => {
         for (let key of Object.keys(response.headers))
           res.setHeader(key, response.headers[key]);
 
-      const content = response.body || response.message || "";
+      const content =
+        "body" in response ? response.body : response.message || "";
       const buffer =
         typeof content === "string" ? new Buffer(content, "utf8") : content;
 
@@ -62,7 +63,7 @@ export const create_server = (options: Partial<HttpServerOptions>) => {
         const request: Request = {
           method: req.method,
           path: trim_slashes(url.pathname || ""),
-          query: deserialize_query(url.query || ""),
+          query: querystring.decode(url.query || ""),
           body,
         };
 

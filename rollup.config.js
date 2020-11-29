@@ -41,6 +41,7 @@ const modules = [
   ["simple-http-server", { node_only: true }],
   ["simple-interpreter"],
   ["simple-interpreter-test"],
+  ["sparql-engine-service"],
 ];
 
 // Unfortunately, rollup doesn't support wildcards for specifying externals.

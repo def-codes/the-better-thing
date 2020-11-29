@@ -3,7 +3,11 @@ const {
   with_static_files,
   with_path_mount,
 } = require("@def.codes/simple-http-server");
-const { make_kb_service, with_kb_service } = require("./kb-service/index");
+const { make_kb_context } = require("./kb/make-kb-context");
+const {
+  sparql_protocol,
+  graph_store_protocol,
+} = require("@def.codes/sparql-engine-service");
 const { shell_open } = require("@def.codes/node-web-presentation");
 const fs = require("fs");
 
@@ -46,13 +50,20 @@ async function main_impl() {
   const mappings = [];
 
   if (env && env.sparql_index) {
-    let kb_service;
+    let kb_context;
     try {
-      kb_service = make_kb_service({ db_index: env.sparql_index });
+      kb_context = make_kb_context({ db_index: env.sparql_index });
     } catch (error) {
       throw new Error(`Could not create KB service: ${error.message}`);
     }
-    mappings.push({ path: "kb", handler: with_kb_service({ kb_service }) });
+    mappings.push({
+      path: "kb/graph",
+      handler: graph_store_protocol(kb_context),
+    });
+    mappings.push({
+      path: "kb",
+      handler: sparql_protocol(kb_context),
+    });
   } else {
     console.log(`No SPARQL index location configured.  Proceeding without KB.`);
   }

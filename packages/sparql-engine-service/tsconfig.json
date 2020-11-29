@@ -1,0 +1,7 @@
+{
+  "extends": "../tsconfig-composite",
+  "compilerOptions": {
+    "typeRoots": ["../../node_modules/sparqljs-legacy-type/"]
+  },
+  "references": [{ "path": "../simple-http-server" }]
+}
