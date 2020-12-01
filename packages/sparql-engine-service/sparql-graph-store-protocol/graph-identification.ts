@@ -1,5 +1,6 @@
 import type { Request } from "@def.codes/simple-http-server";
 import * as URL from "url";
+import type { GraphIdentifier } from "../api";
 
 // Cheap test to tell whether a URL is absolute.
 const is_absolute = (url: string): boolean => {
@@ -19,7 +20,7 @@ const is_absolute = (url: string): boolean => {
  */
 export const read_graph_identifier = (
   request: Request
-): { readonly graph: "default" | { readonly iri: string } } | undefined => {
+): GraphIdentifier | undefined => {
   const { query } = request;
 
   /**

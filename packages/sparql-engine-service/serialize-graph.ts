@@ -1,50 +1,39 @@
-import type {
-  Graph,
-  PlanBuilder,
-  PipelineStage,
-  Bindings,
-} from "sparql-engine";
-import { DataFactory, Writer } from "n3";
+import type { PipelineStage, Bindings } from "sparql-engine";
+import { rdf } from "sparql-engine";
+import { Writer, DataFactory } from "n3";
+import type { DatasetContext, GraphIdentifier } from "./api";
 
-const { namedNode, literal, blankNode, quad } = DataFactory;
-
-// Maybe there's a better way to do this.  N3 requires you to use the
-// constructed object, even though the plain data objects are already in an
-// informationally-equivalent form.
-const n3_term = term => {
-  if (term.nodeType === "NamedNode") return namedNode(term.value);
-  if (term.nodeType === "BlankNode") return blankNode(term.value);
-  if (term.nodeType === "Literal") return literal(term.value);
-};
+const { quad } = DataFactory;
+const { fromN3 } = rdf;
 
 export const graph_to_turtle = async (
-  graph: Graph,
-  plan_builder: PlanBuilder
+  context: DatasetContext,
+  source: GraphIdentifier
 ): Promise<string> => {
   return new Promise<string>((resolve, reject) => {
     const writer = new Writer({ format: "text/turtle" });
 
-    // TODO: Does this work for the default graph, too? i.e. does it always have an IRI?
-    // const select = `SELECT * WHERE { GRAPH <${graph.iri}> { ?subject ?predicate ?object } }`;
-    const select = `SELECT * WHERE { ?subject ?predicate ?object }`;
+    // In the default implementation (HashMapDataset), the default graph always has an IRI
+    const select =
+      source.graph === "default"
+        ? `SELECT * WHERE { ?subject ?predicate ?object }`
+        : `SELECT * WHERE { GRAPH <${source.graph.iri}> { ?subject ?predicate ?object } }`;
 
+    const { plan_builder } = context;
     const iterator = plan_builder.build(select) as PipelineStage<Bindings>;
     iterator.subscribe(
       bindings => {
         const triple = bindings.toObject();
         console.log(`triple`, triple);
-        const subject = n3_term(triple["?subject"]);
-        const predicate = n3_term(triple["?predicate"]);
-        const object = n3_term(triple["?object"]);
-        // writer.addQuad(quad(subject, predicate, object));
-      },
-      error => {
-        console.log(`ERROR`, error);
-        reject(error);
-      },
-      () => {
-        console.log(`DONE`);
 
+        const subject_term = fromN3(triple["?subject"]);
+        const predicate_term = fromN3(triple["?predicate"]);
+        const object_term = fromN3(triple["?object"]);
+
+        writer.addQuad(quad(subject_term, predicate_term, object_term));
+      },
+      reject,
+      () => {
         writer.end((error, result) => {
           if (error) reject(error);
           else resolve(result);

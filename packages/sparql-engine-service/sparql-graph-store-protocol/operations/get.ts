@@ -2,7 +2,6 @@
 
 import { STATUS } from "@def.codes/simple-http-server";
 import type { Request, Response } from "@def.codes/simple-http-server";
-import type { Graph } from "sparql-engine";
 import type { DatasetContext } from "../../api";
 import { graph_to_turtle } from "../../serialize-graph";
 import { read_graph_identifier } from "../graph-identification";
@@ -20,27 +19,21 @@ export const handle_get = async (
   request: Request,
   context: DatasetContext
 ): Promise<Response> => {
-  const { dataset, plan_builder } = context;
+  const { dataset } = context;
 
-  const target_graph = read_graph_identifier(request)?.graph;
-  if (!target_graph) return STATUS.BAD_REQUEST;
+  const target = read_graph_identifier(request);
+  if (!target?.graph) return STATUS.BAD_REQUEST;
 
-  let graph: Graph;
-  if (target_graph === "default") {
-    graph = dataset.getDefaultGraph();
-  } else {
-    /**
-     * > If the RDF graph content identified in the request does not exist in
-     * > the server, and the operation requires that it does, a `404 Not Found`
-     * > response code MUST be provided in the response.
-     */
-    if (!dataset.hasNamedGraph(target_graph.iri)) {
-      return STATUS.NOT_FOUND;
-    }
-    graph = dataset.getNamedGraph(target_graph.iri);
+  /**
+   * > If the RDF graph content identified in the request does not exist in
+   * > the server, and the operation requires that it does, a `404 Not Found`
+   * > response code MUST be provided in the response.
+   */
+  if (target.graph !== "default" && !dataset.hasNamedGraph(target.graph.iri)) {
+    return STATUS.NOT_FOUND;
   }
 
-  const turtle = await graph_to_turtle(graph, plan_builder);
+  const turtle = await graph_to_turtle(context, target);
 
   return {
     ...STATUS.OK,
