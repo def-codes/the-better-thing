@@ -9,7 +9,7 @@ import { has_items } from "@def.codes/helpers";
 export class Channel<T = any> {
   readonly size: number;
   readonly queue: T[] = [];
-  readonly pending_puts: [() => void, T][] = [];
+  readonly pending_puts: [(value?: unknown) => void, T][] = [];
   readonly pending_takes: ((t: T) => void)[] = [];
 
   constructor(size) {
