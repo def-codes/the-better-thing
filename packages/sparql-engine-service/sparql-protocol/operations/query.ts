@@ -1,12 +1,12 @@
 // Handle SPARQL Protocol query requests
 
-import { STATUS } from "@def.codes/simple-http-server";
 import type { Request, Response } from "@def.codes/simple-http-server";
+import { STATUS } from "@def.codes/simple-http-server";
 import * as querystring from "querystring";
-import { rdf } from "sparql-engine";
 import type { Bindings, PipelineStage } from "sparql-engine";
+import { rdf } from "sparql-engine";
 import type { DatasetContext } from "../../api";
-import type { SparqlSelectResults } from "../sparql-json-results";
+import type { RDFTerm, SparqlSelectResults } from "../sparql-json-results";
 
 const { fromN3 } = rdf;
 
@@ -46,6 +46,7 @@ export const handle_query = async (
   }
 
   // TODO: assuming a select query for the moment
+  // as opposed to an ASK, CONSTRUCT, or DESCRIBE
   let iterator: PipelineStage<Bindings>;
   try {
     // TS: It's a Consumable for queries (else Consumable)
@@ -57,11 +58,10 @@ export const handle_query = async (
     return STATUS.BAD_REQUEST;
   }
 
-  const bindings: SparqlSelectResults["results"]["bindings"] = [];
+  const bindings: Record<string, RDFTerm>[] = [];
   let vars: SparqlSelectResults["head"]["vars"];
 
   return new Promise<Response>((resolve, reject) => {
-    const results = [];
     iterator.subscribe(
       binding => {
         const dict = binding.toObject();
@@ -69,14 +69,19 @@ export const handle_query = async (
         // Set the variable names when we get a result.
         // TODO: need a way to know this a priori.  Should be set even when no results
         if (vars === undefined) {
-          vars = Object.keys(dict);
+          vars = Object.keys(dict).map(key => {
+            if (!key.startsWith("?")) {
+              console.log(`assert fail: unexpected variable name: ${key}`);
+            }
+            return key.slice(1);
+          });
         }
 
         const result = {};
         for (const [key, value] of Object.entries(dict)) {
-          result[key] = fromN3(value);
+          result[key.slice(1)] = fromN3(value);
         }
-        results.push(result);
+        bindings.push(result);
       },
       reject,
       () => {

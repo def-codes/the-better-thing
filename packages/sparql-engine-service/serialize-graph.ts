@@ -13,7 +13,6 @@ export const graph_to_turtle = async (
   return new Promise<string>((resolve, reject) => {
     const writer = new Writer({ format: "text/turtle" });
 
-    // In the default implementation (HashMapDataset), the default graph always has an IRI
     const select =
       source.graph === "default"
         ? `SELECT * WHERE { ?subject ?predicate ?object }`
@@ -24,7 +23,6 @@ export const graph_to_turtle = async (
     iterator.subscribe(
       bindings => {
         const triple = bindings.toObject();
-        console.log(`triple`, triple);
 
         const subject_term = fromN3(triple["?subject"]);
         const predicate_term = fromN3(triple["?predicate"]);

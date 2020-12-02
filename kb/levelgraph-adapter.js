@@ -58,4 +58,34 @@ module.exports.LevelRDFGraph = class LevelRDFGraph extends Graph {
       });
     });
   }
+
+  clear() {
+    // The underlying level store has a clear() method, but I' m not sure that
+    // it wouldn't break levelgraph to use that without it knowing.  Meanwhile,
+    // this is the only way I found to empty out the thing.
+    return new Promise((resolve, reject) =>
+      this._db.search(
+        {
+          subject: this._db.v("subject"),
+          predicate: this._db.v("predicate"),
+          object: this._db.v("object"),
+        },
+        async (error, list) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          for (const item of list) {
+            await new Promise((del_resolve, del_reject) => {
+              this._db.del(item, (del_error, dresult) => {
+                if (del_error) del_reject(del_error);
+                else del_resolve();
+              });
+            });
+          }
+          resolve();
+        }
+      )
+    );
+  }
 };

@@ -61,12 +61,6 @@ export const handle_put = async (
     const subject = quad.subject.id;
     const predicate = quad.predicate.id;
     const object = quad.object.id;
-    console.log(
-      `INSERTING subject, predicate, object`,
-      subject,
-      predicate,
-      object
-    );
 
     await graph.insert({ subject, predicate, object });
   }

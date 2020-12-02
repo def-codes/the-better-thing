@@ -4,6 +4,7 @@ import { STATUS } from "@def.codes/simple-http-server";
 import type { Request, Response } from "@def.codes/simple-http-server";
 import type { DatasetContext } from "../../api";
 import { read_graph_identifier } from "../graph-identification";
+import type { Consumable } from "sparql-engine/dist/operators/update/consumer";
 
 /**
  * 5.4 HTTP DELETE
@@ -24,7 +25,25 @@ export const handle_delete = async (
   if (!target_graph) return STATUS.BAD_REQUEST;
 
   if (target_graph === "default") {
-    // Clear the default graph?  hmm
+    const default_graph = dataset.getDefaultGraph();
+
+    // This is an assert fail.  There should always be a default graph.
+    if (!default_graph) {
+      return STATUS.NOT_FOUND;
+    }
+
+    /**
+     * According to the Graph Store HTTP Protocol, calling `DELETE` on `default`
+     * “is equivalent to `DROP DEFAULT`”
+     *
+     * According to [§ 3.2.2 of “SPARQL 1.1
+     * Update”](https://www.w3.org/TR/sparql11-update/#drop)
+     *
+     * > `DROP DEFAULT` is equivalent to `CLEAR DEFAULT`.
+     */
+    // WARNING!  Deletes the default graph from a dataset without confirmation.
+    const executor = context.plan_builder.build("CLEAR DEFAULT") as Consumable;
+    await executor.execute();
   } else {
     /**
      * > If there is no such RDF graph content in the Graph Store, the server
@@ -33,6 +52,8 @@ export const handle_delete = async (
     if (!dataset.hasNamedGraph(target_graph.iri)) {
       return STATUS.NOT_FOUND;
     }
+
+    dataset.deleteNamedGraph(target_graph.iri);
   }
 
   /**
