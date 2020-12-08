@@ -3,7 +3,7 @@ const {
   with_static_files,
   with_path_mount,
 } = require("@def.codes/simple-http-server");
-const { make_kb_context } = require("./kb/make-kb-context");
+const { make_kb_context } = require("./kb/make-kb-context-n3");
 const {
   sparql_protocol,
   graph_store_protocol,
