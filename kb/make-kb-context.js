@@ -33,6 +33,7 @@ const make_kb_context = options => {
 
   // This is required for PUT/POST operations in Graph Store Protocol
   dataset.setGraphFactory(iri => {
+    console.log(`GRAPH FACTORY ${iri}`);
     const graph = new LevelRDFGraph(db);
     // TODO: but what if it already has this?
     dataset.addNamedGraph(iri, graph);
