@@ -1,0 +1,12 @@
+@base <ex://hello/> .
+@prefix : <ex://vocab/> .
+
+<Alice> a :Person ;
+    :name "Alice" ;
+     :loves <Carol> .
+<Bob> a :Person ;
+    :name "Bob" ;
+    :loves <Alice> .
+<Carol> a :Person ;
+    :name "Carol" ;
+    :loves <Alice> .

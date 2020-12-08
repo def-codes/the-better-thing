@@ -4,8 +4,10 @@
 import * as WebSocket from "ws";
 import * as _path from "path";
 
-import { serialize_query, Handler } from "@def.codes/simple-http-server";
+import { Handler } from "@def.codes/simple-http-server";
 import { identity, delayed } from "@thi.ng/compose";
+
+import * as querystring from "querystring";
 
 import {
   System,
@@ -216,7 +218,7 @@ const reflection_server_main: GeneratorProcess = function* (
   // Open up a browser (via the shell) to the site that you're serving.  That
   // site should be configured to contact the mothership
   const params = { [reflection.SOCKET_PORT_KEY]: socket_port };
-  const query = serialize_query(params);
+  const query = querystring.encode(params);
   const reflection_site_address = `http://localhost:${site_port}?${query}`;
   const DTS = /\.d\.ts$/;
   const not_dts = s => !DTS.test(s);
