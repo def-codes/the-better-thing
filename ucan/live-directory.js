@@ -4,6 +4,7 @@
 //
 // Implementation notes: everything about this is wrong.
 const fs = require("fs");
+const path = require("path");
 const url = require("url");
 const http = require("@def.codes/simple-http-client");
 
@@ -16,49 +17,68 @@ const graph_name = filename => {
   return url.pathToFileURL(filename);
 };
 
+const put_turtle_request = (host, graph_iri, turtle) => {
+  return {
+    method: "PUT",
+    url: `${host}?graph=${encodeURIComponent(graph_iri)}`,
+    headers: {
+      "content-type": "text/turtle",
+    },
+    body: turtle,
+  };
+};
+
+const write_turtle_to_graph = (host, graph_iri, turtle) => {
+  return http.send(put_turtle_request(host, graph_iri, turtle));
+};
+
+function write_turtle_file_to_graph(host, filename) {
+  if (fs.existsSync(filename)) {
+    const graph_iri = graph_name(filename);
+    const turtle = fs.readFileSync(filename, "utf-8");
+    write_turtle_to_graph(host, graph_iri, turtle);
+  }
+}
+
+function write_file_to_graph_if_turtle(host, filename) {
+  if (TURTLE_FILE.test(filename)) {
+    write_turtle_file_to_graph(host, filename);
+  }
+}
+
 // Detect file changes in the given directory AND check for the existence of
 // changed file AND issue a PUT of its contents to a specific host using SPARQL
 // Graph Store HTTP protocol.
-function watch_directory(path) {
+function watch_directory(host, path) {
   const watcher = fs.watch(path);
   watcher.on("change", (event_type, filename) => {
     // EVENT: a file in the directory changed
+    // Need to decouple this
     // console.log(`event_type, filename`, event_type, filename);
-    if (TURTLE_FILE.test(filename)) {
-      // Let's put this to the KB
-      // Graph name is based on the filename
-      // So like yeah if we had IPC/shared mem etc, we could do this w/o HTTP
-      if (fs.existsSync(filename)) {
-        const graph_iri = graph_name(filename);
-        const body = fs.readFileSync(filename, "utf-8");
-        const put_request = {
-          method: "PUT",
-          url: `http://localhost:1234/kb/graph?graph=${encodeURIComponent(
-            graph_iri
-          )}`,
-          headers: {
-            "content-type": "text/turtle",
-          },
-          body,
-        };
-        // console.log(
-        //   `let's write this to ${graph_iri}`,
-        //   JSON.stringify(put_request, null, 2)
-        // );
-
-        http.send(put_request).then(response => {
-          console.log(`PUT response:`, response);
-        });
-      }
-    }
+    write_file_to_graph_if_turtle(host, filename);
   });
 }
 
-async function main(path) {
-  console.log(`watching`, path);
+function read_directory(host, directory) {
+  const dir = fs.readdirSync(directory);
+  for (const filename of dir) {
+    const fullpath = path.join(directory, filename);
+    write_file_to_graph_if_turtle(host, fullpath);
+  }
+}
 
-  watch_directory(path);
+async function main(host, path) {
+  // Read all the files up front
+  console.log(`reading`, path);
+  read_directory(host, path);
+
+  // Monitor files for changes
+  console.log(`watching`, path);
+  watch_directory(host, path);
 }
 
 const [, , dirname] = process.argv;
-main(dirname || ".");
+const DEFAULT_GRAPH_HOST = "http://localhost:1234/kb/graph";
+const graph_host = process.env.GRAPH_HOST || DEFAULT_GRAPH_HOST;
+
+main(graph_host, dirname || ".");
