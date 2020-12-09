@@ -49,13 +49,14 @@ function write_file_to_graph_if_turtle(host, filename) {
 // Detect file changes in the given directory AND check for the existence of
 // changed file AND issue a PUT of its contents to a specific host using SPARQL
 // Graph Store HTTP protocol.
-function watch_directory(host, path) {
-  const watcher = fs.watch(path);
+function watch_directory(host, directory) {
+  const watcher = fs.watch(directory);
   watcher.on("change", (event_type, filename) => {
     // EVENT: a file in the directory changed
     // Need to decouple this
-    // console.log(`event_type, filename`, event_type, filename);
-    write_file_to_graph_if_turtle(host, filename);
+    console.log(`event_type, filename`, event_type, filename);
+    const fullpath = path.join(directory, filename);
+    write_file_to_graph_if_turtle(host, fullpath);
   });
 }
 
